@@ -14,7 +14,28 @@
         android:id="@+id/nav_home"
         android:name="s.yarlykov.izisandbox.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <!--
+        Для того, чтобы нормально отрабатывала BackPress не нужно
+        добавлять никаких popUpTo/popUpToInclusive
+        -->
+        <action
+            android:id="@+id/action_nav_home_to_nav_stub"
+            app:destination="@id/nav_stub"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_nav_home_to_nav_gallery"
+            app:destination="@id/nav_gallery"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_gallery"
@@ -33,5 +54,11 @@
         android:name="s.yarlykov.izisandbox.ActivityGraph2"
         android:label="activity_graph2"
         tools:layout="@layout/activity_graph2" />
+
+    <fragment
+        android:id="@+id/nav_stub"
+        android:name="s.yarlykov.izisandbox.ui.stub.StubFragment"
+        android:label="fragment_stub"
+        tools:layout="@layout/fragment_stub" />
 
 </navigation>

@@ -1,13 +1,13 @@
-package s.yarlykov.izisandbox.ui.slideshow
+package s.yarlykov.izisandbox.ui.stub
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class SlideshowViewModel : ViewModel() {
+class StubViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is slideshow Fragment"
+        value = "This is stub Fragment"
     }
     val text: LiveData<String> = _text
 }
