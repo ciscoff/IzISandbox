@@ -5,6 +5,11 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/nav_home">
 
+    <!--
+    Коллекция Transitions
+    https://stackoverflow.com/questions/5151591/android-left-to-right-slide-animation
+    -->
+
     <fragment
         android:id="@+id/nav_home"
         android:name="s.yarlykov.izisandbox.ui.home.HomeFragment"
@@ -22,4 +27,11 @@
         android:name="s.yarlykov.izisandbox.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+
+    <activity
+        android:id="@+id/nav_graph_2"
+        android:name="s.yarlykov.izisandbox.ActivityGraph2"
+        android:label="activity_graph2"
+        tools:layout="@layout/activity_graph2" />
+
 </navigation>

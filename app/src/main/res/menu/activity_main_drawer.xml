@@ -17,4 +17,12 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/menu_slideshow" />
     </group>
+
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/nav_graph_2"
+            android:icon="@drawable/ic_iphone"
+            android:title="@string/menu_graph_2" />
+    </group>
+
 </menu>
