@@ -10,32 +10,16 @@
     https://stackoverflow.com/questions/5151591/android-left-to-right-slide-animation
     -->
 
+    <!--
+    Для того, чтобы нормально отрабатывала BackPress не нужно
+    добавлять никаких popUpTo/popUpToInclusive
+    -->
+
     <fragment
         android:id="@+id/nav_home"
         android:name="s.yarlykov.izisandbox.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home">
-
-        <!--
-        Для того, чтобы нормально отрабатывала BackPress не нужно
-        добавлять никаких popUpTo/popUpToInclusive
-        -->
-        <action
-            android:id="@+id/action_nav_home_to_nav_stub"
-            app:destination="@id/nav_stub"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_nav_home_to_nav_gallery"
-            app:destination="@id/nav_gallery"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_right"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
+        tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
@@ -60,5 +44,29 @@
         android:name="s.yarlykov.izisandbox.ui.stub.StubFragment"
         android:label="fragment_stub"
         tools:layout="@layout/fragment_stub" />
+
+    <action
+        android:id="@+id/action_to_nav_gallery"
+        app:destination="@id/nav_gallery"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <action
+        android:id="@+id/action_to_nav_slideshow"
+        app:destination="@id/nav_slideshow"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <action
+        android:id="@+id/action_to_nav_stub"
+        app:destination="@id/nav_stub"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_right" />
 
 </navigation>

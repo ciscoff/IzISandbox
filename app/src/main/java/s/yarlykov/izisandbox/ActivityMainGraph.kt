@@ -14,7 +14,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 
 class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -53,8 +52,6 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
     }
 
     private fun initViews() {
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -87,6 +84,9 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
 //        }
 //    }
 
+    /**
+     * Обработка нажатий в боковом меню.
+     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val currentDestination = navController.currentDestination
 
@@ -94,22 +94,21 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_home -> {
                 if (currentDestination?.id != R.id.nav_home) {
                     navController.popBackStack(R.id.nav_home, true)
-//                    navController.navigate(R.id.nav_home)
                 }
             }
-            R.id.action_nav_home_to_nav_gallery -> {
+            R.id.action_to_nav_gallery -> {
                 if (currentDestination?.id != R.id.nav_gallery) {
-                    navController.navigate(R.id.action_nav_home_to_nav_gallery)
+                    navController.navigate(R.id.action_to_nav_gallery)
                 }
             }
-            R.id.nav_slideshow -> {
+            R.id.action_to_nav_slideshow -> {
                 if (currentDestination?.id != R.id.nav_slideshow) {
-                    navController.navigate(R.id.nav_slideshow)
+                    navController.navigate(R.id.action_to_nav_slideshow)
                 }
             }
-            R.id.action_nav_home_to_nav_stub -> {
+            R.id.action_to_nav_stub -> {
                 if (currentDestination?.id != R.id.nav_stub) {
-                    navController.navigate(R.id.action_nav_home_to_nav_stub)
+                    navController.navigate(R.id.action_to_nav_stub)
                 }
             }
             R.id.nav_graph_2 -> {

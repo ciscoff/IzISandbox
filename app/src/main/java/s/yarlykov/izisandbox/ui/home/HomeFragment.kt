@@ -39,7 +39,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.text_home -> {
-                navController.navigate(R.id.action_nav_home_to_nav_stub)
+                navController.navigate(R.id.action_to_nav_stub)
             }
             else -> {
             }
