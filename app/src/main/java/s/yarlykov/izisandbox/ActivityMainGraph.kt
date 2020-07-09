@@ -3,6 +3,7 @@ package s.yarlykov.izisandbox
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,7 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+//        setupWindowAnimations()
 
         findView()
         setSupportActionBar(toolbar)
@@ -93,7 +95,11 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
         when (item.itemId) {
             R.id.nav_home -> {
                 if (currentDestination?.id != R.id.nav_home) {
-                    navController.popBackStack(R.id.nav_home, true)
+                    /**
+                     * Возврат в начало графа выполнять с помощью destination,
+                     * которое является самим графом. Его корнем, а не startDestination.
+                     */
+                    navController.popBackStack(R.id.mobile_navigation, false)
                 }
             }
             R.id.action_to_nav_gallery -> {
@@ -111,17 +117,19 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     navController.navigate(R.id.action_to_nav_stub)
                 }
             }
-            R.id.nav_graph_2 -> {
-
-                val intent = Intent(this, ActivityGraph2::class.java)
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
-                finish()
+            R.id.action_to_graph_2 -> {
+                navController.navigate(R.id.action_to_graph_2)
+//                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
             }
         }
 
         drawerLayout.closeDrawer(GravityCompat.START)
 
         return true
+    }
 
+    private fun setupWindowAnimations() {
+        val slide = TransitionInflater.from(this).inflateTransition(R.transition.activity_slide)
+        window.exitTransition = slide
     }
 }
