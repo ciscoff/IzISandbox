@@ -69,13 +69,22 @@
         app:popEnterAnim="@anim/slide_in_right"
         app:popExitAnim="@anim/slide_out_right" />
 
-    <action
-        android:id="@+id/action_to_graph_2"
-        app:destination="@id/nav_graph_2"/>
+    <!--
+    Вот такая анимация не работает !
+    Нужно использовать ресурсы @anim, а не @transition
+    https://stackoverflow.com/questions/19008808/java-lang-runtimeexception-unknown-animation-name-objectanimator
+    -->
 <!--    <action-->
 <!--        android:id="@+id/action_to_graph_2"-->
 <!--        app:destination="@id/nav_graph_2"-->
 <!--        app:enterAnim="@transition/activity_slide"-->
 <!--        app:exitAnim="@transition/activity_fade" />-->
+
+    <!-- Вот правильная анимация -->
+    <action
+        android:id="@+id/action_to_graph_2"
+        app:destination="@id/nav_graph_2"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_left"/>
 
 </navigation>
