@@ -17,31 +17,31 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="s.yarlykov.izisandbox.ui.home.HomeFragment"
+        android:name="s.yarlykov.izisandbox.navgraph.fragments.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="s.yarlykov.izisandbox.ui.gallery.GalleryFragment"
+        android:name="s.yarlykov.izisandbox.navgraph.fragments.gallery.GalleryFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="s.yarlykov.izisandbox.ui.slideshow.SlideshowFragment"
+        android:name="s.yarlykov.izisandbox.navgraph.fragments.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
 
     <activity
         android:id="@+id/nav_graph_2"
-        android:name="s.yarlykov.izisandbox.ActivityGraph2"
+        android:name="s.yarlykov.izisandbox.navgraph.ActivityGraph2"
         android:label="activity_graph2"
         tools:layout="@layout/activity_graph2" />
 
     <fragment
         android:id="@+id/nav_stub"
-        android:name="s.yarlykov.izisandbox.ui.stub.StubFragment"
+        android:name="s.yarlykov.izisandbox.navgraph.fragments.stub.StubFragment"
         android:label="fragment_stub"
         tools:layout="@layout/fragment_stub" />
 
@@ -74,17 +74,26 @@
     Нужно использовать ресурсы @anim, а не @transition
     https://stackoverflow.com/questions/19008808/java-lang-runtimeexception-unknown-animation-name-objectanimator
     -->
-<!--    <action-->
-<!--        android:id="@+id/action_to_graph_2"-->
-<!--        app:destination="@id/nav_graph_2"-->
-<!--        app:enterAnim="@transition/activity_slide"-->
-<!--        app:exitAnim="@transition/activity_fade" />-->
+    <!--    <action-->
+    <!--        android:id="@+id/action_to_graph_2"-->
+    <!--        app:destination="@id/nav_graph_2"-->
+    <!--        app:enterAnim="@transition/activity_slide"-->
+    <!--        app:exitAnim="@transition/activity_fade" />-->
 
-    <!-- Вот правильная анимация -->
+    <!--
+    Вот правильные enterAnim/exitAnim анимации.
+    Pop-анимация для смены активитей, которая здесь определена, должна быть дополнена
+    кодом в самих активити. Если просто в XML задать popEnterAnim/popExitAnim, то
+    ничего не сработает. Нужный код смотри в обеих активити в пепеопределенных
+    методах finish(). Также см. тут в самом низу:
+    https://developer.android.com/guide/navigation/navigation-animate-transitions
+     -->
     <action
         android:id="@+id/action_to_graph_2"
         app:destination="@id/nav_graph_2"
         app:enterAnim="@anim/slide_in_left"
-        app:exitAnim="@anim/slide_out_left"/>
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_right" />
 
 </navigation>

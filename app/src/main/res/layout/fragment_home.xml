@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp"
-    tools:context=".ui.home.HomeFragment">
+    tools:context=".navgraph.fragments.home.HomeFragment">
 
     <Button
         android:id="@+id/button_to_stub"

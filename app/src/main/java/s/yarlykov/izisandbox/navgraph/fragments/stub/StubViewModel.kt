@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.ui.stub
+package s.yarlykov.izisandbox.navgraph.fragments.stub
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

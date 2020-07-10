@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.ui.slideshow
+package s.yarlykov.izisandbox.navgraph.fragments.stub
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,21 +10,21 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import s.yarlykov.izisandbox.R
 
-class SlideshowFragment : Fragment() {
+class StubFragment : Fragment() {
 
-    private lateinit var slideshowViewModel: SlideshowViewModel
+    private lateinit var stubViewModel: StubViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        slideshowViewModel =
-            ViewModelProvider(this).get(SlideshowViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_slideshow, container, false)
+        stubViewModel =
+            ViewModelProvider(this).get(StubViewModel::class.java)
+        val root = inflater.inflate(R.layout.fragment_stub, container, false)
 
-        val textView: TextView = root.findViewById(R.id.text_slideshow)
-        slideshowViewModel.text.observe(viewLifecycleOwner, Observer {
+        val textView: TextView = root.findViewById(R.id.text_stub)
+        stubViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
         return root

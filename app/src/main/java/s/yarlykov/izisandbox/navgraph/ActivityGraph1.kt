@@ -1,7 +1,5 @@
-package s.yarlykov.izisandbox
+package s.yarlykov.izisandbox.navgraph
 
-import android.app.ActivityOptions
-import android.content.Intent
 import android.os.Bundle
 import android.transition.TransitionInflater
 import android.view.Menu
@@ -10,14 +8,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.navigation.NavigationView
+import s.yarlykov.izisandbox.R
 
-class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class ActivityGraph1 : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawerLayout: DrawerLayout
@@ -27,23 +27,17 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_graph1)
 //        setupWindowAnimations()
 
         findView()
         setSupportActionBar(toolbar)
         initViews()
+    }
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
-            ), drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-//        navView.setupWithNavController(navController)
-        navView.setNavigationItemSelectedListener(this)
+    override fun finish() {
+        super.finish()
+        ActivityNavigator.applyPopAnimationsToPendingTransition(this)
     }
 
     private fun findView() {
@@ -53,7 +47,20 @@ class ActivityMainGraph : AppCompatActivity(), NavigationView.OnNavigationItemSe
         navController = findNavController(R.id.nav_host_fragment)
     }
 
+    /**
+     * Passing each menu ID as a set of Ids because each
+     * menu should be considered as top level destinations.
+     */
     private fun initViews() {
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_home,
+                R.id.nav_gallery,
+                R.id.nav_slideshow
+            ), drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setNavigationItemSelectedListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

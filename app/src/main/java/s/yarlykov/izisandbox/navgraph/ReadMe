@@ -1,0 +1,9 @@
+Итак, все анимации для Navgraph задаются через @anim. Нельзя использовать
+анимации @transition. Для смены графа (переход в другую активити) анимация
+также задается через action, но Pop-анимация из action XML дополняется кодом в
+методах finish() обеих активити.
+
+Дополнительно:
+-------------------------------------------------------------
+https://stackoverflow.com/questions/19008808/java-lang-runtimeexception-unknown-animation-name-objectanimator
+https://www.reddit.com/r/androiddev/comments/8wqjzv/difference_between_animation_and_transitions_api/

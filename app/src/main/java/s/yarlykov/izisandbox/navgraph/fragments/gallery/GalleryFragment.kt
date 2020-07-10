@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.ui.gallery
+package s.yarlykov.izisandbox.navgraph.fragments.gallery
 
 import android.os.Bundle
 import android.view.LayoutInflater
