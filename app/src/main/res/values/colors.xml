@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
+    <color name="color_card_stroke">@android:color/darker_gray</color>
+
 </resources>
