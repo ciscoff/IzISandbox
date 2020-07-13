@@ -11,6 +11,7 @@
     <string name="title_gallery">Gallery</string>
     <string name="title_slideshow">Slideshow</string>
     <string name="title_graph_2">Next Graph</string>
+    <string name="shared_transition_red_ball">shared_transition_red_ball</string>
 
     <string name="notification_click_anywhere">Click anywhere to start activity</string>
 
@@ -19,6 +20,7 @@
 
     <string name="menu_nav_graph">Navigation and Animations</string>
     <string name="menu_activity_transitions_1">Transitioning activities</string>
+    <string name="menu_shared_views">Activities shared views</string>
 
     <string name="text_graph_2">Graph 2</string>
 </resources>

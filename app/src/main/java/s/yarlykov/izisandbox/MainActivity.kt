@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
+import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.using_window.ActivityFrom
 
 class MainActivity : AppCompatActivity() {
@@ -16,7 +17,8 @@ class MainActivity : AppCompatActivity() {
 
     private val stages = mapOf(
         ActivityGraph1::class.java to R.string.menu_nav_graph,
-        ActivityFrom::class.java to R.string.menu_activity_transitions_1
+        ActivityFrom::class.java to R.string.menu_activity_transitions_1,
+        ActivitySharedFrom::class.java to R.string.menu_shared_views
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
