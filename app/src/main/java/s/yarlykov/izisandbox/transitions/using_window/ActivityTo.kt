@@ -13,13 +13,14 @@ import s.yarlykov.izisandbox.R
 class ActivityTo : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setupWindowAnimations()
+
+        /**
+         * Нужно делать до вызова setContentView(layout_id)
+         */
 
         with(window) {
-//            requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
-            requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
 
-            setContentView(R.layout.activity_to)
+            requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
             enterTransition = Fade(Fade.IN).apply {
                 duration = 500
             }
@@ -27,6 +28,8 @@ class ActivityTo : AppCompatActivity() {
 //                duration = 500
 //            }
         }
+
+        setContentView(R.layout.activity_to)
     }
 
     companion object {

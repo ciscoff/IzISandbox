@@ -12,6 +12,8 @@
     <string name="title_slideshow">Slideshow</string>
     <string name="title_graph_2">Next Graph</string>
 
+    <string name="notification_click_anywhere">Click anywhere to start activity</string>
+
     <string name="button_to_stub">To Stub Fragment</string>
     <string name="button_to_graph_2">To next graph</string>
 
