@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="40dp"
-    tools:context=".navgraph.ActivityGraph2">
+    android:padding="40dp">
 
     <View
-        android:id="@+id/view_red"
+        android:id="@+id/view_colored"
         android:layout_width="160dp"
         android:layout_height="160dp"
         android:layout_margin="12dp"
         android:background="@drawable/shape_oval_red"
-        android:transitionName="@string/shared_transition_red_ball" />
+        android:transitionName="@string/shared_transition_colored" />
 
 </LinearLayout>

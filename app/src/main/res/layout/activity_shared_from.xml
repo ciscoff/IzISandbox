@@ -1,49 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical|start"
-    android:orientation="vertical"
-    tools:context=".navgraph.ActivityGraph2">
+    android:orientation="vertical">
 
     <View
+        android:id="@+id/view_colored_blue"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:transitionName="@string/shared_transition_colored"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/shape_oval_blue" />
+        android:background="@drawable/shape_oval_blue"/>
 
     <Space
         android:layout_width="10dp"
         android:layout_height="12dp" />
 
     <View
+        android:id="@+id/view_colored_green"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:transitionName="@string/shared_transition_colored"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/shape_oval_green" />
+        android:background="@drawable/shape_oval_green"/>
 
     <Space
         android:layout_width="10dp"
         android:layout_height="12dp" />
 
     <View
-        android:id="@+id/view_red"
+        android:id="@+id/view_colored_red"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/shape_oval_red"
-        android:transitionName="@string/shared_transition_red_ball" />
+        android:transitionName="@string/shared_transition_colored" />
 
     <Space
         android:layout_width="10dp"
         android:layout_height="12dp" />
 
     <View
+        android:id="@+id/view_colored_orange"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:transitionName="@string/shared_transition_colored"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/shape_oval_orange" />
+        android:background="@drawable/shape_oval_orange"/>
 
 </LinearLayout>
