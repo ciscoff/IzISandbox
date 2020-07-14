@@ -15,6 +15,6 @@
         android:layout_height="160dp"
         android:layout_margin="12dp"
         android:background="@drawable/shape_oval_red"
-        android:transitionName="red_ball" />
+        android:transitionName="@string/shared_transition_red_ball" />
 
 </LinearLayout>

@@ -4,36 +4,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="40dp"
     android:gravity="center_vertical|start"
     android:orientation="vertical"
     tools:context=".navgraph.ActivityGraph2">
 
-
     <View
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="12dp"
+        android:layout_gravity="center_horizontal"
         android:background="@drawable/shape_oval_blue" />
 
+    <Space
+        android:layout_width="10dp"
+        android:layout_height="12dp" />
+
     <View
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="12dp"
+        android:layout_gravity="center_horizontal"
         android:background="@drawable/shape_oval_green" />
+
+    <Space
+        android:layout_width="10dp"
+        android:layout_height="12dp" />
 
     <View
         android:id="@+id/view_red"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="12dp"
-        android:transitionName="red_ball"
-        android:background="@drawable/shape_oval_red" />
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/shape_oval_red"
+        android:transitionName="@string/shared_transition_red_ball" />
+
+    <Space
+        android:layout_width="10dp"
+        android:layout_height="12dp" />
 
     <View
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="12dp"
+        android:layout_gravity="center_horizontal"
         android:background="@drawable/shape_oval_orange" />
 
 </LinearLayout>

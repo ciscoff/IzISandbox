@@ -21,13 +21,13 @@ class ActivitySharedFrom : AppCompatActivity() {
         }
     }
 
-    private val onClickListener: (View) -> Unit = { view ->
+    private val onClickListener: (View) -> Unit = { sharedView ->
 
         val intent = Intent(this@ActivitySharedFrom, ActivitySharedTo::class.java)
 
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
             this@ActivitySharedFrom,
-            view,
+            sharedView,
             getString(R.string.shared_transition_red_ball)
         )
         startActivity(intent, options.toBundle())
