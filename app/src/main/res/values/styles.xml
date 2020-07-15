@@ -13,7 +13,12 @@
         <item name="colorPrimaryDark">#512DA8</item>
         <item name="colorAccent">#9E9E9E</item>
 
+        <!-- Включить поддержку анимаций -->
         <item name="android:windowContentTransitions">true</item>
+
+        <!-- Разрешить "наложение" (одновременное выполнение) анимаций -->
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
 
         <!-- specify enter and exit transitions -->
         <item name="android:windowEnterTransition">@transition/slide_left_transition</item>
