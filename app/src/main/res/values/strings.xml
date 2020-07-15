@@ -24,7 +24,8 @@
 
     <string name="menu_nav_graph">Navigation and Animations</string>
     <string name="menu_activity_transitions_1">Transitioning activities</string>
-    <string name="menu_shared_views">Activities shared views</string>
+    <string name="menu_activities_shared_views">Activities shared views</string>
+    <string name="menu_fragments_shared_views">Fragments shared views</string>
 
     <string name="text_graph_2">Graph 2</string>
 </resources>

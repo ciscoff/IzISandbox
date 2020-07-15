@@ -28,6 +28,10 @@ class ActivitySharedFrom : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shared_from)
 
+        /**
+         * Нам нужно знать transitionName, которую присвоили нашим sharedViews.
+         * Сами transitions для sharedView определены в теме Activity.
+         */
         val transitionName = getString(R.string.shared_transition_colored)
 
         for(i in child.indices) {

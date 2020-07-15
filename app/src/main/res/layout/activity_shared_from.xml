@@ -9,9 +9,9 @@
         android:id="@+id/view_colored_blue"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:transitionName="@string/shared_transition_colored"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/shape_oval_blue"/>
+        android:background="@drawable/shape_oval_blue"
+        android:transitionName="@string/shared_transition_colored" />
 
     <Space
         android:layout_width="10dp"
@@ -21,9 +21,9 @@
         android:id="@+id/view_colored_green"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:transitionName="@string/shared_transition_colored"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/shape_oval_green"/>
+        android:background="@drawable/shape_oval_green"
+        android:transitionName="@string/shared_transition_colored" />
 
     <Space
         android:layout_width="10dp"
@@ -45,8 +45,8 @@
         android:id="@+id/view_colored_orange"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:transitionName="@string/shared_transition_colored"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/shape_oval_orange"/>
+        android:background="@drawable/shape_oval_orange"
+        android:transitionName="@string/shared_transition_colored" />
 
 </LinearLayout>

@@ -9,6 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".transitions.shared_with_fragments.ActivityWithFragments"></activity>
         <activity
             android:name=".transitions.shared_with_activities.ActivitySharedTo"
             android:theme="@style/AppThemeTransitions" />
