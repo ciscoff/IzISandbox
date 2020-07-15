@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:text="@string/ui_login_phone" />
+
+    <EditText
+        android:id="@+id/txInputPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_vertical_margin" />
+
+    <TextView
+        android:id="@+id/tv_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ui_login_password" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:passwordToggleEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/txInputPass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/anim_logo"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/avd_logo_progressbar" />
+
+    </FrameLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_vertical_margin" />
+
+    <Button
+        android:id="@+id/btn_auth"
+        style="@style/AppTheme.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ui_btn_register_send" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <CheckBox
+        android:id="@+id/cb_remember"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/login_remember"
+        android:textColor="?attr/colorAccent" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <TextView
+        android:id="@+id/linkToWeb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ui_message_confidence"
+        android:textAlignment="center" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/activity_vertical_spacing" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_link_account_register"
+            android:textAlignment="textStart" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/linkAccountRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ui_btn_register"
+            android:textAlignment="textEnd" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_vertical|end"
+            android:text="@string/runtime_mode" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/mode_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </LinearLayout>
+
+    <!--    style="?android:attr/borderlessButtonStyle" -->
+    <!--    <Button-->
+    <!--        android:id="@+id/button_send"-->
+    <!--        style="@style/AppTheme.Button.ModeSelector"-->
+    <!--        android:layout_marginStart="20dp"-->
+    <!--        android:layout_marginEnd="20dp"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="center"-->
+    <!--        android:text="TEST"-->
+    <!--        android:textColor="?attr/colorAccent" />-->
+
+    <Button
+        android:id="@+id/button_mode"
+        style="?android:attr/borderlessButtonStyle"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/btn_select_mode"
+        android:textSize="12sp"
+        android:textColor="?attr/colorPrimaryDark" />
+
+</LinearLayout>
