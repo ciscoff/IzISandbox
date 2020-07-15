@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="org.inowave.planning.planningmaster.presentation.boot.BootstrapActivity">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/anim_logo"
@@ -18,7 +17,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-
         app:srcCompat="@drawable/avd_logo_progressbar_gray"
         tools:srcCompat="@drawable/anonymous" />
 

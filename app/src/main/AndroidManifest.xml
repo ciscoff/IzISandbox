@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".transitions.shared_with_fragments.ActivityWithFragments"></activity>
+
+        <activity android:name=".transitions.shared_with_fragments.ActivityWithFragments" />
         <activity
             android:name=".transitions.shared_with_activities.ActivitySharedTo"
             android:theme="@style/AppThemeTransitions" />
@@ -26,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".izilogin.IziLoginActivity"/>
         <activity android:name=".navgraph.ActivityGraph1" />
         <activity android:name=".navgraph.ActivityGraph2" />
         <activity android:name=".transitions.using_window.ActivityTo" />

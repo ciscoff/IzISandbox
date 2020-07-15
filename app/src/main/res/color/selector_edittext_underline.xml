@@ -3,3 +3,5 @@
     <item android:color="@color/colorAccentUi" android:state_focused="true" />
     <item android:color="@android:color/darker_gray" />
 </selector>
+
+    <!-- Пробовал применить в EditText для backgroundTint. Не пригодилось -->

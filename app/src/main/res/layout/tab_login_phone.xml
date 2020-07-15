@@ -8,14 +8,23 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
+        android:background="@android:color/white"
         android:text="@string/ui_login_phone" />
 
+    <!--
+    Что потребовалось:
+    Для того, чтобы цвет линии под текстом в момент ввода был правильным
+    потребовалось создать отдельный стиль (LoginEditTextTheme) и применить
+    его не как style="", а как android:theme="". Тогда заработало.
+    -->
+
     <EditText
-        android:id="@+id/txInputPhone"
+        android:id="@+id/phone_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="phone" />
+        android:autofillHints="@null"
+        android:inputType="phone"
+        android:theme="@style/LoginEditTextTheme" />
 
     <Space
         android:layout_width="match_parent"
@@ -31,14 +40,31 @@
         android:layout_width="match_parent"
         android:layout_height="60dp">
 
+        <!--
+        Основная проблема: при переходе на Material-тему изменилось взаимное расположение
+        вводимого текста пароля и правой иконки (Password Toggle) - он перестали быть по центру.
+
+        Пришлось просмотреть вот это https://material.io/develop/android/components/text-fields,
+        но ничего полезного не нашел кроме ссылок на исходники тем и стилей.
+        https://github.com/material-components/material-components-android/blob/master/lib/java/com/google/android/material/textfield/res/values/attrs.xml
+        https://github.com/material-components/material-components-android/blob/master/lib/java/com/google/android/material/textfield/res/values/styles.xml
+
+        В итоге был найдем стиль, который задает для TextInputEditText равные падинги сверху и снизу.
+        В общем он подошел.
+        -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:counterEnabled="false"
+            app:hintEnabled="false"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txInputPass"
+                android:id="@+id/pass_input"
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword" />
@@ -51,7 +77,7 @@
             android:layout_gravity="center"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:srcCompat="@drawable/avd_logo_progressbar" />
 
     </FrameLayout>
@@ -60,24 +86,35 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/activity_vertical_margin" />
 
+    <!--
+     Для правильной отрисовки background потребовалось добавить
+     app:backgroundTint="@null"
+     Источник: https://github.com/material-components/material-components-android/issues/889
+    -->
     <Button
         android:id="@+id/btn_auth"
         style="@style/AppTheme.Button.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/ui_btn_register_send" />
+        android:text="@string/ui_btn_register_send"
+        app:backgroundTint="@null" />
 
     <Space
         android:layout_width="match_parent"
         android:layout_height="12dp" />
 
+    <!--
+    Потребовалось добавить тему, чтобы сменить цвет выделения.
+    android:theme="@style/CheckBoxTheme"
+    -->
     <CheckBox
         android:id="@+id/cb_remember"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="@string/login_remember"
-        android:textColor="?attr/colorAccent" />
+        android:text="@string/ui_login_remember"
+        android:textColor="@color/colorAccentUi"
+        android:theme="@style/LoginCheckBoxTheme" />
 
     <Space
         android:layout_width="match_parent"
@@ -132,7 +169,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center_vertical|end"
-            android:text="@string/runtime_mode" />
+            android:text="@string/ui_runtime_mode" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/mode_switch"
@@ -146,28 +183,16 @@
 
     </LinearLayout>
 
-    <!--    style="?android:attr/borderlessButtonStyle" -->
-    <!--    <Button-->
-    <!--        android:id="@+id/button_send"-->
-    <!--        style="@style/AppTheme.Button.ModeSelector"-->
-    <!--        android:layout_marginStart="20dp"-->
-    <!--        android:layout_marginEnd="20dp"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="center"-->
-    <!--        android:text="TEST"-->
-    <!--        android:textColor="?attr/colorAccent" />-->
-
     <Button
         android:id="@+id/button_mode"
         style="?android:attr/borderlessButtonStyle"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/btn_select_mode"
-        android:textSize="12sp"
-        android:textColor="?attr/colorPrimaryDark" />
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:text="@string/ui_btn_select_mode"
+        android:textColor="?attr/colorPrimaryDark"
+        android:textSize="12sp" />
 
 </LinearLayout>

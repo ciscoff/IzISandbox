@@ -22,10 +22,27 @@
     <string name="button_to_stub">To Stub Fragment</string>
     <string name="button_to_graph_2">To next graph</string>
 
+    <string name="menu_izi_login">iZiLogin Example</string>
     <string name="menu_nav_graph">Navigation and Animations</string>
     <string name="menu_activity_transitions_1">Transitioning activities</string>
     <string name="menu_activities_shared_views">Activities shared views</string>
     <string name="menu_fragments_shared_views">Fragments shared views</string>
 
+    <!-- Navigation menu -->
+    <string name="menu_nav_bootstrap">Bootstrap</string>
+    <string name="menu_nav_auth">Auth</string>
+
     <string name="text_graph_2">Graph 2</string>
+
+<!--    Login UI-->
+    <string name="ui_login_phone">Phone</string>
+    <string name="ui_runtime_mode">Testing</string>
+    <string name="ui_login_password">Password</string>
+    <string name="ui_btn_select_mode">Select Mode</string>
+    <string name="ui_btn_register_send">Send</string>
+    <string name="ui_login_remember">Remember Me</string>
+    <string name="ui_btn_register">Register</string>
+    <string name="ui_link_account_register">No account yet?</string>
+    <string name="ui_message_confidence">By authorizing, you agree to the <a href="http://inowave.website/">Terms and Privacy Policy</a></string>
+
 </resources>

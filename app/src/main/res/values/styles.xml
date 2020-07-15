@@ -5,6 +5,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- Added for Auth Ui-->
+        <item name="android:textColorLink">@color/colorAccentUi</item>
+
     </style>
 
     <style name="AppThemeTransitions" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -37,5 +41,27 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
+    <!--    Login UI styles -->
+    <!-- ===================================== -->
+    <style name="AppTheme.Button" parent="Widget.AppCompat.Button">
+        <item name="android:padding">@dimen/activity_horizontal_margin</item>
+    </style>
+
+    <style name="AppTheme.Button.Colored" parent="AppTheme">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/background_round_btn</item>
+    </style>
+
+    <!-- EditText underline and cursor colors -->
+    <style name="LoginEditTextTheme" parent="AppTheme">
+        <item name="colorAccent">@color/colorAccentUi</item>
+    </style>
+
+    <!-- Тема для Checkbox -->
+    <style name="LoginCheckBoxTheme" parent="AppTheme">
+        <item name="colorOnSurface">@android:color/darker_gray</item>
+        <item name="colorAccent">@color/colorAccentUi</item>
+    </style>
 
 </resources>

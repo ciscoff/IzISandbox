@@ -6,4 +6,11 @@
 
     <color name="color_card_stroke">@android:color/darker_gray</color>
 
+<!--    Logon UI -->
+    <color name="colorIconDark">#333</color>
+    <color name="colorAccentPress">#FF8000</color>
+    <color name="colorAccentUi">#4BBAC5</color>
+    <color name="colorIcon">#888</color>
+    <color name="colorAuthSnackBar">#6b71e3</color>
+
 </resources>

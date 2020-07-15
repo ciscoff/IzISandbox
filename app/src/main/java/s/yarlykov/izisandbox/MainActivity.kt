@@ -3,9 +3,11 @@ package s.yarlykov.izisandbox
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
+import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
+        IziLoginActivity::class.java to R.string.menu_izi_login,
         ActivityGraph1::class.java to R.string.menu_nav_graph,
         ActivityFrom::class.java to R.string.menu_activity_transitions_1,
         ActivitySharedFrom::class.java to R.string.menu_activities_shared_views,
@@ -26,6 +29,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Скрываем Status Bar
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         findView()
         inflateMenu(cardsContainer, stages)
