@@ -28,6 +28,8 @@ class ActivitySharedFrom : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shared_from)
 
+        val transitionName = getString(R.string.shared_transition_colored)
+
         for(i in child.indices) {
 
             findViewById<View>(child[i]).apply {
@@ -35,7 +37,7 @@ class ActivitySharedFrom : AppCompatActivity() {
                 isFocusable = true
                 setOnClickListener(
                     clickListenerFabric(
-                        R.string.shared_transition_colored,
+                        transitionName,
                         colors[i]
                     )
                 )
@@ -43,7 +45,7 @@ class ActivitySharedFrom : AppCompatActivity() {
         }
     }
 
-    private fun clickListenerFabric(sharedNameId: Int, backgroundColorId: Int): (View) -> Unit {
+    private fun clickListenerFabric(transitionName: String, backgroundColorId: Int): (View) -> Unit {
 
         val activity = this@ActivitySharedFrom
 
@@ -59,7 +61,7 @@ class ActivitySharedFrom : AppCompatActivity() {
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 activity,
                 sharedView,
-                getString(sharedNameId)
+                transitionName
             )
             startActivity(intent, options.toBundle())
         }
