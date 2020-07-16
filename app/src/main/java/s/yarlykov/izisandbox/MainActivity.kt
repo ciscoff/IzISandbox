@@ -7,6 +7,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
+import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
@@ -23,7 +24,8 @@ class MainActivity : AppCompatActivity() {
         ActivityGraph1::class.java to R.string.menu_nav_graph,
         ActivityFrom::class.java to R.string.menu_activity_transitions_1,
         ActivitySharedFrom::class.java to R.string.menu_activities_shared_views,
-        ActivityWithFragments::class.java to R.string.menu_fragments_shared_views
+        ActivityWithFragments::class.java to R.string.menu_fragments_shared_views,
+        DialogsActivity::class.java to R.string.menu_dialogs
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

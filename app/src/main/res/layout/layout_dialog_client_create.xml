@@ -2,16 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_round_dialog"
     android:orientation="vertical">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_fio"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_margin="12dp">
+        android:layout_margin="12dp"
+        android:hint="@string/client_input_fio">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_fio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -27,6 +29,7 @@
         <AutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/client_input_type"
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -41,8 +44,33 @@
         <AutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/client_input_source"
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="12dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/phones_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+
+    </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/action_ok"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:text="@string/action_ok"
+        android:textColor="@color/colorAccentUi" />
 
 </LinearLayout>

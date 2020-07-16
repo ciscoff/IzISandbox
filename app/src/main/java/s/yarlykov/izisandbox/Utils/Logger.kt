@@ -1,4 +1,4 @@
-package org.inowave.planning.planningmaster.utils
+package s.yarlykov.izisandbox.Utils
 
 import android.util.Log
 import com.google.gson.Gson

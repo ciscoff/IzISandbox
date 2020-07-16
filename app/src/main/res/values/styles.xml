@@ -64,4 +64,6 @@
         <item name="colorAccent">@color/colorAccentUi</item>
     </style>
 
+    <!-- Dialogs -->
+    <!-- ===================================== -->
 </resources>
