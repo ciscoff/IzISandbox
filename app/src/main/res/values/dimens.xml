@@ -9,4 +9,7 @@
 <!--    Logon UI -->
     <dimen name="activity_vertical_spacing">32dp</dimen>
     <dimen name="button_round">25dp</dimen>
+
+    <dimen name="radius_1">10dp</dimen>
+    <dimen name="radius_2">20dp</dimen>
 </resources>

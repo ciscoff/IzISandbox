@@ -28,6 +28,7 @@
     <string name="menu_activities_shared_views">Activities shared views</string>
     <string name="menu_fragments_shared_views">Fragments shared views</string>
     <string name="menu_dialogs">Dialog Examples</string>
+    <string name="menu_themes">UI Themes</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap">Bootstrap</string>
@@ -58,5 +59,11 @@
 
     <!-- Actions/Buttons -->
     <string name="action_ok">ok</string>
+
+    <string name="name_anna">Anna</string>
+    <string name="name_maria">Maria</string>
+    <string name="name_georgy">Georgy</string>
+    <string name="name_hint">Kid name</string>
+    <string name="parent_hint">Parent</string>
 
 </resources>

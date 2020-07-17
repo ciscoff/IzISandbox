@@ -10,6 +10,7 @@ import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
+import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
 import s.yarlykov.izisandbox.transitions.using_window.ActivityFrom
@@ -25,7 +26,8 @@ class MainActivity : AppCompatActivity() {
         ActivityFrom::class.java to R.string.menu_activity_transitions_1,
         ActivitySharedFrom::class.java to R.string.menu_activities_shared_views,
         ActivityWithFragments::class.java to R.string.menu_fragments_shared_views,
-        DialogsActivity::class.java to R.string.menu_dialogs
+        DialogsActivity::class.java to R.string.menu_dialogs,
+        ThemeActivity::class.java to R.string.menu_themes
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

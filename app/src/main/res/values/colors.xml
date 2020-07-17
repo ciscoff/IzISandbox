@@ -12,5 +12,6 @@
     <color name="colorAccentUi">#4BBAC5</color>
     <color name="colorIcon">#888</color>
     <color name="colorAuthSnackBar">#6b71e3</color>
+    <color name="colorCyan">#4BBAC5</color>
 
 </resources>

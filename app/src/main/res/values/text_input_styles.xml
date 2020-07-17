@@ -1,2 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+
+    <!--
+     Список настраиваемых стилей можно посмотреть здесь
+     https://stackoverflow.com/questions/55357407/how-to-change-material-textinputlayout-outlinedbox-unfocused-color
+    -->
+
+    <style name="PlainTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Цвет рамки когда элемент в ФОКУСЕ-->
+        <item name="colorPrimary">@color/colorCyan</item>
+        <!-- Цвет мигающего курсора и "капли" под ним -->
+        <item name="colorControlActivated">@color/colorAccentUi</item>
+    </style>
+
+
+    <style name="CustomTextInputOverlay" parent="ThemeOverlay.MaterialComponents.TextInputEditText">
+        <!-- Цвет рамки когда элемент в ФОКУСЕ-->
+        <item name="colorPrimary">@android:color/holo_green_dark</item>
+        <!-- Цвет рамкм и подсказки в ней когда элемент НЕ В ФОКУСЕ -->
+        <item name="colorOnSurface">@android:color/holo_blue_dark</item>
+        <!-- Цвет мигающего курсора и "капли" под ним -->
+        <item name="colorControlActivated">@color/colorAccentPress</item>
+
+        <!--
+        Радиусы закругления контуров элемента:
+         - углов рамки у элементов OutlinedBox
+         - углов фона у элементов FilledBox
+         - углов рамки у элементов ExposedDropdownMenu
+        -->
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_2</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_2</item>
+
+        <!--        ??? Не работает-->
+        <item name="boxBackgroundColor">#FFEB3B</item>
+        <!--        ??? Не работает-->
+        <item name="boxStrokeColor">@color/colorAccent</item>
+    </style>
+
+</resources>
