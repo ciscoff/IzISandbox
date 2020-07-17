@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Dialog.AllCorners.Rounded" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">
+            @style/ShapeAppearanceOverlay.Dialog.AllCorners.Rounded
+        </item>
+        <item name="colorSurface">@android:color/white</item>
+    </style>
+
+    <style name="Dialog.LeftTop.BottomRight.Rounded" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">
+            @style/ShapeAppearanceOverlay.Dialog.LeftTop.BottomRight.Rounded
+        </item>
+        <item name="colorSurface">@android:color/white</item>
+    </style>
+
+    <!--    Все углы закруглены -->
+    <style name="ShapeAppearanceOverlay.Dialog.AllCorners.Rounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!--    Закруглены левый верхний и правый нижний -->
+    <style name="ShapeAppearanceOverlay.Dialog.LeftTop.BottomRight.Rounded" parent="">
+        <item name="cornerFamilyTopLeft">rounded</item>
+        <item name="cornerFamilyBottomRight">rounded</item>
+        <item name="cornerSizeTopLeft">20dp</item>
+        <item name="cornerSizeBottomRight">20dp</item>
+    </style>
+
+</resources>
