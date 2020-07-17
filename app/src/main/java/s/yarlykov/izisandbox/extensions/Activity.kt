@@ -16,12 +16,12 @@ import s.yarlykov.izisandbox.R
 fun Activity.createRegistrationFormDialog() {
 
     fun inflatePhoneView(container: ViewGroup) {
-        val root = layoutInflater.inflate(R.layout.layout_item_add_phone, container, true)
+        val root = layoutInflater.inflate(R.layout.layout_item_add_phone_v1, container, true)
 
         val phoneView = root.findViewById<EditText>(R.id.input_phone)
         phoneView.bindPhoneMask()
 
-        root.findViewById<ImageView>(R.id.delete_phone).setOnClickListener {
+        root.findViewById<ImageView>(R.id.phone_control).setOnClickListener {
 
             if (container.childCount > 1) {
                 root.visibility = View.GONE

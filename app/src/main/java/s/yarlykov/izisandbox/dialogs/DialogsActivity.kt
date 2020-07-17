@@ -29,6 +29,8 @@ class DialogsActivity : AppCompatActivity() {
     }
 
     private fun createDialog() {
-        this.createRegistrationFormDialog()
+        RegistrationDialog(this, layoutInflater).show()
+
+//        this.createRegistrationFormDialog()
     }
 }

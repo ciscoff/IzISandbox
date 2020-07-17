@@ -1,42 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp">
+    app:endIconContentDescription="@null"
+    app:endIconDrawable="@drawable/ic_add"
+    app:endIconMode="custom"
+    app:startIconDrawable="@drawable/ic_phone">
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/input_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:startIconDrawable="@drawable/ic_phone">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/input_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="phone"
-            android:textSize="14sp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <FrameLayout
-        android:layout_width="?attr/actionBarSize"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_gravity="center_vertical|end"
-        android:clickable="true"
-        android:focusable="true">
-
-        <ImageView
-            android:id="@+id/phone_control"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="@null"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_delete" />
-
-    </FrameLayout>
-
-</FrameLayout>
+        android:inputType="phone"
+        android:textSize="14sp" />
+</com.google.android.material.textfield.TextInputLayout>
