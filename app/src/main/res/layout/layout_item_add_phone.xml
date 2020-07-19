@@ -7,7 +7,8 @@
     app:endIconContentDescription="@null"
     app:endIconDrawable="@drawable/ic_add"
     app:endIconMode="custom"
-    app:startIconDrawable="@drawable/ic_phone">
+    app:startIconDrawable="@drawable/ic_phone"
+    android:theme="@style/PhoneTextInput">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/input_phone"

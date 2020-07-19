@@ -6,7 +6,7 @@
      https://stackoverflow.com/questions/55357407/how-to-change-material-textinputlayout-outlinedbox-unfocused-color
     -->
 
-    <style name="PlainTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <style name="PhoneTextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <!-- Цвет рамки когда элемент в ФОКУСЕ-->
         <item name="colorPrimary">@color/colorCyan</item>
         <!-- Цвет мигающего курсора и "капли" под ним -->
@@ -35,6 +35,17 @@
         <item name="boxBackgroundColor">#FFEB3B</item>
         <!--        ??? Не работает-->
         <item name="boxStrokeColor">@color/colorAccent</item>
+    </style>
+
+    <!-- EditText underline and cursor colors -->
+    <style name="LoginEditTextTheme" parent="AppTheme">
+        <item name="colorAccent">@color/colorAccentUi</item>
+    </style>
+
+    <style name="CreateUserTextInputTheme" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="colorPrimary">@color/colorAccentUi</item>
+        <item name="colorControlNormal">@android:color/darker_gray</item>
+        <item name="colorControlActivated">@color/colorAccentUi</item>
     </style>
 
 </resources>

@@ -53,11 +53,6 @@
         <item name="android:background">@drawable/background_round_btn</item>
     </style>
 
-    <!-- EditText underline and cursor colors -->
-    <style name="LoginEditTextTheme" parent="AppTheme">
-        <item name="colorAccent">@color/colorAccentUi</item>
-    </style>
-
     <!-- Тема для Checkbox -->
     <style name="LoginCheckBoxTheme" parent="AppTheme">
         <item name="colorOnSurface">@android:color/darker_gray</item>

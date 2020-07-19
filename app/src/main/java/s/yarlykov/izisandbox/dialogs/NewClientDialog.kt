@@ -14,9 +14,9 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.bindPhoneMask
 import s.yarlykov.izisandbox.extensions.px
 
-class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
-
-    val disposable = CompositeDisposable()
+class NewClientDialog(
+    val context: Context,
+    val inflater: LayoutInflater) {
 
     private val clientTypes = context.resources.getStringArray(R.array.client_types)
     private val clientSources = context.resources.getStringArray(R.array.client_sources)
@@ -24,60 +24,55 @@ class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
     private val view = inflater.inflate(R.layout.layout_dialog_client_create, null)
 
     private val inputFio = view.findViewById<EditText>(R.id.input_fio)
-    private val inputType = view.findViewById<TextInputLayout>(R.id.input_type)
-    private val inputSource = view.findViewById<TextInputLayout>(R.id.input_source)
+    private val inputType = view.findViewById<AutoCompleteTextView>(R.id.input_type)
+    private val inputSource = view.findViewById<AutoCompleteTextView>(R.id.input_source)
     private val buttonOk = view.findViewById<Button>(R.id.action_ok)
     private val phonesContainer = view.findViewById<LinearLayout>(R.id.phones_container)
 
-    private val adapterTypes =
-        ArrayAdapter(context, R.layout.layout_client_info_list_item, clientTypes)
-    private val adapterSources =
-        ArrayAdapter(context, R.layout.layout_client_info_list_item, clientSources)
+    private val adapterTypes = ArrayAdapter(context, R.layout.layout_client_info_list_item, clientTypes)
+    private val adapterSources = ArrayAdapter(context, R.layout.layout_client_info_list_item, clientSources)
 
     private val alertDialog: AlertDialog
 
     init {
-        (inputType.editText as? AutoCompleteTextView)?.setAdapter(adapterTypes)
-        (inputSource.editText as? AutoCompleteTextView)?.setAdapter(adapterSources)
+        inputType?.setAdapter(adapterTypes)
+        inputSource?.setAdapter(adapterSources)
 
-        inflatePhoneViewV3(phonesContainer)
+        inflatePhoneInputView(phonesContainer)
 
         alertDialog = AlertDialog.Builder(context).setView(view).create().apply {
+
+            // Действие кнопки
+            setPositiveAction(this)
+
             // Задать прозрачный фон окну диалога, чтобы использовать свой фон из макета
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
-
-//        setPosition(alertDialog, 60)
     }
 
     fun show() {
         alertDialog.show()
     }
 
-    private fun phonesObserver(phone: String) {
-        inflatePhoneViewV1(phonesContainer)
-    }
+    private fun setPositiveAction(dialog: AlertDialog) {
+        buttonOk.setOnClickListener {
+            val name = inputFio.text.toString()
+            val type = inputType.text.toString()
+            val source = inputSource.text.toString()
+            val phones = getPhones(phonesContainer)
 
-    private fun inflatePhoneViewV1(container: ViewGroup) {
-        val root = inflater.inflate(R.layout.layout_item_add_phone_v1, container, true)
-        root.id = root.hashCode()
-
-        val phoneView = root.findViewById<EditText>(R.id.input_phone)
-        phoneView.bindPhoneMask()
-
-        val editText = root.findViewById<TextInputEditText>(R.id.input_phone)
-        disposable += InputObservable.fromView(editText).subscribe(::phonesObserver)
-
-        root.findViewById<ImageView>(R.id.phone_control).setOnClickListener {
-            if (container.childCount > 1) {
-                root.visibility = View.GONE
+            if (name.isNotEmpty() &&
+                type.isNotEmpty() &&
+                source.isNotEmpty() &&
+                phones.isNotEmpty()) {
+                dialog.dismiss()
             }
         }
     }
 
-    private fun inflatePhoneViewV3(container: ViewGroup) {
+    private fun inflatePhoneInputView(container: ViewGroup) {
         val root =
-            inflater.inflate(R.layout.layout_item_add_phone_v3, container, false)  as TextInputLayout
+            inflater.inflate(R.layout.layout_item_add_phone, container, false) as TextInputLayout
 
         root.apply {
             id = hashCode()
@@ -85,7 +80,7 @@ class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
             val phoneView = findViewById<EditText>(R.id.input_phone)
             phoneView.bindPhoneMask()
 
-            setEndIconOnClickListener {icon ->
+            setEndIconOnClickListener { icon ->
 
                 when {
                     // Если это иконка корзинки, то удалить элемент полностью
@@ -94,12 +89,12 @@ class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
                     }
                     // Если это иконка (+), то проверить минимальное количество символов
                     // и создать новое поле для ввода телефона. Также сменить иконку на корзинку
-                    // и пометить тегом true.
+                    // и пометить тегом true. Запретить редактирование введенного номера.
                     (icon is ImageView) -> {
-                        if(phoneView.text.length > 5) {
+                        if (phoneView.text.length > 5) {
                             icon.setImageResource(R.drawable.ic_delete)
                             icon.tag = true
-                            inflatePhoneViewV3(container)
+                            inflatePhoneInputView(container)
                             phoneView.isEnabled = false
                         }
                     }
@@ -108,6 +103,11 @@ class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
         }
 
         container.addView(root)
+
+        // Если это не самое первое воле ввода в списке, то перевести на него фокус.
+        if (container.childCount > 1) {
+            root.requestFocus()
+        }
     }
 
     private fun getPhones(ll: ViewGroup): List<String> {
@@ -119,7 +119,9 @@ class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
             if (child.visibility == View.VISIBLE) {
 
                 val phoneView = child.findViewById<EditText>(R.id.input_phone)
-                val phone = phoneView?.text.toString() ?: ""
+                val phone = phoneView?.text.toString()
+                    .replace("+", "")
+                    .replace(" ", "")
 
                 if (phone.isNotEmpty()) {
                     list.add(phone)
@@ -130,8 +132,8 @@ class RegistrationDialog(val context: Context, val inflater: LayoutInflater) {
     }
 
     /**
-     * Задать позицию диалога на экране. Она работает, но пропадают контуры
-     * окна диалога.
+     * Задать позицию диалога на экране.
+     * Просто для тестирования позиционирования внутри окна.
      */
     private fun setPosition(dialog: AlertDialog, yValue: Int, isDimBehind: Boolean = true) {
         dialog.window?.let { w ->

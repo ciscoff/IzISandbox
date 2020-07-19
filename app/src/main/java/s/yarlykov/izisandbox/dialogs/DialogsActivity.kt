@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.extensions.createRegistrationFormDialog
 
 class DialogsActivity : AppCompatActivity() {
 
@@ -29,7 +28,7 @@ class DialogsActivity : AppCompatActivity() {
     }
 
     private fun createDialog() {
-        RegistrationDialog(this, layoutInflater).show()
+        NewClientDialog(this, layoutInflater).show()
 
 //        this.createRegistrationFormDialog()
     }
