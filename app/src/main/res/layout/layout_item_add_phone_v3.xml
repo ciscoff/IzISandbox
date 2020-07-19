@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:endIconContentDescription="@null"
+    app:endIconDrawable="@drawable/ic_add"
+    app:endIconMode="custom"
+    app:startIconDrawable="@drawable/ic_phone">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/input_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:textSize="14sp" />
+</com.google.android.material.textfield.TextInputLayout>
