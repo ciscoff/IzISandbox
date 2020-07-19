@@ -18,8 +18,9 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_margin="12dp"
-            android:background="@drawable/shape_oval_orange"
-            android:transitionName="@string/shared_transition_orange_ball" />
+            android:background="@drawable/shape_oval_red"
+            android:transitionName="@string/shared_transition_red_ball" />
+
 
         <View
             android:layout_width="80dp"
@@ -41,15 +42,15 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_margin="12dp"
-            android:background="@drawable/shape_oval_green"
-            android:transitionName="@string/shared_transition_green_ball" />
+            android:background="@drawable/shape_oval_orange"
+            android:transitionName="@string/shared_transition_orange_ball" />
 
         <View
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_margin="12dp"
-            android:background="@drawable/shape_oval_red"
-            android:transitionName="@string/shared_transition_red_ball" />
+            android:background="@drawable/shape_oval_green"
+            android:transitionName="@string/shared_transition_green_ball" />
 
     </LinearLayout>
 </LinearLayout>

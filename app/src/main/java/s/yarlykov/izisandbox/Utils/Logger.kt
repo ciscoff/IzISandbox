@@ -5,7 +5,7 @@ import com.google.gson.Gson
 
 
 fun logIt(message : String, tag : String = "APP_TAG") {
-    Log.d(tag, message)
+    Log.e(tag, message)
 }
 
 fun logJson(obj : Any, message : String = "") {
