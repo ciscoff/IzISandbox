@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_from_root_id"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/shape_oval_red"
+        android:contentDescription="@null"
+        android:transitionName="@string/shared_transition_red_ball" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/shape_oval_blue"
+        android:contentDescription="@null"
+        android:transitionName="@string/shared_transition_blue_ball" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="50dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/shape_oval_orange"
+        android:contentDescription="@null"
+        android:transitionName="@string/shared_transition_orange_ball" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/shape_oval_green"
+        android:contentDescription="@null"
+        android:transitionName="@string/shared_transition_green_ball" />
+
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_weight="1"-->
+    <!--        android:gravity="bottom|center_horizontal"-->
+    <!--        android:orientation="horizontal">-->
+
+    <!--        <ImageView-->
+    <!--            android:contentDescription="@null"-->
+    <!--            android:layout_width="80dp"-->
+    <!--            android:layout_height="80dp"-->
+    <!--            android:layout_margin="12dp"-->
+    <!--            android:background="@drawable/shape_oval_red"-->
+    <!--            android:transitionName="@string/shared_transition_red_ball" />-->
+
+
+    <!--        <ImageView-->
+    <!--            android:contentDescription="@null"-->
+    <!--            android:layout_width="80dp"-->
+    <!--            android:layout_height="80dp"-->
+    <!--            android:layout_margin="12dp"-->
+    <!--            android:background="@drawable/shape_oval_blue"-->
+    <!--            android:transitionName="@string/shared_transition_blue_ball" />-->
+
+    <!--    </LinearLayout>-->
+
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_weight="1"-->
+    <!--        android:gravity="top|center_horizontal"-->
+    <!--        android:orientation="horizontal">-->
+
+    <!--        <ImageView-->
+    <!--            android:contentDescription="@null"-->
+    <!--            android:layout_width="80dp"-->
+    <!--            android:layout_height="80dp"-->
+    <!--            android:layout_margin="12dp"-->
+    <!--            android:background="@drawable/shape_oval_orange"-->
+    <!--            android:transitionName="@string/shared_transition_orange_ball" />-->
+
+    <!--        <ImageView-->
+    <!--            android:contentDescription="@null"-->
+    <!--            android:layout_width="80dp"-->
+    <!--            android:layout_height="80dp"-->
+    <!--            android:layout_margin="12dp"-->
+    <!--            android:background="@drawable/shape_oval_green"-->
+    <!--            android:transitionName="@string/shared_transition_green_ball" />-->
+    <!--    </LinearLayout>-->
+
+</FrameLayout>
+
