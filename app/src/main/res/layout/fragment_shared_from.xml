@@ -14,14 +14,16 @@
         android:gravity="bottom|center_horizontal"
         android:orientation="horizontal">
 
-        <View
+        <ImageView
+            android:contentDescription="@null"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="12dp"
             android:background="@drawable/shape_oval_blue"
             android:transitionName="@string/shared_transition_blue_ball" />
 
-        <View
+        <ImageView
+            android:contentDescription="@null"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="12dp"
@@ -36,14 +38,16 @@
         android:gravity="top|center_horizontal"
         android:orientation="horizontal">
 
-        <View
+        <ImageView
+            android:contentDescription="@null"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="12dp"
             android:background="@drawable/shape_oval_red"
             android:transitionName="@string/shared_transition_red_ball" />
 
-        <View
+        <ImageView
+            android:contentDescription="@null"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="12dp"

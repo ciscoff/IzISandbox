@@ -28,7 +28,7 @@ class FragmentFrom : Fragment() {
         val fragmentTo = FragmentTo()
 
         val transition = TransitionInflater.from(requireContext())
-            .inflateTransition(R.transition.change_bounds)
+            .inflateTransition(R.transition.slide_and_changebounds_sequential)
 
         this.sharedElementReturnTransition = transition
         fragmentTo.sharedElementEnterTransition = transition
@@ -37,7 +37,6 @@ class FragmentFrom : Fragment() {
         collectSharedViews(root, sharedViews)
 
         sharedViews.forEach {
-            logIt("Shared view's transition name is ${it.transitionName}")
             it.isClickable = true
             it.isFocusable = true
 
