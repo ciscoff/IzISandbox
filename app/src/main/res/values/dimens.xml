@@ -12,4 +12,7 @@
 
     <dimen name="radius_1">10dp</dimen>
     <dimen name="radius_2">20dp</dimen>
+
+    <dimen name="touch_helper_bucket_icon_size">28dp</dimen>
+    <dimen name="touch_helper_bucket_icon_margin_x_axis">40dp</dimen>
 </resources>
