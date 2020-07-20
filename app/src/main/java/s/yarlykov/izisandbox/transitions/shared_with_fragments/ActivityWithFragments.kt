@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.transitions.shared_with_fragments.one_container
+package s.yarlykov.izisandbox.transitions.shared_with_fragments
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,8 +7,6 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.google.android.flexbox.FlexboxLayout
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.transitions.shared_with_fragments.FragmentFrom
-import s.yarlykov.izisandbox.transitions.shared_with_fragments.FragmentLogo
 
 class ActivityWithFragments : AppCompatActivity() {
 
@@ -43,7 +41,6 @@ class ActivityWithFragments : AppCompatActivity() {
         buttonExample2.setOnClickListener {
             navigateTo(FragmentFrom::class.java, R.layout.fragment_shared_from_2)
         }
-
     }
 
     private fun initFragment(savedInstanceState: Bundle?) {
@@ -60,7 +57,9 @@ class ActivityWithFragments : AppCompatActivity() {
 
         val fragment = clazz.getConstructor().newInstance() as Fragment
 
-        fragment.arguments?.putInt(FragmentFrom.KEY_LAYOUT_ID_FROM, layoutId)
+        fragment.arguments = Bundle().apply {
+            putInt(FragmentFrom.KEY_LAYOUT_ID_FROM, layoutId)
+        }
 
         supportFragmentManager
             .beginTransaction()

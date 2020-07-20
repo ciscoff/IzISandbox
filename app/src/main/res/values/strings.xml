@@ -11,6 +11,7 @@
     <string name="title_gallery">Gallery</string>
     <string name="title_slideshow">Slideshow</string>
     <string name="title_graph_2">Next Graph</string>
+    <string name="title_select_example">Select Example</string>
     <string name="shared_transition_colored">shared_transition_colored</string>
     <string name="shared_transition_red_ball">shared_transition_red_ball</string>
     <string name="shared_transition_blue_ball">shared_transition_blue_ball</string>
@@ -59,6 +60,8 @@
 
     <!-- Actions/Buttons -->
     <string name="action_ok">ok</string>
+    <string name="action_example_1">Two layouts</string>
+    <string name="action_example_2">One layout</string>
 
     <string name="name_anna">Anna</string>
     <string name="name_maria">Maria</string>
