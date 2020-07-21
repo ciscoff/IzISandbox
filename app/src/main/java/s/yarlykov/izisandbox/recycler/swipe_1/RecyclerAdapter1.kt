@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe
+package s.yarlykov.izisandbox.recycler.swipe_1
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,6 +9,7 @@ class RecyclerAdapter(private val model: MutableList<String>) : RecyclerView.Ada
     ItemTouchHelperAdapter {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+
         return RecyclerViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.layout_item_recycler,
