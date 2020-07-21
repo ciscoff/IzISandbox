@@ -6,7 +6,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
 
 class RecyclerViewHolder2(
     private val listItem: View,
@@ -15,15 +14,19 @@ class RecyclerViewHolder2(
 
     private val textView = listItem.findViewById<TextView>(R.id.tv_title)
     private val upperLayer = listItem.findViewById<LinearLayout>(R.id.upper_layer)
-    private val buttonDelete = listItem.findViewById<ImageView>(R.id.delete_row)
+    private val buttonDelete1 = listItem.findViewById<ImageView>(R.id.delete_row_1)
+    private val buttonDelete2 = listItem.findViewById<ImageView>(R.id.delete_row_2)
 
     fun bind(data: String) {
         textView.text = data
 
-        upperLayer.setOnTouchListener(DragGestureHandler(upperLayer))
-        buttonDelete.setOnClickListener {
+        upperLayer.setOnTouchListener(DragGestureToLeftHandler(upperLayer))
+
+        buttonDelete1.setOnClickListener {
             callback(adapterPosition)
         }
-
+        buttonDelete2.setOnClickListener {
+            callback(adapterPosition)
+        }
     }
 }

@@ -9,7 +9,7 @@ import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.Utils.logIt
 import kotlin.math.abs
 
-class DragGestureHandler(private val view: View) : View.OnTouchListener {
+class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
 
     enum class Position {
         Start,

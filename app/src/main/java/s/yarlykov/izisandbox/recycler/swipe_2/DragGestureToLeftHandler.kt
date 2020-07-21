@@ -9,7 +9,7 @@ import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.Utils.logIt
 import kotlin.math.abs
 
-class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
+class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
 
     enum class Position {
         Start,
@@ -54,6 +54,7 @@ class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
 
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                logIt("ACTION_DOWN")
                 v.parent.requestDisallowInterceptTouchEvent(true)
 
                 if(currentPosition == Position.Start) {
@@ -68,11 +69,11 @@ class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
                 true
             }
             MotionEvent.ACTION_MOVE -> {
-                logIt("view.x=${v.x}, view.width=${view.width}")
+                logIt("ACTION_MOVE")
 
                 when(currentPosition) {
                     Position.Start -> {
-                        if(event.rawX > rawTouchDownX && view.x >=0 && view.x < view.width/2) {
+                        if(event.rawX < rawTouchDownX && abs(view.x) < view.width/2) {
                             v.animate()
                                 .x(event.rawX + dX)
                                 .setDuration(0)
@@ -80,7 +81,7 @@ class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
                         }
                     }
                     Position.Waiting -> {
-                        if(event.rawX > viewGlobalX && event.rawX < rawTouchDownX && view.x >= 0) {
+                        if(event.rawX > rawTouchDownX && view.x <= 0) {
 
                             /**
                              * event.rawX - это абс координаты относительно границ экрана.
@@ -96,8 +97,10 @@ class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
                              * вернуть её обратно в положительную область, используем abs(shift).
                              */
                             val shift = event.rawX + dX
+//                            logIt("view.x=${v.x}, event.rawX=${event.rawX}, dX=$dX, rawTouchDownX=$rawTouchDownX, shift=$shift")
+
                             v.animate()
-                                .x(abs(shift))
+                                .x(shift)
                                 .setDuration(0)
                                 .start()
                         }
@@ -107,16 +110,18 @@ class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
                 true
             }
             MotionEvent.ACTION_UP -> {
+                logIt("ACTION_UP")
                 v.parent.requestDisallowInterceptTouchEvent(false)
 
                 when(currentPosition) {
                     Position.Start -> {
-                        if(view.x > 0 && view.x < view.width && (event.rawX > rawTouchDownX)) {
-                            animator((view.width/2).toFloat(), duration, animateToWaitPosition).start()
+                        logIt("abs(view.x)=${abs(view.x)}, event.rawX=${event.rawX}, rawTouchDownX=$rawTouchDownX")
+                        if(abs(view.x) < view.width) {
+                            animator(-(view.width/2).toFloat(), duration, animateToWaitPosition).start()
                         }
                     }
                     Position.Waiting -> {
-                        if(view.x > 0 && view.x < view.width/2) {
+                        if(abs(view.x) < view.width/2 && (event.rawX > rawTouchDownX)) {
                             animator(0f, duration, animateToStartPosition).start()
                         }
                     }
