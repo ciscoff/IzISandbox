@@ -23,7 +23,7 @@
         android:textAllCaps="true"
         android:textColor="@android:color/white" />
 
-    <!-- quick and dirty divider -->
+    <!-- Horizontal Bottom 1dp divider line -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

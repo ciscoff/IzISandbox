@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe
+package s.yarlykov.izisandbox.recycler.swipe_1
 
 interface ItemTouchHelperAdapter {
     fun onItemDismiss(position : Int)

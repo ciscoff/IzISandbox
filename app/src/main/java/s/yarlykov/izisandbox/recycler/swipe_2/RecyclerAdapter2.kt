@@ -1,38 +1,34 @@
-package s.yarlykov.izisandbox.recycler.swipe_1
+package s.yarlykov.izisandbox.recycler.swipe_2
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.recycler.swipe_1.ItemTouchHelperAdapter
+import s.yarlykov.izisandbox.recycler.swipe_1.RecyclerViewHolder1
 
-class RecyclerAdapter1(private val model: MutableList<String>) : RecyclerView.Adapter<RecyclerViewHolder>(),
-    ItemTouchHelperAdapter {
+class RecyclerAdapter2(private val model: MutableList<String>) :
+    RecyclerView.Adapter<RecyclerViewHolder2>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder2 {
 
-        return RecyclerViewHolder(
+        return RecyclerViewHolder2(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.layout_item_recycler_1,
+                R.layout.layout_item_recycler_2,
                 parent,
                 false
-            )
+            ), ::onDeleteEventHandler
         )
     }
 
     override fun getItemCount(): Int = model.size
 
-    override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerViewHolder2, position: Int) {
         holder.bind(model[position])
-
     }
 
-    override fun onItemDismiss(position: Int) {
+    private fun onDeleteEventHandler(position: Int) {
         model.removeAt(position)
         notifyItemRemoved(position)
-
-    }
-
-    override fun onItemMove(fromPosition: Int, toPosition: Int) {
-
     }
 }

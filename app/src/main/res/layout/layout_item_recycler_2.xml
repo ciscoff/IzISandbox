@@ -1,19 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:layout_margin="2dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/color_card_stroke"
-    app:strokeWidth="1dp">
+    android:padding="2dp">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <LinearLayout
+        android:id="@+id/under_layer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_gravity="center" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/background_rounded_red"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="12dp">
 
-</com.google.android.material.card.MaterialCardView>
+        <ImageView
+            android:id="@+id/delete_row"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@null"
+            android:focusable="true"
+            app:srcCompat="@drawable/vd_delete_white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/upper_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/background_rounded_white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="start|center_vertical"
+            tools:text="Hello, Dolly" />
+    </LinearLayout>
+
+</FrameLayout>
+
+

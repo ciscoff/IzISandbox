@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
 
-class RecyclerViewHolder (private val listItem: View) : RecyclerView.ViewHolder(listItem) {
+class RecyclerViewHolder1 (private val listItem: View) : RecyclerView.ViewHolder(listItem) {
 
     private val textView = listItem.findViewById<TextView>(R.id.tv_title)
 
