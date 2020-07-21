@@ -10,7 +10,7 @@ import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
-import s.yarlykov.izisandbox.recycler.SwipeAndDropActivity
+import s.yarlykov.izisandbox.recycler.swipe.SwipeAndDropActivity
 import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments

@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler
+package s.yarlykov.izisandbox.recycler.swipe
 
 import android.content.Context
 import android.graphics.Canvas
@@ -36,6 +36,11 @@ class ItemTouchHelperCallback(
     private val iconMarginX = context.dimensionPix(R.dimen.touch_helper_bucket_icon_margin_x_axis)
     private val iconDelete = ContextCompat.getDrawable(context, R.drawable.vd_delete_icon)
 
+    /**
+     * Переменная замораживает элемент в промежуточном положении
+     */
+    private var isFrozen = false
+
     override fun getMovementFlags(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
@@ -54,7 +59,6 @@ class ItemTouchHelperCallback(
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        logIt("onSwiped")
         adapter.onItemDismiss(viewHolder.adapterPosition)
     }
 
@@ -62,21 +66,16 @@ class ItemTouchHelperCallback(
         return false
     }
 
+    /**
+     * Это основная фича !
+     * Короче, метод вызывается каждый раз, когда я собираюсь потянуть пальцем
+     * на очередном элементе. Фактически это запрос свайпа для конкретного элемента.
+     * И вот здесь можно временно приостановить свайп для всех остальных элементов
+     * кроме того, кто поменял значение isFrozen на true. Для него свайп сохранится,
+     * так как он ранее уже ответил true, а остальные подождут.
+     */
     override fun isItemViewSwipeEnabled(): Boolean {
-        return true
-    }
-
-    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-//        when(actionState) {
-//            ItemTouchHelper.ACTION_STATE_SWIPE -> {
-//
-//                (viewHolder as RecyclerViewHolder).itemView.animate().translationX(300f).apply {
-//                    duration = 500L
-//                }.start()
-//            }
-//
-//        }
-        super.onSelectedChanged(viewHolder, actionState)
+        return !isFrozen
     }
 
     /**
@@ -115,6 +114,12 @@ class ItemTouchHelperCallback(
     ) {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
+
+        /**
+         * Этот метод (как ни странно) вызывается для элементов, которые уже swiped.
+         * Поэтому игнорим такие вызовы.
+         */
+        if (viewHolder.adapterPosition == -1) return
 
         val itemView = viewHolder.itemView
 
@@ -172,9 +177,8 @@ class ItemTouchHelperCallback(
         when (actionState) {
             ItemTouchHelper.ACTION_STATE_SWIPE -> {
                 if (dX < itemView.width / 3) {
-                    logIt("dX < itemView.width / 3, dX=$dX, isCurrentlyActive=$isCurrentlyActive")
 
-                    isFinite = false
+                    isFrozen = false
                     return super.onChildDraw(
                         canvas,
                         recyclerView,
@@ -184,13 +188,8 @@ class ItemTouchHelperCallback(
                         actionState,
                         isCurrentlyActive
                     )
-                } else {
-                    itemView.animation?.let {
-                        it.cancel()
-                    }
-                    itemView.clearAnimation()
-                    logIt("dX > itemView.width / 3, dX=$dX, isCurrentlyActive=$isCurrentlyActive")
-                    isFinite = true
+                } else if (!isFrozen) {
+                    isFrozen = true
                 }
             }
         }
@@ -221,8 +220,12 @@ class ItemTouchHelperCallback(
         return Pair(iconLeft, iconRight)
     }
 
-    private var isFinite = false
-
+    /**
+     * Метод вызывается перед тем как нужно включить анимацию, которая либо вернет
+     * элемент в исходное состояние, либо просвайпит до конца.
+     * Устанавливая animation duration в Long.MAX_VALUE мы замораживаем положение элемента
+     * в его текущем промежуточном состоянии.
+     */
     override fun getAnimationDuration(
         recyclerView: RecyclerView,
         animationType: Int,
@@ -230,7 +233,7 @@ class ItemTouchHelperCallback(
         animateDy: Float
     ): Long {
 
-        return if (isFinite) {
+        return if (isFrozen) {
             Long.MAX_VALUE
         } else {
             super.getAnimationDuration(recyclerView, animationType, animateDx, animateDy)

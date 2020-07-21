@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler
+package s.yarlykov.izisandbox.recycler.swipe
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
