@@ -11,6 +11,7 @@
     <string name="title_gallery">Gallery</string>
     <string name="title_slideshow">Slideshow</string>
     <string name="title_graph_2">Next Graph</string>
+    <string name="title_select_example">Select Example</string>
     <string name="shared_transition_colored">shared_transition_colored</string>
     <string name="shared_transition_red_ball">shared_transition_red_ball</string>
     <string name="shared_transition_blue_ball">shared_transition_blue_ball</string>
@@ -29,6 +30,7 @@
     <string name="menu_fragments_shared_views">Fragments shared views</string>
     <string name="menu_dialogs">Dialog Examples</string>
     <string name="menu_themes">UI Themes</string>
+    <string name="menu_swipe_drop">Swipe and Drop</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap">Bootstrap</string>
@@ -59,11 +61,25 @@
 
     <!-- Actions/Buttons -->
     <string name="action_ok">ok</string>
+    <string name="action_example_1">Two layouts</string>
+    <string name="action_example_2">One layout</string>
 
     <string name="name_anna">Anna</string>
     <string name="name_maria">Maria</string>
     <string name="name_georgy">Georgy</string>
     <string name="name_hint">Kid name</string>
     <string name="parent_hint">Parent</string>
+
+
+    <string name="list_item_0">Laravel</string>
+    <string name="list_item_1">Ruby on Rails</string>
+    <string name="list_item_2">Django</string>
+    <string name="list_item_3">Angular</string>
+    <string name="list_item_4">ASP.NET</string>
+    <string name="list_item_5">METEOR</string>
+    <string name="list_item_6">Express</string>
+    <string name="list_item_7">Spring</string>
+    <string name="list_item_8">PLAY</string>
+    <string name="list_item_9">CodeIgniter</string>
 
 </resources>
