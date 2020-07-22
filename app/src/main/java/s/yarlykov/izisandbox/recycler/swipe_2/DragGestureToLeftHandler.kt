@@ -3,11 +3,12 @@ package s.yarlykov.izisandbox.recycler.swipe_2
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.graphics.Rect
-import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.recycler.helpers.LocalAnimatorListener
+import s.yarlykov.izisandbox.recycler.helpers.LongPress
 import kotlin.math.abs
 
 class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
@@ -75,7 +76,7 @@ class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
             MotionEvent.ACTION_MOVE -> {
                 logIt("Enter in ACTION_MOVE")
 
-                if(LongPress.event) {
+                if(LongPress.isOccurred) {
                     logIt("Start moving ACTION_MOVE")
                     v.parent.requestDisallowInterceptTouchEvent(true)
 
@@ -98,7 +99,7 @@ class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
                                  * https://github.com/ciscoff/CircleRecycler/blob/stage_03/app/src/main/java/s/yzrlykov/circlerecycler/stages/s03_1/Activity03Layouts.kt
                                  *
                                  * v.animate().x - это НЕ АБСОЛЮТНОЕ ЗНАЧЕНИЕ, а знаковое смещение от
-                                 * начального, установленного в фазе layout. То есть анимация заключается
+                                 * базового, установленного в фазе layout. То есть анимация заключается
                                  * в том, чтобы менять это смещение относительно базовой позиции.
                                  *
                                  * Если shift отрицательный, то картинка уйдет влево за экран. Чтобы
@@ -125,7 +126,7 @@ class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
                 logIt("ACTION_UP")
                 v.parent.requestDisallowInterceptTouchEvent(false)
 
-                if(LongPress.event) {
+                if(LongPress.isOccurred) {
                     when(currentPosition) {
                         Position.Start -> {
                             logIt("abs(view.x)=${abs(view.x)}, event.rawX=${event.rawX}, rawTouchDownX=$rawTouchDownX")
@@ -152,56 +153,10 @@ class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
                     false
                 }
             }
+            // Unknown MotionEvent
             else -> {
                 false
             }
         }
-    }
-
-    object LongPress {
-
-        var event = false
-
-        private val handler = Handler()
-        private val callback = {
-            event = true
-            logIt("LONG PRESS")
-        }
-
-        fun set() {
-            handler.postDelayed(callback, 300)
-        }
-
-        fun reset() {
-            handler.removeCallbacksAndMessages(null)
-            event = false
-        }
-
-        fun restart() {
-            reset()
-            set()
-        }
-    }
-
-
-
-    /**
-     * Шаблон для переопределения Animator.AnimatorListener
-     */
-    private inner class LocalAnimatorListener(
-        private val onStart: () -> Unit,
-        private val onEnd: () -> Unit
-    ) : Animator.AnimatorListener {
-
-        override fun onAnimationStart(animation: Animator?) {
-            onStart()
-        }
-
-        override fun onAnimationEnd(animation: Animator?) {
-            onEnd()
-        }
-
-        override fun onAnimationRepeat(animation: Animator?) {}
-        override fun onAnimationCancel(animation: Animator?) {}
     }
 }

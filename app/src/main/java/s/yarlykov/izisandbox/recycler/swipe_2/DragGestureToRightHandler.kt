@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.recycler.helpers.LocalAnimatorListener
 import kotlin.math.abs
 
 class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
@@ -137,24 +138,4 @@ class DragGestureToRightHandler(private val view: View) : View.OnTouchListener {
 
     }
 
-
-    /**
-     * Шаблон для переопределения Animator.AnimatorListener
-     */
-    private inner class LocalAnimatorListener(
-        private val onStart: () -> Unit,
-        private val onEnd: () -> Unit
-    ) : Animator.AnimatorListener {
-
-        override fun onAnimationStart(animation: Animator?) {
-            onStart()
-        }
-
-        override fun onAnimationEnd(animation: Animator?) {
-            onEnd()
-        }
-
-        override fun onAnimationRepeat(animation: Animator?) {}
-        override fun onAnimationCancel(animation: Animator?) {}
-    }
 }
