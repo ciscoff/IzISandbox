@@ -24,9 +24,11 @@ class RecyclerViewHolder2(
 
         buttonDelete1.setOnClickListener {
             callback(adapterPosition)
+            upperLayer.translationX = 0f
         }
         buttonDelete2.setOnClickListener {
             callback(adapterPosition)
+            upperLayer.translationX = 0f
         }
     }
 }
