@@ -25,6 +25,16 @@
         <item>@string/list_item_7</item>
         <item>@string/list_item_8</item>
         <item>@string/list_item_9</item>
+        <item>@string/list_item_0</item>
+        <item>@string/list_item_1</item>
+        <item>@string/list_item_2</item>
+        <item>@string/list_item_3</item>
+        <item>@string/list_item_4</item>
+        <item>@string/list_item_5</item>
+        <item>@string/list_item_6</item>
+        <item>@string/list_item_7</item>
+        <item>@string/list_item_8</item>
+        <item>@string/list_item_9</item>
     </string-array>
 
 </resources>

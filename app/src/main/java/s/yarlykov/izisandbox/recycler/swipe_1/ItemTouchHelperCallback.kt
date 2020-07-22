@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe
+package s.yarlykov.izisandbox.recycler.swipe_1
 
 import android.content.Context
 import android.graphics.Canvas
@@ -102,6 +102,9 @@ class ItemTouchHelperCallback(
 
     /**
      * Рисуем фон на освобождающемся месте и поверх него иконку корзинки удаления
+     *
+     * NOTE: Дефолтовая версия этого метода выполняет translate элемента
+     * на указанные dX/dY. Вот здесь: https://bit.ly/2WAxrNR
      */
     override fun onChildDraw(
         canvas: Canvas,
@@ -190,6 +193,23 @@ class ItemTouchHelperCallback(
                     )
                 } else if (!isFrozen) {
                     isFrozen = true
+                    viewHolder.itemView.apply {
+                        logIt("Turning item ${viewHolder.adapterPosition}")
+
+                        setOnTouchListener{ v, event ->
+                            logIt("Touched item ${viewHolder.adapterPosition}")
+                            parent.requestDisallowInterceptTouchEvent(true)
+                            isClickable = true
+                            isFocusable = true
+                            isEnabled = true
+                            true
+
+                        }
+
+                        isClickable = true
+                        isFocusable = true
+                        isEnabled = true
+                    }
                 }
             }
         }

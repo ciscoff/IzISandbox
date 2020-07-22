@@ -22,6 +22,7 @@
 
     <string name="button_to_stub">To Stub Fragment</string>
     <string name="button_to_graph_2">To next graph</string>
+    <string name="button_undo">undo</string>
 
     <string name="menu_izi_login">iZiLogin Example</string>
     <string name="menu_nav_graph">Navigation and Animations</string>
@@ -30,7 +31,9 @@
     <string name="menu_fragments_shared_views">Fragments shared views</string>
     <string name="menu_dialogs">Dialog Examples</string>
     <string name="menu_themes">UI Themes</string>
-    <string name="menu_swipe_drop">Swipe and Drop</string>
+    <string name="menu_swipe_with_helper">Swipe with Helper</string>
+    <string name="menu_swipe_gesture_detector">Swipe with Gesture Detector</string>
+    <string name="menu_swipe_drop_undo">Swipe and Drop and Undo</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap">Bootstrap</string>
@@ -81,5 +84,19 @@
     <string name="list_item_7">Spring</string>
     <string name="list_item_8">PLAY</string>
     <string name="list_item_9">CodeIgniter</string>
+    <string name="title_activity_swipe_with_undo">SwipeWithUndoActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <!--    Swipe undo Activity-->
+    <string name="menu_checkbox_undo">Undo</string>
+    <string name="menu_add_5_items">Add 5 items</string>
+    <string name="title_activity_rere">RereActivity</string>
 
 </resources>

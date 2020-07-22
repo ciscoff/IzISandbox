@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe
+package s.yarlykov.izisandbox.recycler.swipe_1
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 
-class SwipeAndDropActivity : AppCompatActivity() {
+class SwipeActivityFirst : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_swipe_and_drop)
+        setContentView(R.layout.activity_swipe_first)
 
         val model = resources.getStringArray(R.array.api_list).toMutableList()
 
         val adapterItems =
-            RecyclerAdapter(model)
+            RecyclerAdapter1(model)
         val itemTouchHelper = initTouchHelper(adapterItems)
 
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view).apply {
@@ -24,14 +24,14 @@ class SwipeAndDropActivity : AppCompatActivity() {
             setHasFixedSize(true)
             itemAnimator = DefaultItemAnimator()
             adapter = adapterItems
-            layoutManager = LinearLayoutManager(this@SwipeAndDropActivity)
+            layoutManager = LinearLayoutManager(this@SwipeActivityFirst)
         }
 
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
-    private fun initTouchHelper(adapter: RecyclerAdapter): ItemTouchHelper {
+    private fun initTouchHelper(adapter: RecyclerAdapter1): ItemTouchHelper {
         val callback =
             ItemTouchHelperCallback(
                 this,

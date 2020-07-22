@@ -6,7 +6,7 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
-<!--    Logon UI -->
+    <!--    Logon UI -->
     <dimen name="activity_vertical_spacing">32dp</dimen>
     <dimen name="button_round">25dp</dimen>
 
@@ -15,4 +15,8 @@
 
     <dimen name="touch_helper_bucket_icon_size">28dp</dimen>
     <dimen name="touch_helper_bucket_icon_margin_x_axis">40dp</dimen>
+
+
+    <!--    Swipe with undo activity -->
+    <dimen name="ic_clear_margin">16dp</dimen>
 </resources>
