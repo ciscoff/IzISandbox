@@ -30,7 +30,7 @@ class UsingScenesActivity : AppCompatActivity() {
         window.enterTransition =
             TransitionInflater.from(this).inflateTransition(R.transition.slide_left_transition)
 
-        window.enterTransition.addListener(object  : Transition.TransitionListener() {
+        window.enterTransition.addListener(object  : Transition.TransitionListener {
             override fun onTransitionEnd(transition: Transition?) {
                 window.enterTransition.removeListener(this)
                 TransitionManager.go(scene0)

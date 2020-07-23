@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe_1
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_1
 
 import android.content.Context
 import android.graphics.Canvas

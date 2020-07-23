@@ -6,12 +6,24 @@
 
     <color name="color_card_stroke">@android:color/darker_gray</color>
 
-<!--    Logon UI -->
+    <!--    Logon UI -->
     <color name="colorIconDark">#333</color>
     <color name="colorAccentPress">#FF8000</color>
     <color name="colorAccentUi">#4BBAC5</color>
     <color name="colorIcon">#888</color>
     <color name="colorAuthSnackBar">#6b71e3</color>
     <color name="colorCyan">#4BBAC5</color>
+    <color name="colorWhite">#FFF</color>
+    <color name="colorHalfWhite">#F4F4F4</color>
+
+    <!--    Advanced Swipe -->
+    <color name="client_state_confirmed">#4BBAC5</color>
+    <color name="client_state_waiting">#FF4866</color>
+    <color name="client_state_gray">@android:color/darker_gray</color>
+    <color name="colorOrderServices">#798EAD</color>
+    <color name="doer_state_confirmed">#4BBAC5</color>
+    <color name="doer_state_waiting">#FFC245</color>
+    <color name="doer_state_refused">#FF4866</color>
+    <color name="colorDecor11">#BC6300</color>
 
 </resources>

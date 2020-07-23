@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe_with_undo
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo
 
 import android.graphics.Color
 import android.os.Handler
@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler.swipe_with_undo.SwipeWithUndoActivity.Companion.PENDING_REMOVAL_TIMEOUT
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity.Companion.PENDING_REMOVAL_TIMEOUT
 
 class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
 

@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe_2
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_2
 
 import android.view.View
 import android.widget.ImageView

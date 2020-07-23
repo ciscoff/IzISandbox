@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe_2
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_2
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler.swipe_1.RecyclerAdapter1
 
 class SwipeActivitySecond : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -10,9 +10,10 @@ import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
-import s.yarlykov.izisandbox.recycler.swipe_1.SwipeActivityFirst
-import s.yarlykov.izisandbox.recycler.swipe_2.SwipeActivitySecond
-import s.yarlykov.izisandbox.recycler.swipe_with_undo.SwipeWithUndoActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
 import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         ThemeActivity::class.java to R.string.menu_themes,
         SwipeActivityFirst::class.java to R.string.menu_swipe_with_helper,
         SwipeActivitySecond::class.java to R.string.menu_swipe_gesture_detector,
+        SmartSwipeActivity::class.java to R.string.menu_swipe_smart,
         SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo
     )
 

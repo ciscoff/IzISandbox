@@ -16,7 +16,13 @@
     <dimen name="touch_helper_bucket_icon_size">28dp</dimen>
     <dimen name="touch_helper_bucket_icon_margin_x_axis">40dp</dimen>
 
-
     <!--    Swipe with undo activity -->
     <dimen name="ic_clear_margin">16dp</dimen>
+
+<!--    Advanced Swipe -->
+    <dimen name="order_editor_header_stroke_height">28dp</dimen>
+    <dimen name="order_editor_iv_controls">30dp</dimen>
+    <dimen name="order_editor_toolbar_iv_controls">24dp</dimen>
+    <dimen name="order_options_text_padding">6dp</dimen>
+    <dimen name="order_date_size">13sp</dimen>
 </resources>

@@ -1,11 +1,11 @@
-package s.yarlykov.izisandbox.recycler.helpers
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_3
 
 import android.animation.Animator
 
 /**
  * Шаблон для переопределения Animator.AnimatorListener
  */
-class LocalAnimatorListener(
+class AnimatorListenerTemplate(
     private val onStart: () -> Unit,
     private val onEnd: () -> Unit
 ) : Animator.AnimatorListener {
