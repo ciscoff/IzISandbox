@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="s.yarlykov.izisandbox.recycler.swipe_with_undo.FirstFragment"
+        android:name="s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.FirstFragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first">
 
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
-        android:name="s.yarlykov.izisandbox.recycler.swipe_with_undo.SecondFragment"
+        android:name="s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
 
@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/First2Fragment"
-        android:name="s.yarlykov.izisandbox.recycler.rere.First2Fragment"
+        android:name="s.yarlykov.izisandbox.recycler_and_swipes.rere.First2Fragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first2">
 
@@ -37,7 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/Second2Fragment"
-        android:name="s.yarlykov.izisandbox.recycler.rere.Second2Fragment"
+        android:name="s.yarlykov.izisandbox.recycler_and_swipes.rere.Second2Fragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second2">
 

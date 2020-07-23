@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe_with_undo
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo
 
 import android.view.View
 import android.widget.Button

@@ -59,4 +59,9 @@
         <item name="colorAccent">@color/colorAccentUi</item>
     </style>
 
+    <!--    Progress Bar-->
+    <style name="CircularProgressWhite" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@color/colorWhite</item>
+    </style>
+
 </resources>

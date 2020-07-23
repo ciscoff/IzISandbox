@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.helpers
+package s.yarlykov.izisandbox.recycler_and_swipes.helpers
 
 import android.os.Handler
 

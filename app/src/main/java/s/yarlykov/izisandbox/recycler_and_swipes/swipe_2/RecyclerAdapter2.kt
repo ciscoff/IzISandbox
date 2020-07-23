@@ -1,11 +1,9 @@
-package s.yarlykov.izisandbox.recycler.swipe_2
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_2
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler.swipe_1.ItemTouchHelperAdapter
-import s.yarlykov.izisandbox.recycler.swipe_1.RecyclerViewHolder1
 
 class RecyclerAdapter2(private val model: MutableList<String>) :
     RecyclerView.Adapter<RecyclerViewHolder2>() {

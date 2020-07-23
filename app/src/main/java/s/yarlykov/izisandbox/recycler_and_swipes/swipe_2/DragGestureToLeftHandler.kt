@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler.swipe_2
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_2
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
@@ -7,8 +7,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.Utils.logIt
-import s.yarlykov.izisandbox.recycler.helpers.LocalAnimatorListener
-import s.yarlykov.izisandbox.recycler.helpers.LongPress
+import s.yarlykov.izisandbox.recycler_and_swipes.helpers.LocalAnimatorListener
+import s.yarlykov.izisandbox.recycler_and_swipes.helpers.LongPress
 import kotlin.math.abs
 
 class DragGestureToLeftHandler(private val view: View) : View.OnTouchListener {
