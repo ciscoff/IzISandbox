@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.factories
 
+import android.animation.AnimatorInflater
 import android.graphics.Color
 import android.view.View
 import android.widget.ImageView

@@ -62,7 +62,7 @@ class TestAdapterV1 : RecyclerView.Adapter<TestViewHolder>() {
         }
     }
 
-    fun pendingRemoval(position: Int) {
+    fun putInRemoval(position: Int) {
         val item = items[position]
 
         if (!itemsPendingRemoval.contains(item)) {
