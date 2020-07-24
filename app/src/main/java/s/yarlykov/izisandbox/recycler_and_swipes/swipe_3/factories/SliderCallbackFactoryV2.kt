@@ -6,18 +6,26 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.Animators
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.DoerDatum
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.DoerRole
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.EditorAction
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.role
 
-object SliderCallbackFactoryV1 {
+object SliderCallbackFactoryV2 {
 
     /**
      * Выполняет работу с элементами UI одинаковую для доера и для ресурса.
      * Отличия только в коде, который нужно вызвать по окончании анимации
      * ухода слайдера. Код для доера и для ресурса передается через
      * swipeToLeftHandler и swipeToRightHandler.
+     *
+     * Класс обрабатывает свайпы на доерах и ресурсах внутри карточек услуг.
+     * Его задача следить за движением пальца, анимировать перемещения ползунка
+     * и через callback сообщать о завершении той или иной анимации.
+     *
+     * callback, созданный в SliderCallbackFactory, конвертирует сообщения о завершении
+     * анимации в сообщения о требуемых действиях и кидает дальше в фрагмент.
      */
     private fun createFromTemplate(
         slider: View,
@@ -27,16 +35,18 @@ object SliderCallbackFactoryV1 {
         swipeToRightHandler: () -> Unit
     ): (EditorAction) -> Unit {
 
-        val iconLeft = underLayer.findViewById<ImageView>(R.id.under_layer_icon_left_1)
-        val iconRight = underLayer.findViewById<ImageView>(R.id.under_layer_icon_right_1)
-        val textLeft = underLayer.findViewById<TextView>(R.id.under_layer_text_left_1)
-        val textRight = underLayer.findViewById<TextView>(R.id.under_layer_text_right_1)
-        val pbLeft = underLayer.findViewById<ProgressBar>(R.id.pb_left_1)
-        val pbRight = underLayer.findViewById<ProgressBar>(R.id.pb_right_1)
+        val iconLeft = underLayer.findViewById<ImageView>(R.id.under_layer_icon_left_2)
+        val iconRight = underLayer.findViewById<ImageView>(R.id.under_layer_icon_right_2)
+        val textLeft = underLayer.findViewById<TextView>(R.id.under_layer_text_left_2)
+        val textRight = underLayer.findViewById<TextView>(R.id.under_layer_text_right_2)
+        val pbLeft = underLayer.findViewById<ProgressBar>(R.id.pb_left_2)
+        val pbRight = underLayer.findViewById<ProgressBar>(R.id.pb_right_2)
         val context = underLayer.context
 
-        val whiteWithUnderline = ContextCompat.getDrawable(context, R.drawable.background_slider_round_white_underline)
-        val whiteRounded = ContextCompat.getDrawable(context, R.drawable.background_slider_round_white)
+        val whiteWithUnderline =
+            ContextCompat.getDrawable(context, R.drawable.background_slider_round_white_underline)
+        val whiteRounded =
+            ContextCompat.getDrawable(context, R.drawable.background_slider_round_white)
 
         return { action ->
             when (action) {
@@ -79,30 +89,39 @@ object SliderCallbackFactoryV1 {
                     slider.background = whiteWithUnderline
                 }
                 // Началась анимация "уход" влево
-                EditorAction.SwipeToLeftStart -> {
+                EditorAction.SwipeToLeftStarted -> {
                     textLeft.visibility = View.INVISIBLE
                     iconLeft.visibility = View.INVISIBLE
                     pbLeft.visibility = View.INVISIBLE
                     pbRight.visibility = View.VISIBLE
                 }
                 // Началась анимация "уход" вправо
-                EditorAction.SwipeToRightStart -> {
+                EditorAction.SwipeToRightStarted -> {
                     textRight.visibility = View.INVISIBLE
                     iconRight.visibility = View.INVISIBLE
                     pbRight.visibility = View.INVISIBLE
                     pbLeft.visibility = View.VISIBLE
                 }
                 // Завершение анимации
-                EditorAction.SwipeToLeftEnd -> {
+                EditorAction.SwipeToLeftEnded -> {
                     swipeToLeftHandler()
                 }
                 // Завершение анимации
-                EditorAction.SwipeToRightEnd -> {
+                EditorAction.SwipeToRightEnded -> {
                     swipeToRightHandler()
                 }
-                EditorAction.SwipeToCenterEnd -> {
+                EditorAction.SwipeToCenterEnded -> {
                     underLayer.setBackgroundResource(R.drawable.background_slider_round_white)
                     slider.background = whiteRounded
+                }
+                EditorAction.SwipeToAbove -> {
+                    underLayer.setBackgroundResource(state.rightDrawableId)
+                    Animators.scale(iconLeft, 1.0f)
+//                    Animators.color(underLayer)
+                }
+                EditorAction.SwipeToBelow -> {
+                    underLayer.setBackgroundResource(state.leftDrawableId)
+                    Animators.scale(iconLeft, 0.8f)
                 }
                 else -> {
                 }
@@ -128,14 +147,15 @@ object SliderCallbackFactoryV1 {
         val swipeToLeftHandler = {
             when (user.role()) {
                 DoerRole.Admin, DoerRole.Manager -> {
-                    // У админа анимацией вправо завершается удаление исполнителя,
+                    // У админа анимацией влево завершается удаление исполнителя,
                     // поэтому можно сразу "выключить "весь underLayer
                     (underLayer.parent as View).visibility = View.GONE
 
                     clickHandler(EditorAction.DeleteDoer, adapterPosition, doerId)
                 }
                 else -> {
-                    val editorAction = if (isConfirmed) EditorAction.RefuseAsDoer else EditorAction.ConfirmAsDoer
+                    val editorAction =
+                        if (isConfirmed) EditorAction.RefuseAsDoer else EditorAction.ConfirmAsDoer
                     clickHandler(editorAction, adapterPosition, doerId)
 
                     // У исполнителя анимацией вправо (также как и влево) запускается процесс смены

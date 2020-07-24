@@ -8,7 +8,7 @@
     android:padding="2dp">
 
     <FrameLayout
-        android:id="@+id/under_layer"
+        android:id="@+id/under_layer_1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"

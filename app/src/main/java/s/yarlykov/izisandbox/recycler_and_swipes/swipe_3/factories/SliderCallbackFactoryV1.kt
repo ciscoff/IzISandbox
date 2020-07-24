@@ -11,14 +11,21 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.DoerRole
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.EditorAction
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.role
 
-object SliderCallbackFactory {
+/**
+ * Выполняет работу с элементами UI одинаковую для доера и для ресурса.
+ * Отличия только в коде, который нужно вызвать по окончании анимации
+ * ухода слайдера. Код для доера и для ресурса передается через
+ * swipeToLeftHandler и swipeToRightHandler.
+ *
+ * Класс обрабатывает свайпы на доерах и ресурсах внутри карточек услуг.
+ * Его задача следить за движением пальца, анимировать перемещения ползунка
+ * и через callback сообщать о завершении той или иной анимации.
+ *
+ * callback, созданный в SliderCallbackFactory, конвертирует сообщения о завершении
+ * анимации в сообщения о требуемых действиях и кидает дальше в фрагмент.
+ */
+object SliderCallbackFactoryV1 {
 
-    /**
-     * Выполняет работу с элементами UI одинаковую для доера и для ресурса.
-     * Отличия только в коде, который нужно вызвать по окончании анимации
-     * ухода слайдера. Код для доера и для ресурса передается через
-     * swipeToLeftHandler и swipeToRightHandler.
-     */
     private fun createFromTemplate(
         slider: View,
         underLayer: View,
@@ -79,28 +86,28 @@ object SliderCallbackFactory {
                     slider.background = whiteWithUnderline
                 }
                 // Началась анимация "уход" влево
-                EditorAction.SwipeToLeftStart -> {
+                EditorAction.SwipeToLeftStarted -> {
                     textLeft.visibility = View.INVISIBLE
                     iconLeft.visibility = View.INVISIBLE
                     pbLeft.visibility = View.INVISIBLE
                     pbRight.visibility = View.VISIBLE
                 }
                 // Началась анимация "уход" вправо
-                EditorAction.SwipeToRightStart -> {
+                EditorAction.SwipeToRightStarted -> {
                     textRight.visibility = View.INVISIBLE
                     iconRight.visibility = View.INVISIBLE
                     pbRight.visibility = View.INVISIBLE
                     pbLeft.visibility = View.VISIBLE
                 }
                 // Завершение анимации
-                EditorAction.SwipeToLeftEnd -> {
+                EditorAction.SwipeToLeftEnded -> {
                     swipeToLeftHandler()
                 }
                 // Завершение анимации
-                EditorAction.SwipeToRightEnd -> {
+                EditorAction.SwipeToRightEnded -> {
                     swipeToRightHandler()
                 }
-                EditorAction.SwipeToCenterEnd -> {
+                EditorAction.SwipeToCenterEnded -> {
                     underLayer.setBackgroundResource(R.drawable.background_slider_round_white)
                     slider.background = whiteRounded
                 }

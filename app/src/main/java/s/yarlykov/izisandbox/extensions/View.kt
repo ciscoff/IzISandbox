@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.extensions
 
+import android.graphics.Rect
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
@@ -8,13 +9,20 @@ import s.yarlykov.izisandbox.R
 /**
  * Показать SnackBar
  */
-fun View.showSnackBarNotification(message: String, callback : Snackbar.Callback? = null) {
+fun View.showSnackBarNotification(message: String, callback: Snackbar.Callback? = null) {
     Snackbar.make(this, message, Snackbar.LENGTH_LONG).apply {
         setActionTextColor(ContextCompat.getColor(view.context, R.color.colorAccent))
 
-        callback?.let {block ->
+        callback?.let { block ->
             addCallback(block)
         }
 
     }.show()
 }
+
+val View.globLeft: Int
+    get() {
+        val rect = Rect()
+        this.getGlobalVisibleRect(rect)
+        return rect.left
+    }

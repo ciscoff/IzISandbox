@@ -13,8 +13,8 @@ import kotlin.math.abs
 /**
  * Класс обрабатывает свайпы на доерах и ресурсах внутри карточек услуг
  */
-open class StuffDragHandler(private val view: View,
-                            private val callback: (EditorAction) -> Unit) : View.OnTouchListener {
+open class StuffDragHandlerV1(private val view: View,
+                              private val callback: (EditorAction) -> Unit) : View.OnTouchListener {
     private val context = view.context
     private var dX = 0f
     private var rawTouchDownX = 0f
@@ -34,25 +34,25 @@ open class StuffDragHandler(private val view: View,
 
     // При возврате в исходную позицию отправить сообщение EditorAction.SwipeToCenterEnd
     private val animateToCenterListener = AnimatorListenerTemplate({}, onEnd = {
-        callback(EditorAction.SwipeToCenterEnd)
+        callback(EditorAction.SwipeToCenterEnded)
     })
 
     // При завершении "ухода" вправо нужно отправить сообщение EditorAction.SwipeToRight
     private val animateToRightListener = AnimatorListenerTemplate(
         onStart = {
-            callback(EditorAction.SwipeToRightStart)
+            callback(EditorAction.SwipeToRightStarted)
         },
         onEnd = {
-            callback(EditorAction.SwipeToRightEnd)
+            callback(EditorAction.SwipeToRightEnded)
         })
 
     // При завершении "ухода" влево нужно отправить сообщение EditorAction.SwipeToLeft
     private val animateToLeftListener = AnimatorListenerTemplate(
         onStart = {
-            callback(EditorAction.SwipeToLeftStart)
+            callback(EditorAction.SwipeToLeftStarted)
         },
         onEnd = {
-            callback(EditorAction.SwipeToLeftEnd)
+            callback(EditorAction.SwipeToLeftEnded)
         })
 
 
