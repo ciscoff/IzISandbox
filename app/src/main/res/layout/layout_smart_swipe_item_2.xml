@@ -36,12 +36,19 @@
         android:layout_marginBottom="4dp">
 
         <!-- under_layer -->
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/under_layer_2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/background_slider_round_white"
-            tools:visibility="visible">
+            card_view:cardCornerRadius="6dp"
+            card_view:cardElevation="0dp">
+
+            <!--        <FrameLayout-->
+            <!--            android:id="@+id/under_layer_2"-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="match_parent"-->
+            <!--            android:background="@drawable/background_slider_round_white"-->
+            <!--            tools:visibility="visible">-->
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -105,11 +112,11 @@
                 android:id="@+id/under_layer_icon_left_2"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:scaleX="0.8"
-                android:scaleY="0.8"
                 android:layout_gravity="center_vertical|start"
                 android:layout_marginStart="12dp"
                 android:contentDescription="@null"
+                android:scaleX="0.8"
+                android:scaleY="0.8"
                 android:visibility="invisible"
                 app:srcCompat="@drawable/vd_delete_white" />
 
@@ -123,7 +130,19 @@
                 android:visibility="invisible"
                 app:srcCompat="@drawable/vd_doer_white" />
 
-        </FrameLayout>
+            <!--        </FrameLayout>-->
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- middle layer
+        Это слой, у которого прозрачный фон внутри рамки с закругленными внутренними углами.
+        Требуется для того, чтобы анимировать смену цвета внутри MaterialCardView underLayer.
+        Проблема в том, что при анимаровании цвета у карты не работают cardCornerRadius
+        и приходится накладывать ещё один слой, чтобы было закругление.
+         -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/background_rounded_transparent" />
 
         <!-- upper layer -->
         <LinearLayout

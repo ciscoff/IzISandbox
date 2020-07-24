@@ -25,4 +25,9 @@
     <dimen name="order_editor_toolbar_iv_controls">24dp</dimen>
     <dimen name="order_options_text_padding">6dp</dimen>
     <dimen name="order_date_size">13sp</dimen>
+
+    <dimen name="frame_outbound_padding">-9.6dp</dimen>
+    <dimen name="frame_outbound_stroke_width">10dp</dimen>
+    <dimen name="frame_outbound_stroke_radius">10dp</dimen>
+
 </resources>

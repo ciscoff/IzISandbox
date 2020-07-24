@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-</selector>
+<!-- Тонкая рамка с закругленными внутренними углами -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="@dimen/frame_outbound_padding"
+        android:left="@dimen/frame_outbound_padding"
+        android:right="@dimen/frame_outbound_padding"
+        android:top="@dimen/frame_outbound_padding">
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="@dimen/frame_outbound_stroke_width"
+                android:color="@android:color/white" />
+            <corners android:radius="@dimen/frame_outbound_stroke_radius" />
+        </shape>
+    </item>
+</layer-list>

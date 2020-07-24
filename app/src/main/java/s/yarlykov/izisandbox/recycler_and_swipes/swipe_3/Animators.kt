@@ -4,8 +4,11 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.TransitionDrawable
 import android.view.View
 import android.view.animation.LinearInterpolator
+import androidx.cardview.widget.CardView
 import s.yarlykov.izisandbox.R
 
 object Animators {
@@ -70,6 +73,20 @@ object Animators {
             duration = defaultDuration
             addListener(listener(before, after))
         }.start()
+    }
+
+    fun cardColor(
+        view: CardView?,
+        colorFrom: Int,
+        colorTo: Int,
+        before: (() -> Unit)? = null,
+        after: (() -> Unit)? = null
+    ) {
+        val colors = arrayOf(ColorDrawable(colorFrom), ColorDrawable(colorTo))
+        val trans = TransitionDrawable(colors)
+
+        view?.background = trans
+        trans.startTransition(defaultDuration.toInt())
     }
 
     fun translateX(

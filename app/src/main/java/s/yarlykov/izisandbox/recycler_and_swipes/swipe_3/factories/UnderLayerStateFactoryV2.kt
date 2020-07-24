@@ -11,24 +11,24 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.role
  */
 object UnderLayerStateFactoryV2 {
 
-    fun createForDoer(user: DoerDatum, isConfirmed: Boolean): UnderLayerState {
+    fun createForDoer(user: DoerDatum, isConfirmed: Boolean): UnderLayerStateV2 {
         return when (user.role()) {
             DoerRole.Manager, DoerRole.Admin -> {
                 if (isConfirmed) {
-                    UnderLayerState(
-                        R.drawable.background_slider_round_blue,
+                    UnderLayerStateV2(
+                        R.color.doer_state_confirmed_light,
                         null,
                         R.drawable.vd_doer_state_white,
-                        R.drawable.background_slider_round_yellow,
+                        R.color.doer_state_waiting,
                         null,
                         R.drawable.vd_doer_state_white
                     )
                 } else {
-                    UnderLayerState(
-                        R.drawable.background_slider_round_yellow,
+                    UnderLayerStateV2(
+                        R.color.doer_state_waiting_light,
                         null,
                         R.drawable.vd_doer_state_white,
-                        R.drawable.background_slider_round_blue,
+                        R.color.doer_state_confirmed,
                         null,
                         R.drawable.vd_doer_state_white
                     )
@@ -36,20 +36,20 @@ object UnderLayerStateFactoryV2 {
             }
             else -> {
                 if (isConfirmed) {
-                    UnderLayerState(
-                        R.drawable.background_slider_round_red,
+                    UnderLayerStateV2(
+                        R.color.doer_state_refused_light,
                         R.string.doer_action_refuse,
                         null,
-                        R.drawable.background_slider_round_red,
+                        R.color.doer_state_refused,
                         R.string.doer_action_refuse,
                         null
                     )
                 } else {
-                    UnderLayerState(
-                        R.drawable.background_slider_round_blue,
+                    UnderLayerStateV2(
+                        R.color.doer_state_refused_light,
                         R.string.doer_action_confirm,
                         null,
-                        R.drawable.background_slider_round_blue,
+                        R.color.doer_state_refused,
                         R.string.doer_action_confirm,
                         null
                     )
@@ -58,10 +58,10 @@ object UnderLayerStateFactoryV2 {
         }
     }
 
-    fun createForResource(user: DoerDatum): UnderLayerState {
+    fun createForResource(user: DoerDatum): UnderLayerStateV2 {
         return when (user.role()) {
             DoerRole.Manager, DoerRole.Admin -> {
-                UnderLayerState(
+                UnderLayerStateV2(
                     R.drawable.background_slider_round_red,
                     null,
                     R.drawable.vd_delete_white,
@@ -70,7 +70,7 @@ object UnderLayerStateFactoryV2 {
                     R.drawable.vd_delete_white)
             }
             else -> {
-                UnderLayerState(R.drawable.background_slider_round_red,
+                UnderLayerStateV2(R.drawable.background_slider_round_red,
                     null,
                     null,
                     R.drawable.background_slider_round_red,

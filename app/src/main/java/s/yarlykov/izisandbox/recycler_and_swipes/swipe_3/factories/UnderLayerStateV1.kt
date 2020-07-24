@@ -3,7 +3,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.factories
 /**
  * Класс определяет состояние UI элементов нижнего слоя под слайдером
  */
-data class UnderLayerState(
+data class UnderLayerStateV1(
     val leftDrawableId: Int,
     val leftTextId: Int? = null,
     val leftIconId: Int? = null,
