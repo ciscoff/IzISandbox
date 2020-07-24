@@ -1,9 +1,11 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.factories
 
+import android.graphics.Color
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.Animators
@@ -30,7 +32,7 @@ object SliderCallbackFactoryV2 {
     private fun createFromTemplate(
         slider: View,
         underLayer: View,
-        state: UnderLayerState,
+        state: UnderLayerStateV2,
         swipeToLeftHandler: () -> Unit,
         swipeToRightHandler: () -> Unit
     ): (EditorAction) -> Unit {
@@ -54,7 +56,9 @@ object SliderCallbackFactoryV2 {
                 // или когда слайдер пересек левую границу своей области, то есть
                 // значение его X сменило знак на (-)
                 EditorAction.DragToLeft -> {
-                    underLayer.setBackgroundResource(state.rightDrawableId)
+//                    underLayer.setBackgroundResource(state.rightDrawableId)
+                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.rightDrawableId))
+
                     state.rightTextId?.let {
                         textRight.text = context.getString(it)
                         textRight.visibility = View.VISIBLE
@@ -73,7 +77,8 @@ object SliderCallbackFactoryV2 {
                 // или когда слайдер пересек левую границу своей области, то есть
                 // значение его X сменило знак на (+)
                 EditorAction.DragToRight -> {
-                    underLayer.setBackgroundResource(state.leftDrawableId)
+//                    underLayer.setBackgroundResource(state.leftDrawableId)
+                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.leftDrawableId))
                     state.leftTextId?.let {
                         textLeft.text = context.getString(it)
                         textLeft.visibility = View.VISIBLE
@@ -111,17 +116,28 @@ object SliderCallbackFactoryV2 {
                     swipeToRightHandler()
                 }
                 EditorAction.SwipeToCenterEnded -> {
-                    underLayer.setBackgroundResource(R.drawable.background_slider_round_white)
+//                    underLayer.setBackgroundResource(R.drawable.background_slider_round_white)
+                    underLayer.setBackgroundColor(Color.WHITE)
                     slider.background = whiteRounded
                 }
                 EditorAction.SwipeToAbove -> {
-                    underLayer.setBackgroundResource(state.rightDrawableId)
+
+                    val colorFrom = ContextCompat.getColor(context, state.leftDrawableId)
+                    val colorTo = ContextCompat.getColor(context, state.rightDrawableId)
+
+//                    underLayer.setBackgroundResource(state.rightDrawableId)
+//                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.rightDrawableId))
                     Animators.scale(iconLeft, 1.0f)
-//                    Animators.color(underLayer)
+                    Animators.cardColor(underLayer as CardView, colorFrom, colorTo)
                 }
                 EditorAction.SwipeToBelow -> {
-                    underLayer.setBackgroundResource(state.leftDrawableId)
+                    val colorFrom = ContextCompat.getColor(context, state.rightDrawableId)
+                    val colorTo = ContextCompat.getColor(context, state.leftDrawableId)
+
+//                    underLayer.setBackgroundResource(state.leftDrawableId)
+//                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.leftDrawableId))
                     Animators.scale(iconLeft, 0.8f)
+                    Animators.cardColor(underLayer as CardView, colorFrom, colorTo)
                 }
                 else -> {
                 }
@@ -135,7 +151,7 @@ object SliderCallbackFactoryV2 {
     fun createForDoer(
         slider: View,
         underLayer: View,
-        state: UnderLayerState,
+        state: UnderLayerStateV2,
         adapterPosition: Int,
         user: DoerDatum,
         doerId: Int,
@@ -195,7 +211,7 @@ object SliderCallbackFactoryV2 {
     fun createForResource(
         slider: View,
         underLayer: View,
-        state: UnderLayerState,
+        state: UnderLayerStateV2,
         resourceId: Int,
         adapterPosition: Int,
         user: DoerDatum,

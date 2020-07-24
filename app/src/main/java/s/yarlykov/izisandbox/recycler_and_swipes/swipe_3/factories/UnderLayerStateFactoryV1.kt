@@ -11,11 +11,11 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.role
  */
 object UnderLayerStateFactoryV1 {
 
-    fun createForDoer(user: DoerDatum, isConfirmed: Boolean): UnderLayerState {
+    fun createForDoer(user: DoerDatum, isConfirmed: Boolean): UnderLayerStateV1 {
         return when (user.role()) {
             DoerRole.Manager, DoerRole.Admin -> {
                 if (isConfirmed) {
-                    UnderLayerState(
+                    UnderLayerStateV1(
                         R.drawable.background_slider_round_yellow,
                         R.string.doer_action_status,
                         null,
@@ -24,7 +24,7 @@ object UnderLayerStateFactoryV1 {
                         R.drawable.vd_delete_white
                     )
                 } else {
-                    UnderLayerState(
+                    UnderLayerStateV1(
                         R.drawable.background_slider_round_blue,
                         R.string.doer_action_confirm,
                         null,
@@ -36,7 +36,7 @@ object UnderLayerStateFactoryV1 {
             }
             else -> {
                 if (isConfirmed) {
-                    UnderLayerState(
+                    UnderLayerStateV1(
                         R.drawable.background_slider_round_red,
                         R.string.doer_action_refuse,
                         null,
@@ -45,7 +45,7 @@ object UnderLayerStateFactoryV1 {
                         null
                     )
                 } else {
-                    UnderLayerState(
+                    UnderLayerStateV1(
                         R.drawable.background_slider_round_blue,
                         R.string.doer_action_confirm,
                         null,
@@ -58,10 +58,10 @@ object UnderLayerStateFactoryV1 {
         }
     }
 
-    fun createForResource(user: DoerDatum): UnderLayerState {
+    fun createForResource(user: DoerDatum): UnderLayerStateV1 {
         return when (user.role()) {
             DoerRole.Manager, DoerRole.Admin -> {
-                UnderLayerState(
+                UnderLayerStateV1(
                     R.drawable.background_slider_round_red,
                     null,
                     R.drawable.vd_delete_white,
@@ -70,7 +70,7 @@ object UnderLayerStateFactoryV1 {
                     R.drawable.vd_delete_white)
             }
             else -> {
-                UnderLayerState(R.drawable.background_slider_round_red,
+                UnderLayerStateV1(R.drawable.background_slider_round_red,
                     null,
                     null,
                     R.drawable.background_slider_round_red,

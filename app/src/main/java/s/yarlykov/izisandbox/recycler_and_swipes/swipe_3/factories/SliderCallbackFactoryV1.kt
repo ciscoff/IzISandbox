@@ -29,7 +29,7 @@ object SliderCallbackFactoryV1 {
     private fun createFromTemplate(
         slider: View,
         underLayer: View,
-        state: UnderLayerState,
+        state: UnderLayerStateV1,
         swipeToLeftHandler: () -> Unit,
         swipeToRightHandler: () -> Unit
     ): (EditorAction) -> Unit {
@@ -123,7 +123,7 @@ object SliderCallbackFactoryV1 {
     fun createForDoer(
         slider: View,
         underLayer: View,
-        state: UnderLayerState,
+        state: UnderLayerStateV1,
         adapterPosition: Int,
         user: DoerDatum,
         doerId: Int,
@@ -182,7 +182,7 @@ object SliderCallbackFactoryV1 {
     fun createForResource(
         slider: View,
         underLayer: View,
-        state: UnderLayerState,
+        state: UnderLayerStateV1,
         resourceId: Int,
         adapterPosition: Int,
         user: DoerDatum,
