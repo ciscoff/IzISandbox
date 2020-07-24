@@ -152,7 +152,7 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                     val adapter = recyclerView.adapter as TestAdapter
                     val undoOn = adapter.isUndoOn
                     if (undoOn) {
-                        adapter.pendingRemoval(swipedPosition)
+                        adapter.putInRemoval(swipedPosition)
                     } else {
                         adapter.removeFromModel(swipedPosition)
                     }

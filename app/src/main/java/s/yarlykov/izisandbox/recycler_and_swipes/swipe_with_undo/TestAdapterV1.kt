@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity.Companion.PENDING_REMOVAL_TIMEOUT
 
-class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
+class TestAdapterV1 : RecyclerView.Adapter<TestViewHolder>() {
 
     // Модель которую показываем (строки)
     private val items = mutableListOf<String>()
