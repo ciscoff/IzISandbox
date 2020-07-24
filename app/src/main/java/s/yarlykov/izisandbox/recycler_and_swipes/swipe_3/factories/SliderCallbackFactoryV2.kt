@@ -11,7 +11,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.DoerRole
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.EditorAction
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.role
 
-object SliderCallbackFactory {
+object SliderCallbackFactoryV1 {
 
     /**
      * Выполняет работу с элементами UI одинаковую для доера и для ресурса.
@@ -27,12 +27,12 @@ object SliderCallbackFactory {
         swipeToRightHandler: () -> Unit
     ): (EditorAction) -> Unit {
 
-        val iconLeft = underLayer.findViewById<ImageView>(R.id.under_layer_icon_left)
-        val iconRight = underLayer.findViewById<ImageView>(R.id.under_layer_icon_right)
-        val textLeft = underLayer.findViewById<TextView>(R.id.under_layer_text_left)
-        val textRight = underLayer.findViewById<TextView>(R.id.under_layer_text_right)
-        val pbLeft = underLayer.findViewById<ProgressBar>(R.id.pbLeft)
-        val pbRight = underLayer.findViewById<ProgressBar>(R.id.pbRight)
+        val iconLeft = underLayer.findViewById<ImageView>(R.id.under_layer_icon_left_1)
+        val iconRight = underLayer.findViewById<ImageView>(R.id.under_layer_icon_right_1)
+        val textLeft = underLayer.findViewById<TextView>(R.id.under_layer_text_left_1)
+        val textRight = underLayer.findViewById<TextView>(R.id.under_layer_text_right_1)
+        val pbLeft = underLayer.findViewById<ProgressBar>(R.id.pb_left_1)
+        val pbRight = underLayer.findViewById<ProgressBar>(R.id.pb_right_1)
         val context = underLayer.context
 
         val whiteWithUnderline = ContextCompat.getDrawable(context, R.drawable.background_slider_round_white_underline)

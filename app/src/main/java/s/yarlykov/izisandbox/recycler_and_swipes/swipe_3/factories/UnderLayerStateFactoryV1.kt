@@ -9,7 +9,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.role
  * UnderLayer состоит из двух половин. Каждая содержит фон, а также надпись или иконку.
  * Данный класс определяет цвета фона, строки для надписей и иконки.
  */
-object UnderLayerStateFactory {
+object UnderLayerStateFactory1 {
 
     fun createForDoer(user: DoerDatum, isConfirmed: Boolean): UnderLayerState {
         return when (user.role()) {
