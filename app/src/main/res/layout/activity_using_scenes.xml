@@ -24,7 +24,8 @@
     <FrameLayout
         android:id="@+id/scene_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:minHeight="100dp" />
 
     <LinearLayout
         android:id="@+id/buttons_group"

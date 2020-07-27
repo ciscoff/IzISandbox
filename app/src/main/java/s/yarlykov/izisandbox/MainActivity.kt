@@ -1,11 +1,11 @@
 package s.yarlykov.izisandbox
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity() {
      * Инфлайтим пункты меню. Каждый пункт создает отдельную активити.
      */
     private fun inflateMenu(root: LinearLayout, model: Map<out Class<*>, Int>) {
-
         val inflater = layoutInflater
 
         model.entries.forEach { entry ->
@@ -74,10 +73,26 @@ class MainActivity : AppCompatActivity() {
             titleView.text = getString(stringId)
 
             cardView.setOnClickListener {
-                startActivity(Intent(this, clazz))
-            }
 
+                /**
+                 * Некторые активити запускаем с enterAnimation. Для этого используем
+                 * activity.startNew()
+                 */
+                when (clazz) {
+                    ActivityFrom::class.java -> {
+                        ActivityFrom.startNew(this)
+                    }
+                    UsingScenesActivity::class.java -> {
+                        UsingScenesActivity.startNew(this)
+                    }
+                    else -> {
+                        startActivity(Intent(this, clazz))
+                    }
+                }
+            }
             root.addView(cardView)
         }
     }
 }
+
+

@@ -1,8 +1,6 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.PorterDuff
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -53,11 +51,11 @@ class SwipeWithUndoActivity : AppCompatActivity() {
             R.id.menu_item_undo_checkbox -> {
                 item.isChecked = !item.isChecked
 
-                (recyclerView.adapter as TestAdapter).isUndoOn = item.isChecked
+                (recyclerView.adapter as TestAdapterV2).isUndoOn = item.isChecked
 
             }
             R.id.menu_item_add_5_items -> {
-                (recyclerView.adapter as TestAdapter).addItems(5)
+                (recyclerView.adapter as TestAdapterV2).addItems(5)
             }
         }
 
@@ -68,7 +66,7 @@ class SwipeWithUndoActivity : AppCompatActivity() {
 
         with(recyclerView) {
             layoutManager = LinearLayoutManager(this@SwipeWithUndoActivity)
-            adapter = TestAdapter()
+            adapter = TestAdapterV2()
             setHasFixedSize(true)
         }
 
@@ -83,23 +81,24 @@ class SwipeWithUndoActivity : AppCompatActivity() {
      */
     private fun setUpItemTouchHelper() {
 
+        val context = this
+
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback =
 
             object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-                // we want to cache these and not allocate anything repeatedly in the onChildDraw method
                 private val background = ColorDrawable(Color.RED)
-                private val xIcon =
-                    ContextCompat.getDrawable(this@SwipeWithUndoActivity, R.drawable.ic_clear_24dp)
+                private val xIcon = ContextCompat.getDrawable(
+                    context,
+                    R.drawable.ic_clear_24dp
+                )
 
-                var xIconMargin = 0
+                var xIconMargin = context.resources.getDimension(R.dimen.ic_clear_margin).toInt()
                 var initiated = false
 
                 init {
                     xIcon?.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP)
-                    xIconMargin =
-                        this@SwipeWithUndoActivity.resources.getDimension(R.dimen.ic_clear_margin)
-                            .toInt()
+//                    xIcon?.colorFilter = BlendModeColorFilter(Color.WHITE, BlendMode.SRC_ATOP)
                     initiated = true
                 }
 
@@ -115,21 +114,22 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                 }
 
                 /**
-                 * Вызывается всякий раз когда начинаем тянуть отдельный элемент.
+                 * Вызывается ВСЯКИЙ РАЗ когда начинаем тянуть отдельный элемент.
                  */
                 override fun getSwipeDirs(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder
                 ): Int {
                     val position = viewHolder.adapterPosition
-                    val testAdapter = recyclerView.adapter as TestAdapter
+                    val testAdapter = recyclerView.adapter as TestAdapterV2
 
                     /**
                      * Если адаптер в режиме isUndoOn и для данной строки уже зашедулено
                      * удаление, то возращаем 0, показывая, что строку нельзя ни свайпить
                      * ни драгить.
                      */
-                    val isPendingRemoval = testAdapter.isUndoOn && testAdapter.isPendingRemoval(position)
+                    val isPendingRemoval =
+                        testAdapter.isUndoOn && testAdapter.isPendingRemoval(position)
 
                     return if (isPendingRemoval) {
                         0
@@ -147,9 +147,8 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                     viewHolder: RecyclerView.ViewHolder,
                     swipeDir: Int
                 ) {
-                    logIt("onSwiped position ${viewHolder.adapterPosition}")
                     val swipedPosition = viewHolder.adapterPosition
-                    val adapter = recyclerView.adapter as TestAdapter
+                    val adapter = recyclerView.adapter as TestAdapterV2
                     val undoOn = adapter.isUndoOn
                     if (undoOn) {
                         adapter.putInRemoval(swipedPosition)
@@ -169,7 +168,7 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                 ) {
                     val itemView = viewHolder.itemView
 
-                    // not sure why, but this method get's called for viewholder that are already swiped away
+                    // Метод onChildDraw почему-то вызывается для viewHolder'ов, которые уже swiped
                     if (viewHolder.adapterPosition == -1) {
                         return
                     }
@@ -187,18 +186,20 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                     background.draw(canvas)
 
                     // Рисуем иконку (X)
-                    val itemHeight = itemView.bottom - itemView.top
+                    xIcon?.let { icon ->
+                        val itemHeight = itemView.bottom - itemView.top
 
-                    val intrinsicWidth = xIcon!!.intrinsicWidth
-                    val intrinsicHeight = xIcon!!.intrinsicWidth
+                        val intrinsicWidth = icon.intrinsicWidth
+                        val intrinsicHeight = icon.intrinsicWidth
 
-                    val xMarkLeft = itemView.right - xIconMargin - intrinsicWidth
-                    val xMarkRight = itemView.right - xIconMargin
-                    val xMarkTop = itemView.top + (itemHeight - intrinsicHeight) / 2
-                    val xMarkBottom = xMarkTop + intrinsicHeight
+                        val xMarkLeft = itemView.right - xIconMargin - intrinsicWidth
+                        val xMarkRight = itemView.right - xIconMargin
+                        val xMarkTop = itemView.top + (itemHeight - intrinsicHeight) / 2
+                        val xMarkBottom = xMarkTop + intrinsicHeight
 
-                    xIcon!!.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom)
-                    xIcon!!.draw(canvas)
+                        icon.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom)
+                        icon.draw(canvas)
+                    }
 
                     super.onChildDraw(
                         canvas,

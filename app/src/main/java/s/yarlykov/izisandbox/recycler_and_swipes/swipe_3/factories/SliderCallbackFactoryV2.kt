@@ -57,7 +57,12 @@ object SliderCallbackFactoryV2 {
                 // значение его X сменило знак на (-)
                 EditorAction.DragToLeft -> {
 //                    underLayer.setBackgroundResource(state.rightDrawableId)
-                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.rightDrawableId))
+                    underLayer.setBackgroundColor(
+                        ContextCompat.getColor(
+                            context,
+                            state.rightDrawableId
+                        )
+                    )
 
                     state.rightTextId?.let {
                         textRight.text = context.getString(it)
@@ -78,7 +83,12 @@ object SliderCallbackFactoryV2 {
                 // значение его X сменило знак на (+)
                 EditorAction.DragToRight -> {
 //                    underLayer.setBackgroundResource(state.leftDrawableId)
-                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.leftDrawableId))
+                    underLayer.setBackgroundColor(
+                        ContextCompat.getColor(
+                            context,
+                            state.leftDrawableId
+                        )
+                    )
                     state.leftTextId?.let {
                         textLeft.text = context.getString(it)
                         textLeft.visibility = View.VISIBLE
@@ -121,23 +131,26 @@ object SliderCallbackFactoryV2 {
                     slider.background = whiteRounded
                 }
                 EditorAction.SwipeToAbove -> {
-
                     val colorFrom = ContextCompat.getColor(context, state.leftDrawableId)
                     val colorTo = ContextCompat.getColor(context, state.rightDrawableId)
 
-//                    underLayer.setBackgroundResource(state.rightDrawableId)
-//                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.rightDrawableId))
                     Animators.scale(iconLeft, 1.0f)
                     Animators.cardColor(underLayer as CardView, colorFrom, colorTo)
+                    Animators.animatable(
+                        iconLeft,
+                        ContextCompat.getDrawable(context, state.rightIconId!!)!!
+                    )
                 }
                 EditorAction.SwipeToBelow -> {
                     val colorFrom = ContextCompat.getColor(context, state.rightDrawableId)
                     val colorTo = ContextCompat.getColor(context, state.leftDrawableId)
 
-//                    underLayer.setBackgroundResource(state.leftDrawableId)
-//                    underLayer.setBackgroundColor(ContextCompat.getColor(context, state.leftDrawableId))
                     Animators.scale(iconLeft, 0.8f)
                     Animators.cardColor(underLayer as CardView, colorFrom, colorTo)
+                    Animators.animatable(
+                        iconLeft,
+                        ContextCompat.getDrawable(context, state.leftIconId!!)!!
+                    )
                 }
                 else -> {
                 }

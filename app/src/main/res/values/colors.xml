@@ -24,8 +24,8 @@
     <color name="doer_state_confirmed">#4BBAC5</color>
     <color name="doer_state_waiting">#FFC245</color>
     <color name="doer_state_refused">#FF4866</color>
-    <color name="doer_state_waiting_light">#F5E36E</color>
-    <color name="doer_state_confirmed_light">#A4DCE1</color>
+    <color name="doer_state_waiting_light">#FCF6CD</color>
+    <color name="doer_state_confirmed_light">#E2F0F3</color>
     <color name="doer_state_refused_light">#F6E4E9</color>
     <color name="colorDecor11">#BC6300</color>
 

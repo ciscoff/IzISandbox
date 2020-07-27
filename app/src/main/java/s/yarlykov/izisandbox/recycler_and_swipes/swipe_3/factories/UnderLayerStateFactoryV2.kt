@@ -16,18 +16,22 @@ object UnderLayerStateFactoryV2 {
             DoerRole.Manager, DoerRole.Admin -> {
                 if (isConfirmed) {
                     UnderLayerStateV2(
+                        // Цвет фона для начального состояния
                         R.color.doer_state_confirmed_light,
                         null,
-                        R.drawable.vd_doer_state_white,
-                        R.color.doer_state_waiting,
+                        // AVD для "прямой" анимации
+                        R.drawable.avd_from_confirmed_to_waiting,
+                        // Цвет фона в который анимируемся
+                        R.color.doer_state_waiting_light,
                         null,
-                        R.drawable.vd_doer_state_white
+                        // AVD для обратной анимации
+                        R.drawable.avd_from_waiting_to_confirmed
                     )
                 } else {
                     UnderLayerStateV2(
                         R.color.doer_state_waiting_light,
                         null,
-                        R.drawable.vd_doer_state_white,
+                        R.drawable.avd_from_confirmed_to_waiting,
                         R.color.doer_state_confirmed,
                         null,
                         R.drawable.vd_doer_state_white

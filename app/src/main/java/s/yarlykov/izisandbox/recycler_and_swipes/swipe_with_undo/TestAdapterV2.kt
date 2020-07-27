@@ -9,10 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity.Companion.PENDING_REMOVAL_TIMEOUT
 
-// Переименуем для удобства
-interface Remover : Runnable
 
-class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
+class TestAdapterV2 : RecyclerView.Adapter<TestViewHolder>() {
 
     // Модель которую показываем (строки)
     private val items = mutableListOf<String>()
@@ -78,6 +76,10 @@ class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
             }
             pendingRemovers[item] = remover
             handler.postDelayed(remover, PENDING_REMOVAL_TIMEOUT)
+
+            // Это вызовет повторную инициализацию соотв ViewHolder'а,
+            // то есть будет вызван onBindViewHolder
+            notifyItemChanged(position)
         }
 
 //        if (!itemsPendingRemoval.contains(item)) {
@@ -112,6 +114,7 @@ class TestAdapter : RecyclerView.Adapter<TestViewHolder>() {
     }
 
     fun isPendingRemoval(position: Int): Boolean {
+
         val item = items[position]
         return pendingRemovers.keys.contains(item)
     }

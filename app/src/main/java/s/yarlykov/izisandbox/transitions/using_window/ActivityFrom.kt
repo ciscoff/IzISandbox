@@ -3,11 +3,14 @@ package s.yarlykov.izisandbox.transitions.using_window
 /**
  * Важно: https://stackoverflow.com/questions/37607973/setentertransition-only-works-with-activitycompat-startactivity
  */
+import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.transition.Explode
+import android.transition.Fade
 import android.transition.Slide
 import android.view.Gravity
 import android.view.Window
@@ -17,12 +20,24 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.showSnackBarNotification
-import s.yarlykov.izisandbox.navgraph.fragments.slideshow.SlideshowViewModel
 
+/**
+ * Данная активити запускается из другой актитиви и это позволяет нам
+ * определить анимацию, с которой данная актитиви выйдет на экран.
+ *
+ * Для этого нужно.
+ * - до setContentView вызвать window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+ * - там же установить желаемую анимацию
+ * - после этого вызывать setContentView
+ *
+ * А запускать данную активити нужно через методом, который используется в companion
+ *
+ */
 class ActivityFrom : AppCompatActivity() {
 
-    private lateinit var viewModel : ViewModelActivityFrom
+    private lateinit var viewModel: ViewModelActivityFrom
     private lateinit var rootView: LinearLayout
+
     // Чтобы snack bar показать только раз
     private var isReentered = false
 
@@ -34,6 +49,10 @@ class ActivityFrom : AppCompatActivity() {
          */
         with(window) {
             requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+
+            enterTransition = Fade(Fade.IN).apply {
+                duration = 2000
+            }
 
             /**
              * Сработает если из данной актитиви запустить другую актитити. То есть
@@ -49,7 +68,7 @@ class ActivityFrom : AppCompatActivity() {
              * - EnterTransition <--> ReturnTransition
              * - ExitTransition <--> ReenterTransition
              *
-             * Обращаю внимание, что спаренность работает только если выполняются соответствующие
+             * Обращаю внимание, что спаренность работает только, если выполняются соответствующие
              * спаренные действия: запустили другую активити и затем вернулись из неё.
              */
             reenterTransition = Slide(Gravity.END)
@@ -76,7 +95,7 @@ class ActivityFrom : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        if(!isReentered) {
+        if (!isReentered) {
             Handler().postDelayed(
                 { rootView.showSnackBarNotification(getString(R.string.notification_click_anywhere)) },
                 500
@@ -94,7 +113,11 @@ class ActivityFrom : AppCompatActivity() {
     companion object {
 
         fun startNew(context: Context) {
-            context.startActivity(Intent(context, ActivityFrom::class.java))
+            val intent = Intent(context, ActivityFrom::class.java)
+            context.startActivity(
+                intent,
+                ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle()
+            )
         }
     }
 }
