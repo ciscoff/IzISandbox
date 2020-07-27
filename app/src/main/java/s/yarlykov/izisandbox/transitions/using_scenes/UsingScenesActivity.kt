@@ -16,7 +16,7 @@ import s.yarlykov.izisandbox.transitions.using_window.ActivityTo
 
 class UsingScenesActivity : AppCompatActivity() {
 
-    private lateinit var scene0 : Scene
+    private lateinit var scene0: Scene
     private val buttons = ArrayList<Button>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,19 +36,32 @@ class UsingScenesActivity : AppCompatActivity() {
 
     private fun setupWindowAnimations() {
         window.enterTransition =
-            TransitionInflater.from(this).inflateTransition(R.transition.slide_from_bottom)
+            TransitionInflater
+                .from(this)
+                .inflateTransition(R.transition.slide_from_bottom)
+                .apply {
+                    duration = 300
+                }
 
-        window.enterTransition.addListener(object  : Transition.TransitionListener {
+        window.exitTransition = Fade(Fade.OUT).apply {
+            duration = 300
+        }
+
+        window.enterTransition.addListener(object : Transition.TransitionListener {
             override fun onTransitionEnd(transition: Transition?) {
                 window.enterTransition.removeListener(this)
                 TransitionManager.go(scene0)
             }
+
             override fun onTransitionResume(transition: Transition?) {
             }
+
             override fun onTransitionPause(transition: Transition?) {
             }
+
             override fun onTransitionCancel(transition: Transition?) {
             }
+
             override fun onTransitionStart(transition: Transition?) {
             }
         })
@@ -65,10 +78,12 @@ class UsingScenesActivity : AppCompatActivity() {
     }
 
     companion object {
-        fun startNew(context : Context) {
+        fun startNew(context: Context) {
             val intent = Intent(context, UsingScenesActivity::class.java)
-            context.startActivity(intent,
-                ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle())
+            context.startActivity(
+                intent,
+                ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle()
+            )
         }
     }
 }

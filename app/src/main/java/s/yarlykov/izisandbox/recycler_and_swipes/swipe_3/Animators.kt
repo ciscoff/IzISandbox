@@ -4,10 +4,11 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.TransitionDrawable
+import android.graphics.drawable.*
+import android.os.Build
 import android.view.View
 import android.view.animation.LinearInterpolator
+import android.widget.ImageView
 import androidx.cardview.widget.CardView
 import s.yarlykov.izisandbox.R
 
@@ -48,6 +49,32 @@ object Animators {
                 addListener(listener(before, after))
                 playTogether(scaleX, scaleY)
             }.start()
+        }
+    }
+
+    /**
+     * Запускаем анимацию в AVD.
+     * По окончании анимации устанавливаем в ImageView другой AVD, который будет работать
+     * для reverse-анимации, если потребуется такая.
+     */
+    fun animatable(view : ImageView, reverse : Drawable) {
+        val drawable = view.drawable
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(drawable is Animatable2) {
+
+                drawable.registerAnimationCallback(object : Animatable2.AnimationCallback() {
+                    override fun onAnimationEnd(drawable: Drawable?) {
+                        view.setImageDrawable(reverse)
+                    }
+                } )
+                drawable.start()
+            }
+        } else if(drawable is Animatable){
+            view.postDelayed({
+                view.setImageDrawable(reverse)
+            }, 200)
+            drawable.start()
         }
     }
 

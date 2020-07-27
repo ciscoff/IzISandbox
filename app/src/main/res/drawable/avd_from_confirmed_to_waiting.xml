@@ -34,7 +34,7 @@ https://developer.android.com/guide/topics/graphics/prop-animation#object-animat
                     android:duration="200"
                     android:propertyName="fillColor"
                     android:valueFrom="@color/doer_state_confirmed"
-                    android:valueTo="@color/colorWhite"
+                    android:valueTo="@color/doer_state_waiting"
                     android:valueType="intType"/>
             </set>
         </aapt:attr>
@@ -46,7 +46,7 @@ https://developer.android.com/guide/topics/graphics/prop-animation#object-animat
                     android:duration="200"
                     android:propertyName="fillColor"
                     android:valueFrom="@color/doer_state_confirmed"
-                    android:valueTo="@color/colorWhite"
+                    android:valueTo="@color/doer_state_waiting"
                     android:valueType="intType"/>
             </set>
         </aapt:attr>
@@ -58,7 +58,7 @@ https://developer.android.com/guide/topics/graphics/prop-animation#object-animat
                     android:duration="200"
                     android:propertyName="fillColor"
                     android:valueFrom="@color/doer_state_confirmed"
-                    android:valueTo="@color/colorWhite"
+                    android:valueTo="@color/doer_state_waiting"
                     android:valueType="intType"/>
             </set>
         </aapt:attr>
@@ -70,7 +70,7 @@ https://developer.android.com/guide/topics/graphics/prop-animation#object-animat
                     android:duration="200"
                     android:propertyName="fillColor"
                     android:valueFrom="@color/doer_state_confirmed"
-                    android:valueTo="@color/colorWhite"
+                    android:valueTo="@color/doer_state_waiting"
                     android:valueType="intType"/>
             </set>
         </aapt:attr>

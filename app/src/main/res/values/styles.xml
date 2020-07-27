@@ -6,6 +6,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <!-- Разрешить "наложение" (одновременное выполнение) анимаций -->
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+
         <!-- Added for Auth Ui-->
         <item name="android:textColorLink">@color/colorAccentUi</item>
 
