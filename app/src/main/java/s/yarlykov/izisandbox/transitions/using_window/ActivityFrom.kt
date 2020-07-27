@@ -49,7 +49,7 @@ class ActivityFrom : AppCompatActivity() {
              * - EnterTransition <--> ReturnTransition
              * - ExitTransition <--> ReenterTransition
              *
-             * Обращаю внимание, что спаренность работает только если выполняются соответствующие
+             * Обращаю внимание, что спаренность работает только, если выполняются соответствующие
              * спаренные действия: запустили другую активити и затем вернулись из неё.
              */
             reenterTransition = Slide(Gravity.END)
