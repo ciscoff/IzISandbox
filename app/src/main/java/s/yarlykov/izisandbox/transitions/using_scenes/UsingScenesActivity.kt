@@ -13,7 +13,6 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.transitions.using_window.ActivityTo
 
 class UsingScenesActivity : AppCompatActivity() {
 
@@ -40,6 +39,11 @@ class UsingScenesActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * Внутри макета прочитай коммент по поводу атрибута android:transitionGroup="true" для
+     * ViewGroup, благодаря которому ViewGroup анимируется при входе в активити. Без этого
+     * флага не анимируется, а просто отрисовывается статически.
+     */
     private fun setupWindowAnimations() {
 
         val animDuration = resources.getInteger(R.integer.animation_activity_in_out).toLong()
@@ -52,35 +56,18 @@ class UsingScenesActivity : AppCompatActivity() {
                 .inflateTransition(R.transition.slide_from_bottom)
                 .apply {
                     duration = animDuration
-                    addTarget(R.id.buttons_group)
+                    addTarget(R.id.floating_button)
                     addTarget(R.id.app_bar)
-//                    addTarget(R.id.sample3_button1)
+                    addTarget(R.id.buttons_group)
+                    addListener(transitionListener)
                 }
 
         window.returnTransition = Fade(Fade.OUT).apply {
             duration = animDuration
-            addTarget(R.id.buttons_group)
+            addTarget(R.id.floating_button)
             addTarget(R.id.app_bar)
+            addTarget(R.id.buttons_group)
         }
-
-        window.enterTransition.addListener(object : Transition.TransitionListener {
-            override fun onTransitionEnd(transition: Transition?) {
-                window.enterTransition.removeListener(this)
-                TransitionManager.go(scene0)
-            }
-
-            override fun onTransitionResume(transition: Transition?) {
-            }
-
-            override fun onTransitionPause(transition: Transition?) {
-            }
-
-            override fun onTransitionCancel(transition: Transition?) {
-            }
-
-            override fun onTransitionStart(transition: Transition?) {
-            }
-        })
     }
 
     private fun setupLayout() {
@@ -98,6 +85,25 @@ class UsingScenesActivity : AppCompatActivity() {
                 intent,
                 ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle()
             )
+        }
+    }
+
+    private val transitionListener = object : Transition.TransitionListener {
+        override fun onTransitionEnd(transition: Transition?) {
+            window.enterTransition.removeListener(this)
+            TransitionManager.go(scene0)
+        }
+
+        override fun onTransitionResume(transition: Transition?) {
+        }
+
+        override fun onTransitionPause(transition: Transition?) {
+        }
+
+        override fun onTransitionCancel(transition: Transition?) {
+        }
+
+        override fun onTransitionStart(transition: Transition?) {
         }
     }
 }

@@ -26,13 +26,26 @@
         android:id="@+id/scene_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="100dp" />
+        android:minHeight="100dp"
+        android:visibility="visible" />
+
+    <!--
+    Атрибут  android:transitionGroup="true" влияет на то, будет ли участвовать
+    ViewGroup в transition. Пока я этот флаг не установил, то ViewGroup не аниамировалась
+    вместе с AppBar'ом, а сразу отрисовывалась на своем месте !!!
+
+    Для обычных View никаких ограничений нет, и они нормально анимируются, если их включили
+    в transition через addTarget(id)
+    -->
 
     <LinearLayout
         android:id="@+id/buttons_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:transitionGroup="true"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -82,5 +95,14 @@
                 android:text="@string/scene_four" />
         </LinearLayout>
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@null"
+        app:srcCompat="@drawable/ic_android"
+        app:tint="@color/colorWhite" />
 
 </LinearLayout>
