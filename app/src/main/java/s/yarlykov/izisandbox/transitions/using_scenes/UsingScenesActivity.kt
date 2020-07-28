@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.transition.*
 import android.view.ViewGroup
 import android.view.Window
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
 import s.yarlykov.izisandbox.R
@@ -28,23 +29,38 @@ class UsingScenesActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_using_scenes)
+        // Скрываем Status Bar
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
         setSupportActionBar(findViewById(R.id.toolbar))
+
         setupLayout()
-        setupWindowAnimations()
     }
 
 
     private fun setupWindowAnimations() {
+
+        val animDuration = resources.getInteger(R.integer.animation_activity_in_out).toLong()
+
+        window.allowEnterTransitionOverlap = true
+
         window.enterTransition =
             TransitionInflater
                 .from(this)
                 .inflateTransition(R.transition.slide_from_bottom)
                 .apply {
-                    duration = 300
+                    duration = animDuration
+                    addTarget(R.id.buttons_group)
+                    addTarget(R.id.app_bar)
+//                    addTarget(R.id.sample3_button1)
                 }
 
-        window.exitTransition = Fade(Fade.OUT).apply {
-            duration = 300
+        window.returnTransition = Fade(Fade.OUT).apply {
+            duration = animDuration
+            addTarget(R.id.buttons_group)
+            addTarget(R.id.app_bar)
         }
 
         window.enterTransition.addListener(object : Transition.TransitionListener {
@@ -65,8 +81,6 @@ class UsingScenesActivity : AppCompatActivity() {
             override fun onTransitionStart(transition: Transition?) {
             }
         })
-
-//        TransitionManager.go(scene0, enterTransition)
     }
 
     private fun setupLayout() {

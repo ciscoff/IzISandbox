@@ -2,6 +2,11 @@ package s.yarlykov.izisandbox
 
 import android.content.Intent
 import android.os.Bundle
+import android.transition.Explode
+import android.transition.Fade
+import android.transition.Slide
+import android.view.Gravity
+import android.view.Window
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -42,6 +47,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setWindowTransitions()
         setContentView(R.layout.activity_main)
 
         // Скрываем Status Bar
@@ -91,6 +97,39 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             root.addView(cardView)
+        }
+    }
+
+
+    private fun setWindowTransitions() {
+
+        val animDuration = resources.getInteger(R.integer.animation_activity_in_out).toLong()
+
+        /**
+         * Нужно делать до вызова setContentView(layout_id)
+         */
+        with(window) {
+            requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+            allowReturnTransitionOverlap = true
+
+            enterTransition = Fade(Fade.IN).apply {
+                duration = animDuration
+            }
+
+            exitTransition = Explode().apply {
+                duration = animDuration
+
+                /**
+                 * Анимируем только контент нашей активити. Нам не нужно
+                 * анимировать system bars и action bar.
+                 */
+//                addTarget(R.id.main_container)
+            }
+
+            reenterTransition = Fade(Fade.IN).apply {
+                duration = animDuration
+                addTarget(R.id.main_container)
+            }
         }
     }
 }

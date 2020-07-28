@@ -14,6 +14,9 @@ class ActivityTo : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val animDuration = resources.getInteger(R.integer.animation_activity_in_out).toLong()
+
+
         /**
          * Нужно делать до вызова setContentView(layout_id)
          */
@@ -22,10 +25,10 @@ class ActivityTo : AppCompatActivity() {
 
             requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
             enterTransition = Fade(Fade.IN).apply {
-                duration = 500
+                duration = animDuration
             }
 //            exitTransition = Explode().apply {
-//                duration = 500
+//                duration = animDuration
 //            }
         }
 
