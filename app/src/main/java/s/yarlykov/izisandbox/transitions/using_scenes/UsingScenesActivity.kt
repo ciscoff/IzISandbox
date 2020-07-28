@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.transition.*
+import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
@@ -14,9 +15,13 @@ import android.widget.Button
 import android.widget.FrameLayout
 import s.yarlykov.izisandbox.R
 
-class UsingScenesActivity : AppCompatActivity() {
+class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var scene0: Scene
+    private lateinit var scene1: Scene
+    private lateinit var scene2: Scene
+    private lateinit var scene3: Scene
+    private lateinit var scene4: Scene
     private val buttons = ArrayList<Button>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +43,23 @@ class UsingScenesActivity : AppCompatActivity() {
         setupLayout()
     }
 
+    override fun onClick(v: View) {
+
+        when(v.id) {
+            R.id.sample_scene_button1 -> {
+
+            }
+            R.id.sample_scene_button2 -> {
+
+            }
+            R.id.sample_scene_button3 -> {
+
+            }
+            R.id.sample_scene_button4 -> {
+
+            }
+        }
+    }
 
     /**
      * Внутри макета прочитай коммент по поводу атрибута android:transitionGroup="true" для
