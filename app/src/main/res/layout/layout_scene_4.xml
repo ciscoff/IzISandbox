@@ -10,8 +10,9 @@
         android:id="@+id/ball_blue"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="12dp"
+        android:layout_below="@id/ball_orange"
         android:layout_alignParentEnd="true"
+        android:layout_margin="12dp"
         android:background="@drawable/shape_oval_blue"
         android:contentDescription="@null" />
 
@@ -19,7 +20,6 @@
         android:id="@+id/ball_red"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_below="@id/ball_orange"
         android:layout_margin="12dp"
         android:background="@drawable/shape_oval_red"
         android:contentDescription="@null" />
@@ -28,6 +28,7 @@
         android:id="@+id/ball_orange"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_alignParentEnd="true"
         android:layout_margin="12dp"
         android:background="@drawable/shape_oval_orange"
         android:contentDescription="@null" />
@@ -36,8 +37,7 @@
         android:id="@+id/ball_green"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_below="@id/ball_blue"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@id/ball_red"
         android:layout_margin="12dp"
         android:background="@drawable/shape_oval_green"
         android:contentDescription="@null" />

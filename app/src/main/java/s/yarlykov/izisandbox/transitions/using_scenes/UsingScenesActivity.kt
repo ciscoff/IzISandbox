@@ -22,6 +22,7 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var scene2: Scene
     private lateinit var scene3: Scene
     private lateinit var scene4: Scene
+    private lateinit var sceneRoot : ViewGroup
     private val buttons = ArrayList<Button>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,23 +41,38 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
         )
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        findViews()
+
         setupLayout()
+    }
+
+    private fun findViews() {
+        sceneRoot = findViewById<FrameLayout>(R.id.scene_root) as ViewGroup
+        scene1 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_1, this)
+        scene2 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_2, this)
+        scene3 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_3, this)
+        scene4 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_4, this)
+
+        findViewById<Button>(R.id.sample_scene_button1).setOnClickListener (this)
+        findViewById<Button>(R.id.sample_scene_button2).setOnClickListener (this)
+        findViewById<Button>(R.id.sample_scene_button3).setOnClickListener (this)
+        findViewById<Button>(R.id.sample_scene_button4).setOnClickListener (this)
     }
 
     override fun onClick(v: View) {
 
         when(v.id) {
             R.id.sample_scene_button1 -> {
-
+                TransitionManager.go(scene1, ChangeBounds().apply { duration = resources.getInteger(R.integer.anim_duration_turtle).toLong() })
             }
             R.id.sample_scene_button2 -> {
-
+                TransitionManager.go(scene2, TransitionInflater.from(this).inflateTransition(R.transition.slide_and_changebounds))
             }
             R.id.sample_scene_button3 -> {
-
+                TransitionManager.go(scene3, TransitionInflater.from(this).inflateTransition(R.transition.slide_and_changebounds_sequential))
             }
             R.id.sample_scene_button4 -> {
-
+                TransitionManager.go(scene4, TransitionInflater.from(this).inflateTransition(R.transition.slide_and_changebounds_sequential_with_interpolators))
             }
         }
     }
@@ -93,7 +109,7 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setupLayout() {
-        val sceneRoot = findViewById<FrameLayout>(R.id.scene_root) as ViewGroup
+
         scene0 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_0, this).apply {
             setEnterAction {
             }
