@@ -1,7 +1,5 @@
 package s.yarlykov.izisandbox.dsl.html_simple
 
-import s.yarlykov.izisandbox.dsl.Tag
-
 fun createHtml() : HTML {
     return HTML()
 }

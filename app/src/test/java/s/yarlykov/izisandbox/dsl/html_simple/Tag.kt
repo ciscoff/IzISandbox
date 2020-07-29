@@ -1,3 +1,3 @@
-package s.yarlykov.izisandbox.dsl
+package s.yarlykov.izisandbox.dsl.html_simple
 
 abstract class Tag(val name : String)

@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.dsl
+package s.yarlykov.izisandbox.dsl.html_simple
 
 import org.junit.Test
 

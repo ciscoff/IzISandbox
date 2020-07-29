@@ -1,4 +1,5 @@
 package s.yarlykov.izisandbox.dsl.html_advanced
 
-class Element {
+interface Element {
+    fun render(builder : StringBuilder, indent : String = "\t")
 }
