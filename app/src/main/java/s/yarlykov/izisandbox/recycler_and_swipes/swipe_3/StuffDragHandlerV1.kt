@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.recycler_and_swipes.animation.AnimatorListenerTemplate
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.EditorAction
 import kotlin.math.abs
 
@@ -33,27 +34,32 @@ open class StuffDragHandlerV1(private val view: View,
         }
 
     // При возврате в исходную позицию отправить сообщение EditorAction.SwipeToCenterEnd
-    private val animateToCenterListener = AnimatorListenerTemplate({}, onEnd = {
-        callback(EditorAction.SwipeToCenterEnded)
-    })
+    private val animateToCenterListener =
+        AnimatorListenerTemplate(
+            {},
+            onEnd = {
+                callback(EditorAction.SwipeToCenterEnded)
+            })
 
     // При завершении "ухода" вправо нужно отправить сообщение EditorAction.SwipeToRight
-    private val animateToRightListener = AnimatorListenerTemplate(
-        onStart = {
-            callback(EditorAction.SwipeToRightStarted)
-        },
-        onEnd = {
-            callback(EditorAction.SwipeToRightEnded)
-        })
+    private val animateToRightListener =
+        AnimatorListenerTemplate(
+            onStart = {
+                callback(EditorAction.SwipeToRightStarted)
+            },
+            onEnd = {
+                callback(EditorAction.SwipeToRightEnded)
+            })
 
     // При завершении "ухода" влево нужно отправить сообщение EditorAction.SwipeToLeft
-    private val animateToLeftListener = AnimatorListenerTemplate(
-        onStart = {
-            callback(EditorAction.SwipeToLeftStarted)
-        },
-        onEnd = {
-            callback(EditorAction.SwipeToLeftEnded)
-        })
+    private val animateToLeftListener =
+        AnimatorListenerTemplate(
+            onStart = {
+                callback(EditorAction.SwipeToLeftStarted)
+            },
+            onEnd = {
+                callback(EditorAction.SwipeToLeftEnded)
+            })
 
 
     // Отслеживает коодинату левой стороны View в момент предыдущего event'а.

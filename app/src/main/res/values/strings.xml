@@ -36,6 +36,7 @@
     <string name="menu_swipe_gesture_detector">Swipe with Gesture Detector</string>
     <string name="menu_swipe_drop_undo">Swipe and Drop and Undo</string>
     <string name="menu_swipe_smart">Smart Swipe</string>
+    <string name="menu_swipe_any_where">Swipe Anywhere</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap">Bootstrap</string>
@@ -106,7 +107,6 @@
     <!--    Swipe undo Activity-->
     <string name="menu_checkbox_undo">Undo</string>
     <string name="menu_add_5_items">Add 5 items</string>
-    <string name="title_activity_rere">RereActivity</string>
 
     <!--    Advanced swipe -->
     <string name="doer_action_confirm">Confirm</string>
@@ -114,5 +114,7 @@
     <string name="doer_action_status">Change status</string>
     <string name="doer_action_delete">Delete</string>
     <string name="hint_select_action">Drag horizontally</string>
+    <string name="order_title">Order title</string>
+    <string name="order_details">Repair cosmetic damage</string>
 
 </resources>

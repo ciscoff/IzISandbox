@@ -43,7 +43,7 @@ object SliderCallbackFactoryV1 {
         val context = underLayer.context
 
         val whiteWithUnderline = ContextCompat.getDrawable(context, R.drawable.background_slider_round_white_underline)
-        val whiteRounded = ContextCompat.getDrawable(context, R.drawable.background_slider_round_white)
+        val whiteRounded = ContextCompat.getDrawable(context, R.drawable.background_slider_round_half_white)
 
         return { action ->
             when (action) {
@@ -108,7 +108,7 @@ object SliderCallbackFactoryV1 {
                     swipeToRightHandler()
                 }
                 EditorAction.SwipeToCenterEnded -> {
-                    underLayer.setBackgroundResource(R.drawable.background_slider_round_white)
+                    underLayer.setBackgroundResource(R.drawable.background_slider_round_half_white)
                     slider.background = whiteRounded
                 }
                 else -> {

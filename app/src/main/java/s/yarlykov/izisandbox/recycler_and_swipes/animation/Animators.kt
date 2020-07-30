@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.swipe_3
+package s.yarlykov.izisandbox.recycler_and_swipes.animation
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -10,7 +10,6 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.cardview.widget.CardView
-import s.yarlykov.izisandbox.R
 
 object Animators {
 
@@ -22,8 +21,14 @@ object Animators {
         view?.let { _view ->
             ObjectAnimator.ofFloat(_view, View.ALPHA, 0f).apply {
                 interpolator = LinearInterpolator()
-                duration = defaultDuration
-                addListener(listener(before, after))
+                duration =
+                    defaultDuration
+                addListener(
+                    listener(
+                        before,
+                        after
+                    )
+                )
             }.start()
         }
     }
@@ -38,15 +43,22 @@ object Animators {
 
             val scaleX = ObjectAnimator.ofFloat(_view, View.SCALE_X, factor).apply {
                 interpolator = LinearInterpolator()
-                duration = defaultDuration
+                duration =
+                    defaultDuration
             }
             val scaleY = ObjectAnimator.ofFloat(_view, View.SCALE_Y, factor).apply {
                 interpolator = LinearInterpolator()
-                duration = defaultDuration
+                duration =
+                    defaultDuration
             }
 
             AnimatorSet().apply {
-                addListener(listener(before, after))
+                addListener(
+                    listener(
+                        before,
+                        after
+                    )
+                )
                 playTogether(scaleX, scaleY)
             }.start()
         }
@@ -96,9 +108,16 @@ object Animators {
             colorFrom,
             colorTo
         ).apply {
-            interpolator = defaultInterpolator
-            duration = defaultDuration
-            addListener(listener(before, after))
+            interpolator =
+                defaultInterpolator
+            duration =
+                defaultDuration
+            addListener(
+                listener(
+                    before,
+                    after
+                )
+            )
         }.start()
     }
 
@@ -126,9 +145,15 @@ object Animators {
 
         view?.let { _view ->
             ObjectAnimator.ofFloat(_view, View.TRANSLATION_X, shift).apply {
-                interpolator = defaultInterpolator
+                interpolator =
+                    defaultInterpolator
                 duration = animDuration
-                addListener(listener(before, after))
+                addListener(
+                    listener(
+                        before,
+                        after
+                    )
+                )
             }.start()
         }
     }

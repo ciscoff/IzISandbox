@@ -1,34 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/card"
+    android:id="@+id/item_container"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:padding="2dp">
+    android:layout_height="wrap_content"
+    android:padding="4dp">
 
+    <!--    Under Layer -->
     <FrameLayout
-        android:id="@+id/under_layer_1"
+        android:id="@+id/under_layer_4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:background="@drawable/background_rounded_red"
         android:gravity="center"
-        android:padding="12dp">
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        tools:visibility="invisible">
 
         <ImageView
-            android:id="@+id/delete_row_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:contentDescription="@null"
-            android:focusable="true"
-            app:srcCompat="@drawable/vd_delete_white" />
-
-        <ImageView
-            android:id="@+id/delete_row_2"
+            android:id="@+id/delete_row_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|end"
@@ -36,28 +29,64 @@
             android:clickable="true"
             android:contentDescription="@null"
             android:focusable="true"
+            android:padding="8dp"
+            android:scaleX="1.5"
+            android:scaleY="1.5"
             app:srcCompat="@drawable/vd_delete_white" />
 
     </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/upper_layer"
+    <!--  Upper Layer  -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/upper_layer_4"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:background="@drawable/background_rounded_white"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        app:cardElevation="0dp"
+        app:strokeColor="#ccc"
+        app:strokeWidth="1dp"
+        card_view:cardCornerRadius="4dp"
+        tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <!-- Список слайдеров -->
+        <LinearLayout
+            android:id="@+id/details_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="start|center_vertical"
-            tools:text="Hello, Dolly" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/card_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:text="@string/order_title"
+                android:textColor="@color/colorTitle"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/card_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:text="@string/order_details"
+                android:textColor="@color/colorText"
+                android:textSize="12sp" />
+
+            <include layout="@layout/layout_smart_swipe_item_4" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="2dp"/>
+            <include layout="@layout/layout_smart_swipe_item_4" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </FrameLayout>
 

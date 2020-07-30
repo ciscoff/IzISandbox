@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.swipe_4
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.animation
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
@@ -8,6 +8,11 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
+import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.extensions.animateBack
+import s.yarlykov.izisandbox.extensions.findRecyclerViewParent
+import s.yarlykov.izisandbox.extensions.viewHierarchyActivationLoop
+import s.yarlykov.izisandbox.recycler_and_swipes.animation.AnimatorListenerTemplate
 import kotlin.math.abs
 
 /**
@@ -35,7 +40,8 @@ class ItemDragHandlerV4 : View.OnTouchListener {
 
     private var viewGlobalX = 0
 
-    private var currentPosition = Position.Start
+    private var currentPosition =
+        Position.Start
 
     private var touchSlop = 0
 
@@ -54,14 +60,16 @@ class ItemDragHandlerV4 : View.OnTouchListener {
         onStart = {
         },
         onEnd = {
-            currentPosition = Position.Waiting
+            currentPosition =
+                Position.Waiting
         })
 
     private val animateToStartPosition = AnimatorListenerTemplate(
         onStart = {
         },
         onEnd = {
-            currentPosition = Position.Start
+            currentPosition =
+                Position.Start
         })
 
     /**
@@ -100,7 +108,7 @@ class ItemDragHandlerV4 : View.OnTouchListener {
 
                 if (shiftX >= touchSlop || shiftY >= touchSlop) {
 
-                    if (shiftY == 0f || shiftX > shiftY) {
+                    if (shiftY == 0f || shiftX / shiftY > 1f) {
 
                         view.parent.requestDisallowInterceptTouchEvent(true)
 
@@ -115,6 +123,7 @@ class ItemDragHandlerV4 : View.OnTouchListener {
                             }
                             Position.Waiting -> {
                                 if (event.rawX > rawTouchDownX && view.x <= 0) {
+                                    logIt("offset = ${event.rawX + dX - view.width / 2}")
                                     view.animate()
                                         .x(event.rawX + dX - view.width / 2)
                                         .setDuration(0)
@@ -136,19 +145,24 @@ class ItemDragHandlerV4 : View.OnTouchListener {
                             animator(view, 0f, duration, animateToStartPosition).start()
                         }
                         // Если прошли порог, то анимируемся для показа корзинки
-                        else /*if (abs(view.x) < view.width)*/ {
+                        else {
+
+                            // Только один элемент списка может быть с окрытой корзинкой
+                            animatePrevItemBack(view, view.id)
+
                             animator(
                                 view,
                                 -(view.width / 2).toFloat(),
                                 duration,
-                                /*animateToWaitPosition*/
-                                blockingAnimatorListener(view as ViewGroup)
+                                (view as ViewGroup).blockingAnimatorListener()
                             ).start()
                         }
                     }
                     Position.Waiting -> {
                         if (abs(view.x) < view.width / 2 && (event.rawX > rawTouchDownX)) {
-                            animator(view, 0f, duration, unBlockingAnimatorListener(view as ViewGroup)).start()
+                            animator(
+                                view, 0f, duration, (view as ViewGroup).unBlockingAnimatorListener()
+                            ).start()
                         }
                     }
                 }
@@ -163,33 +177,45 @@ class ItemDragHandlerV4 : View.OnTouchListener {
         }
     }
 
-    private fun activatingLoop(view : ViewGroup, isActive : Boolean) {
-        for (i in 0 until view.childCount) {
-            val child = view.getChildAt(i)
-            child.isEnabled = isActive
-
-            if(child is ViewGroup) {
-                activatingLoop(child, isActive)
-            }
+    /**
+     * При показе корзинки в новом элементе списка закрыть карзинку в предыдущем элементе,
+     * если такой элемент существует. Одновременно в списке может быть только один элемент
+     * с открытой корзинкой.
+     *
+     * Алгоритм такой: view - это upperLayer в элементе списка. Находим родительский
+     * RecyclerView, затем через его LayoutManager делаем проход по всех элементам
+     * и выполняем анимацию в них.
+     *
+     */
+    private fun animatePrevItemBack(view: View, itemId : Int) {
+        view.findRecyclerViewParent()?.let { rv ->
+            rv.layoutManager?.animateBack(view.parent as View, itemId)
         }
     }
 
-    private fun blockingAnimatorListener(view : ViewGroup) =
+    /**
+     * По окончании анимации заблокировать все View и иерархии
+     */
+    private fun ViewGroup.blockingAnimatorListener(exclude: List<Int> = emptyList()) =
         AnimatorListenerTemplate(
             onStart = {},
             onEnd = {
-                activatingLoop(view, false)
+                viewHierarchyActivationLoop(false, exclude)
+                // Не забываем обновлять состояние
                 currentPosition = Position.Waiting
             }
         )
 
-    private fun unBlockingAnimatorListener(view: ViewGroup) =
+    /**
+     * По окончании анимации разблокировать все View и иерархии
+     */
+    private fun ViewGroup.unBlockingAnimatorListener(exclude: List<Int> = emptyList()) =
         AnimatorListenerTemplate(
             onStart = {},
             onEnd = {
-                activatingLoop(view, true)
+                viewHierarchyActivationLoop(true, exclude)
+                // Не забываем обновлять состояние
                 currentPosition = Position.Start
             }
         )
-
 }
