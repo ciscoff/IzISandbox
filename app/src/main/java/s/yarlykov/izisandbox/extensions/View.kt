@@ -63,16 +63,20 @@ fun View.findRecyclerViewParent(): RecyclerView? {
  * Ищем среди эелементов RecyclerView всех кроме . Затем ищем в каждом из ни
  * дочерний элемент animatedViewId и анимируем его в исходную Х-позицию.
  */
-fun RecyclerView.LayoutManager.animateBack(excludeItem: View, animatedViewId: Int) {
+fun RecyclerView.LayoutManager.animateBack(excludedItem: View, animatedViewId: Int) {
 
     for (i in 0 until childCount) {
 
         getChildAt(i)?.let { child ->
 
-            if (child != excludeItem) {
+            if (child != excludedItem) {
                 val upperLayer = child.findViewById<MaterialCardView>(animatedViewId)
                 if (upperLayer.x != 0f) {
                     Animators.translateX(upperLayer, 0f, after = {
+
+                        // Не забываем активировать все дочерние View в элементе
+                        (upperLayer.parent as ViewGroup).viewHierarchyActivationLoop(true)
+
                         upperLayer.setOnTouchListener(ItemDragHandlerV4())
                     })
                 }

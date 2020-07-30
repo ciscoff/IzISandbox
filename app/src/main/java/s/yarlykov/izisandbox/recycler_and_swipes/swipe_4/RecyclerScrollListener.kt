@@ -1,9 +1,11 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.swipe_4
 
+import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.viewHierarchyActivationLoop
 import s.yarlykov.izisandbox.recycler_and_swipes.animation.Animators
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.animation.ItemDragHandlerV4
 
@@ -27,6 +29,9 @@ object RecyclerScrollListener : RecyclerView.OnScrollListener() {
                 val upperLayer = child.findViewById<MaterialCardView>(R.id.upper_layer_4)
                 if (upperLayer.x != 0f) {
                     Animators.translateX(upperLayer, 0f, after = {
+                        // Не забываем активировать все дочерние View в элементе
+                        (upperLayer.parent as ViewGroup).viewHierarchyActivationLoop(true)
+
                         upperLayer.setOnTouchListener(ItemDragHandlerV4())
                     })
                 }

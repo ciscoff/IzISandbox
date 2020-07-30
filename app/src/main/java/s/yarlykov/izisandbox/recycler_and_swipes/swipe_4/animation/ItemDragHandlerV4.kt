@@ -16,6 +16,12 @@ import s.yarlykov.izisandbox.recycler_and_swipes.animation.AnimatorListenerTempl
 import kotlin.math.abs
 
 /**
+ * Использован материал
+ * https://github.com/rambler-digital-solutions/swipe-layout-android
+ */
+
+
+/**
  * Класс обрабатывает свайпы карточек услуг.
  *
  * Отдельная фича: когда карточка установлена в положение Waiting и в родительском
@@ -182,9 +188,9 @@ class ItemDragHandlerV4 : View.OnTouchListener {
      * если такой элемент существует. Одновременно в списке может быть только один элемент
      * с открытой корзинкой.
      *
-     * Алгоритм такой: view - это upperLayer в элементе списка. Находим родительский
-     * RecyclerView, затем через его LayoutManager делаем проход по всех элементам
-     * и выполняем анимацию в них.
+     * Алгоритм такой: view - это upperLayer в элементе списка, в котором открывается корзинка.
+     * Находим родительский RecyclerView, затем через его LayoutManager делаем проход по всех
+     * элементам и выполняем анимацию в них.
      *
      */
     private fun animatePrevItemBack(view: View, itemId : Int) {
