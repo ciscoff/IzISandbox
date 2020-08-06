@@ -1,7 +1,11 @@
-package s.yarlykov.izisandbox.extensions
+package s.yarlykov.izisandbox.dsl.extenstions
 
+import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.View
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 
 
 /**
@@ -20,6 +24,25 @@ fun View.dp_i(dp: Float): Int {
     return dp_f(dp).toInt()
 }
 
+fun View.linearLayoutParams(init :  LinearLayout.LayoutParams.() -> Unit) {
+    layoutParams = (layoutParams as LinearLayout.LayoutParams).apply(init)
+}
+
+/**
+ * При вызове infix функций нужно явно указывать receiver слева. Если receiver неявно
+ * присутствует (некий this), то его нужно явно указать как this.
+ */
+infix fun Context.from(id: Int) : String {
+    return resources.getString(id)
+}
+
+infix fun View.from(id: Int) : String {
+    return resources.getString(id)
+}
+
+infix fun View.fromDrawable(id: Int) : Drawable? {
+    return ContextCompat.getDrawable(context, id)
+}
 
 /* --------------------------------------- */
 

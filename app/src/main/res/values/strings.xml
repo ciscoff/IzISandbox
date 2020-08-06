@@ -118,4 +118,8 @@
     <string name="order_title">Order title</string>
     <string name="order_details">Repair cosmetic damage</string>
 
+    <!-- DSL Activity -->
+    <string name="tv_first">First child</string>
+    <string name="tv_second">Second child</string>
+
 </resources>
