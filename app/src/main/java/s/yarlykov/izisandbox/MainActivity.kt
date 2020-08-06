@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
+import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
@@ -44,7 +45,8 @@ class MainActivity : AppCompatActivity() {
         SwipeActivitySecond::class.java to R.string.menu_swipe_gesture_detector,
         SmartSwipeActivity::class.java to R.string.menu_swipe_smart,
         SwipeAnyWhereActivity::class.java to R.string.menu_swipe_any_where,
-        SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo
+        SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo,
+        DslActivity::class.java to R.string.menu_dsl_edu
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

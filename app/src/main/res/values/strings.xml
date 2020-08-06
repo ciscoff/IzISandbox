@@ -37,6 +37,7 @@
     <string name="menu_swipe_drop_undo">Swipe and Drop and Undo</string>
     <string name="menu_swipe_smart">Smart Swipe</string>
     <string name="menu_swipe_any_where">Swipe Anywhere</string>
+    <string name="menu_dsl_edu">DSL Edu</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap">Bootstrap</string>
