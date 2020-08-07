@@ -2,6 +2,7 @@ package s.yarlykov.izisandbox.dsl.extenstions
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.text.InputType
 import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
@@ -71,4 +72,18 @@ var TextView.textColor: Int
     get() = currentTextColor
     set(value) {
         setTextColor(value)
+    }
+
+var TextView.multiLine: Boolean
+    get() = inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE != 0
+    set(value) {
+
+        if(value) {
+            inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            isElegantTextHeight = true
+            setSingleLine(false)
+        } else {
+            isElegantTextHeight = false
+            setSingleLine(true)
+        }
     }

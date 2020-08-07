@@ -119,7 +119,7 @@
     <string name="order_details">Repair cosmetic damage</string>
 
     <!-- DSL Activity -->
-    <string name="tv_first">First child</string>
-    <string name="tv_second">Second child</string>
+    <string name="tv_first">We create a HTML dynamically</string>
+    <string name="tv_second">Just a minute&#8230;</string>
 
 </resources>
