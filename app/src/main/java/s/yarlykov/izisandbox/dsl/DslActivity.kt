@@ -23,10 +23,10 @@ class DslActivity : AppCompatActivity() {
 
         rootView = findViewById(R.id.dsl_activity_root)
 
-        addChildren()
+        addChildren2()
     }
 
-    private fun addChildren() {
+    private fun addChildren1() {
         val ll = vc<LinearLayout>(this) {
 
             layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
@@ -61,6 +61,44 @@ class DslActivity : AppCompatActivity() {
             }
         }
 
+        rootView.addView(ll)
+    }
+
+    private fun addChildren2() {
+        val ll = linearLayout {
+
+            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+            orientation = VERTICAL
+
+            textView {
+
+                linearLayoutParams {
+                    width = dp_i(200f)
+                    height = WRAP_CONTENT
+                    gravity = END
+                }
+
+                background = fromDrawable(R.drawable.background_tv_rounded_red)
+                text = from(R.string.tv_first)
+                padTop = dp_i(10f)
+                padBottom = dp_i(10f)
+                gravity = CENTER
+            }
+
+            textView {
+
+                linearLayoutParams {
+                    width = dp_i(200f)
+                    height = WRAP_CONTENT
+                    gravity = START
+                }
+
+                background = fromDrawable(R.drawable.background_tv_rounded_yellow)
+                text = from(R.string.tv_second)
+                padTop = dp_i(10f)
+                padBottom = dp_i(10f)
+            }
+        }
         rootView.addView(ll)
     }
 }

@@ -24,10 +24,6 @@ fun View.dp_i(dp: Float): Int {
     return dp_f(dp).toInt()
 }
 
-fun View.linearLayoutParams(init :  LinearLayout.LayoutParams.() -> Unit) {
-    layoutParams = (layoutParams as LinearLayout.LayoutParams).apply(init)
-}
-
 /**
  * При вызове infix функций нужно явно указывать receiver слева. Если receiver неявно
  * присутствует (некий this), то его нужно явно указать как this.
