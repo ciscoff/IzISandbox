@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.dsl
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity.*
 import android.view.ViewGroup
@@ -83,6 +84,7 @@ class DslActivity : AppCompatActivity() {
                 padTop = dp_i(10f)
                 padBottom = dp_i(10f)
                 gravity = CENTER
+                textColor = Color.WHITE
             }
 
             textView {
@@ -97,6 +99,7 @@ class DslActivity : AppCompatActivity() {
                 text = from(R.string.tv_second)
                 padTop = dp_i(10f)
                 padBottom = dp_i(10f)
+                textColor = Color.WHITE
             }
         }
         rootView.addView(ll)

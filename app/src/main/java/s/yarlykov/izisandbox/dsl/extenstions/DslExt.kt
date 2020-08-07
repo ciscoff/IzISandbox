@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 
 
@@ -28,15 +29,15 @@ fun View.dp_i(dp: Float): Int {
  * При вызове infix функций нужно явно указывать receiver слева. Если receiver неявно
  * присутствует (некий this), то его нужно явно указать как this.
  */
-infix fun Context.from(id: Int) : String {
+infix fun Context.from(id: Int): String {
     return resources.getString(id)
 }
 
-infix fun View.from(id: Int) : String {
+infix fun View.from(id: Int): String {
     return resources.getString(id)
 }
 
-infix fun View.fromDrawable(id: Int) : Drawable? {
+infix fun View.fromDrawable(id: Int): Drawable? {
     return ContextCompat.getDrawable(context, id)
 }
 
@@ -64,4 +65,10 @@ var View.padBottom: Int
     get() = paddingLeft
     set(value) {
         setPadding(paddingLeft, paddingTop, paddingRight, value)
+    }
+
+var TextView.textColor: Int
+    get() = currentTextColor
+    set(value) {
+        setTextColor(value)
     }
