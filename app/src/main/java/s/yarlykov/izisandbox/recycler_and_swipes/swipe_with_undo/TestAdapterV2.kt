@@ -7,16 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.hash
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity.Companion.PENDING_REMOVAL_TIMEOUT
-
 
 class TestAdapterV2 : RecyclerView.Adapter<TestViewHolder>() {
 
     // Модель которую показываем (строки)
-    private val items = mutableListOf<String>()
-
-    // Элементы ожидающие удаления (строки)
-//    private val itemsPendingRemoval = mutableListOf<String>()
+    private val model = mutableListOf<String>()
 
     private var initModelSize: Int = 15
 
@@ -24,7 +21,7 @@ class TestAdapterV2 : RecyclerView.Adapter<TestViewHolder>() {
 
         // Генерим элементы
         for (i in 0 until initModelSize) {
-            items.add("Item $i")
+            model.add("Item $i")
         }
     }
 
@@ -34,7 +31,7 @@ class TestAdapterV2 : RecyclerView.Adapter<TestViewHolder>() {
     private val handler = Handler()
 
     // Элементы ожидающие удаления
-    private var pendingRemovers = mutableMapOf<String, Remover>()
+    private var pendingRemovers = mutableMapOf<Int, Remover>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TestViewHolder {
 
@@ -47,86 +44,90 @@ class TestAdapterV2 : RecyclerView.Adapter<TestViewHolder>() {
         )
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = model.size
 
     /**
      * Добавить элементы в модель
      */
     fun addItems(howMany: Int) {
 
-        var next = items.lastIndex
+        var next = model.lastIndex
 
         if (howMany > 0) {
             for (i in 0 until howMany) {
-                items.add("Item ${++next}")
-                notifyItemInserted(items.size - 1)
+                model.add("Item ${++next}")
+                notifyItemInserted(model.size - 1)
             }
         }
-    }
-
-    fun putInRemoval(position: Int) {
-        val item = items[position]
-
-        if (!pendingRemovers.keys.contains(item)) {
-
-            val remover = object : Remover {
-                override fun run() {
-                    removeFromModel(position)
-                }
-            }
-            pendingRemovers[item] = remover
-            handler.postDelayed(remover, PENDING_REMOVAL_TIMEOUT)
-
-            // Это вызовет повторную инициализацию соотв ViewHolder'а,
-            // то есть будет вызван onBindViewHolder
-            notifyItemChanged(position)
-        }
-
-//        if (!itemsPendingRemoval.contains(item)) {
-//
-//
-//            // Это вызовет повторную инициализацию соотв ViewHolder'а,
-//            // то есть будет вызван onBindViewHolder
-//            notifyItemChanged(position)
-//
-//            // let's create, store and post a runnable to remove the item
-//            val pendingRemovalRunnable = Runnable { removeFromModel(position) }
-//
-//            handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT)
-//            pendingRemoval[item] = pendingRemovalRunnable
-//        }
     }
 
     /**
-     * Удалить элемент из модели
+     * Добавить в список на удаление
      */
-    fun removeFromModel(position: Int) {
-        val item = items[position]
+    fun putInRemoval(position: Int) {
+        val hash = model[position].hash
 
-        // Если в списке на удаление, то удалить
-        pendingRemovers.remove(item)
+        if (!pendingRemovers.keys.contains(hash)) {
 
-        // Удалить из основной модели
-        if (items.contains(item)) {
-            items.removeAt(position)
-            notifyItemRemoved(position)
+            val remover = object : Remover {
+                override fun run() {
+                    removeFromModel(hash)
+                }
+            }
+            pendingRemovers[hash] = remover
+            handler.postDelayed(remover, PENDING_REMOVAL_TIMEOUT)
+
+            // Это вызовет повторную инициализацию соотв ViewHolder'а,
+            // то есть будет вызван onBindViewHolder, и там элемент будет перерисован:
+            // красный фон, кнопка Undo.
+            notifyItemChanged(position)
         }
     }
 
-    fun isPendingRemoval(position: Int): Boolean {
+    /**
+     * Удалить элемент из модели (когда isUndoOn включен)
+     */
+    fun removeFromModel(hash: Int) {
 
-        val item = items[position]
-        return pendingRemovers.keys.contains(item)
+        // Поиск в списке
+        val index = model.map { it.hash }.indexOf(hash)
+
+        if (index != -1) {
+
+            // Если в списке на удаление, то удалить
+            pendingRemovers.remove(hash)
+
+            model.removeAt(index)
+            notifyItemRemoved(index)
+        }
     }
 
+    /**
+     * Удалить элемент из модели (когда isUndoOn выключен)
+     */
+    fun removeInstantly(pos: Int) {
+
+        if (pos <= model.lastIndex) {
+            model.removeAt(pos)
+            notifyItemRemoved(pos)
+        }
+    }
+
+    /**
+     * Проверка обреченных на удаление
+     */
+    fun isPendingRemoval(position: Int): Boolean {
+        val item = model[position]
+        return pendingRemovers.keys.contains(item.hash)
+    }
 
     override fun onBindViewHolder(viewHolder: TestViewHolder, position: Int) {
 
-        val item = items[position]
+        val hash = model[position].hash
 
         // Отрисовка элемента в состоянии Undo.
         // Это красный фон, кнопка справа и скрытый текст
-        if (pendingRemovers.keys.contains(item)) {
+        if (pendingRemovers.keys.contains(hash)) {
 
             viewHolder.itemView.setBackgroundColor(Color.RED)
             viewHolder.titleTextView.visibility = View.GONE
@@ -138,21 +139,18 @@ class TestAdapterV2 : RecyclerView.Adapter<TestViewHolder>() {
             // после вызова notifyItemChanged(position)
             viewHolder.undoButton.setOnClickListener {
 
-                val remover = pendingRemovers[item]
-
-                pendingRemovers.remove(item)
-
-                if (remover != null) handler.removeCallbacks(
-                    remover
-                )
-                notifyItemChanged(position)
+                pendingRemovers[hash]?.let { remover ->
+                    handler.removeCallbacks(remover)
+                    pendingRemovers.remove(hash)
+                    notifyItemChanged(position)
+                }
             }
         }
         // Отрисовка элемента в нормальном состоянии
         else {
             viewHolder.itemView.setBackgroundColor(Color.WHITE)
             viewHolder.titleTextView.visibility = View.VISIBLE
-            viewHolder.titleTextView.text = item
+            viewHolder.titleTextView.text = model[position]
             viewHolder.undoButton.visibility = View.GONE
             viewHolder.undoButton.setOnClickListener(null)
         }

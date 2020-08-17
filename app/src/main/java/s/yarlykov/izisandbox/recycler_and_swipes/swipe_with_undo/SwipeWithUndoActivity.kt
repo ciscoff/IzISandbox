@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
 
 /**
  * Код взят отсюда:
@@ -29,7 +28,6 @@ class SwipeWithUndoActivity : AppCompatActivity() {
     }
 
     lateinit var recyclerView: RecyclerView
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +101,7 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                 }
 
                 /**
-                 * Работает только для Drag (не этот случай)
+                 * Работает только для Drag (не наш случай)
                  */
                 override fun onMove(
                     recyclerView: RecyclerView,
@@ -125,7 +123,7 @@ class SwipeWithUndoActivity : AppCompatActivity() {
 
                     /**
                      * Если адаптер в режиме isUndoOn и для данной строки уже зашедулено
-                     * удаление, то возращаем 0, показывая, что строку нельзя ни свайпить
+                     * удаление, то возвращаем 0, показывая, что строку нельзя ни свайпить
                      * ни драгить.
                      */
                     val isPendingRemoval =
@@ -140,8 +138,13 @@ class SwipeWithUndoActivity : AppCompatActivity() {
 
                 /**
                  * Вызывается для каждой строки после того, как она считается swiped.
-                 * Так как fraction= 0.5, то метод вызывается ещё до того как завершится
-                 * анимация ухода.
+                 *
+                 * NOTE: Основной момент - подразумевается, что я должен удалить
+                 * свайпнутый элемент из модели и обновить адаптер. То есть я свайпнул элемент,
+                 * отработала анимация ухода влево, затем удаляю элемент из модели и извещаю адаптер.
+                 * Список перерисовывается уже без элемента. Однако, если элемент не удалять,
+                 * то при последующем onBindViewHolder он автоматически вернется назад, да еще с
+                 * reverse анимацией !!!
                  */
                 override fun onSwiped(
                     viewHolder: RecyclerView.ViewHolder,
@@ -153,7 +156,7 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                     if (undoOn) {
                         adapter.putInRemoval(swipedPosition)
                     } else {
-                        adapter.removeFromModel(swipedPosition)
+                        adapter.removeInstantly(swipedPosition)
                     }
                 }
 
@@ -172,8 +175,6 @@ class SwipeWithUndoActivity : AppCompatActivity() {
                     if (viewHolder.adapterPosition == -1) {
                         return
                     }
-
-                    logIt("item right = ${itemView.right}")
 
                     // При перетаскивании влево значения itemView.right/itemView.left не изменяются !!!
                     // Это значения начального layout'а !!!
