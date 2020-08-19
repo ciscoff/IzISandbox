@@ -25,13 +25,13 @@
     <FrameLayout
         android:id="@+id/scene_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp"
         android:minHeight="100dp"
         android:visibility="visible" />
 
     <!--
     Атрибут  android:transitionGroup="true" влияет на то, будет ли участвовать
-    ViewGroup в transition. Пока я этот флаг не установил, то ViewGroup не аниамировалась
+    ViewGroup в transition. Пока я этот флаг не установил, то ViewGroup не анимировалась
     вместе с AppBar'ом, а сразу отрисовывалась на своем месте !!!
 
     Для обычных View никаких ограничений нет, и они нормально анимируются, если их включили
@@ -54,7 +54,7 @@
 
             <Button
                 android:id="@+id/sample_scene_button1"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/MaterialAnimations.Button.Scaled"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -63,7 +63,7 @@
 
             <Button
                 android:id="@+id/sample_scene_button2"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/MaterialAnimations.Button.Scaled"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -78,7 +78,7 @@
 
             <Button
                 android:id="@+id/sample_scene_button3"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/MaterialAnimations.Button.Scaled"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
@@ -87,7 +87,7 @@
 
             <Button
                 android:id="@+id/sample_scene_button4"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/MaterialAnimations.Button.Scaled"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"

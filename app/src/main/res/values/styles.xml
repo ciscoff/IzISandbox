@@ -68,4 +68,9 @@
         <item name="colorAccent">@color/colorWhite</item>
     </style>
 
+    <style name="MaterialAnimations.Button.Scaled" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:scaleX">0</item>
+        <item name="android:scaleY">0</item>
+    </style>
+
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="animation_activity_in_out">1000</integer>
+    <integer name="animation_activity_in_out">500</integer>
     <integer name="animation_to_center_duration">200</integer>
     <integer name="animation_over_edge_duration">300</integer>
 

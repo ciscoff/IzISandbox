@@ -22,18 +22,20 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var scene2: Scene
     private lateinit var scene3: Scene
     private lateinit var scene4: Scene
-    private lateinit var sceneRoot : ViewGroup
-    private val buttons = ArrayList<Button>()
+    private lateinit var sceneRoot: ViewGroup
+    private lateinit var buttons: List<Button>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Анимации для входа и выхода из активити
         with(window) {
             requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
             setupWindowAnimations()
         }
 
         setContentView(R.layout.activity_using_scenes)
+
         // Скрываем Status Bar
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -53,26 +55,46 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
         scene3 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_3, this)
         scene4 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_4, this)
 
-        findViewById<Button>(R.id.sample_scene_button1).setOnClickListener (this)
-        findViewById<Button>(R.id.sample_scene_button2).setOnClickListener (this)
-        findViewById<Button>(R.id.sample_scene_button3).setOnClickListener (this)
-        findViewById<Button>(R.id.sample_scene_button4).setOnClickListener (this)
+        buttons = listOf(
+            R.id.sample_scene_button1,
+            R.id.sample_scene_button2,
+            R.id.sample_scene_button3,
+            R.id.sample_scene_button4
+        ).map {
+            findViewById<Button>(it).apply { setOnClickListener(this@UsingScenesActivity) }
+        }
     }
 
     override fun onClick(v: View) {
 
-        when(v.id) {
+        when (v.id) {
             R.id.sample_scene_button1 -> {
-                TransitionManager.go(scene1, ChangeBounds().apply { duration = resources.getInteger(R.integer.anim_duration_turtle).toLong() })
+                TransitionManager.go(
+                    scene1,
+                    ChangeBounds().apply {
+                        duration = resources.getInteger(R.integer.anim_duration_turtle).toLong()
+                    })
             }
             R.id.sample_scene_button2 -> {
-                TransitionManager.go(scene2, TransitionInflater.from(this).inflateTransition(R.transition.slide_and_changebounds))
+                TransitionManager.go(
+                    scene2,
+                    TransitionInflater.from(this)
+                        .inflateTransition(R.transition.slide_and_changebounds)
+                )
             }
             R.id.sample_scene_button3 -> {
-                TransitionManager.go(scene3, TransitionInflater.from(this).inflateTransition(R.transition.slide_and_changebounds_sequential))
+                TransitionManager.go(
+                    scene3,
+                    TransitionInflater.from(this)
+                        .inflateTransition(R.transition.slide_and_changebounds_sequential)
+                )
             }
             R.id.sample_scene_button4 -> {
-                TransitionManager.go(scene4, TransitionInflater.from(this).inflateTransition(R.transition.slide_and_changebounds_sequential_with_interpolators))
+                TransitionManager.go(
+                    scene4,
+                    TransitionInflater.from(this)
+                        .inflateTransition(R.transition.slide_and_changebounds_sequential_with_interpolators)
+                )
             }
         }
     }
@@ -88,6 +110,7 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
 
         window.allowEnterTransitionOverlap = true
 
+        // Появление этой активити
         window.enterTransition =
             TransitionInflater
                 .from(this)
@@ -100,6 +123,7 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
                     addListener(transitionListener)
                 }
 
+        // Возврат в предыдущую активити
         window.returnTransition = Fade(Fade.OUT).apply {
             duration = animDuration
             addTarget(R.id.floating_button)
@@ -112,11 +136,21 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
 
         scene0 = Scene.getSceneForLayout(sceneRoot, R.layout.layout_scene_0, this).apply {
             setEnterAction {
+                for((index, view) in buttons.withIndex()) {
+                    view
+                        .animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .startDelay = (index * Delay)
+                }
             }
         }
     }
 
     companion object {
+
+        private const val Delay = 100L
+
         fun startNew(context: Context) {
             val intent = Intent(context, UsingScenesActivity::class.java)
             context.startActivity(
