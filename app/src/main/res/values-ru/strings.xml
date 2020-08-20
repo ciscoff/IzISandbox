@@ -1,2 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="ui_day_today">Сегодня</string>
+    <string name="ui_day_tomorrow">Завтра</string>
+    <string name="ui_day_yesterday">Вчера</string>
+</resources>

@@ -1,126 +1,131 @@
 <resources>
-    <string name="app_name">iZiSandbox</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name" translatable="false">iZiSandbox</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="nav_header_title" translatable="false">Android Studio</string>
+    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
+    <string name="nav_header_desc" translatable="false">Navigation header</string>
+    <string name="action_settings" translatable="false">Settings</string>
 
-    <string name="title_home">Home</string>
-    <string name="title_gallery">Gallery</string>
-    <string name="title_slideshow">Slideshow</string>
-    <string name="title_graph_2">Next Graph</string>
-    <string name="title_select_example">Select Example</string>
-    <string name="shared_transition_colored">shared_transition_colored</string>
-    <string name="shared_transition_red_ball">shared_transition_red_ball</string>
-    <string name="shared_transition_blue_ball">shared_transition_blue_ball</string>
-    <string name="shared_transition_green_ball">shared_transition_green_ball</string>
-    <string name="shared_transition_orange_ball">shared_transition_orange_ball</string>
+    <string name="title_home" translatable="false">Home</string>
+    <string name="title_gallery" translatable="false">Gallery</string>
+    <string name="title_slideshow" translatable="false">Slideshow</string>
+    <string name="title_graph_2" translatable="false">Next Graph</string>
+    <string name="title_select_example" translatable="false">Select Example</string>
+    <string name="shared_transition_colored" translatable="false">shared_transition_colored</string>
+    <string name="shared_transition_red_ball" translatable="false">shared_transition_red_ball</string>
+    <string name="shared_transition_blue_ball" translatable="false">shared_transition_blue_ball</string>
+    <string name="shared_transition_green_ball" translatable="false">shared_transition_green_ball</string>
+    <string name="shared_transition_orange_ball" translatable="false">shared_transition_orange_ball</string>
 
-    <string name="notification_click_anywhere">Click anywhere to start activity</string>
+    <string name="notification_click_anywhere" translatable="false">Click anywhere to start activity</string>
 
-    <string name="button_to_stub">To Stub Fragment</string>
-    <string name="button_to_graph_2">To next graph</string>
-    <string name="button_undo">undo</string>
+    <string name="button_to_stub" translatable="false">To Stub Fragment</string>
+    <string name="button_to_graph_2" translatable="false">To next graph</string>
+    <string name="button_undo" translatable="false">undo</string>
 
-    <string name="menu_izi_login">iZiLogin Example</string>
-    <string name="menu_nav_graph">Navigation and Animations</string>
-    <string name="menu_activity_transitions_1">Transitioning activities</string>
-    <string name="menu_activities_shared_views">Activities shared views</string>
-    <string name="menu_fragments_shared_views">Fragments shared views</string>
-    <string name="menu_dialogs">Dialog Examples</string>
-    <string name="menu_themes">UI Themes</string>
-    <string name="menu_with_scenes_1">Scenes animation 1</string>
-    <string name="menu_with_scenes_2">Scenes animation 2</string>
-    <string name="menu_swipe_with_helper">Swipe with Helper</string>
-    <string name="menu_swipe_gesture_detector">Swipe with Gesture Detector</string>
-    <string name="menu_swipe_drop_undo">Swipe and Drop and Undo</string>
-    <string name="menu_swipe_smart">Smart Swipe</string>
-    <string name="menu_swipe_any_where">Swipe Anywhere</string>
-    <string name="menu_dsl_edu">DSL Edu</string>
+    <string name="menu_izi_login" translatable="false">iZiLogin Example</string>
+    <string name="menu_nav_graph" translatable="false">Navigation and Animations</string>
+    <string name="menu_activity_transitions_1" translatable="false">Transitioning activities</string>
+    <string name="menu_activities_shared_views" translatable="false">Activities shared views</string>
+    <string name="menu_fragments_shared_views" translatable="false">Fragments shared views</string>
+    <string name="menu_dialogs" translatable="false">Dialog Examples</string>
+    <string name="menu_themes" translatable="false">UI Themes</string>
+    <string name="menu_with_scenes_1" translatable="false">Scenes animation 1</string>
+    <string name="menu_with_scenes_2" translatable="false">Scenes animation 2</string>
+    <string name="menu_swipe_with_helper" translatable="false">Swipe with Helper</string>
+    <string name="menu_swipe_gesture_detector" translatable="false">Swipe with Gesture Detector</string>
+    <string name="menu_swipe_drop_undo" translatable="false">Swipe and Drop and Undo</string>
+    <string name="menu_swipe_smart" translatable="false">Smart Swipe</string>
+    <string name="menu_swipe_any_where" translatable="false">Swipe Anywhere</string>
+    <string name="menu_dsl_edu" translatable="false">DSL Edu</string>
 
     <!-- Navigation menu -->
-    <string name="menu_nav_bootstrap">Bootstrap</string>
-    <string name="menu_nav_auth">Auth</string>
+    <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
+    <string name="menu_nav_auth" translatable="false">Auth</string>
 
-    <string name="text_graph_2">Graph 2</string>
+    <string name="text_graph_2" translatable="false">Graph 2</string>
 
     <!--    Login UI-->
-    <string name="ui_login_phone">Phone</string>
-    <string name="ui_runtime_mode">Testing</string>
-    <string name="ui_login_password">Password</string>
-    <string name="ui_btn_select_mode">Select Mode</string>
-    <string name="ui_btn_register_send">Send</string>
-    <string name="ui_login_remember">Remember Me</string>
-    <string name="ui_btn_register">Register</string>
-    <string name="ui_link_account_register">No account yet?</string>
-    <string name="ui_message_confidence">By authorizing, you agree to the <a href="http://inowave.website/">Terms and Privacy Policy</a></string>
+    <string name="ui_login_phone" translatable="false">Phone</string>
+    <string name="ui_runtime_mode" translatable="false">Testing</string>
+    <string name="ui_login_password" translatable="false">Password</string>
+    <string name="ui_btn_select_mode" translatable="false">Select Mode</string>
+    <string name="ui_btn_register_send" translatable="false">Send</string>
+    <string name="ui_login_remember" translatable="false">Remember Me</string>
+    <string name="ui_btn_register" translatable="false">Register</string>
+    <string name="ui_link_account_register" translatable="false">No account yet?</string>
+    <string name="ui_message_confidence" translatable="false">By authorizing, you agree to the <a href="http://inowave.website/">Terms and Privacy Policy</a></string>
 
     <!-- Для создания клиентов -->
-    <string name="client_create">Create client</string>
-    <string name="client_type_base">Base</string>
-    <string name="client_source_system">System</string>
-    <string name="client_ident_phone">Phone</string>
-    <string name="client_input_phone">Phone</string>
-    <string name="client_input_fio">Client Name</string>
-    <string name="client_input_type">Client Type</string>
-    <string name="client_input_source">Find out source</string>
+    <string name="client_create" translatable="false">Create client</string>
+    <string name="client_type_base" translatable="false">Base</string>
+    <string name="client_source_system" translatable="false">System</string>
+    <string name="client_ident_phone" translatable="false">Phone</string>
+    <string name="client_input_phone" translatable="false">Phone</string>
+    <string name="client_input_fio" translatable="false">Client Name</string>
+    <string name="client_input_type" translatable="false">Client Type</string>
+    <string name="client_input_source" translatable="false">Find out source</string>
 
     <!-- Actions/Buttons -->
-    <string name="action_ok">ok</string>
-    <string name="action_example_1">Two layouts</string>
-    <string name="action_example_2">One layout</string>
+    <string name="action_ok" translatable="false">OK</string>
+    <string name="action_example_1" translatable="false">Two layouts</string>
+    <string name="action_example_2" translatable="false">One layout</string>
 
-    <string name="name_anna">Anna</string>
-    <string name="name_maria">Maria</string>
-    <string name="name_georgy">Georgy</string>
-    <string name="name_hint">Kid name</string>
-    <string name="parent_hint">Parent</string>
+    <string name="name_anna" translatable="false">Anna</string>
+    <string name="name_maria" translatable="false">Maria</string>
+    <string name="name_georgy" translatable="false">Georgy</string>
+    <string name="name_hint" translatable="false">Kid name</string>
+    <string name="parent_hint" translatable="false">Parent</string>
 
     <!-- Scenes -->
-    <string name="scene_title">Scene Animations</string>
-    <string name="scene_one">Scene one</string>
-    <string name="scene_two">Scene two</string>
-    <string name="scene_three">Scene three</string>
-    <string name="scene_four">Scene four</string>
-    <string name="scene_about">Scenes store the state of a view hierarchy, including all its views and their property values. The transitions framework can run animations between a starting and an ending scene</string>
+    <string name="scene_title" translatable="false">Scene Animations</string>
+    <string name="scene_one" translatable="false">Scene one</string>
+    <string name="scene_two" translatable="false">Scene two</string>
+    <string name="scene_three" translatable="false">Scene three</string>
+    <string name="scene_four" translatable="false">Scene four</string>
+    <string name="scene_about" translatable="false">Scenes store the state of a view hierarchy, including all its views and their property values. The transitions framework can run animations between a starting and an ending scene</string>
 
-    <string name="list_item_0">Laravel</string>
-    <string name="list_item_1">Ruby on Rails</string>
-    <string name="list_item_2">Django</string>
-    <string name="list_item_3">Angular</string>
-    <string name="list_item_4">ASP.NET</string>
-    <string name="list_item_5">METEOR</string>
-    <string name="list_item_6">Express</string>
-    <string name="list_item_7">Spring</string>
-    <string name="list_item_8">PLAY</string>
-    <string name="list_item_9">CodeIgniter</string>
-    <string name="title_activity_swipe_with_undo">SwipeWithUndoActivity</string>
+    <string name="list_item_0" translatable="false">Laravel</string>
+    <string name="list_item_1" translatable="false">Ruby on Rails</string>
+    <string name="list_item_2" translatable="false">Django</string>
+    <string name="list_item_3" translatable="false">Angular</string>
+    <string name="list_item_4" translatable="false">ASP.NET</string>
+    <string name="list_item_5" translatable="false">METEOR</string>
+    <string name="list_item_6" translatable="false">Express</string>
+    <string name="list_item_7" translatable="false">Spring</string>
+    <string name="list_item_8" translatable="false">PLAY</string>
+    <string name="list_item_9" translatable="false">CodeIgniter</string>
+    <string name="title_activity_swipe_with_undo" translatable="false">SwipeWithUndoActivity</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="first_fragment_label" translatable="false">First Fragment</string>
+    <string name="second_fragment_label" translatable="false">Second Fragment</string>
+    <string name="next" translatable="false">Next</string>
+    <string name="previous" translatable="false">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
+    <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
 
     <!--    Swipe undo Activity-->
-    <string name="menu_checkbox_undo">Undo</string>
-    <string name="menu_add_5_items">Add 5 items</string>
+    <string name="menu_checkbox_undo" translatable="false">Undo</string>
+    <string name="menu_add_5_items" translatable="false">Add 5 items</string>
 
     <!--    Advanced swipe -->
-    <string name="doer_action_confirm">Confirm</string>
-    <string name="doer_action_refuse">Refuse</string>
-    <string name="doer_action_status">Change status</string>
-    <string name="doer_action_delete">Delete</string>
-    <string name="hint_select_action">Drag horizontally</string>
-    <string name="order_title">Order title</string>
-    <string name="order_details">Repair cosmetic damage</string>
+    <string name="doer_action_confirm" translatable="false">Confirm</string>
+    <string name="doer_action_refuse" translatable="false">Refuse</string>
+    <string name="doer_action_status" translatable="false">Change status</string>
+    <string name="doer_action_delete" translatable="false">Delete</string>
+    <string name="hint_select_action" translatable="false">Drag horizontally</string>
+    <string name="order_title" translatable="false">Order title</string>
+    <string name="order_details" translatable="false">Repair cosmetic damage</string>
 
     <!-- DSL Activity -->
-    <string name="tv_first">We create a HTML dynamically</string>
-    <string name="tv_second">Just a minute&#8230;</string>
+    <string name="tv_first" translatable="false">We create a HTML dynamically</string>
+    <string name="tv_second" translatable="false">Just a minute&#8230;</string>
+
+    <!-- Показ даты -->
+    <string name="ui_day_today">Today</string>
+    <string name="ui_day_tomorrow">Tomorrow</string>
+    <string name="ui_day_yesterday">Yesterday</string>
 
 </resources>

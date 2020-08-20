@@ -10,8 +10,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
+import org.threeten.bp.ZoneId
+import org.threeten.bp.ZonedDateTime
+import org.threeten.bp.format.DateTimeFormatter
+import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.dsl.DslActivity
+import s.yarlykov.izisandbox.extensions.ZDate
+import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
@@ -62,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         findView()
         inflateMenu(cardsContainer, stages)
+        showDate()
     }
 
     private fun findView() {
@@ -134,6 +141,13 @@ class MainActivity : AppCompatActivity() {
                 duration = animDuration
                 addTarget(R.id.main_container)
             }
+        }
+    }
+
+    private fun showDate() {
+
+        findViewById<TextView>(R.id.tv_date).apply {
+            text = ZDate.now().toReadable(this@MainActivity)
         }
     }
 }
