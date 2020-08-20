@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.transition.Explode
 import android.transition.Fade
-import android.transition.Slide
-import android.view.Gravity
 import android.view.Window
 import android.view.WindowManager
 import android.widget.LinearLayout
@@ -24,7 +22,8 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoAc
 import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
-import s.yarlykov.izisandbox.transitions.using_scenes.UsingScenesActivity
+import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity1
+import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity2
 import s.yarlykov.izisandbox.transitions.using_window.ActivityFrom
 
 class MainActivity : AppCompatActivity() {
@@ -38,7 +37,8 @@ class MainActivity : AppCompatActivity() {
         ActivityFrom::class.java to R.string.menu_activity_transitions_1,
         ActivitySharedFrom::class.java to R.string.menu_activities_shared_views,
         ActivityWithFragments::class.java to R.string.menu_fragments_shared_views,
-        UsingScenesActivity::class.java to R.string.menu_with_scenes,
+        ScenesInsideActivity1::class.java to R.string.menu_with_scenes_1,
+        ScenesInsideActivity2::class.java to R.string.menu_with_scenes_2,
         DialogsActivity::class.java to R.string.menu_dialogs,
         ThemeActivity::class.java to R.string.menu_themes,
         SwipeActivityFirst::class.java to R.string.menu_swipe_with_helper,
@@ -92,8 +92,8 @@ class MainActivity : AppCompatActivity() {
                     ActivityFrom::class.java -> {
                         ActivityFrom.startNew(this)
                     }
-                    UsingScenesActivity::class.java -> {
-                        UsingScenesActivity.startNew(this)
+                    ScenesInsideActivity1::class.java -> {
+                        ScenesInsideActivity1.startNew(this)
                     }
                     else -> {
                         startActivity(Intent(this, clazz))

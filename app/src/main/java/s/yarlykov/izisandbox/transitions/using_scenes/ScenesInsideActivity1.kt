@@ -15,7 +15,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import s.yarlykov.izisandbox.R
 
-class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
+class ScenesInsideActivity1 : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var scene0: Scene
     private lateinit var scene1: Scene
@@ -61,7 +61,7 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
             R.id.sample_scene_button3,
             R.id.sample_scene_button4
         ).map {
-            findViewById<Button>(it).apply { setOnClickListener(this@UsingScenesActivity) }
+            findViewById<Button>(it).apply { setOnClickListener(this@ScenesInsideActivity1) }
         }
     }
 
@@ -152,7 +152,7 @@ class UsingScenesActivity : AppCompatActivity(), View.OnClickListener {
         private const val Delay = 100L
 
         fun startNew(context: Context) {
-            val intent = Intent(context, UsingScenesActivity::class.java)
+            val intent = Intent(context, ScenesInsideActivity1::class.java)
             context.startActivity(
                 intent,
                 ActivityOptions.makeSceneTransitionAnimation(context as Activity).toBundle()

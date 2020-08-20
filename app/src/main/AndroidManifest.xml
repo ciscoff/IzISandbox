@@ -9,10 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".dsl.DslActivity"></activity>
+        <activity android:name=".transitions.using_scenes.ScenesInsideActivity2"></activity>
+        <activity android:name=".dsl.DslActivity" />
         <activity android:name=".recycler_and_swipes.swipe_4.SwipeAnyWhereActivity" />
         <activity android:name=".recycler_and_swipes.swipe_3.SmartSwipeActivity" />
-        <activity android:name=".transitions.using_scenes.UsingScenesActivity" />
+        <activity android:name=".transitions.using_scenes.ScenesInsideActivity1" />
         <activity android:name=".recycler_and_swipes.swipe_2.SwipeActivitySecond" />
         <activity
             android:name=".recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity"

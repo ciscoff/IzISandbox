@@ -31,7 +31,8 @@
     <string name="menu_fragments_shared_views">Fragments shared views</string>
     <string name="menu_dialogs">Dialog Examples</string>
     <string name="menu_themes">UI Themes</string>
-    <string name="menu_with_scenes">Scenes animation</string>
+    <string name="menu_with_scenes_1">Scenes animation 1</string>
+    <string name="menu_with_scenes_2">Scenes animation 2</string>
     <string name="menu_swipe_with_helper">Swipe with Helper</string>
     <string name="menu_swipe_gesture_detector">Swipe with Gesture Detector</string>
     <string name="menu_swipe_drop_undo">Swipe and Drop and Undo</string>
