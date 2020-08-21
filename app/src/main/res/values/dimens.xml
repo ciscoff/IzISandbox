@@ -30,4 +30,7 @@
     <dimen name="frame_outbound_stroke_width">10dp</dimen>
     <dimen name="frame_outbound_stroke_radius">10dp</dimen>
 
+    <dimen name="swipe_item_height">60dp</dimen>
+    <dimen name="swipe_text_padding">20dp</dimen>
+
 </resources>

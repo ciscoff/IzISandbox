@@ -2,46 +2,49 @@
 <s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItem xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
+    android:clipChildren="false"
     android:focusable="true">
 
     <TextView
         android:id="@+id/tv_blue"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="@dimen/swipe_item_height"
         android:background="@android:color/holo_blue_dark"
         android:gravity="center_vertical|end"
-        android:padding="40dp"
+        android:paddingEnd="@dimen/swipe_text_padding"
+        android:paddingStart="@dimen/swipe_text_padding"
         android:text="@string/text_view_blue"
         android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/tv_green"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="@dimen/swipe_item_height"
         android:background="@android:color/holo_green_dark"
         android:gravity="center_vertical|end"
-        android:padding="40dp"
+        android:paddingEnd="@dimen/swipe_text_padding"
+        android:paddingStart="@dimen/swipe_text_padding"
         android:text="@string/text_view_green"
         android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/tv_red"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="@dimen/swipe_item_height"
         android:background="@android:color/holo_red_dark"
         android:gravity="center_vertical|end"
-        android:padding="40dp"
+        android:paddingEnd="@dimen/swipe_text_padding"
+        android:paddingStart="@dimen/swipe_text_padding"
         android:text="@string/text_view_red"
         android:textColor="@android:color/white" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="@dimen/swipe_item_height"
         app:cardElevation="4dp"
         app:cardUseCompatPadding="true"
         card_view:cardCornerRadius="6dp">
@@ -54,29 +57,31 @@
             android:text="@string/swipe_item_view" />
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Сюда можно сложить любое количество элементов -->
     <FrameLayout
-        android:visibility="gone"
         android:id="@+id/container_right"
         android:layout_width="match_parent"
-        android:layout_height="128dp">
+        android:layout_height="@dimen/swipe_item_height">
 
         <TextView
             android:id="@+id/tv_gray"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/swipe_item_height"
             android:background="@android:color/darker_gray"
             android:gravity="center_vertical|start"
-            android:padding="40dp"
+            android:paddingEnd="@dimen/swipe_text_padding"
+            android:paddingStart="@dimen/swipe_text_padding"
             android:text="@string/text_view_gray"
             android:textColor="@android:color/white" />
 
         <TextView
             android:id="@+id/tv_purple"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/swipe_item_height"
             android:background="@android:color/holo_purple"
             android:gravity="center_vertical|start"
-            android:padding="40dp"
+            android:paddingEnd="@dimen/swipe_text_padding"
+            android:paddingStart="@dimen/swipe_text_padding"
             android:text="@string/text_view_purple"
             android:textColor="@android:color/white" />
 

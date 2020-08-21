@@ -18,6 +18,17 @@ import kotlin.math.abs
 
 private const val TAG_SWIPE = "TAG_SWIPE"
 
+/**
+ * Я пробовал размещать ещё одну FrameLayout в качестве контейнера для TextView справа.
+ * Идея была такова: во время layout'а сдвигать эту FrameLayout за правый край. Эта FrameLayout
+ * сама расположит свои дочерние TextView внутри себя. Во время MotionEvent.ACTION_MOVE я хотел
+ * перемещать её дочерние TextView следом за карточкой, но проблема в том, что эти TextView
+ * отрисовываются только в границах своего родителя. Все что выходит за пределы - обрезается !
+ *
+ * Однако !!!! Это можно поправить с помощью атрибута android:clipChildren="false"
+ * Я поставил его в элемент SwipeItem и все завелось !!!
+ *
+ */
 class SwipeItem @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), View.OnClickListener {
@@ -62,16 +73,28 @@ class SwipeItem @JvmOverloads constructor(
     private lateinit var tvBlue: TextView
     private lateinit var tvGreen: TextView
     private lateinit var tvRed: TextView
+    private lateinit var tvGray: TextView
+    private lateinit var tvPurple: TextView
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        val dbgPrefix =
+            "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
 
         for (i in 0 until childCount) {
-            val child = getChildAt(i)
 
-            if (child is TextView) {
-                child.layout(-child.measuredWidth, 0, 0, child.measuredHeight)
-            } else {
-                child.layout(0, 0, child.measuredWidth, child.measuredHeight)
+            when(val child = getChildAt(i)) {
+                is TextView -> {
+                    if(child.id in leftViews)
+                    child.layout(-child.measuredWidth, 0, 0, child.measuredHeight)
+                }
+                !is MaterialCardView -> {
+                    logIt("$dbgPrefix ${child::class.java.simpleName}, child.measuredWidth=${child.measuredWidth}", TAG_SWIPE)
+                    child.layout(child.measuredWidth, 0, child.measuredWidth * 2, child.measuredHeight)
+                }
+                else -> {
+                    logIt("$dbgPrefix ${child::class.java.simpleName}, from else: child.measuredWidth=${child.measuredWidth}", TAG_SWIPE)
+                    child.layout(0, 0, child.measuredWidth, child.measuredHeight)
+                }
             }
         }
     }
@@ -82,6 +105,8 @@ class SwipeItem @JvmOverloads constructor(
         tvBlue = findViewById(R.id.tv_blue)
         tvGreen = findViewById(R.id.tv_green)
         tvRed = findViewById(R.id.tv_red)
+        tvGray = findViewById(R.id.tv_gray)
+        tvPurple = findViewById(R.id.tv_purple)
     }
 
     /**
@@ -144,6 +169,14 @@ class SwipeItem @JvmOverloads constructor(
                         .translationX((event.rawX - rawTouchDownX) * 0.3f)
                         .setDuration(0)
                         .start()
+                    tvGray.animate()
+                        .translationX(event.rawX - rawTouchDownX)
+                        .setDuration(0)
+                        .start()
+                    tvPurple.animate()
+                        .translationX((event.rawX - rawTouchDownX) * 0.5f)
+                        .setDuration(0)
+                        .start()
                 }
                 true
             }
@@ -153,6 +186,8 @@ class SwipeItem @JvmOverloads constructor(
                     animator(tvBlue, 0f, duration, animateToStartPosition).start()
                     animator(tvGreen, 0f, duration, animateToStartPosition).start()
                     animator(tvRed, 0f, duration, animateToStartPosition).start()
+                    animator(tvPurple, 0f, duration, animateToStartPosition).start()
+                    animator(tvGray, 0f, duration, animateToStartPosition).start()
                 } else {
                     performClick()
                 }
