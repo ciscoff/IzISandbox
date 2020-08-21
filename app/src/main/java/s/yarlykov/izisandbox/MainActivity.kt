@@ -24,6 +24,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.SwipeAnyWhereActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
 import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         SmartSwipeActivity::class.java to R.string.menu_swipe_smart,
         SwipeAnyWhereActivity::class.java to R.string.menu_swipe_any_where,
         SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo,
+        AccordionSwipeActivity::class.java to R.string.menu_swipe_accordion,
         DslActivity::class.java to R.string.menu_dsl_edu
     )
 

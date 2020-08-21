@@ -3,14 +3,15 @@
     package="s.yarlykov.izisandbox">
 
     <application
-        android:allowBackup="true"
         android:name=".application.App"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".transitions.using_scenes.ScenesInsideActivity2"></activity>
+        <activity android:name=".recycler_and_swipes.swipe_5.AccordionSwipeActivity"></activity>
+        <activity android:name=".transitions.using_scenes.ScenesInsideActivity2" />
         <activity android:name=".dsl.DslActivity" />
         <activity android:name=".recycler_and_swipes.swipe_4.SwipeAnyWhereActivity" />
         <activity android:name=".recycler_and_swipes.swipe_3.SmartSwipeActivity" />
