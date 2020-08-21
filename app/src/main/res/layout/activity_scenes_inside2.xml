@@ -2,33 +2,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scene_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".transitions.using_scenes.ScenesInsideActivity2">
 
-    <FrameLayout
-        android:id="@+id/scene_root"
+    <Space
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="40dp" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card"
-            android:layout_width="0dp"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_margin="2dp"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.4dp"
+        android:layout_marginStart="4dp"
+        android:background="@color/colorAccent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="40dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/color_card_stroke"
+        app:strokeWidth="1dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:cardElevation="0dp"
-            app:strokeColor="@color/color_card_stroke"
-            app:strokeWidth="1dp">
+            android:gravity="center"
+            android:text="@string/scene_title" />
+    </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/scene_title" />
-        </com.google.android.material.card.MaterialCardView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.4dp"
+        android:layout_marginStart="4dp"
+        android:background="@color/colorAccent" />
 
-    </FrameLayout>
 </LinearLayout>
