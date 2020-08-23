@@ -137,4 +137,14 @@
     <string name="text_view_gray" translatable="false">Gray View</string>
     <string name="text_view_purple" translatable="false">Purple View</string>
 
+    <string-array name="leftTextArray">
+        <item>Red View</item>
+        <item>Green View</item>
+        <item>Blue View</item>
+    </string-array>
+
+    <string-array name="rightTextArray">
+        <item>Gray View</item>
+        <item>Purple View</item>
+    </string-array>
 </resources>

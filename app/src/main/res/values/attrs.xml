@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SwipeItemSmart">
+        <attr name="layoutId" format="integer"/>
+        <attr name="leftFrame" format="boolean" />
+        <attr name="rightFrame" format="boolean" />
+        <attr name="leftColors" format="reference"/>
+        <attr name="rightColors" format="reference"/>
+        <attr name="leftStrings" format="reference"/>
+        <attr name="rightStrings" format="reference"/>
+    </declare-styleable>
+</resources>

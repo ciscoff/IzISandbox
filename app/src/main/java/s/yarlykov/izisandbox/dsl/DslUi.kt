@@ -3,6 +3,7 @@ package s.yarlykov.izisandbox.dsl
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 
@@ -65,7 +66,9 @@ inline fun <reified TV : View> ViewGroup.vp2(init: TV.() -> Unit): TV {
  */
 
 fun Context.linearLayout(init: LinearLayout.() -> Unit) = vc2(init)
+fun Context.frameLayout(init: FrameLayout.() -> Unit) = vc2(init)
 fun ViewGroup.linearLayout(init: LinearLayout.() -> Unit) = vp2(init)
+fun ViewGroup.frameLayout(init: FrameLayout.() -> Unit) = vp2(init)
 
 fun Context.textView(init: TextView.() -> Unit) = vc2(init)
 fun ViewGroup.textView(init: TextView.() -> Unit) = vp2(init)
@@ -77,5 +80,9 @@ fun ViewGroup.textView(init: TextView.() -> Unit) = vp2(init)
  */
 fun View.linearLayoutParams(init: LinearLayout.LayoutParams.() -> Unit) {
     layoutParams = (layoutParams as LinearLayout.LayoutParams).apply(init)
+}
+
+fun View.frameLayoutParams(init: FrameLayout.LayoutParams.() -> Unit) {
+    layoutParams = (layoutParams as FrameLayout.LayoutParams).apply(init)
 }
 

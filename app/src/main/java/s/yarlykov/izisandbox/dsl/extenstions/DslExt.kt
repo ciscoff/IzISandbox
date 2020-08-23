@@ -87,3 +87,9 @@ var TextView.multiLine: Boolean
             setSingleLine(true)
         }
     }
+
+var TextView.backgroundColor: Int
+    set(value) {
+        setBackgroundResource(value)
+    }
+    get() = 0

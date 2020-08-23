@@ -9,4 +9,16 @@
     <integer name="anim_duration_long">500</integer>
     <integer name="anim_duration_medium">300</integer>
 
+    <integer-array name="leftColorsArray">
+        <item>@android:color/holo_blue_dark</item>
+        <item>@android:color/holo_green_dark</item>
+        <item>@android:color/holo_red_dark</item>
+    </integer-array>
+
+    <integer-array name="rightColorsArray">
+        <item>@android:color/darker_gray</item>
+        <item>@android:color/holo_purple</item>
+    </integer-array>
+
+
 </resources>

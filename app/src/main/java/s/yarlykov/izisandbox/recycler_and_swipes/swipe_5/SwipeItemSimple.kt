@@ -29,7 +29,7 @@ private const val TAG_SWIPE = "TAG_SWIPE"
  * Я поставил его в элемент SwipeItem и все завелось !!!
  *
  */
-class SwipeItem @JvmOverloads constructor(
+class SwipeItemSimple @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), View.OnClickListener {
 

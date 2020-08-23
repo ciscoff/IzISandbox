@@ -3,10 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     android:padding="20dp"
     tools:context=".recycler_and_swipes.swipe_5.AccordionSwipeActivity">
 
-    <include layout="@layout/layout_swipe_item" />
+    <include layout="@layout/layout_swipe_item_simple" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
+    <include layout="@layout/layout_swipe_item_smart" />
 
 </LinearLayout>

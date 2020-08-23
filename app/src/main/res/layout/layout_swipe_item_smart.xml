@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItemSmart xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:clipChildren="false"
+    android:focusable="true"
+    app:layoutId="@layout/layout_swipe_item_card"
+    app:leftColors="@array/leftColorsArray"
+    app:leftFrame="true"
+    app:leftStrings="@array/leftTextArray"
+    app:rightColors="@array/rightColorsArray"
+    app:rightFrame="true"
+    app:rightStrings="@array/rightTextArray">
+
+</s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItemSmart>
