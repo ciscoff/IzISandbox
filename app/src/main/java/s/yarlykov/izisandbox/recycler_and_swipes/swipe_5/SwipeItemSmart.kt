@@ -278,7 +278,7 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
                 true
             }
             MotionEvent.ACTION_UP -> {
-                if (x != 0f) {
+                if (itemView.x != 0f) {
                     animator(itemView, 0f, duration, animateToStartPosition).start()
                     leftViews.forEach { animator(it, 0f, duration, animateToStartPosition).start() }
                     rightViews.forEach {

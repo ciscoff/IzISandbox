@@ -181,7 +181,7 @@ class SwipeItemSimple @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
-                if (x != 0f) {
+                if (cardView.x != 0f) {
                     animator(cardView, 0f, duration, animateToStartPosition).start()
                     animator(tvBlue, 0f, duration, animateToStartPosition).start()
                     animator(tvGreen, 0f, duration, animateToStartPosition).start()
