@@ -277,6 +277,12 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
              */
             MotionEvent.ACTION_MOVE -> {
 
+                // Не начинать обработку, если отсутсвует соотв боковой контейнер
+                if(currentState == State.Start) {
+                    if(event.rawX - rawTouchDownX > 0 && !leftFrame) return true
+                    if(event.rawX - rawTouchDownX < 0 && !rightFrame) return true
+                }
+
                 val shiftX = abs(event.rawX - rawTouchDownX)
                 val shiftY = abs(event.rawY - rawTouchDownY)
 
