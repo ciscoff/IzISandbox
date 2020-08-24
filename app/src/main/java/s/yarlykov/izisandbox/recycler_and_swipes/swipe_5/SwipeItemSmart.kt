@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -17,6 +16,7 @@ import s.yarlykov.izisandbox.dsl.frameLayout
 import s.yarlykov.izisandbox.dsl.frameLayoutParams
 import s.yarlykov.izisandbox.dsl.textView
 import kotlin.math.abs
+import kotlin.math.sign
 
 private const val TAG_SWIPE = "TAG_SWIPE"
 
@@ -65,7 +65,7 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         shift: Float,
         animationDuration: Long,
         listener: Animator.AnimatorListener
-    ) = ObjectAnimator.ofFloat(view, "translationX", shift).apply {
+    ) = ObjectAnimator.ofFloat(view, "x", shift).apply {
         interpolator = LinearInterpolator()
         duration = animationDuration
         addListener(listener)
@@ -75,7 +75,14 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         onStart = {
         },
         onEnd = {
-            currentPosition = State.Start
+            currentState = State.Start
+        })
+
+    private val animateToWaitingPosition = AnimatorListenerTemplate(
+        onStart = {
+        },
+        onEnd = {
+            currentState = State.Waiting
         })
 
     enum class State {
@@ -86,15 +93,14 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
     /**
      * Переменные для работы со свайпом
      */
-    private var dX = 0f
     private var rawTouchDownX = 0f
     private var rawTouchDownY = 0f
-    private val duration = 100L
+    private val duration = 250L
 
     private var viewGlobalX = 0
     private var touchSlop = 0
 
-    private var currentPosition = State.Start
+    private var currentState = State.Start
 
     /**
      * Прочитать атрибуты, инициализировать переменные класса
@@ -230,14 +236,16 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
 
         touchSlop = ViewConfiguration.get(view.context).scaledTouchSlop
 
-        val rect = Rect()
-        view.getGlobalVisibleRect(rect)
-        viewGlobalX = rect.left
+        /**
+         * В момент touch нужно зафиксировать положение левой границы view (upperLayer'а)
+         * Это потребуется как база при анимировании из положения waiting в левую сторону.
+         */
+        viewGlobalX = view.x.toInt()
+
 
         rawTouchDownX = event.rawX
         rawTouchDownY = event.rawY
 
-        dX = viewGlobalX - event.rawX
         return true
     }
 
@@ -257,42 +265,92 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
+                itemView.clearAnimation()
                 onTouchBegin(itemView, event)
                 true
             }
+            /**
+             * Когда view зафиксирована (стоит) в положении waiting, то viewGlobalX фактически
+             * равен view.translateX, view.x. Будем использовать это значение как якорь в событиях
+             * когда мувим view из состояния waiting. В этом состоянии нужно менять x относительно
+             * некой базы, которой и является viewGlobalX.
+             */
             MotionEvent.ACTION_MOVE -> {
 
                 val shiftX = abs(event.rawX - rawTouchDownX)
                 val shiftY = abs(event.rawY - rawTouchDownY)
 
-                val offset = event.rawX - rawTouchDownX
-
                 if (shiftX >= touchSlop || shiftY >= touchSlop) {
+                    // Полная дистанция от места тача до текущего положения пальца
+                    val totalOffset = event.rawX - rawTouchDownX
+
+                    val eventOffset = when (currentState) {
+                        State.Start -> {
+                            totalOffset
+                        }
+                        // Дистанция между текущим и предыдущим событием ACTION_MOVE
+                        State.Waiting -> {
+                            viewGlobalX + totalOffset
+                        }
+                    }
+
                     itemView.animate()
-                        .translationX(offset)
+                        .x(eventOffset)
                         .setDuration(0)
                         .start()
-                    animateSideViews(leftViews, offset)
-                    animateSideViews(rightViews, offset)
+                    animateSideViewsMoving(leftViews, eventOffset)
+                    animateSideViewsMoving(rightViews, eventOffset)
                 }
                 true
             }
             MotionEvent.ACTION_UP -> {
-                if (itemView.x != 0f) {
-                    animator(itemView, 0f, duration, animateToStartPosition).start()
-                    leftViews.forEach { animator(it, 0f, duration, animateToStartPosition).start() }
-                    rightViews.forEach {
-                        animator(
-                            it,
-                            0f,
-                            duration,
-                            animateToStartPosition
-                        ).start()
+
+                // Условия возврата в исходное положение зависят от текущего состояния
+                val threshold = when (currentState) {
+                    State.Start -> {
+                        itemView.measuredWidth / 10
                     }
-                } else {
-                    performClick()
+                    State.Waiting -> {
+                        itemView.measuredWidth / 2
+                    }
                 }
 
+                when {
+                    (itemView.x != 0f && abs(itemView.x) >= threshold) -> {
+
+                        // offset зависит от количества элементов в боковом контейнере, который
+                        // становится видимым в результате перехода в состояние waiting.
+                        val offset = sign(itemView.x) *
+                                (itemView.measuredWidth.toFloat() - itemView.measuredWidth / (leftViews.size))
+
+                        animator(itemView, offset, duration, animateToWaitingPosition).start()
+                        animateSideViewsJump(leftViews, offset)
+                        animateSideViewsJump(rightViews, offset)
+                    }
+                    (itemView.x != 0f && abs(itemView.x) < threshold) -> {
+
+                        animator(itemView, 0f, duration, animateToStartPosition).start()
+                        leftViews.forEach {
+                            animator(
+                                it,
+                                0f,
+                                duration,
+                                animateToStartPosition
+                            ).start()
+                        }
+                        rightViews.forEach {
+                            animator(
+                                it,
+                                0f,
+                                duration,
+                                animateToStartPosition
+                            ).start()
+                        }
+                    }
+                    else -> {
+                        performClick()
+                    }
+                }
                 true
             }
             else -> {
@@ -308,16 +366,24 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
      * от количества элементов в массиве и регулируется коэффициентом k. Самый последний в массиве
      * (он же самый верхний) выезжает медленнее всех.
      */
-    private fun animateSideViews(views: List<View>, offset: Float) {
+    private fun animateSideViewsMoving(views: List<View>, offset: Float) {
 
         for ((i, view) in views.withIndex()) {
 
-            val k : Float = 1f - i.toFloat() / views.size
+            val k: Float = 1f - i.toFloat() / views.size
 
             view.animate()
-                .translationX(offset * k)
+                .x(offset * k)
                 .setDuration(0)
                 .start()
+        }
+    }
+
+    private fun animateSideViewsJump(views: List<View>, offset: Float) {
+        for ((i, view) in views.withIndex()) {
+
+            val k: Float = 1f - i.toFloat() / views.size
+            animator(view, offset * k, duration, animateToWaitingPosition).start()
         }
     }
 
