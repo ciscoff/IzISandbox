@@ -90,6 +90,6 @@ var TextView.multiLine: Boolean
 
 var TextView.backgroundColor: Int
     set(value) {
-        setBackgroundResource(value)
+        setBackgroundColor(value)
     }
     get() = 0

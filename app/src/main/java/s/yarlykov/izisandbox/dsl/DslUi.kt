@@ -73,10 +73,6 @@ fun ViewGroup.frameLayout(init: FrameLayout.() -> Unit) = vp2(init)
 fun Context.textView(init: TextView.() -> Unit) = vc2(init)
 fun ViewGroup.textView(init: TextView.() -> Unit) = vp2(init)
 
-fun ViewGroup.addContainer(initContainer : () -> ViewGroup) {
-    addView(initContainer())
-}
-
 /**
  *  -------------------------------------------------------------------------------------
  *  Дополнительные расширения
@@ -89,4 +85,3 @@ fun View.linearLayoutParams(init: LinearLayout.LayoutParams.() -> Unit) {
 fun View.frameLayoutParams(init: FrameLayout.LayoutParams.() -> Unit) {
     layoutParams = (layoutParams as FrameLayout.LayoutParams).apply(init)
 }
-

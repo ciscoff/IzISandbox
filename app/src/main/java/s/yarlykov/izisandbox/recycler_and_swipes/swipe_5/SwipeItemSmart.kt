@@ -12,7 +12,6 @@ import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
-import s.yarlykov.izisandbox.dsl.addContainer
 import s.yarlykov.izisandbox.dsl.extenstions.*
 import s.yarlykov.izisandbox.dsl.frameLayout
 import s.yarlykov.izisandbox.dsl.frameLayoutParams
@@ -26,9 +25,22 @@ const val positionLeft = 1000
 const val positionRight = 2000
 
 class SwipeItemSmart : FrameLayout, View.OnClickListener {
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
+        setUpAttrs(attrs)
+        setupNestedViews()
+    }
 
-    private lateinit var cardView: View
+    private lateinit var itemView: View
 
+    /**
+     * Набор переменных, инициализируемых через кастомные атрибуты в XML
+     */
     private var leftFrame: Boolean = false
     private var rightFrame: Boolean = false
 
@@ -45,17 +57,48 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
     private var leftViews = mutableListOf<View>()
     private var rightViews = mutableListOf<View>()
 
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    ) {
-        setUpAttrs(attrs)
-        setupItemView()
+    /**
+     * Аниматор для перемещения боковых элементов
+     */
+    private fun animator(
+        view: View,
+        shift: Float,
+        animationDuration: Long,
+        listener: Animator.AnimatorListener
+    ) = ObjectAnimator.ofFloat(view, "translationX", shift).apply {
+        interpolator = LinearInterpolator()
+        duration = animationDuration
+        addListener(listener)
     }
 
+    private val animateToStartPosition = AnimatorListenerTemplate(
+        onStart = {
+        },
+        onEnd = {
+            currentPosition = State.Start
+        })
+
+    enum class State {
+        Start,
+        Waiting
+    }
+
+    /**
+     * Переменные для работы со свайпом
+     */
+    private var dX = 0f
+    private var rawTouchDownX = 0f
+    private var rawTouchDownY = 0f
+    private val duration = 100L
+
+    private var viewGlobalX = 0
+    private var touchSlop = 0
+
+    private var currentPosition = State.Start
+
+    /**
+     * Прочитать атрибуты, инициализировать переменные класса
+     */
     private fun setUpAttrs(attrs: AttributeSet?) {
 
         context.obtainStyledAttributes(attrs, R.styleable.SwipeItemSmart).apply {
@@ -80,109 +123,75 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         }
     }
 
-    private fun setupItemView() {
+    /**
+     * Добавить View основного элемента. Добавить Views боковых элементов.
+     */
+    private fun setupNestedViews() {
+        compareArrays(leftStrings, leftColors)
+        compareArrays(rightStrings, rightColors)
+
+
         if (itemLayoutId != noId) {
-            cardView = LayoutInflater.from(context).inflate(itemLayoutId, null)
+            itemView = LayoutInflater.from(context).inflate(itemLayoutId, null)
 
-//            compareArrays(leftStrings, leftColors)
-//            compareArrays(rightStrings, rightColors)
-
-            addView(cardView)
-
+            addView(itemView)
             addSideViews(positionLeft)
             addSideViews(positionRight)
-
-            cardView.bringToFront()
+            itemView.bringToFront()
         }
     }
 
-    private fun compareArrays(arr1: ArrayList<*>?, arr2: ArrayList<*>?) {
-        if (arr1 != null && arr2 != null) {
-            check(arr1.size != arr2.size) { "String and Color arrays must be the same size" }
-        }
-    }
-
+    /**
+     * Добавить боковые элементы (это контейнеры FrameLayout с вложенными TextView)
+     */
     private fun addSideViews(pos: Int) {
 
-        val strings = if (pos == positionLeft) leftStrings else rightStrings
-        val colors = if (pos == positionLeft) leftColors else rightColors
-        val viewArray: MutableList<View>
-
-        val textViewGravity =
+        // Цвет фона и текст для каждой TextView
+        val (strings, colors) =
             if (pos == positionLeft) {
-                viewArray = leftViews
-                Gravity.CENTER_VERTICAL and Gravity.END
+                leftStrings to leftColors
             } else {
-                viewArray = rightViews
-                Gravity.CENTER_VERTICAL and Gravity.START
+                rightStrings to rightColors
             }
 
-        addContainer {
-            frameLayout {
-                layoutParams = ViewGroup.LayoutParams(
-                    MATCH_PARENT,
-                    MATCH_PARENT
-                )
+        // Массив TextView и gravity для позиционирования текста
+        val (children, childGravity) =
+            if (pos == positionLeft) {
+                leftViews to (Gravity.CENTER_VERTICAL or Gravity.END)
+            } else {
+                rightViews to (Gravity.CENTER_VERTICAL or Gravity.START)
+            }
 
-                tag = pos
+        frameLayout {
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
 
-                for ((i, colorRes) in colors.withIndex()) {
+            tag = pos
 
-                    textView {
-                        frameLayoutParams {
-                            width = MATCH_PARENT
-                            height = MATCH_PARENT
-                            gravity = Gravity.CENTER
-                        }
-
-                        tag = pos + i
-                        backgroundColor = colorRes
-                        text = strings[i]
-                        gravity = textViewGravity
-                        textColor = Color.WHITE
-                        padRight = dp_i(20f)
-                        padLeft = dp_i(20f)
-
-                        viewArray[i] = this
+            for ((i, colorRes) in colors.withIndex()) {
+                textView {
+                    frameLayoutParams {
+                        width = MATCH_PARENT
+                        height = MATCH_PARENT
+                        gravity = Gravity.CENTER // layout_gravity для TextView внутри FrameLayout
                     }
+
+                    tag = pos + i
+                    backgroundColor = colorRes
+                    text = strings[i]
+                    gravity = childGravity
+                    textColor = Color.WHITE
+                    padRight = dp_i(20f)
+                    padLeft = dp_i(20f)
+                    children += this
                 }
             }
         }
     }
 
-    enum class State {
-        Start,
-        Waiting
-    }
-
-    private var dX = 0f
-    private var rawTouchDownX = 0f
-    private var rawTouchDownY = 0f
-    private val duration = 100L
-
-    private var viewGlobalX = 0
-    private var touchSlop = 0
-
-    private var currentPosition = State.Start
-
-    private fun animator(
-        view: View,
-        shift: Float,
-        animationDuration: Long,
-        listener: Animator.AnimatorListener
-    ) = ObjectAnimator.ofFloat(view, "translationX", shift).apply {
-        interpolator = LinearInterpolator()
-        duration = animationDuration
-        addListener(listener)
-    }
-
-    private val animateToStartPosition = AnimatorListenerTemplate(
-        onStart = {
-        },
-        onEnd = {
-            currentPosition = State.Start
-        })
-
+    /**
+     * Основной элемент позиционируется по центру, занимая всю высоту и ширину.
+     * Боковые элементы (FrameLayout) позиционируются за пределами границ основного элемента.
+     */
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
@@ -208,10 +217,6 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
                     )
                 }
                 else -> {
-                    logIt(
-                        "$dbgPrefix ${child::class.java.simpleName}, from else: child.measuredWidth=${child.measuredWidth}",
-                        TAG_SWIPE
-                    )
                     child.layout(0, 0, child.measuredWidth, child.measuredHeight)
                 }
             }
@@ -249,11 +254,10 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
 
-        logIt("$dbgPrefix", TAG_SWIPE)
-
         return when (event.action) {
+
             MotionEvent.ACTION_DOWN -> {
-                onTouchBegin(cardView, event)
+                onTouchBegin(itemView, event)
                 true
             }
             MotionEvent.ACTION_MOVE -> {
@@ -261,19 +265,21 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
                 val shiftX = abs(event.rawX - rawTouchDownX)
                 val shiftY = abs(event.rawY - rawTouchDownY)
 
+                val offset = event.rawX - rawTouchDownX
+
                 if (shiftX >= touchSlop || shiftY >= touchSlop) {
-                    cardView.animate()
-                        .translationX(event.rawX - rawTouchDownX)
+                    itemView.animate()
+                        .translationX(offset)
                         .setDuration(0)
                         .start()
-                    animateViews(leftViews, event.rawX - rawTouchDownX)
-                    animateViews(rightViews, event.rawX - rawTouchDownX)
+                    animateSideViews(leftViews, offset)
+                    animateSideViews(rightViews, offset)
                 }
                 true
             }
             MotionEvent.ACTION_UP -> {
                 if (x != 0f) {
-                    animator(cardView, 0f, duration, animateToStartPosition).start()
+                    animator(itemView, 0f, duration, animateToStartPosition).start()
                     leftViews.forEach { animator(it, 0f, duration, animateToStartPosition).start() }
                     rightViews.forEach {
                         animator(
@@ -295,11 +301,21 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         }
     }
 
-    private fun animateViews(views: List<View>, offset: Float) {
+    /**
+     * При анимировании боковых View нужно учитывать их позицию в массиве. Боковые view расположены
+     * внутри FrameLayout друг над другом. Последний элемент массива - самый верхний. При
+     * анимировании элементы должны выезжать за основным view с разной "скоростью". Скорость зависит
+     * от количества элементов в массиве и регулируется коэффициентом k. Самый последний в массиве
+     * (он же самый верхний) выезжает медленнее всех.
+     */
+    private fun animateSideViews(views: List<View>, offset: Float) {
 
         for ((i, view) in views.withIndex()) {
+
+            val k : Float = 1f - i.toFloat() / views.size
+
             view.animate()
-                .translationX(offset * (1f - i / views.size))
+                .translationX(offset * k)
                 .setDuration(0)
                 .start()
         }
@@ -318,6 +334,14 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
 
         logIt("$dbgPrefix", TAG_SWIPE)
+    }
 
+    /**
+     * Сравнить длины массивов. Длины массивов строк и цветов для боковой панели должны совпадать.
+     */
+    private fun compareArrays(arr1: ArrayList<*>?, arr2: ArrayList<*>?) {
+        if (arr1 != null && arr2 != null) {
+            check(arr1.size == arr2.size) { "String and Color arrays must be the same size" }
+        }
     }
 }
