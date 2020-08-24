@@ -138,9 +138,9 @@
     <string name="text_view_purple" translatable="false">Purple View</string>
 
     <string-array name="leftTextArray">
-        <item>Red View</item>
-        <item>Green View</item>
         <item>Blue View</item>
+        <item>Green View</item>
+        <item>Red View</item>
     </string-array>
 
     <string-array name="rightTextArray">
