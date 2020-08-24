@@ -12,6 +12,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.FrameLayout
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.dsl.addContainer
 import s.yarlykov.izisandbox.dsl.extenstions.*
 import s.yarlykov.izisandbox.dsl.frameLayout
 import s.yarlykov.izisandbox.dsl.frameLayoutParams
@@ -22,15 +23,16 @@ private const val TAG_SWIPE = "TAG_SWIPE"
 
 const val noId = 0
 const val positionLeft = 1000
-const val positionRight = 1001
+const val positionRight = 2000
 
 class SwipeItemSmart : FrameLayout, View.OnClickListener {
 
     private lateinit var cardView: View
 
-    private var itemLayoutId: Int = noId
     private var leftFrame: Boolean = false
     private var rightFrame: Boolean = false
+
+    private var itemLayoutId: Int = noId
     private var rightColorsRes: Int = noId
     private var leftColorsRes: Int = noId
     private var leftTextRes: Int = noId
@@ -40,6 +42,8 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
     private var rightStrings = arrayListOf<String>()
     private var leftColors = arrayListOf<Int>()
     private var rightColors = arrayListOf<Int>()
+    private var leftViews = mutableListOf<View>()
+    private var rightViews = mutableListOf<View>()
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -80,13 +84,13 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         if (itemLayoutId != noId) {
             cardView = LayoutInflater.from(context).inflate(itemLayoutId, null)
 
-            compareArrays(leftStrings, leftColors)
-            compareArrays(rightStrings, rightColors)
+//            compareArrays(leftStrings, leftColors)
+//            compareArrays(rightStrings, rightColors)
 
             addView(cardView)
 
-            createSideViews(positionLeft)
-            createSideViews(positionRight)
+            addSideViews(positionLeft)
+            addSideViews(positionRight)
 
             cardView.bringToFront()
         }
@@ -98,41 +102,52 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         }
     }
 
-    private fun createSideViews(pos: Int) {
+    private fun addSideViews(pos: Int) {
 
         val strings = if (pos == positionLeft) leftStrings else rightStrings
         val colors = if (pos == positionLeft) leftColors else rightColors
+        val viewArray: MutableList<View>
 
-        val fl = frameLayout {
-            layoutParams = ViewGroup.LayoutParams(
-                MATCH_PARENT,
-                MATCH_PARENT
-            )
+        val textViewGravity =
+            if (pos == positionLeft) {
+                viewArray = leftViews
+                Gravity.CENTER_VERTICAL and Gravity.END
+            } else {
+                viewArray = rightViews
+                Gravity.CENTER_VERTICAL and Gravity.START
+            }
 
-            tag = pos
+        addContainer {
+            frameLayout {
+                layoutParams = ViewGroup.LayoutParams(
+                    MATCH_PARENT,
+                    MATCH_PARENT
+                )
 
-            for ((i, colorRes) in colors.withIndex()) {
+                tag = pos
 
-                textView {
-                    frameLayoutParams {
-                        width = MATCH_PARENT
-                        height = MATCH_PARENT
-                        gravity = Gravity.CENTER
+                for ((i, colorRes) in colors.withIndex()) {
+
+                    textView {
+                        frameLayoutParams {
+                            width = MATCH_PARENT
+                            height = MATCH_PARENT
+                            gravity = Gravity.CENTER
+                        }
+
+                        tag = pos + i
+                        backgroundColor = colorRes
+                        text = strings[i]
+                        gravity = textViewGravity
+                        textColor = Color.WHITE
+                        padRight = dp_i(20f)
+                        padLeft = dp_i(20f)
+
+                        viewArray[i] = this
                     }
-
-                    tag = i
-
-                    backgroundColor = colorRes
-                    text = strings[i]
-                    gravity = Gravity.CENTER
-                    textColor = Color.WHITE
-                    padRight = dp_i(20f)
-                    padLeft = dp_i(20f)
                 }
             }
         }
-
-        addView(fl)
     }
 
     enum class State {
@@ -203,11 +218,6 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-    }
-
     /**
      * При первом касании проверяем область тача и фиксируем координаты
      */
@@ -256,37 +266,23 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
                         .translationX(event.rawX - rawTouchDownX)
                         .setDuration(0)
                         .start()
-                    tvBlue.animate()
-                        .translationX(event.rawX - rawTouchDownX)
-                        .setDuration(0)
-                        .start()
-                    tvGreen.animate()
-                        .translationX((event.rawX - rawTouchDownX) * 0.6f)
-                        .setDuration(0)
-                        .start()
-                    tvRed.animate()
-                        .translationX((event.rawX - rawTouchDownX) * 0.3f)
-                        .setDuration(0)
-                        .start()
-                    tvGray.animate()
-                        .translationX(event.rawX - rawTouchDownX)
-                        .setDuration(0)
-                        .start()
-                    tvPurple.animate()
-                        .translationX((event.rawX - rawTouchDownX) * 0.5f)
-                        .setDuration(0)
-                        .start()
+                    animateViews(leftViews, event.rawX - rawTouchDownX)
+                    animateViews(rightViews, event.rawX - rawTouchDownX)
                 }
                 true
             }
             MotionEvent.ACTION_UP -> {
                 if (x != 0f) {
                     animator(cardView, 0f, duration, animateToStartPosition).start()
-                    animator(tvBlue, 0f, duration, animateToStartPosition).start()
-                    animator(tvGreen, 0f, duration, animateToStartPosition).start()
-                    animator(tvRed, 0f, duration, animateToStartPosition).start()
-                    animator(tvPurple, 0f, duration, animateToStartPosition).start()
-                    animator(tvGray, 0f, duration, animateToStartPosition).start()
+                    leftViews.forEach { animator(it, 0f, duration, animateToStartPosition).start() }
+                    rightViews.forEach {
+                        animator(
+                            it,
+                            0f,
+                            duration,
+                            animateToStartPosition
+                        ).start()
+                    }
                 } else {
                     performClick()
                 }
@@ -296,6 +292,16 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
             else -> {
                 super.onTouchEvent(event)
             }
+        }
+    }
+
+    private fun animateViews(views: List<View>, offset: Float) {
+
+        for ((i, view) in views.withIndex()) {
+            view.animate()
+                .translationX(offset * (1f - i / views.size))
+                .setDuration(0)
+                .start()
         }
     }
 
