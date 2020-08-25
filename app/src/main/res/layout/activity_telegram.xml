@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_bar_height_telegram"
+        android:fitsSystemWindows="true"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:collapsedTitleGravity="center_vertical"
+            app:contentScrim="@android:color/transparent"
+            app:expandedTitleMarginEnd="64dp"
+            app:expandedTitleMarginStart="48dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <!--            <ImageView-->
+            <!--                android:id="@+id/backdrop"-->
+            <!--                android:layout_width="@dimen/circle_diameter_v5"-->
+            <!--                android:layout_height="@dimen/circle_diameter_v5"-->
+            <!--                android:layout_gravity="bottom|start"-->
+            <!--                android:layout_marginStart="@dimen/margin_rounded"-->
+            <!--                android:contentDescription="@null"-->
+            <!--                android:scaleType="centerCrop"-->
+            <!--                app:srcCompat="@drawable/valery"-->
+            <!--                tools:visibility="invisible" />-->
+
+            <ImageView
+                android:id="@+id/iv_rounded"
+                android:layout_width="@dimen/circle_diameter"
+                android:layout_height="@dimen/circle_diameter"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="@dimen/margin_rounded"
+                android:layout_marginBottom="@dimen/margin_rounded_bottom"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                tools:srcCompat="@drawable/anonymous" />
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar_telegram"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+                <!--                <ImageView-->
+                <!--                    android:id="@+id/iv_rounded"-->
+                <!--                    android:layout_width="@dimen/circle_diameter_v5"-->
+                <!--                    android:layout_height="@dimen/circle_diameter_v5"-->
+                <!--                    android:layout_gravity="center_vertical|start"-->
+                <!--                    android:layout_marginStart="@dimen/margin_rounded"-->
+                <!--                    android:contentDescription="@null"-->
+                <!--                    android:scaleType="centerCrop"-->
+                <!--                    tools:srcCompat="@drawable/anonymous" />-->
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <TextView
+        android:id="@+id/tv_logging"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

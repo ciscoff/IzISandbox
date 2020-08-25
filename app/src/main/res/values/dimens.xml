@@ -33,4 +33,11 @@
     <dimen name="swipe_item_height">60dp</dimen>
     <dimen name="swipe_text_padding">20dp</dimen>
 
+<!--    Telegram -->
+    <dimen name="app_bar_height_telegram">200dp</dimen>
+    <dimen name="circle_diameter">48dp</dimen>
+    <dimen name="margin_rounded">20dp</dimen>
+    <dimen name="margin_rounded_bottom">4dp</dimen>
+    <dimen name="margin_rect">60dp</dimen>
+
 </resources>

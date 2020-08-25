@@ -26,6 +26,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.SwipeAnyWhereActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
+import s.yarlykov.izisandbox.telegram.TelegramActivity
 import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
@@ -54,7 +55,8 @@ class MainActivity : AppCompatActivity() {
         SwipeAnyWhereActivity::class.java to R.string.menu_swipe_any_where,
         SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo,
         AccordionSwipeActivity::class.java to R.string.menu_swipe_accordion,
-        DslActivity::class.java to R.string.menu_dsl_edu
+        DslActivity::class.java to R.string.menu_dsl_edu,
+        TelegramActivity::class.java to R.string.menu_telegram_profile
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

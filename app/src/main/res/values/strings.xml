@@ -40,6 +40,7 @@
     <string name="menu_swipe_any_where" translatable="false">Swipe Anywhere</string>
     <string name="menu_swipe_accordion" translatable="false">Accordion Swipe</string>
     <string name="menu_dsl_edu" translatable="false">DSL Edu</string>
+    <string name="menu_telegram_profile" translatable="false">Telegram Profile</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
