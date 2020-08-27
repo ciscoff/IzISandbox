@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".telegram.TelegramActivity"></activity>
+        <activity android:name=".transitions.using_scenes.ScenesInsideActivity3"></activity>
+        <activity android:name=".telegram.TelegramActivity" />
         <activity android:name=".recycler_and_swipes.swipe_5.AccordionSwipeActivity" />
         <activity android:name=".transitions.using_scenes.ScenesInsideActivity2" />
         <activity android:name=".dsl.DslActivity" />

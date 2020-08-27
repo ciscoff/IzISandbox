@@ -32,6 +32,7 @@ import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFr
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity1
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity2
+import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity3
 import s.yarlykov.izisandbox.transitions.using_window.ActivityFrom
 
 class MainActivity : AppCompatActivity() {
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         ActivityWithFragments::class.java to R.string.menu_fragments_shared_views,
         ScenesInsideActivity1::class.java to R.string.menu_with_scenes_1,
         ScenesInsideActivity2::class.java to R.string.menu_with_scenes_2,
+        ScenesInsideActivity3::class.java to R.string.menu_with_scenes_3,
         DialogsActivity::class.java to R.string.menu_dialogs,
         ThemeActivity::class.java to R.string.menu_themes,
         SwipeActivityFirst::class.java to R.string.menu_swipe_with_helper,

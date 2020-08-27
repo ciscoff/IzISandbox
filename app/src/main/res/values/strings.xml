@@ -33,6 +33,7 @@
     <string name="menu_themes" translatable="false">UI Themes</string>
     <string name="menu_with_scenes_1" translatable="false">Scenes animation 1</string>
     <string name="menu_with_scenes_2" translatable="false">Scenes animation 2</string>
+    <string name="menu_with_scenes_3" translatable="false">Scenes animation 3</string>
     <string name="menu_swipe_with_helper" translatable="false">Swipe with Helper</string>
     <string name="menu_swipe_gesture_detector" translatable="false">Swipe with Gesture Detector</string>
     <string name="menu_swipe_drop_undo" translatable="false">Swipe and Drop and Undo</string>
@@ -137,6 +138,10 @@
     <string name="text_view_red" translatable="false">Red View</string>
     <string name="text_view_gray" translatable="false">Gray View</string>
     <string name="text_view_purple" translatable="false">Purple View</string>
+
+<!--    Scenes -->
+    <string name="scene_enter" translatable="false">Enter</string>
+    <string name="scene_exit" translatable="false">Exit</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>
