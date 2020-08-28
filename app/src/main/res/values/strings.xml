@@ -139,7 +139,17 @@
     <string name="text_view_gray" translatable="false">Gray View</string>
     <string name="text_view_purple" translatable="false">Purple View</string>
 
-<!--    Scenes -->
+    <!-- Button Text -->
+    <string name="btn_order_refuse" translatable="false">Refuse</string>
+    <string name="btn_order_confirm" translatable="false">Confirm</string>
+    <string name="btn_order_to_processing" translatable="false">To processing</string>
+    <string name="btn_order_launch" translatable="false">Proceed</string>
+    <string name="btn_order_completed" translatable="false">Complete</string>
+    <string name="btn_order_for_all" translatable="false">For all</string>
+    <string name="btn_select_mode" translatable="false">Select Mode</string>
+    <string name="btn_order_for_all_ex" translatable="false">Confirm\nfor all</string>
+
+    <!--    Scenes -->
     <string name="scene_enter" translatable="false">Enter</string>
     <string name="scene_exit" translatable="false">Exit</string>
 

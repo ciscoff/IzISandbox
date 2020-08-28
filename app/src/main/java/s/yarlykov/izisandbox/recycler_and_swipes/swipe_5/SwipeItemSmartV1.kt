@@ -20,11 +20,11 @@ import kotlin.math.sign
 
 private const val TAG_SWIPE = "TAG_SWIPE"
 
-const val noId = 0
-const val positionLeft = 1000
-const val positionRight = 2000
+private const val noId = 0
+private const val positionLeft = 1000
+private const val positionRight = 2000
 
-class SwipeItemSmart : FrameLayout, View.OnClickListener {
+class SwipeItemSmartV1 : FrameLayout, View.OnClickListener {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
@@ -107,15 +107,15 @@ class SwipeItemSmart : FrameLayout, View.OnClickListener {
      */
     private fun setUpAttrs(attrs: AttributeSet?) {
 
-        context.obtainStyledAttributes(attrs, R.styleable.SwipeItemSmart).apply {
+        context.obtainStyledAttributes(attrs, R.styleable.SwipeItemSmartV1).apply {
 
-            itemLayoutId = getResourceId(R.styleable.SwipeItemSmart_layoutId, noId)
-            leftFrame = getBoolean(R.styleable.SwipeItemSmart_leftFrame, false)
-            rightFrame = getBoolean(R.styleable.SwipeItemSmart_rightFrame, false)
-            leftColorsRes = getResourceId(R.styleable.SwipeItemSmart_leftColors, noId)
-            rightColorsRes = getResourceId(R.styleable.SwipeItemSmart_rightColors, noId)
-            leftTextRes = getResourceId(R.styleable.SwipeItemSmart_leftStrings, noId)
-            rightTextRes = getResourceId(R.styleable.SwipeItemSmart_rightStrings, noId)
+            itemLayoutId = getResourceId(R.styleable.SwipeItemSmartV1_layoutId, noId)
+            leftFrame = getBoolean(R.styleable.SwipeItemSmartV1_leftFrame, false)
+            rightFrame = getBoolean(R.styleable.SwipeItemSmartV1_rightFrame, false)
+            leftColorsRes = getResourceId(R.styleable.SwipeItemSmartV1_leftColors, noId)
+            rightColorsRes = getResourceId(R.styleable.SwipeItemSmartV1_rightColors, noId)
+            leftTextRes = getResourceId(R.styleable.SwipeItemSmartV1_leftStrings, noId)
+            rightTextRes = getResourceId(R.styleable.SwipeItemSmartV1_rightStrings, noId)
         }.recycle()
 
         if (leftFrame && leftColorsRes != noId && leftTextRes != noId) {

@@ -30,6 +30,18 @@
     <color name="doer_state_waiting_light">#FCF6CD</color>
     <color name="doer_state_confirmed_light">#E2F0F3</color>
     <color name="doer_state_refused_light">#F6E4E9</color>
+
+    <color name="colorDecor1">#FF8000</color>
+    <color name="colorDecor2">#ff4866</color>
+    <color name="colorDecor3">#6b71e3</color>
+    <color name="colorDecor4">#4bbac5</color>
+    <color name="colorDecor5">#C8EAEE</color>
+    <color name="colorDecor6">#2B5F6F</color>
+    <color name="colorDecor7">#E1E1E1</color>
+    <color name="colorDecor8">#4caf50</color>
+    <color name="colorDecor9">#7c43bd</color>
+    <color name="colorDecor10">#FCF6CD</color>
     <color name="colorDecor11">#BC6300</color>
+    <color name="colorDecor12">#FFC245</color>
 
 </resources>

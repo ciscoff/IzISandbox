@@ -15,6 +15,12 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize" />
 
-    <include layout="@layout/layout_swipe_item_smart" />
+    <include layout="@layout/layout_swipe_item_smart_v1" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
+    <include layout="@layout/layout_swipe_item_smart_v2" />
 
 </LinearLayout>

@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItemSmartV1 xmlns:android="http://schemas.android.com/apk/res/android"
+<s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItemSmartV2 xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?attr/actionBarSize"
     android:clickable="true"
     android:clipChildren="false"
     android:focusable="true"
+    android:minHeight="?attr/actionBarSize"
     app:layoutId="@layout/layout_swipe_item_card"
     app:leftColors="@array/leftColorsArray"
     app:leftFrame="true"
     app:leftStrings="@array/leftTextArray"
     app:rightColors="@array/rightColorsArray"
     app:rightFrame="true"
-    app:rightStrings="@array/rightTextArray">
+    app:rightStrings="@array/rightTextArray"
+    app:state="2">
 
-</s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItemSmartV1>
+    <!--
+    Middle layer
+    Рамка для закругления углов цветных views
+    -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_rounded_transparent_wide" />
+
+</s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.SwipeItemSmartV2>
