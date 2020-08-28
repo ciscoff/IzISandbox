@@ -45,7 +45,8 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
     enum class State {
         Start,
-        Waiting
+        Waiting,
+        Animating
     }
 
     /**
@@ -80,7 +81,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
      */
     private var rawTouchDownX = 0f
     private var rawTouchDownY = 0f
-    private val duration = 450L
+    private val duration = 1000L
 
     private var viewGlobalX = 0
     private var touchSlop = 0
@@ -108,6 +109,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         onStart = {
             // Чтобы не реагировать на касания во время анимации.
             frontView.isEnabled = false
+            currentState = State.Animating
         },
         onEnd = {
             currentState = State.Start
@@ -118,6 +120,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         onStart = {
             // Чтобы не реагировать на касания во время анимации.
             frontView.isEnabled = false
+            currentState = State.Animating
         },
         onEnd = {
             currentState = State.Waiting
@@ -301,7 +304,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         return when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP -> {
                 when {
-                    (currentState == State.Start) -> {
+                    (currentState == State.Start || currentState == State.Animating) -> {
                         frontView.dispatchTouchEvent(event)
                     }
                     (currentState == State.Waiting) -> {
@@ -339,7 +342,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         val rect = Rect()
         view.getGlobalVisibleRect(rect)
 
-        return if (rect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+        return if (currentState != State.Animating && rect.contains(event.rawX.toInt(), event.rawY.toInt())) {
             touchSlop = ViewConfiguration.get(view.context).scaledTouchSlop
 
             /**
@@ -351,10 +354,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
             rawTouchDownX = event.rawX
             rawTouchDownY = event.rawY
 
-            // Чтобы включить Ripple-эффект
-//            if (currentState == State.Start) {
-//                view.isPressed = true
-//            }
             true
         } else {
             false
@@ -371,6 +370,20 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
      *
      * animate().translationX - это анимация смещения от позиция нашего view, которое оно
      * получило при layout.
+     *
+     *
+     * BUGS:
+     *
+     * + Иногда если сразу по окончании анимации в положении старт коснуться frontView, то он
+     *  мгновенно перепрыгивает с состояние Waiting без всякой анимации (Актуально)
+     *
+     * - Если отодвинуть frontView например вправо, а потом не отрывая пальца вернуть влево и
+     *  пытаться пересечь границу, то frontView останавливается в нескольких пикселях от границы
+     *  а при дальнейшем движении пальцем влево резвко перескакавает грацицу. (Подедил. Проблема
+     *  связана с тем, что около границы значение shiftX меньше чем touchSlop и ACTION_MOVE
+     *  не анимирует перемещение frontView)
+     *
+     *
      */
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         val dbgPrefix =
@@ -378,31 +391,24 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
         return when (event.action) {
 
-//            MotionEvent.ACTION_OUTSIDE -> {
-//                view.isPressed = false
-//                true
-//            }
             MotionEvent.ACTION_DOWN -> {
                 view.clearAnimation()
                 return onTouchBegin(view, event)
             }
             MotionEvent.ACTION_MOVE -> {
 
-                // Не перемещать отсюда !
-//                view.isPressed = false
-
                 // Не начинать обработку, если отсутсвует соотв боковой контейнер
                 if (currentState == State.Start) {
-                    if (event.rawX - rawTouchDownX > 0 && !leftFrame) return true
-                    if (event.rawX - rawTouchDownX < 0 && !rightFrame) return true
+                    if (event.rawX - rawTouchDownX > 0 && !leftFrame) return false
+                    if (event.rawX - rawTouchDownX < 0 && !rightFrame) return false
                 }
 
                 val shiftX = abs(event.rawX - rawTouchDownX)
                 val shiftY = abs(event.rawY - rawTouchDownY)
 
-                if (shiftX >= touchSlop || shiftY >= touchSlop) {
-
-                    if (shiftY == 0f || shiftX > shiftY) {
+//                if (shiftX >= touchSlop || shiftY >= touchSlop) {
+//
+                    if (shiftY == 0f || shiftX > shiftY/5) {
                         parent.requestDisallowInterceptTouchEvent(true)
 
                         // Полная дистанция от места тача до текущего положения пальца
@@ -416,19 +422,19 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                             State.Waiting -> {
                                 viewGlobalX + totalOffset
                             }
+                            State.Animating -> {totalOffset}
                         }
 
                         view.animate().x(eventOffset).setDuration(0).start()
                         animateSideViewsMoving(leftViews, eventOffset)
                         animateSideViewsMoving(rightViews, eventOffset)
                     }
-                }
+//                }
                 true
             }
             MotionEvent.ACTION_UP -> {
-                parent.requestDisallowInterceptTouchEvent(false)
 
-//                view.isPressed = false
+                parent.requestDisallowInterceptTouchEvent(false)
 
                 // Условие перехода в состояние Waiting
                 val threshold = frontView.measuredWidth / 10
