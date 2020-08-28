@@ -10,6 +10,7 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
@@ -19,6 +20,7 @@ import s.yarlykov.izisandbox.dsl.frameLayoutParams
 import s.yarlykov.izisandbox.dsl.textView
 import s.yarlykov.izisandbox.extensions.findMostSuitable
 import s.yarlykov.izisandbox.extensions.findRecyclerViewParent
+import s.yarlykov.izisandbox.extensions.showSnackBarNotification
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -165,8 +167,21 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
             if (leftFrame) addSideViews(sideLeft)
             if (rightFrame) addSideViews(sideRight)
-            addView(frontView)
 
+            initChildren(OnTouchListener { v, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        v.showSnackBarNotification("Clicked item ${(v as TextView).text}")
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        v.performClick()
+                    }
+                }
+
+                false
+            })
+
+            addView(frontView)
             frontView.bringToFront()
         }
     }
@@ -195,9 +210,9 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         val tags = if (sideId == sideLeft) leftTags else rightTags
 
         frameLayout {
-            layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+            layoutParams = LayoutParams(
+                MATCH_PARENT,
+                MATCH_PARENT
             )
 
             tag = sideId
@@ -205,8 +220,8 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
             for ((i, colorRes) in colors.withIndex()) {
                 textView {
                     frameLayoutParams {
-                        width = ViewGroup.LayoutParams.MATCH_PARENT
-                        height = ViewGroup.LayoutParams.MATCH_PARENT
+                        width = MATCH_PARENT
+                        height = MATCH_PARENT
                         gravity = Gravity.CENTER // layout_gravity для TextView внутри FrameLayout
                     }
 
@@ -481,7 +496,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
      */
     private fun forceSiblingsToStartPosition() {
         // TODO nothing
-     }
+    }
 
     /**
      * При анимировании боковых View нужно учитывать их позицию в массиве. Боковые view расположены
