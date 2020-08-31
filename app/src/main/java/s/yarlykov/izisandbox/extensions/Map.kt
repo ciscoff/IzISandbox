@@ -2,7 +2,6 @@ package s.yarlykov.izisandbox.extensions
 
 import android.graphics.Rect
 import android.view.View
-import s.yarlykov.izisandbox.Utils.logIt
 import kotlin.math.abs
 
 
@@ -27,12 +26,6 @@ fun Map<Rect, View>.findMostSuitable(x: Float, y: Float): View? {
                 }
             }
         }
-    }
-
-    if(suitable != null) {
-        logIt("findMostSuitable is ${suitable!!.second::class.java.simpleName}", "TAG_SWIPE")
-    } else {
-        logIt("findMostSuitable is null", "TAG_SWIPE")
     }
 
     return suitable?.second
