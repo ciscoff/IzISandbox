@@ -88,11 +88,9 @@ class SwipeItemSimple @JvmOverloads constructor(
                     child.layout(-child.measuredWidth, 0, 0, child.measuredHeight)
                 }
                 !is MaterialCardView -> {
-                    logIt("$dbgPrefix ${child::class.java.simpleName}, child.measuredWidth=${child.measuredWidth}", TAG_SWIPE)
                     child.layout(child.measuredWidth, 0, child.measuredWidth * 2, child.measuredHeight)
                 }
                 else -> {
-                    logIt("$dbgPrefix ${child::class.java.simpleName}, from else: child.measuredWidth=${child.measuredWidth}", TAG_SWIPE)
                     child.layout(0, 0, child.measuredWidth, child.measuredHeight)
                 }
             }

@@ -89,6 +89,10 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
     private val clickFaultDistance = 8
     private var currentState = State.Start
 
+    init {
+        touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    }
+
     object animateX {
 
         private const val tension = 0.7f
@@ -175,13 +179,16 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         v.showSnackBarNotification("Clicked item ${(v as TextView).text}")
+                        false
                     }
                     MotionEvent.ACTION_UP -> {
                         v.performClick()
+                        false
+                    }
+                    else -> {
+                        false
                     }
                 }
-
-                false
             })
 
             addView(frontView)
@@ -251,7 +258,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
-    fun initChildren(listener: OnTouchListener) {
+    private fun initChildren(listener: OnTouchListener) {
         frontView.x = 0f
         sideViews.forEach {
             it.setOnTouchListener(listener)
@@ -296,44 +303,55 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
-    private var onTouch = false
-
     /**
-     * В состоянии State.Start все события направляем в itemView (основная CardView)
+     * Нужно помнить, что если view вернет true на ACTION_DOWN, то система начинает генерить и
+     * отправлять этой view событие ACTION_MOVE даже если палец стоит на месте. Поэтому в диспетчере
+     * это нужно учитывать. Ниже как раз такой случай.
+     *
+     * Важный момент относительно ACTION_DOWN/ACTION_UP в состоянии State.Waiting.
+     * Если DOWN произошел на цветной карточке, то её dispatchTouchEvent вернет true. И если
+     * сделать return colorView.dispatchTouchEvent(event), то это означает, что наш
+     * dispatchTouchEvent теперь будет получать от системы поток сообщений ACTION_MOVE и при
+     * неправильной маршрутизации весь этот поток полетит в frontView (см код ниже). Чтобы не было
+     * косяков и кривого поведения frontView поступаем следующим образом: если ACTION_DOWN направляем
+     * в цветную view, но возвращаем false, а если направляем в frontView, то возвращаем true.
      */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP -> {
-                when {
-                    (currentState == State.Start) -> {
+                when (currentState) {
+                    // В этом состоянии frontView всегда получает UP/DOWN
+                    State.Start -> {
                         frontView.dispatchTouchEvent(event)
                     }
-                    (currentState == State.Waiting) -> {
-                        sideViews
+                    // В этом состоянии UP/DOWN получает View, которая под тачем (это может быть
+                    // одна из цветных View или frontView).
+                    State.Waiting -> {
+                        (sideViews + listOf(frontView))
                             .map {
                                 val rect = Rect()
                                 it.getGlobalVisibleRect(rect)
                                 rect to it
                             }.toMap()
-                            .findMostSuitable(event.rawX, event.rawY)
-                            ?.dispatchTouchEvent(event)
-                            ?: super.dispatchTouchEvent(event) // Если не удалось определить цветную карточку
+                            .findMostSuitable(event.rawX, event.rawY)?.let { eventOwner ->
+                                eventOwner.dispatchTouchEvent(event)
+                                eventOwner::class == frontView::class // см коммент выше
+                            } ?: false
                     }
-                    (currentState == State.Animating) -> {
-                        false
-                    }
-                    else -> {
+                    // При анимировании никто не получает UP/DOWN (это промежуточное состояние,
+                    // на тачи не раегируем)
+                    State.Animating -> {
                         false
                     }
                 }
             }
+            // MOVE можно получить, только если до этого был получен ACTION_DOWN, а это
             MotionEvent.ACTION_MOVE -> {
-//                frontView.dispatchTouchEvent(event)
-                if (currentState == State.Start) {
+                if (currentState == State.Start || currentState == State.Waiting) {
                     frontView.dispatchTouchEvent(event)
                 } else {
-                    super.dispatchTouchEvent(event)
+                    false
                 }
             }
             else -> {
@@ -355,7 +373,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                 event.rawY.toInt()
             )
         ) {
-            touchSlop = ViewConfiguration.get(view.context).scaledTouchSlop
 
             /**
              * В момент touch нужно зафиксировать положение левой границы view (upperLayer'а)
@@ -381,20 +398,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
      *
      * animate().translationX - это анимация смещения от позиция нашего view, которое оно
      * получило при layout.
-     *
-     *
-     * BUGS:
-     *
-     * + Иногда если сразу по окончании анимации в положении старт коснуться frontView, то он
-     *  мгновенно перепрыгивает с состояние Waiting без всякой анимации (Актуально)
-     *
-     * - Если отодвинуть frontView например вправо, а потом не отрывая пальца вернуть влево и
-     *  пытаться пересечь границу, то frontView останавливается в нескольких пикселях от границы
-     *  а при дальнейшем движении пальцем влево резвко перескакавает грацицу. (Подедил. Проблема
-     *  связана с тем, что около границы значение shiftX меньше чем touchSlop и ACTION_MOVE
-     *  не анимирует перемещение frontView)
-     *
-     *
      */
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         val dbgPrefix =
@@ -403,11 +406,9 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
-//                view.clearAnimation()
                 return onTouchBegin(view, event)
             }
             MotionEvent.ACTION_MOVE -> {
-
                 // Не начинать обработку, если отсутсвует соотв боковой контейнер
                 if (currentState == State.Start) {
                     if (event.rawX - rawTouchDownX > 0 && !leftFrame) return false
@@ -446,7 +447,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                 true
             }
             MotionEvent.ACTION_UP -> {
-
                 parent.requestDisallowInterceptTouchEvent(false)
 
                 // Условие перехода в состояние Waiting
@@ -539,11 +539,11 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
-    override fun onClick(v: View?) {
+    override fun onClick(v: View) {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
 
-        logIt("$dbgPrefix", TAG_SWIPE)
+        logIt("$dbgPrefix on ${v::class.java.simpleName}", TAG_SWIPE)
     }
 
     /**
