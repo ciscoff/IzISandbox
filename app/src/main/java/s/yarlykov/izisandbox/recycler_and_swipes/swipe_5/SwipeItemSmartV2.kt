@@ -81,7 +81,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
      */
     private var rawTouchDownX = 0f
     private var rawTouchDownY = 0f
-    private val duration = 1000L
+    private val duration = 400L
 
     private var viewGlobalX = 0
     private var touchSlop = 0
@@ -296,6 +296,8 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
+    private var onTouch = false
+
     /**
      * В состоянии State.Start все события направляем в itemView (основная CardView)
      */
@@ -304,7 +306,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         return when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP -> {
                 when {
-                    (currentState == State.Start || currentState == State.Animating) -> {
+                    (currentState == State.Start) -> {
                         frontView.dispatchTouchEvent(event)
                     }
                     (currentState == State.Waiting) -> {
@@ -318,10 +320,16 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                             ?.dispatchTouchEvent(event)
                             ?: super.dispatchTouchEvent(event) // Если не удалось определить цветную карточку
                     }
-                    else -> super.dispatchTouchEvent(event)
+                    (currentState == State.Animating) -> {
+                        false
+                    }
+                    else -> {
+                        false
+                    }
                 }
             }
             MotionEvent.ACTION_MOVE -> {
+//                frontView.dispatchTouchEvent(event)
                 if (currentState == State.Start) {
                     frontView.dispatchTouchEvent(event)
                 } else {
@@ -342,7 +350,11 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         val rect = Rect()
         view.getGlobalVisibleRect(rect)
 
-        return if (currentState != State.Animating && rect.contains(event.rawX.toInt(), event.rawY.toInt())) {
+        return if (currentState != State.Animating && rect.contains(
+                event.rawX.toInt(),
+                event.rawY.toInt()
+            )
+        ) {
             touchSlop = ViewConfiguration.get(view.context).scaledTouchSlop
 
             /**
@@ -353,7 +365,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
             rawTouchDownX = event.rawX
             rawTouchDownY = event.rawY
-
             true
         } else {
             false
@@ -392,7 +403,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
-                view.clearAnimation()
+//                view.clearAnimation()
                 return onTouchBegin(view, event)
             }
             MotionEvent.ACTION_MOVE -> {
@@ -408,27 +419,29 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
 //                if (shiftX >= touchSlop || shiftY >= touchSlop) {
 //
-                    if (shiftY == 0f || shiftX > shiftY/5) {
-                        parent.requestDisallowInterceptTouchEvent(true)
+                if (shiftY == 0f || shiftX > shiftY / 5) {
+                    parent.requestDisallowInterceptTouchEvent(true)
 
-                        // Полная дистанция от места тача до текущего положения пальца
-                        val totalOffset = event.rawX - rawTouchDownX
+                    // Полная дистанция от места тача до текущего положения пальца
+                    val totalOffset = event.rawX - rawTouchDownX
 
-                        val eventOffset = when (currentState) {
-                            State.Start -> {
-                                totalOffset
-                            }
-                            // Дистанция между текущим и предыдущим событием ACTION_MOVE
-                            State.Waiting -> {
-                                viewGlobalX + totalOffset
-                            }
-                            State.Animating -> {totalOffset}
+                    val eventOffset = when (currentState) {
+                        State.Start -> {
+                            totalOffset
                         }
-
-                        view.animate().x(eventOffset).setDuration(0).start()
-                        animateSideViewsMoving(leftViews, eventOffset)
-                        animateSideViewsMoving(rightViews, eventOffset)
+                        // Дистанция между текущим и предыдущим событием ACTION_MOVE
+                        State.Waiting -> {
+                            viewGlobalX + totalOffset
+                        }
+                        State.Animating -> {
+                            totalOffset
+                        }
                     }
+
+                    view.animate().x(eventOffset).setDuration(0).start()
+                    animateSideViewsMoving(leftViews, eventOffset)
+                    animateSideViewsMoving(rightViews, eventOffset)
+                }
 //                }
                 true
             }
