@@ -89,6 +89,8 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
     private val clickFaultDistance = 8
     private var currentState = State.Start
 
+    private var stateTo : State = State.Waiting
+
     init {
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
@@ -118,6 +120,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         onEnd = {
             currentState = State.Start
             frontView.isEnabled = true
+            stateTo = State.Waiting
         })
 
     private val animateToWaitingPosition = AnimatorListenerTemplate(
@@ -129,6 +132,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         onEnd = {
             currentState = State.Waiting
             frontView.isEnabled = true
+            stateTo = State.Start
         })
 
 
@@ -314,7 +318,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
      * dispatchTouchEvent теперь будет получать от системы поток сообщений ACTION_MOVE и при
      * неправильной маршрутизации весь этот поток полетит в frontView (см код ниже). Чтобы не было
      * косяков и кривого поведения frontView поступаем следующим образом: если ACTION_DOWN направляем
-     * в цветную view, но возвращаем false, а если направляем в frontView, то возвращаем true.
+     * в цветную view, то возвращаем false, а если направляем в frontView, то возвращаем true.
      */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
 
@@ -388,6 +392,8 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
+
+
     /**
      * Реализация onTouchListener для frontView (CardView)
      *
@@ -409,11 +415,16 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                 return onTouchBegin(view, event)
             }
             MotionEvent.ACTION_MOVE -> {
-                // Не начинать обработку, если отсутсвует соотв боковой контейнер
+                // Не начинать обработку, если отсутствует соотв боковой контейнер
                 if (currentState == State.Start) {
                     if (event.rawX - rawTouchDownX > 0 && !leftFrame) return false
                     if (event.rawX - rawTouchDownX < 0 && !rightFrame) return false
                 }
+
+                if(event.historySize > 0) {
+                    logIt("current X=${event.rawX}, prev X=${event.getHistoricalX(0, 0)}")
+                }
+
 
                 val shiftX = abs(event.rawX - rawTouchDownX)
                 val shiftY = abs(event.rawY - rawTouchDownY)
