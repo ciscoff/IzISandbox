@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.*
+import android.view.View.OnTouchListener
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
@@ -19,7 +20,6 @@ import s.yarlykov.izisandbox.dsl.frameLayout
 import s.yarlykov.izisandbox.dsl.frameLayoutParams
 import s.yarlykov.izisandbox.dsl.textView
 import s.yarlykov.izisandbox.extensions.findMostSuitable
-import s.yarlykov.izisandbox.extensions.findRecyclerViewParent
 import s.yarlykov.izisandbox.extensions.showSnackBarNotification
 import kotlin.math.abs
 import kotlin.math.sign
@@ -87,9 +87,9 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
     private var touchSlop = 0
 
     private val clickFaultDistance = 8
-    private var currentState = State.Start
+    private var stateCurrent = State.Start
 
-    private var stateTo : State = State.Waiting
+    private var stateNext: State = State.Waiting
 
     init {
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
@@ -115,26 +115,25 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         onStart = {
             // Чтобы не реагировать на касания во время анимации.
             frontView.isEnabled = false
-            currentState = State.Animating
+            stateCurrent = State.Animating
         },
         onEnd = {
-            currentState = State.Start
+            stateCurrent = State.Start
+            stateNext = State.Waiting
             frontView.isEnabled = true
-            stateTo = State.Waiting
         })
 
     private val animateToWaitingPosition = AnimatorListenerTemplate(
         onStart = {
             // Чтобы не реагировать на касания во время анимации.
             frontView.isEnabled = false
-            currentState = State.Animating
+            stateCurrent = State.Animating
         },
         onEnd = {
-            currentState = State.Waiting
+            stateCurrent = State.Waiting
+            stateNext = State.Start
             frontView.isEnabled = true
-            stateTo = State.Start
         })
-
 
     /**
      * Прочитать атрибуты, инициализировать переменные класса
@@ -324,7 +323,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
         return when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP -> {
-                when (currentState) {
+                when (stateCurrent) {
                     // В этом состоянии frontView всегда получает UP/DOWN
                     State.Start -> {
                         frontView.dispatchTouchEvent(event)
@@ -352,7 +351,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
             }
             // MOVE можно получить, только если до этого был получен ACTION_DOWN, а это
             MotionEvent.ACTION_MOVE -> {
-                if (currentState == State.Start || currentState == State.Waiting) {
+                if (stateCurrent == State.Start || stateCurrent == State.Waiting) {
                     frontView.dispatchTouchEvent(event)
                 } else {
                     false
@@ -372,7 +371,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         val rect = Rect()
         view.getGlobalVisibleRect(rect)
 
-        return if (currentState != State.Animating && rect.contains(
+        return if (stateCurrent != State.Animating && rect.contains(
                 event.rawX.toInt(),
                 event.rawY.toInt()
             )
@@ -392,6 +391,11 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
+    // Условие перехода в состояние Waiting
+    private val thresholdRatio = 0.1f
+
+    private val Float.isOverThreshold: Boolean
+        get() = abs(this - rawTouchDownX) > frontView.measuredWidth * thresholdRatio
 
 
     /**
@@ -409,6 +413,9 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
 
+        // Условие перехода в состояние Waiting
+        val threshold = view.measuredWidth / 10
+
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
@@ -416,15 +423,13 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
             }
             MotionEvent.ACTION_MOVE -> {
                 // Не начинать обработку, если отсутствует соотв боковой контейнер
-                if (currentState == State.Start) {
+                if (stateCurrent == State.Start) {
                     if (event.rawX - rawTouchDownX > 0 && !leftFrame) return false
                     if (event.rawX - rawTouchDownX < 0 && !rightFrame) return false
                 }
 
-                if(event.historySize > 0) {
-                    logIt("current X=${event.rawX}, prev X=${event.getHistoricalX(0, 0)}")
-                }
-
+                // Определить следующее состояние, если текущее State.Start
+                calculateStateTo(event, view.x)
 
                 val shiftX = abs(event.rawX - rawTouchDownX)
                 val shiftY = abs(event.rawY - rawTouchDownY)
@@ -437,7 +442,7 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                     // Полная дистанция от места тача до текущего положения пальца
                     val totalOffset = event.rawX - rawTouchDownX
 
-                    val eventOffset = when (currentState) {
+                    val eventOffset = when (stateCurrent) {
                         State.Start -> {
                             totalOffset
                         }
@@ -460,46 +465,41 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
             MotionEvent.ACTION_UP -> {
                 parent.requestDisallowInterceptTouchEvent(false)
 
-                // Условие перехода в состояние Waiting
-                val threshold = frontView.measuredWidth / 10
-
                 when {
-                    (currentState == State.Start && view.x == 0f) -> {
+                    (stateCurrent == State.Start && view.x == 0f) -> {
                         view.performClick()
                     }
-                    // Если в состоянии Start не дотянули до threshold, то назад в исходное.
-                    (currentState == State.Start && abs(event.rawX - rawTouchDownX) < threshold) -> {
-                        forceToStartPosition()
+                    (stateCurrent == State.Start) -> {
+
+                        if (stateNext == State.Start) {
+                            forceToStartPosition()
+                        } else {
+                            // Только один элемент в родительском RecyclerView может быть с открытым боковым фреймом.
+                            forceSiblingsToStartPosition()
+
+                            // Адаптивно меняем размер открываемого пространства: чем меньше
+                            // элементов в открываемом массиве view, тем меньше смещаем upperLayer.
+                            // (Надо доработать !!!)
+                            val sign = sign(view.x)
+                            val sideItemsQty = if (sign > 0) leftViews.size else rightViews.size
+                            val k: Float = 1f - 1f / (sideItemsQty * 2)
+                            val offset = sign * (view.measuredWidth * k)
+
+                            animateX(view, offset, duration, animateToWaitingPosition)
+                            animateSideViewsJump(leftViews, offset)
+                            animateSideViewsJump(rightViews, offset)
+                        }
                     }
                     // Если в состоянии Waiting требуется реагировать на клик, то игнорим мелкие
                     // погрешности движения пальца.
                     // (????) Вообщето в таком случае лучше никак не реагировать или вернуться в Start
-                    (currentState == State.Waiting && abs(event.rawX - rawTouchDownX) < clickFaultDistance) -> {
+                    (stateCurrent == State.Waiting && abs(event.rawX - rawTouchDownX) < clickFaultDistance) -> {
                         view.performClick()
                     }
                     // Однако, если мы в состоянии Waiting и дистанция больше clickFaultDistance,
                     // то возвращаемся в состояние Start.
-                    (currentState == State.Waiting && view.x != 0f) -> {
+                    (stateCurrent == State.Waiting && view.x != 0f) -> {
                         forceToStartPosition()
-                    }
-                    // Если мы в состоянии Start и прошли больше threshold'a, то анимируемся
-                    // в состояние Waiting.
-                    (view.x != 0f && abs(view.x) >= threshold) -> {
-
-                        // Только один элемент в списке может быть с открытым боковым фреймом.
-                        forceSiblingsToStartPosition()
-
-                        // Адаптивно меняем размер открываемого пространства: чем меньше
-                        // элементов в открываемом массиве view, тем меньше смещаем upperLayer.
-                        // (Надо доработать !!!)
-                        val sign = sign(view.x)
-                        val sideItemsQty = if (sign > 0) leftViews.size else rightViews.size
-                        val k: Float = 1f - 1f / (sideItemsQty * 2)
-                        val offset = sign * (view.measuredWidth * k)
-
-                        animateX(view, offset, duration, animateToWaitingPosition)
-                        animateSideViewsJump(leftViews, offset)
-                        animateSideViewsJump(rightViews, offset)
                     }
                     else -> {
                         view.performClick()
@@ -509,6 +509,44 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
             }
             else -> {
                 super.onTouchEvent(event)
+            }
+        }
+    }
+
+    /**
+     * В состоянии State.Start пользователь может водить слайдер вправо и влево не отпуская
+     * пальца. Нужно знать направление движения в момент непосредственно перед ACTION_UP.
+     * Например перед ACTION_UP пользователь повел палец обратно к исходной позиции,
+     * значит и вернуться нужно в исходную, а не в Waiting.
+     *
+     * NOTE: У event есть различные значения X. Например e.getRawX() отличается от e.getX() тем,
+     * что первое показывает координату относительно экрана девайса, а второе - координата
+     * относительно left/top той view, которая приняла эвент. Исторические данные передаются
+     * именно как getX, поэтому и сравнивать исторический массив нужно с текущим getX.
+     *
+     * Условия смены состояния зависят от знака дельты координат пальца и знака смещения view слайдера.
+     *
+     * dX > 0, view.x > 0: to Waiting
+     * dX < 0, view.x > 0: to Start
+     * dX < 0, view.x < 0: to Waiting
+     * dX > 0, view.x < 0: to Start
+     *
+     */
+    private fun calculateStateTo(event: MotionEvent, viewX: Float) {
+        val historySize = event.historySize
+
+        if (historySize > 0) {
+            val dX = event.x - event.getHistoricalX(0, historySize - 1)
+
+            val toWaiting = sign(dX * viewX) > 0
+
+            if (stateCurrent == State.Start) {
+                stateNext =
+                    if (event.rawX.isOverThreshold) {
+                        if (toWaiting) State.Waiting else State.Start
+                    } else {
+                        State.Start
+                    }
             }
         }
     }
