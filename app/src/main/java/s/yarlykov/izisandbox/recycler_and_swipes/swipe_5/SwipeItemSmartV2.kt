@@ -91,6 +91,27 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
 
     private var stateNext: State = State.Waiting
 
+    // Условие перехода в состояние Waiting
+    private val thresholdRatio = 0.1f
+
+    private val thresholdPullRatio = 0.9f
+
+    // В состоянии Start frontView перешла порог, после которого должна автоматически
+    //  анимироваться в состояния Waiting
+    private val Float.isOverThreshold: Boolean
+        get() = abs(this - rawTouchDownX) > frontView.measuredWidth * thresholdRatio
+
+    // В состоянии Start frontView пытяются растянуть дальше её границы за пределы видимости
+    private val Float.isOverScrolled: Boolean
+        get() = abs(this) >= frontView.measuredWidth * thresholdPullRatio
+
+    // В состоянии Waiting frontView пытаются толкнуть дальше её границы за пределы видимости
+    private val Float.isOverPulled: Boolean
+        get() = sign(this * frontView.x) > 0
+
+    private val maxOffset: Float
+        get() = frontView.measuredWidth * 0.9f
+
     init {
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
@@ -391,13 +412,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         }
     }
 
-    // Условие перехода в состояние Waiting
-    private val thresholdRatio = 0.1f
-
-    private val Float.isOverThreshold: Boolean
-        get() = abs(this - rawTouchDownX) > frontView.measuredWidth * thresholdRatio
-
-
     /**
      * Реализация onTouchListener для frontView (CardView)
      *
@@ -412,9 +426,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
-
-        // Условие перехода в состояние Waiting
-        val threshold = view.measuredWidth / 10
 
         return when (event.action) {
 
@@ -440,24 +451,26 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
                     parent.requestDisallowInterceptTouchEvent(true)
 
                     // Полная дистанция от места тача до текущего положения пальца
-                    val totalOffset = event.rawX - rawTouchDownX
+                    val rawOffset = event.rawX - rawTouchDownX
 
                     val eventOffset = when (stateCurrent) {
                         State.Start -> {
-                            totalOffset
+                            if (rawOffset.isOverScrolled) maxOffset * sign(view.x) else rawOffset
                         }
-                        // Дистанция между текущим и предыдущим событием ACTION_MOVE
+                        // Дистанция между текущим и предыдущим событием ACTION_MOVE (viewGlobalX + rawOffset)
                         State.Waiting -> {
-                            viewGlobalX + totalOffset
+                            if (rawOffset.isOverPulled) 0f else viewGlobalX + rawOffset
                         }
                         State.Animating -> {
-                            totalOffset
+                            0f
                         }
                     }
 
-                    view.animate().x(eventOffset).setDuration(0).start()
-                    animateSideViewsMoving(leftViews, eventOffset)
-                    animateSideViewsMoving(rightViews, eventOffset)
+                    if (eventOffset != 0f) {
+                        view.animate().x(eventOffset).setDuration(0).start()
+                        animateSideViewsMoving(leftViews, eventOffset)
+                        animateSideViewsMoving(rightViews, eventOffset)
+                    }
                 }
 //                }
                 true
