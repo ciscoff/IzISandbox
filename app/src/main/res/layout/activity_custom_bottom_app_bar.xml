@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootLayout"
+    tools:context=".ui.CustomBottomAppBarActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/action_click_anywhere"/>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/barParent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <!--
+        Убраны системные insets (app:contentInsetEnd="0dp", app:contentInsetStart="0dp")
+        и тень по верхней кромке (через стили) и backgroundTint и setElevation(0)
+
+        android:backgroundTint="@android:color/transparent"
+        -->
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomBar"
+            style="@style/CustomBottomAppBarStyle"
+            android:layout_width="match_parent"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="bottom"
+            android:visibility="invisible"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp"
+            tools:visibility="visible">
+
+            <include layout="@layout/t_editor_bottom_app_bar" />
+
+        </com.google.android.material.bottomappbar.BottomAppBar>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

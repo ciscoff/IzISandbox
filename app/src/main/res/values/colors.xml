@@ -43,5 +43,9 @@
     <color name="colorDecor10">#FCF6CD</color>
     <color name="colorDecor11">#BC6300</color>
     <color name="colorDecor12">#FFC245</color>
+    <color name="colorDecor14">#F6E4E9</color>
+    <color name="colorDecor15">#E2F0F3</color>
+    <color name="colorDecor16">#A4DCE1</color>
+    <color name="colorDecor17">#FF7F94</color>
 
 </resources>

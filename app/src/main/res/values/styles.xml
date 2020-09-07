@@ -73,4 +73,39 @@
         <item name="android:scaleY">0</item>
     </style>
 
+    <!-- Убираем вернхнюю тень android:windowContentOverlay -->
+    <style name="CustomBottomAppBarStyle" parent="Widget.MaterialComponents.BottomAppBar">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
+
+<!-- ===================== BottomAppBar UI ====================  -->
+    <!-- Кнопка без теней -->
+    <style name="EditorButtonUndo.Filled" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorDecor2</item>
+        <item name="android:strokeColor">@color/colorDecor14</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">middle</item>
+        <item name="backgroundTint">@color/colorDecor14</item>
+        <item name="cornerRadius">20dp</item>
+    </style>
+    <!-- Кнопка без теней -->
+    <style name="EditorButtonSave.Filled" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorDecor4</item>
+        <item name="android:strokeColor">@color/colorDecor15</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">middle</item>
+        <item name="backgroundTint">@color/colorDecor15</item>
+        <item name="cornerRadius">20dp</item>
+    </style>
+
 </resources>

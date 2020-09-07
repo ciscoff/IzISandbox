@@ -34,6 +34,7 @@ import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity1
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity2
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity3
 import s.yarlykov.izisandbox.transitions.using_window.ActivityFrom
+import s.yarlykov.izisandbox.ui.CustomBottomAppBarActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo,
         AccordionSwipeActivity::class.java to R.string.menu_swipe_accordion,
         DslActivity::class.java to R.string.menu_dsl_edu,
+        CustomBottomAppBarActivity::class.java to R.string.menu_bottom_bar,
         TelegramActivity::class.java to R.string.menu_telegram_profile
     )
 

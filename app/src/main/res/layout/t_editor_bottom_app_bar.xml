@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/background_bottom_app_bar_t"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_gravity="bottom"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/edBtUndo"
+        style="@style/EditorButtonUndo.Filled"
+        android:text="@string/button_creator_cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/edBtSave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.4"
+        app:rippleColor="@color/colorDecor17" />
+
+    <Button
+        android:id="@+id/edBtSave"
+        style="@style/EditorButtonSave.Filled"
+        android:text="@string/button_creator_save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/edBtUndo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.4"
+        app:rippleColor="@color/colorDecor16" />
+
+</androidx.constraintlayout.widget.ConstraintLayout><!--</FrameLayout>-->
+
+
+
+
+

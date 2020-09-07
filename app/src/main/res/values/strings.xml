@@ -41,6 +41,7 @@
     <string name="menu_swipe_any_where" translatable="false">Swipe Anywhere</string>
     <string name="menu_swipe_accordion" translatable="false">Accordion Swipe</string>
     <string name="menu_dsl_edu" translatable="false">DSL Edu</string>
+    <string name="menu_bottom_bar" translatable="false">Custom BottomAppBar</string>
     <string name="menu_telegram_profile" translatable="false">Telegram Profile</string>
 
     <!-- Navigation menu -->
@@ -148,6 +149,10 @@
     <string name="btn_order_for_all" translatable="false">For all</string>
     <string name="btn_select_mode" translatable="false">Select Mode</string>
     <string name="btn_order_for_all_ex" translatable="false">Confirm\nfor all</string>
+
+    <string name="button_creator_save" translatable="false">Save</string>
+    <string name="button_creator_cancel" translatable="false">Cancel</string>
+    <string name="action_click_anywhere" translatable="false">Click anywhere</string>
 
     <!--    Scenes -->
     <string name="scene_enter" translatable="false">Enter</string>
