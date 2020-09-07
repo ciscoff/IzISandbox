@@ -129,7 +129,7 @@ class TimeSurfaceV1 : ViewGroup {
                     2 -> {
                         when (direction(event)) {
                             Direction.Same -> {
-                                isScaling = false
+//                                isScaling = false
 
 
 //                                logIt("Direction is ${Direction.Same}", "GOGO")
@@ -240,10 +240,12 @@ class TimeSurfaceV1 : ViewGroup {
 
         val gestureWidthBefore = abs(touchActive - touchPassive)
         val gestureWidthAfter = abs(xActive - xPassive)
-        val ratio = gestureWidthAfter/gestureWidthBefore
+        val scaleFactor = gestureWidthAfter/gestureWidthBefore
 
         val frameWidthBefore = timeFrame.measuredWidth
-        val frameWidthAfter = (widthBeforeTouch * ratio).toInt()
+        val frameWidthAfter = (widthBeforeTouch * scaleFactor * 1.1f).toInt()
+
+        pointers[activePointerId] = xActive
 
         val tX = (frameWidthAfter - frameWidthBefore) / 2
         frameX -= tX
