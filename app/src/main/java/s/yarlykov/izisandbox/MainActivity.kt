@@ -28,6 +28,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
 import s.yarlykov.izisandbox.telegram.TelegramActivity
 import s.yarlykov.izisandbox.theme.ThemeActivity
+import s.yarlykov.izisandbox.time_line.TimeLineActivity
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity1
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     private val stages = mapOf(
         IziLoginActivity::class.java to R.string.menu_izi_login,
+        TimeLineActivity::class.java to R.string.menu_time_line,
         ActivityGraph1::class.java to R.string.menu_nav_graph,
         ActivityFrom::class.java to R.string.menu_activity_transitions_1,
         ActivitySharedFrom::class.java to R.string.menu_activities_shared_views,

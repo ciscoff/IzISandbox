@@ -25,6 +25,7 @@
     <string name="button_undo" translatable="false">undo</string>
 
     <string name="menu_izi_login" translatable="false">iZiLogin Example</string>
+    <string name="menu_time_line" translatable="false">Time Line</string>
     <string name="menu_nav_graph" translatable="false">Navigation and Animations</string>
     <string name="menu_activity_transitions_1" translatable="false">Transitioning activities</string>
     <string name="menu_activities_shared_views" translatable="false">Activities shared views</string>
