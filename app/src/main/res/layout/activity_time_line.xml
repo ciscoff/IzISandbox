@@ -39,6 +39,7 @@
         app:layout_constraintWidth_percent="0.7">
 
         <s.yarlykov.izisandbox.time_line.v2.TimeSurfaceV2
+            android:id="@+id/tsTimeLine"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

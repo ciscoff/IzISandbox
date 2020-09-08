@@ -1,39 +1,27 @@
 package s.yarlykov.izisandbox.time_line.v2
 
 import android.content.Context
-import android.graphics.Canvas
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.View.MeasureSpec.EXACTLY
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.schedulers.Schedulers
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.dsl.extenstions.dp_f
+import s.yarlykov.izisandbox.extensions.minutes
+import s.yarlykov.izisandbox.time_line.v2.domain.DateRange
+import s.yarlykov.izisandbox.time_line.v2.domain.TimeData
+import kotlin.math.floor
 import kotlin.math.min
 import kotlin.math.sign
 
-/**
- * Алгоритм работы.
- *
- * При использовании нескольких указателей данные по каждому из них приходят в элементах
- * массива. Индекс указателя - индекс элемента массива. Однако индексы у указателей не сохраняются
- * от события к событию. То есть левый палец в одном событии может иметь индекс 0, а в следующем
- * уже 1. Однако у указателей есть уникальные ID и они гарантированно уникальны. Поэтому приходится
- * мапить индексы в указатели.
- *
- * Основная трабла в том как правильно организовать масштабирование. Итак, используем две Map'ы.
- * pointers - ключём является pointer_id и храним последние X для каждого указателя, points -
- * хранит последние Х для ЛЕВОГО и ПРАВОГО указателей. Её пофиг на ID. Её задача различать
- * левый и правый и это нужно для масштабирования. Масштабирование начинается в момент фиксации
- * Direction.Opposite. Как только указатели начали удаляться или сближаться, то начинается
- * масштабирование. При фиксации Direction.Same оно заказнчивается.
- *
- * NOTE: Сохранять координаты указателей нужно постоянно, чтобы ползунок не прыгал при отпускании
- * пальца.
- *
- * NOTE: Использовать совместно ScaleGestureDetector.SimpleOnScaleGestureListener и свой обработчик
- * onTouchEvent не получится, потому что ScaleGestureDetector всегда возвращает true и нет
- * возможности забрать у него другие события.
- */
-class TimeSurfaceV2 : ViewGroup {
+class TimeSurfaceV2 : ViewGroup, TimeLineView {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
@@ -41,23 +29,89 @@ class TimeSurfaceV2 : ViewGroup {
         attrs,
         defStyleAttr
     ) {
+        // Разрешить рисование для ViewGroup
         setWillNotDraw(false)
     }
 
     companion object {
         const val INVALID_POINTER_ID = -1
+        const val BACKGROUND_HEIGHT_RATIO = 0.7f
+
+        // Параметры для рисования метрик (линий/цифр)
+        const val METRICS_STROKE_WIDTH_DP = 1.4f
+        const val METRICS_TEXT_SIZE_SP = 11f
     }
 
+    /**
+     * Направление мультитача
+     */
     private enum class Direction {
         Same,
         Opposite
     }
 
+    /**
+     * Палец левый/правый
+     */
     private enum class Pointer {
         Left,
         Right
     }
 
+    /**
+     * Величины высот основных компонентов
+     */
+    private var backgroundHeight = 0f
+    private var metricsLineHeight = 0f
+    private var metricsTextHeight = 0f
+
+    private val disposable = CompositeDisposable()
+
+    /**
+     * Элементы для рисования
+     */
+    private lateinit var cacheBitmap: Bitmap
+    private lateinit var cacheCanvas: Canvas
+
+    private val paintBg = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+
+    private val paintText = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.color_time_line_chart)
+        strokeWidth = dp_f(METRICS_STROKE_WIDTH_DP)
+        textSize = dp_f(METRICS_TEXT_SIZE_SP)
+        textAlign = Paint.Align.CENTER
+        isAntiAlias = true
+    }
+
+    private val bgColor = ContextCompat.getColor(context, R.color.colorTimeSlotBusy)
+    private val fgColor = ContextCompat.getColor(context, R.color.colorTimeSlotFree)
+
+    /**
+     * Элементы для позиционирования ползунка
+     */
+    // Начало и конец рабочего дня В МИНУТАХ
+    private var low = 1
+        set(value) {
+            field = value.minutes
+        }
+    private var high = 1
+        set(value) {
+            field = value.minutes
+        }
+
+    private var dayRange = (1..1)
+
+    // Единица времени: 1 минута
+    private val timeUnit = 1
+
+    // Это количество пикселей на одну минуту (mip по аналогии с dip)
+    private var mip: Float = timeUnit.toFloat()
+
+    /**
+     * Для обработки событий onTouch
+     */
     private var activePointerId = 0
     private var frameX = 0f
     private var scaleFactor = 1f
@@ -67,6 +121,7 @@ class TimeSurfaceV2 : ViewGroup {
 
     private lateinit var timeFrame: TimeFrameV2
 
+    // Можно удалить
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         setBackgroundColor(
@@ -78,25 +133,36 @@ class TimeSurfaceV2 : ViewGroup {
 
     /**
      * У меня пока размеры задаются жестко. Поэтому вариант WRAP_CONTENT не учитываем.
+     *
+     * Ползунок принудительно устанавливается в высоту myHeight * BACKGROUND_HEIGHT_RATIO
+     *
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
-        val (rw, rh) = MeasureSpec.getSize(widthMeasureSpec) to
-                MeasureSpec.getSize(heightMeasureSpec)
+        val myHeight = MeasureSpec.getSize(heightMeasureSpec)
 
         val (childX, childY) = 0 to 0
 
         for (i in 0 until childCount) {
             val child = getChildAt(i)
 
-            measureChild(child, widthMeasureSpec, heightMeasureSpec)
-
             if (child is TimeFrameV2) {
+                measureChild(
+                    child,
+                    widthMeasureSpec,
+                    MeasureSpec.makeMeasureSpec(
+                        (myHeight * BACKGROUND_HEIGHT_RATIO).toInt(),
+                        EXACTLY
+                    )
+                )
+
                 timeFrame = child
                 val params = timeFrame.layoutParams as LayoutParams
 
                 params.x = childX
                 params.y = childY
+            } else {
+                measureChild(child, widthMeasureSpec, heightMeasureSpec)
             }
         }
 
@@ -112,11 +178,25 @@ class TimeSurfaceV2 : ViewGroup {
             val params = child.layoutParams as LayoutParams
             child.layout(params.x, params.y, child.measuredWidth, child.measuredHeight)
         }
+
+        calculateDimensions()
         translateFrame(0f)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+
+        if (::cacheBitmap.isInitialized) {
+            canvas?.drawBitmap(cacheBitmap, 0f, 0f, null)
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+        if (!disposable.isDisposed) {
+            disposable.clear()
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -292,13 +372,132 @@ class TimeSurfaceV2 : ViewGroup {
 
         val frameWidthBefore = timeFrame.measuredWidth
         // Ползунок не может быть шире родителя
-        val frameWidthAfter = min((frameWidthBefore * factor).toInt(), (timeFrame.parent as ViewGroup).measuredWidth)
+        val frameWidthAfter =
+            min((frameWidthBefore * factor).toInt(), (timeFrame.parent as ViewGroup).measuredWidth)
 
         // Нужно подвинуть левый край левее на половину изменения ширины
         val tX = (frameWidthAfter - frameWidthBefore) / 2f
         translateFrame(-tX)
 
         timeFrame.layoutParams = timeFrame.layoutParams.apply { width = frameWidthAfter }
+    }
+
+    /**
+     * Функция выполняет расчет высоты для основных компонентов.
+     * - высота текста определяется через FontMetrics
+     * - высота цветового фона с помощью ratio
+     * - оставшееся вертикальное пространство остается для высоты шкаликов метрической линейки
+     */
+    private fun calculateDimensions() {
+        metricsTextHeight = paintText.fontMetrics.let { it.descent - it.ascent }
+        backgroundHeight = height * BACKGROUND_HEIGHT_RATIO
+        metricsLineHeight = height - backgroundHeight - metricsTextHeight
+    }
+
+    /**
+     * Отрисовка заднего фона
+     */
+    private fun drawInCache(model: List<DateRange>) {
+        if (::cacheBitmap.isInitialized) {
+            cacheBitmap.recycle()
+        }
+
+        cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        cacheCanvas = Canvas(cacheBitmap)
+        cacheCanvas.drawColor(bgColor)
+
+        paintBg.color = fgColor
+
+        drawRectangles(model)
+        drawLines()
+        drawHours()
+        invalidate()
+    }
+
+    /**
+     * Цветной фон. Рисуется на всю высоту, потом нижняя часть для линейки закрашиывается белым.
+     */
+    private fun drawRectangles(model: List<DateRange>) {
+        model.forEach { dateRange ->
+            val (from, to) = dateRange.from.minutes to dateRange.to.minutes
+
+            // Проверка, что полученные данные попадают в диапазон дня.
+            // Также нужно вычесть значение low, т.к. нужны относительные значения внутри шкалы.
+            val left = ((if (from in dayRange) from else low) - low) * mip
+            val right = ((if (to in dayRange) to else high) - low) * mip
+            val rect = Rect(left.toInt(), 0, right.toInt(), height)
+            cacheCanvas.drawRect(rect, paintBg)
+        }
+
+        // Это белая заливка, поверх которой будут метрики (линии/текст)
+        paintBg.color = Color.WHITE
+        val rect = Rect(0, (backgroundHeight/*height * BG_HEIGHT_RATIO*/).toInt(), width, height)
+        cacheCanvas.drawRect(rect, paintBg)
+    }
+
+    /**
+     * Рисуем линейку
+     */
+    private fun drawLines() {
+
+        val hours = (dayRange.last - dayRange.first) / 60
+        if (hours == 0) return
+
+        val startY = backgroundHeight
+        val stopY1 = startY + metricsLineHeight
+        val stopY2 = startY + metricsLineHeight / 2
+
+        // Один промежуток - полчаса
+        val gaps = hours * 2
+        // Количество вертикальных отсечек
+        val lines = gaps + 1
+        // Ширина промежутка в px
+        val gap = width.toFloat() / gaps
+
+        for (i in 0 until lines) {
+            // floor нужно, чтобы все насечки были одинаковой толщины
+            val startX = floor(i * gap)
+
+            val y = if (i % 2 == 0) {
+                stopY1
+            } else {
+                stopY2
+            }
+
+            cacheCanvas.drawLine(startX, startY, startX, y, paintText)
+        }
+
+        // Горизонтальная линия на всю ширину
+        cacheCanvas.drawLine(0f, startY, width.toFloat(), startY, paintText)
+    }
+
+    /**
+     * Рисуем числа. Они центрируются относительно отсечек благодаря настройки текстовой Paint.
+     */
+    private fun drawHours() {
+        val hours = (dayRange.last - dayRange.first) / 60
+        if (hours == 0) return
+
+        val steps = hours - 1
+        val gap = width.toFloat() / hours
+
+        /**
+         * Позиционируем канву для отрисовки текста. Позиция канвы станет левым-НИЖНИМ углом
+         * области текста. Не левым-ВЕРХНИМ, а левым-НИЖНИМ, то есть все через жопу. Поэтому
+         * ставим канву на нижнюю границы View, а текст отрусуется поверх этой границы.
+         *
+         * Полезная заметка тут:
+         * https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
+         */
+        cacheCanvas.save()
+        cacheCanvas.translate(0f, height.toFloat())
+
+        for (i in 1..steps) {
+            cacheCanvas.translate(gap, 0f)
+            cacheCanvas.drawText("${(dayRange.first + i * 60) / 60}", 0f, 0f, paintText)
+        }
+
+        cacheCanvas.restore()
     }
 
     /**
@@ -343,5 +542,34 @@ class TimeSurfaceV2 : ViewGroup {
         )
 
         constructor(params: ViewGroup.LayoutParams) : super(params)
+    }
+
+    /**
+     * Имплементация TimeLineView
+     */
+    private fun timeDataHandler(timeData: TimeData) {
+        val hoursQty = timeData.hoursQty
+        low = timeData.startHour
+        high = timeData.endHour
+        dayRange = (low..high)
+        mip = (measuredWidth.toFloat() / (hoursQty.minutes)) * timeUnit
+    }
+
+    private fun schedulerHandler(model: List<DateRange>) {
+        drawInCache(model)
+    }
+
+    override fun onTimeData(timeDataObs: Observable<TimeData>) {
+        disposable += timeDataObs
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(::timeDataHandler)
+    }
+
+    override fun onSchedulerData(scheduleDataObs: Observable<List<DateRange>>) {
+        disposable += scheduleDataObs
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(::schedulerHandler)
     }
 }

@@ -19,3 +19,9 @@ val Int.dp: Int
 
 val Int.px: Int
     get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+
+/**
+ * Int - это количество часов, которые конвертирууем в минуты
+ */
+val Int.minutes: Int
+    get() = this * 60
