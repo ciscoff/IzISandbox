@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
             <s.yarlykov.izisandbox.time_line.v1.TimeFrameV1
-                android:layout_width="10dp"
+                android:layout_width="60dp"
                 android:layout_height="match_parent" />
         </s.yarlykov.izisandbox.time_line.v1.TimeSurfaceV1>
 

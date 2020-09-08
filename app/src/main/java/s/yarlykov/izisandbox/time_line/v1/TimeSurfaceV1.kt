@@ -27,6 +27,7 @@ class TimeSurfaceV1 : ViewGroup {
     }
 
     private enum class Direction {
+        None,
         Same,
         Opposite
     }
@@ -129,6 +130,7 @@ class TimeSurfaceV1 : ViewGroup {
                     2 -> {
                         when (direction(event)) {
                             Direction.Same -> {
+                                logIt("Direction is ${Direction.Same}", "GOGO")
 //                                isScaling = false
 
 
@@ -138,9 +140,7 @@ class TimeSurfaceV1 : ViewGroup {
 //                                pointers[activePointerId] = x
 
 
-
-                                if(!isScaling) {
-                                    logIt("Direction is ${Direction.Same}", "GOGO")
+                                if (!isScaling) {
                                     frameX += x - pointers[activePointerId]!!
                                     translateFrame()
                                     pointers[activePointerId] = x
@@ -149,9 +149,18 @@ class TimeSurfaceV1 : ViewGroup {
                                 }*/
                             }
                             Direction.Opposite -> {
-//                                logIt("Direction is ${Direction.Opposite}", "GOGO")
+                                logIt(
+                                    "Direction is ${Direction.Opposite}",
+                                    "GOGO"
+                                )
                                 isScaling = true
                                 resizeFrame(event)
+                            }
+                            Direction.None -> {
+                                logIt(
+                                    "Direction is ${Direction.None}",
+                                    "GOGO"
+                                )
                             }
                         }
 
@@ -189,15 +198,15 @@ class TimeSurfaceV1 : ViewGroup {
      * Если направление противоположное, то это scale. Направление считается противоположным и в
      * случае, если один палец на месте, а второй двигается.
      */
-    private var prevDir : Direction = Direction.Same
+    private var prevDir: Direction = Direction.Same
 
     private fun direction(event: MotionEvent): Direction {
 
         val lastTouch0 = pointers[event.getPointerId(0)]!!
         val lastTouch1 = pointers[event.getPointerId(1)]!!
 
-        val indexL = if(lastTouch0 < lastTouch1) 0 else 1
-        val indexR = if(lastTouch0 < lastTouch1) 1 else 0
+        val indexL = if (lastTouch0 < lastTouch1) 0 else 1
+        val indexR = if (lastTouch0 < lastTouch1) 1 else 0
 
         val (xL, lastTouchL) = event.getX(indexL) to pointers[event.getPointerId(indexL)]!!
         val (xR, lastTouchR) = event.getX(indexR) to pointers[event.getPointerId(indexR)]!!
@@ -206,7 +215,15 @@ class TimeSurfaceV1 : ViewGroup {
 //            prevDir = if (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) Direction.Same else Direction.Opposite
 //        }
 //        return prevDir
-        return if (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) Direction.Same else Direction.Opposite
+
+        logIt("xL=$xL, lastTouchL=$lastTouchL, xR=$xR, lastTouchR=$lastTouchR", "GOGO")
+        return when {
+            (xL == lastTouchL || xR == lastTouchR) -> Direction.None
+            (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) -> Direction.Same
+            else -> Direction.Opposite
+        }
+
+//        return if (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) Direction.Same else Direction.Opposite
     }
 
     private fun translateFrame() {
@@ -230,22 +247,25 @@ class TimeSurfaceV1 : ViewGroup {
 
     private fun resizeFrame(event: MotionEvent) {
         val indexActive = event.findPointerIndex(activePointerId)
-        val indexPassive = if(indexActive == 0) 1 else 0
+        val indexPassive = if (indexActive == 0) 1 else 0
+
+        val passivePointerId = event.findPointerIndex(indexPassive)
 
         val touchActive = pointers[activePointerId]!!
-        val touchPassive = pointers[event.findPointerIndex(indexPassive)]!!
+        val touchPassive = pointers[passivePointerId]!!
 
         val xActive = event.getX(indexActive)
         val xPassive = event.getX(indexPassive)
 
         val gestureWidthBefore = abs(touchActive - touchPassive)
         val gestureWidthAfter = abs(xActive - xPassive)
-        val scaleFactor = gestureWidthAfter/gestureWidthBefore
+        val scaleFactor = gestureWidthAfter / gestureWidthBefore
 
         val frameWidthBefore = timeFrame.measuredWidth
         val frameWidthAfter = (widthBeforeTouch * scaleFactor * 1.1f).toInt()
 
         pointers[activePointerId] = xActive
+        pointers[passivePointerId] = xPassive
 
         val tX = (frameWidthAfter - frameWidthBefore) / 2
         frameX -= tX
@@ -264,8 +284,8 @@ class TimeSurfaceV1 : ViewGroup {
         val lastTouch0 = pointers[event.getPointerId(0)]!!
         val lastTouch1 = pointers[event.getPointerId(1)]!!
 
-        val indexL = if(lastTouch0 < lastTouch1) 0 else 1
-        val indexR = if(lastTouch0 < lastTouch1) 1 else 0
+        val indexL = if (lastTouch0 < lastTouch1) 0 else 1
+        val indexR = if (lastTouch0 < lastTouch1) 1 else 0
 
         val (xL, lastTouchL) = event.getX(indexL) to pointers[event.getPointerId(indexL)]!!
         val (xR, lastTouchR) = event.getX(indexR) to pointers[event.getPointerId(indexR)]!!
@@ -277,14 +297,14 @@ class TimeSurfaceV1 : ViewGroup {
 
 //        timeFrame.translationX = frameX
 
-        val dW = if(dWl < 0 || dWr > 0) (abs(dWl) + dWr) else -(dWl + abs(dWr))
+        val dW = if (dWl < 0 || dWr > 0) (abs(dWl) + dWr) else -(dWl + abs(dWr))
 
         timeFrame.layoutParams = timeFrame.layoutParams.apply {
             width = widthBeforeTouch + dW.toInt()
 //            logIt("indexL=$indexL, indexR=$indexR, xL=$xL, lastTouchL=$lastTouchL, xR=$xR, lastTouchR=$lastTouchR, translation=${timeFrame.translationX}, dW=$dW, width=${widthBeforeTouch + dW.toInt()}", "GOGO")
         }
 
-        timeFrame.postDelayed({timeFrame.translationX = frameX}, 100)
+        timeFrame.postDelayed({ timeFrame.translationX = frameX }, 100)
     }
 
     /**
