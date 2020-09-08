@@ -9,6 +9,7 @@
     tools:context=".time_line.TimeLineActivity">
 
     <s.yarlykov.izisandbox.time_line.v1.TimeLineV1
+        android:id="@+id/tl_1"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,13 +19,14 @@
 
         <s.yarlykov.izisandbox.time_line.v1.TimeSurfaceV1
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent">
+
             <s.yarlykov.izisandbox.time_line.v1.TimeFrameV1
                 android:layout_width="60dp"
                 android:layout_height="match_parent" />
         </s.yarlykov.izisandbox.time_line.v1.TimeSurfaceV1>
-
-
     </s.yarlykov.izisandbox.time_line.v1.TimeLineV1>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

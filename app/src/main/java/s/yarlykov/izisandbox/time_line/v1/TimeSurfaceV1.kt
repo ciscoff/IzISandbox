@@ -7,10 +7,32 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
-import kotlin.math.abs
+import kotlin.math.min
 import kotlin.math.sign
 
+/**
+ * Алгоритм работы.
+ *
+ * При использовании нескольких указателей данные по каждому из них приходят в элементах
+ * массива. Индекс указателя - индекс элемента массива. Однако индексы у указателей не сохраняются
+ * от события к событию. То есть левый палец в одном событии может иметь индекс 0, а в следующем
+ * уже 1. Однако у указателей есть уникальные ID и они гарантированно уникальны. Поэтому приходится
+ * мапить индексы в указатели.
+ *
+ * Основная трабла в том как правильно организовать масштабирование. Итак, используем две Map'ы.
+ * pointers - ключём является pointer_id и храним последние X для каждого указателя, points -
+ * хранит последние Х для ЛЕВОГО и ПРАВОГО указателей. Её пофиг на ID. Её задача различать
+ * левый и правый и это нужно для масштабирования. Масштабирование начинается в момент фиксации
+ * Direction.Opposite. Как только указатели начали удаляться или сближаться, то начинается
+ * масштабирование. При фиксации Direction.Same оно заказнчивается.
+ *
+ * NOTE: Сохранять координаты указателей нужно постоянно, чтобы ползунок не прыгал при отпускании
+ * пальца.
+ *
+ * NOTE: Использовать совместно ScaleGestureDetector.SimpleOnScaleGestureListener и свой обработчик
+ * onTouchEvent не получится, потому что ScaleGestureDetector всегда возвращает true и нет
+ * возможности забрать у него другие события.
+ */
 class TimeSurfaceV1 : ViewGroup {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -27,12 +49,23 @@ class TimeSurfaceV1 : ViewGroup {
     }
 
     private enum class Direction {
-        None,
         Same,
         Opposite
     }
 
-    lateinit var timeFrame: TimeFrameV1
+    private enum class Pointer {
+        Left,
+        Right
+    }
+
+    private var activePointerId = 0
+    private var frameX = 0f
+    private var scaleFactor = 1f
+
+    private val pointers = mutableMapOf<Int, Float>()
+    private val points = mutableMapOf(Pointer.Left to 0f, Pointer.Right to 0f)
+
+    private lateinit var timeFrame: TimeFrameV1
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -50,7 +83,8 @@ class TimeSurfaceV1 : ViewGroup {
 
         val (rw, rh) = MeasureSpec.getSize(widthMeasureSpec) to
                 MeasureSpec.getSize(heightMeasureSpec)
-        var (childX, childY) = 0 to 0
+
+        val (childX, childY) = 0 to 0
 
         for (i in 0 until childCount) {
             val child = getChildAt(i)
@@ -78,21 +112,12 @@ class TimeSurfaceV1 : ViewGroup {
             val params = child.layoutParams as TimeSurfaceV1.LayoutParams
             child.layout(params.x, params.y, child.measuredWidth, child.measuredHeight)
         }
-        translateFrame()
+        translateFrame(0f)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
     }
-
-    private var activePointerId = 0
-    private var widthBeforeTouch = 0
-    private var translationBeforeTouch = 0f
-    private var frameX = 0f
-
-    private val pointers = mutableMapOf<Int, Float>()
-
-    private var isScaling = false
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
@@ -100,19 +125,17 @@ class TimeSurfaceV1 : ViewGroup {
 
             // Самое первое касание в жесте.
             MotionEvent.ACTION_DOWN -> {
-                event.actionIndex.also { index ->
-                    activePointerId = event.getPointerId(index)
-                    pointers[activePointerId] = event.getX(index)
-                }
+                pointers.clear()
+                activePointerId = event.getPointerId(0)
+                pointers[activePointerId] = event.getX(0)
             }
 
             // Касание вторым пальцем. Теперь оба пальца на экране.
             MotionEvent.ACTION_POINTER_DOWN -> {
                 event.actionIndex.also { index ->
                     pointers[event.getPointerId(index)] = event.getX(index)
-                    widthBeforeTouch = timeFrame.measuredWidth
-                    translationBeforeTouch = timeFrame.translationX
                 }
+                savePoints(event)
             }
 
             // Уже в процессе. Мы все время ориентируемся на основной pointer, который
@@ -123,47 +146,22 @@ class TimeSurfaceV1 : ViewGroup {
 
                 when (event.pointerCount) {
                     1 -> {
-                        frameX += x - pointers[activePointerId]!!
-                        translateFrame()
+                        translateFrame(x - pointers[activePointerId]!!)
                         pointers[activePointerId] = x
                     }
                     2 -> {
                         when (direction(event)) {
                             Direction.Same -> {
-                                logIt("Direction is ${Direction.Same}", "GOGO")
-//                                isScaling = false
-
-
-//                                logIt("Direction is ${Direction.Same}", "GOGO")
-//                                frameX += x - pointers[activePointerId]!!
-//                                translateFrame()
-//                                pointers[activePointerId] = x
-
-
-                                if (!isScaling) {
-                                    frameX += x - pointers[activePointerId]!!
-                                    translateFrame()
-                                    pointers[activePointerId] = x
-                                } /*else {
-                                    frameX += x - pointers[activePointerId]!!
-                                }*/
+                                translateFrame(x - pointers[activePointerId]!!)
+                                savePointers(event)
+                                savePoints(event)
                             }
                             Direction.Opposite -> {
-                                logIt(
-                                    "Direction is ${Direction.Opposite}",
-                                    "GOGO"
-                                )
-                                isScaling = true
                                 resizeFrame(event)
-                            }
-                            Direction.None -> {
-                                logIt(
-                                    "Direction is ${Direction.None}",
-                                    "GOGO"
-                                )
+                                savePointers(event)
+                                savePoints(event)
                             }
                         }
-
                     }
                 }
             }
@@ -177,9 +175,6 @@ class TimeSurfaceV1 : ViewGroup {
              * оставшийся палец назначить на роль основного
              */
             MotionEvent.ACTION_POINTER_UP -> {
-                logIt("ACTION_POINTER_UP", "GOGO")
-                isScaling = false
-
                 event.actionIndex.also { index ->
                     event.getPointerId(index).takeIf { it == activePointerId }?.run {
                         val newIndex = if (index == 0) 1 else 0
@@ -198,37 +193,23 @@ class TimeSurfaceV1 : ViewGroup {
      * Если направление противоположное, то это scale. Направление считается противоположным и в
      * случае, если один палец на месте, а второй двигается.
      */
-    private var prevDir: Direction = Direction.Same
-
     private fun direction(event: MotionEvent): Direction {
+        val (indexL, indexR) = pointsIndices(event)
 
-        val lastTouch0 = pointers[event.getPointerId(0)]!!
-        val lastTouch1 = pointers[event.getPointerId(1)]!!
+        val (currentL, prevL) = event.getX(indexL) to pointers[event.getPointerId(indexL)]!!
+        val (currentR, prevR) = event.getX(indexR) to pointers[event.getPointerId(indexR)]!!
 
-        val indexL = if (lastTouch0 < lastTouch1) 0 else 1
-        val indexR = if (lastTouch0 < lastTouch1) 1 else 0
-
-        val (xL, lastTouchL) = event.getX(indexL) to pointers[event.getPointerId(indexL)]!!
-        val (xR, lastTouchR) = event.getX(indexR) to pointers[event.getPointerId(indexR)]!!
-
-//        if(abs(xL - lastTouchL) > 10 && abs(xR - lastTouchR) > 10) {
-//            prevDir = if (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) Direction.Same else Direction.Opposite
-//        }
-//        return prevDir
-
-        logIt("xL=$xL, lastTouchL=$lastTouchL, xR=$xR, lastTouchR=$lastTouchR", "GOGO")
-        return when {
-            (xL == lastTouchL || xR == lastTouchR) -> Direction.None
-            (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) -> Direction.Same
-            else -> Direction.Opposite
-        }
-
-//        return if (sign((xL - lastTouchL) * (xR - lastTouchR)) > 0) Direction.Same else Direction.Opposite
+        return if (sign((currentL - prevL) * (currentR - prevR)) <= 0) Direction.Opposite else Direction.Same
     }
 
-    private fun translateFrame() {
+    /**
+     * Переместить ползунок
+     */
+    private fun translateFrame(dX: Float) {
 
         if (!this::timeFrame.isInitialized) return
+
+        frameX += dX
 
         /**
          * Ползунок не должен вылезать за края родительского элемента
@@ -245,72 +226,83 @@ class TimeSurfaceV1 : ViewGroup {
         timeFrame.translationX = frameX
     }
 
-    private fun resizeFrame(event: MotionEvent) {
+    /**
+     * Сохранить координаты левого и правого указателей.
+     *
+     * Функция исползует содержимое структуры pointers, поэтому перед её вызовом необходимо
+     * поместить в pointers последнюю актуальную информацию (savePointers)
+     */
+    private fun savePoints(event: MotionEvent) {
+        val (l, r) = pointsIndices(event)
+
+        points[Pointer.Left] = event.getX(l)
+        points[Pointer.Right] = event.getX(r)
+    }
+
+    /**
+     * Сохранить координаты активного и пассивного указателей
+     */
+    private fun savePointers(event: MotionEvent) {
+        val (a, p) = pointersIndices(event)
+
+        val passivePointerId = event.getPointerId(p)
+        pointers[activePointerId] = event.getX(a)
+        pointers[passivePointerId] = event.getX(p)
+    }
+
+    /**
+     * Определить индексы активного и пассивного указателей
+     */
+    private fun pointersIndices(event: MotionEvent): Pair<Int, Int> {
         val indexActive = event.findPointerIndex(activePointerId)
         val indexPassive = if (indexActive == 0) 1 else 0
 
-        val passivePointerId = event.findPointerIndex(indexPassive)
-
-        val touchActive = pointers[activePointerId]!!
-        val touchPassive = pointers[passivePointerId]!!
-
-        val xActive = event.getX(indexActive)
-        val xPassive = event.getX(indexPassive)
-
-        val gestureWidthBefore = abs(touchActive - touchPassive)
-        val gestureWidthAfter = abs(xActive - xPassive)
-        val scaleFactor = gestureWidthAfter / gestureWidthBefore
-
-        val frameWidthBefore = timeFrame.measuredWidth
-        val frameWidthAfter = (widthBeforeTouch * scaleFactor * 1.1f).toInt()
-
-        pointers[activePointerId] = xActive
-        pointers[passivePointerId] = xPassive
-
-        val tX = (frameWidthAfter - frameWidthBefore) / 2
-        frameX -= tX
-
-        timeFrame.layoutParams = timeFrame.layoutParams.apply {
-            width = frameWidthAfter
-//            logIt("indexL=$indexL, indexR=$indexR, xL=$xL, lastTouchL=$lastTouchL, xR=$xR, lastTouchR=$lastTouchR, translation=${timeFrame.translationX}, dW=$dW, width=${widthBeforeTouch + dW.toInt()}", "GOGO")
-        }
-
-//        timeFrame.postDelayed({translateFrame()}, 10)
-
+        return indexActive to indexPassive
     }
 
-    private fun resizeFrameV1(event: MotionEvent) {
-
+    /**
+     * Определить индексы левого и правого указателей
+     */
+    private fun pointsIndices(event: MotionEvent): Pair<Int, Int> {
         val lastTouch0 = pointers[event.getPointerId(0)]!!
         val lastTouch1 = pointers[event.getPointerId(1)]!!
 
         val indexL = if (lastTouch0 < lastTouch1) 0 else 1
         val indexR = if (lastTouch0 < lastTouch1) 1 else 0
 
-        val (xL, lastTouchL) = event.getX(indexL) to pointers[event.getPointerId(indexL)]!!
-        val (xR, lastTouchR) = event.getX(indexR) to pointers[event.getPointerId(indexR)]!!
+        return indexL to indexR
+    }
 
-        val dWl = xL - lastTouchL
-        val dWr = xR - lastTouchR
+    /**
+     * В этом методе важно различать левый и правый указатели.
+     * Active/Passive роли не играет
+     */
+    private fun resizeFrame(event: MotionEvent) {
 
-        frameX = translationBeforeTouch + dWl
+        val (indexL, indexR) = pointsIndices(event)
+        val (xL, xR) = event.getX(indexL) to event.getX(indexR)
 
-//        timeFrame.translationX = frameX
+        val prevSpan = points[Pointer.Right]!! - points[Pointer.Left]!!
+        val currentSpan = xR - xL
 
-        val dW = if (dWl < 0 || dWr > 0) (abs(dWl) + dWr) else -(dWl + abs(dWr))
+        val factor = currentSpan / prevSpan
 
-        timeFrame.layoutParams = timeFrame.layoutParams.apply {
-            width = widthBeforeTouch + dW.toInt()
-//            logIt("indexL=$indexL, indexR=$indexR, xL=$xL, lastTouchL=$lastTouchL, xR=$xR, lastTouchR=$lastTouchR, translation=${timeFrame.translationX}, dW=$dW, width=${widthBeforeTouch + dW.toInt()}", "GOGO")
-        }
+        scaleFactor *= factor
 
-        timeFrame.postDelayed({ timeFrame.translationX = frameX }, 100)
+        val frameWidthBefore = timeFrame.measuredWidth
+        // Ползунок не может быть шире родителя
+        val frameWidthAfter = min((frameWidthBefore * factor).toInt(), (timeFrame.parent as ViewGroup).measuredWidth)
+
+        // Нужно подвинуть левый край левее на половину изменения ширины
+        val tX = (frameWidthAfter - frameWidthBefore) / 2f
+        translateFrame(-tX)
+
+        timeFrame.layoutParams = timeFrame.layoutParams.apply { width = frameWidthAfter }
     }
 
     /**
      * Наш контейнер должен генерить LayoutParams для детей
      */
-
     override fun generateLayoutParams(attrs: AttributeSet?): ViewGroup.LayoutParams {
         return TimeSurfaceV1.LayoutParams(context, attrs)
     }
