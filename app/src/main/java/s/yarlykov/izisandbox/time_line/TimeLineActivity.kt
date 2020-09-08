@@ -22,7 +22,7 @@ class TimeLineActivity : AppCompatActivity() {
         startHour = 10,
         endHour = 21,
         itemDuration = 60,
-        frameStartPosition = DateRange(10, 11),
+        frameStartPosition = DateRange(13, 14),
         timeSlotType = TimeSlotType.SlotFreeStart,
         timeSlotValue = 60
     )
