@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.time_line.v2.domain
+package s.yarlykov.izisandbox.time_line.domain
 
 enum class TimeSlotType(val code: Int) {
     NoSlotable(0),

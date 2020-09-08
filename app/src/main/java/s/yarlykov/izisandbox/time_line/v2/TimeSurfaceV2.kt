@@ -15,9 +15,10 @@ import io.reactivex.schedulers.Schedulers
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.minutes
-import s.yarlykov.izisandbox.time_line.v2.domain.DateRange
-import s.yarlykov.izisandbox.time_line.v2.domain.TimeData
-import s.yarlykov.izisandbox.time_line.v2.domain.TimeSlotType
+import s.yarlykov.izisandbox.time_line.TimeLineView
+import s.yarlykov.izisandbox.time_line.domain.DateRange
+import s.yarlykov.izisandbox.time_line.domain.TimeData
+import s.yarlykov.izisandbox.time_line.domain.TimeSlotType
 import kotlin.math.floor
 import kotlin.math.min
 import kotlin.math.sign

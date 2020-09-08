@@ -1,8 +1,8 @@
-package s.yarlykov.izisandbox.time_line.v2
+package s.yarlykov.izisandbox.time_line
 
 import io.reactivex.Observable
-import s.yarlykov.izisandbox.time_line.v2.domain.DateRange
-import s.yarlykov.izisandbox.time_line.v2.domain.TimeData
+import s.yarlykov.izisandbox.time_line.domain.DateRange
+import s.yarlykov.izisandbox.time_line.domain.TimeData
 
 interface TimeLineView {
     fun onTimeData(timeDataObs: Observable<TimeData>)

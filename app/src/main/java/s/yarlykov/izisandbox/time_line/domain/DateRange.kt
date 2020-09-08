@@ -1,3 +1,3 @@
-package s.yarlykov.izisandbox.time_line.v2.domain
+package s.yarlykov.izisandbox.time_line.domain
 
 class DateRange(val from : Int, val to : Int)

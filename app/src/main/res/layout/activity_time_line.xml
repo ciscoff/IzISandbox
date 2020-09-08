@@ -32,14 +32,14 @@
         android:id="@+id/tl_2"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tl_3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tl_1"
         app:layout_constraintWidth_percent="0.7">
 
         <s.yarlykov.izisandbox.time_line.v2.TimeSurfaceV2
-            android:id="@+id/tsTimeLine"
+            android:id="@+id/tsTimeLine2"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -48,5 +48,27 @@
                 android:layout_height="match_parent" />
         </s.yarlykov.izisandbox.time_line.v2.TimeSurfaceV2>
     </s.yarlykov.izisandbox.time_line.v2.TimeLineV2>
+
+    <s.yarlykov.izisandbox.time_line.v3.TimeLineV3
+        android:id="@+id/tl_3"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tl_2"
+        app:layout_constraintWidth_percent="0.7">
+
+        <s.yarlykov.izisandbox.time_line.v3.TimeSurfaceV3
+            android:id="@+id/tsTimeLine3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <s.yarlykov.izisandbox.time_line.v3.TimeFrameV3
+                android:layout_width="60dp"
+                android:layout_height="match_parent" />
+        </s.yarlykov.izisandbox.time_line.v3.TimeSurfaceV3>
+    </s.yarlykov.izisandbox.time_line.v3.TimeLineV3>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

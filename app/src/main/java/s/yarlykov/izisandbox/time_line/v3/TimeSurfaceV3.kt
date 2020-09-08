@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.time_line.v2
+package s.yarlykov.izisandbox.time_line.v3
 
 import android.content.Context
 import android.graphics.*
@@ -23,7 +23,7 @@ import kotlin.math.floor
 import kotlin.math.min
 import kotlin.math.sign
 
-class TimeSurfaceV2 : ViewGroup, TimeLineView {
+class TimeSurfaceV3 : ViewGroup, TimeLineView {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
@@ -135,7 +135,7 @@ class TimeSurfaceV2 : ViewGroup, TimeLineView {
     private val pointers = mutableMapOf<Int, Float>()
     private val points = mutableMapOf(Pointer.Left to 0f, Pointer.Right to 0f)
 
-    private lateinit var timeFrame: TimeFrameV2
+    private lateinit var timeFrame: TimeFrameV3
 
     // Можно удалить
     override fun onAttachedToWindow() {
@@ -162,7 +162,7 @@ class TimeSurfaceV2 : ViewGroup, TimeLineView {
         for (i in 0 until childCount) {
             val child = getChildAt(i)
 
-            if (child is TimeFrameV2) {
+            if (child is TimeFrameV3) {
                 measureChild(
                     child,
                     widthMeasureSpec,

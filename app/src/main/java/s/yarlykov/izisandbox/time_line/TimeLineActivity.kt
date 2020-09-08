@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_time_line.*
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.time_line.v2.TimeLineView
 import s.yarlykov.izisandbox.time_line.v2.TimeLineViewModelV2
-import s.yarlykov.izisandbox.time_line.v2.domain.DateRange
-import s.yarlykov.izisandbox.time_line.v2.domain.TimeData
-import s.yarlykov.izisandbox.time_line.v2.domain.TimeSlotType
+import s.yarlykov.izisandbox.time_line.domain.DateRange
+import s.yarlykov.izisandbox.time_line.domain.TimeData
+import s.yarlykov.izisandbox.time_line.domain.TimeSlotType
+import s.yarlykov.izisandbox.time_line.v3.TimeLineViewModelV3
 
 /**
  * Думаю можно обойтись контейнером FrameLayout и двумя дочерними View:
@@ -41,6 +41,7 @@ class TimeLineActivity : AppCompatActivity() {
     }
 
     private fun initTimeLine() {
-        TimeLineViewModelV2(mockTimeData, mockSchedule, tsTimeLine as TimeLineView)
+        TimeLineViewModelV2(mockTimeData, mockSchedule, tsTimeLine2 as TimeLineView)
+        TimeLineViewModelV3(mockTimeData, mockSchedule, tsTimeLine3 as TimeLineView)
     }
 }
