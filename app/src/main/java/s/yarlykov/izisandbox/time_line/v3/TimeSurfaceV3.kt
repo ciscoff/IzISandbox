@@ -7,32 +7,28 @@ import android.view.MotionEvent
 import android.view.View.MeasureSpec.EXACTLY
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
+import androidx.lifecycle.observe
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.minutes
-import s.yarlykov.izisandbox.time_line.TimeLineView
-import s.yarlykov.izisandbox.time_line.domain.DateRange
-import s.yarlykov.izisandbox.time_line.domain.TimeData
-import s.yarlykov.izisandbox.time_line.domain.TimeSlotType
+import s.yarlykov.izisandbox.time_line.domain.*
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 
-class TimeSurfaceV3 : ViewGroup, TimeLineView {
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    ) {
+class TimeSurfaceV3 @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : ViewGroup(context, attrs, defStyleAttr),
+    ViewModelAccessor by ViewModelInjector(context) {
+
+    init {
         // Разрешить рисование для ViewGroup
         setWillNotDraw(false)
+        subscribe()
     }
 
     companion object {
@@ -62,6 +58,22 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
         Right
     }
 
+    /**
+     * Положение фрейма относительно голубых регионов
+     * @Overlapping: регион внутри фрейма
+     * @Overlapped: фрейм внутри региона
+     * @Intersect: фрейм и регион пересекаются одной стороной
+     * @Neighbor: фрейм и регион не пересекаются, соседствуют
+     * @None: регионов нет
+     */
+    enum class Relationship {
+        Overlapping,
+        Overlapped,
+        Intersect,
+        Neighbor,
+        None
+    }
+
     private val disposable = CompositeDisposable()
 
     /**
@@ -72,10 +84,15 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     private var metricsTextHeight = 0f
 
     /**
-     * Признак слотовости
+     * Признак слотовости и размер слота
      */
-
     private var slotType = TimeSlotType.NoSlotable
+    private var slotSize = 5
+
+    /**
+     * Голубые сегменты. Координаты в минутах (не в px)
+     */
+    private val segments = mutableListOf<Segment>()
 
     /**
      * Элементы для рисования
@@ -107,6 +124,7 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     /**
      * Элементы для позиционирования ползунка
      */
+
     // Начало и конец рабочего дня В МИНУТАХ
     private var low = 1
         set(value) {
@@ -136,16 +154,6 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     private val points = mutableMapOf(Pointer.Left to 0f, Pointer.Right to 0f)
 
     private lateinit var timeFrame: TimeFrameV3
-
-    // Можно удалить
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        setBackgroundColor(
-            ContextCompat.getColor(
-                context, R.color.colorDecor14
-            )
-        )
-    }
 
     /**
      * У меня пока размеры задаются жестко. Поэтому вариант WRAP_CONTENT не учитываем.
@@ -197,14 +205,6 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
 
         calculateDimensions()
         translateFrame(0f)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-
-        if (::cacheBitmap.isInitialized) {
-            canvas?.drawBitmap(cacheBitmap, 0f, 0f, null)
-        }
     }
 
     override fun onDetachedFromWindow() {
@@ -262,11 +262,6 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
                 }
             }
 
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                activePointerId =
-                    INVALID_POINTER_ID
-            }
-
             /**
              * Какой-то палец поднят (но не последний). Если это обладатель activePointerId, то нужно
              * оставшийся палец назначить на роль основного
@@ -279,6 +274,11 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
                         pointers[activePointerId] = event.getX(newIndex)
                     }
                 }
+            }
+
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                activePointerId = INVALID_POINTER_ID
+                turnFrameBounds()
             }
         }
 
@@ -384,12 +384,17 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
 
         val factor = currentSpan / prevSpan
 
+        // Важно ! Скалирование именно так изменять.
         scaleFactor *= factor
 
         val frameWidthBefore = timeFrame.measuredWidth
+
         // Ползунок не может быть шире родителя
-        val frameWidthAfter =
+        var frameWidthAfter =
             min((frameWidthBefore * factor).toInt(), (timeFrame.parent as ViewGroup).measuredWidth)
+
+        // Ползунок не может быть меньше минимума
+        frameWidthAfter = max((slotSize * mip).toInt(), frameWidthAfter)
 
         // Нужно подвинуть левый край левее на половину изменения ширины
         val tX = (frameWidthAfter - frameWidthBefore) / 2f
@@ -411,7 +416,20 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     }
 
     /**
-     * Отрисовка заднего фона
+     * ********************************************************************************
+     * Drawing Block
+     * ********************************************************************************
+     */
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+
+        if (::cacheBitmap.isInitialized) {
+            canvas?.drawBitmap(cacheBitmap, 0f, 0f, null)
+        }
+    }
+
+    /**
+     * Отрисовка заднего фона и линейки
      */
     private fun drawInCache(model: List<DateRange>) {
         if (::cacheBitmap.isInitialized) {
@@ -431,7 +449,7 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     }
 
     /**
-     * Цветной фон. Рисуется на всю высоту, потом нижняя часть для линейки закрашиывается белым.
+     * Цветной фон. Рисуется на всю высоту, потом нижняя часть для линейки заливается белым.
      */
     private fun drawRectangles(model: List<DateRange>) {
         model.forEach { dateRange ->
@@ -498,14 +516,13 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
      * Рисуем разделитель слотов
      */
     private fun drawSlotsSeparator(x: Float) {
-
         if (slotType != TimeSlotType.NoSlotable) {
             cacheCanvas.drawLine(x, dp_f(SEPARATOR_TOP_PADDING), x, backgroundHeight, paintSlot)
         }
     }
 
     /**
-     * Рисуем числа. Они центрируются относительно отсечек благодаря настройки текстовой Paint.
+     * Рисуем числа. Они центрируются относительно отсечек благодаря настройке текстовой Paint.
      */
     private fun drawHours() {
         val hours = (dayRange.last - dayRange.first) / 60
@@ -517,7 +534,7 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
         /**
          * Позиционируем канву для отрисовки текста. Позиция канвы станет левым-НИЖНИМ углом
          * области текста. Не левым-ВЕРХНИМ, а левым-НИЖНИМ, то есть все через жопу. Поэтому
-         * ставим канву на нижнюю границы View, а текст отрусуется поверх этой границы.
+         * ставим канву на нижнюю границу View, а текст отрусуется поверх этой границы.
          *
          * Полезная заметка тут:
          * https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
@@ -536,15 +553,168 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     /**
      * Начальное позиционирование ползунка по данным из TimeData
      */
-    private fun frameInitPosition(timeData: TimeData) {
-        frameX = (timeData.frameStartPosition.from - timeData.startHour).minutes * mip
-        translateFrame(0f)
+    private fun setFrameInitPosition(timeData: TimeData) {
 
-        timeFrame.layoutParams =
-            timeFrame.layoutParams.apply { width = (timeData.itemDuration * mip).toInt() }
+        if (this::timeFrame.isInitialized) {
+            frameX = (timeData.frameStartPosition.from - timeData.startHour).minutes * mip
+            translateFrame(0f)
+
+            timeFrame.layoutParams =
+                timeFrame.layoutParams.apply { width = (timeData.itemDuration * mip).toInt() }
+        }
     }
 
     /**
+     * ********************************************************************************
+     * User Interaction Block
+     * ********************************************************************************
+     *
+     * Скорректировать положение и размеры ползунка
+     */
+    private fun turnFrameBounds() {
+        val left = (timeFrame.translationX / mip).toInt()
+        val right = ((timeFrame.translationX + timeFrame.width.toFloat()) / mip).toInt()
+        val frame = Segment(left, right)
+
+        val (relationship, neighbor) = neighborsRelationship(frame)
+
+        when (relationship) {
+            Relationship.Overlapping -> {
+                envelopBounds(neighbor!!)
+            }
+            Relationship.Overlapped -> {
+                embedBounds(frame, neighbor!!)
+            }
+            Relationship.Intersect, Relationship.Neighbor -> {
+                alignBounds(frame, neighbor!!)
+            }
+            Relationship.None -> {
+            }
+        }
+    }
+
+    /**
+     * Определить отношение с соседними сегментами (перекрытия/пересечения/соседство)
+     */
+    private fun neighborsRelationship(frame: Segment): Pair<Relationship, Segment?> {
+
+        // Фрейм может одновременно полностью накрывать несколько голубых регионов
+        val overlaps = segments.filter { other -> frame.overlapping(other) }
+        frame.findCloser(overlaps)?.let {
+            return Relationship.Overlapping to it
+        }
+
+        // Фрейм может находиться только внутри одного региона
+        segments.firstOrNull { other ->
+            frame.overlapped(other)
+        }?.let {
+            return Relationship.Overlapped to it
+        }
+
+        // Фрейм может пересекаться с несколькими регионами (2-мя)
+        val intersections = segments.filter { other -> frame.intersect(other) }
+        frame.findCloser(intersections)?.let {
+            return Relationship.Intersect to it
+        }
+
+        frame.neighbor(segments)?.let {
+            return Relationship.Neighbor to it
+        }
+
+        return Relationship.None to null
+    }
+
+    /**
+     * Установить свою позицию и размеры по контуру охватываемого региона
+     *
+     * NOTE: Для граничных условий (когда голубой регион на краю шкалы) нужно
+     * шедулить translate, чтобы он выполнялся после layout.
+     */
+    private fun envelopBounds(innerSegment: Segment) {
+        frameX = innerSegment.x1 * mip
+        timeFrame.layoutParams =
+            timeFrame.layoutParams.apply { width = (innerSegment.length * mip).toInt() }
+
+        postDelayed({ translateFrame(0f) }, 10)
+    }
+
+    /**
+     * Находясь внутри голубого региона меняем размеры. Конечный размер фрейма должен
+     * быть кратен slotSize.
+     */
+    private fun embedBounds(_frame: Segment, _other: Segment) {
+
+        // Нормализуем длину
+        val frame = _frame.normalize(slotSize, _other.length)
+
+        // Ищем к кому "прислониться"
+        frame.findCloser(_other.splitOverlapped(frame.length, slotSize))?.let { other ->
+
+            // Корректируем позицию и размер
+            frameX = if (frame.center - other.x1 < other.x2 - frame.center) {
+                other.x1 * mip
+            } else {
+                (other.x2 - frame.length) * mip
+            }
+
+            timeFrame.layoutParams =
+                timeFrame.layoutParams.apply { width = (frame.length * mip).toInt() }
+
+            postDelayed({ translateFrame(0f) }, 10)
+        }
+    }
+
+    /**
+     * Прижаться "внутри" региона other к ближайшей границе
+     */
+    private fun alignBounds(_frame: Segment, other: Segment) {
+
+        // Нормализуем длину
+        val frame = _frame.normalize(slotSize, other.length)
+
+        // Мы слева от other
+        frameX = if (frame.x1 < other.x1) {
+            other.x1 * mip
+        }
+        // Мы справа от other
+        else {
+            (other.x2 - frame.length) * mip
+        }
+
+        timeFrame.layoutParams =
+            timeFrame.layoutParams.apply { width = (frame.length * mip).toInt() }
+
+        postDelayed({ translateFrame(0f) }, 10)
+    }
+
+    /**
+     * Сконвертировать диапазоны свободного времени в сегменты. Сегмент - это
+     * пара координат - начало и конец. Ед.изм. - минуты.
+     */
+    private fun mapHoursToSegments(startHour: Int, endHour: Int, model: List<DateRange>) {
+
+        val l = startHour.minutes
+        val h = endHour.minutes
+        val day = l..h
+
+        segments.clear()
+
+        model.forEach { dateRange ->
+            val (from, to) = dateRange.from.minutes to dateRange.to.minutes
+
+            // Проверка, что полученные данные попадают в диапазон дня.
+            // Также нужно вычесть значение low, т.к. нужны относительные значения внутри шкалы.
+            val left = ((if (from in day) from else l) - l)
+            val right = ((if (to in day) to else h) - l)
+            segments.add(Segment(left, right))
+        }
+    }
+
+    /**
+     * ********************************************************************************
+     * LayoutParams Block
+     * ********************************************************************************
+     *
      * Наш контейнер должен генерить LayoutParams для детей
      */
     override fun generateLayoutParams(attrs: AttributeSet?): ViewGroup.LayoutParams {
@@ -570,7 +740,6 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
      * Кастомные layoutParams
      */
     class LayoutParams : ViewGroup.LayoutParams {
-
         var x = 0
         var y = 0
 
@@ -589,7 +758,11 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
     }
 
     /**
-     * Имплементация TimeLineView
+     * ********************************************************************************
+     * ViewModel Block
+     * ********************************************************************************
+     *
+     * Получение данных из ViewModel
      */
     private fun timeDataHandler(timeData: TimeData) {
         val hoursQty = timeData.hoursQty
@@ -597,26 +770,26 @@ class TimeSurfaceV3 : ViewGroup, TimeLineView {
         high = timeData.endHour
         dayRange = (low..high)
         slotType = timeData.timeSlotType
+        slotSize = timeData.timeSlotValue
         mip = (measuredWidth.toFloat() / (hoursQty.minutes)) * timeUnit
 
-        frameInitPosition(timeData)
+        setFrameInitPosition(timeData)
     }
 
     private fun schedulerHandler(model: List<DateRange>) {
         drawInCache(model)
     }
 
-    override fun onTimeData(timeDataObs: Observable<TimeData>) {
-        disposable += timeDataObs
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(::timeDataHandler)
-    }
+    private fun subscribe() {
+        viewModel.timeLineData.observe(activity) {
+            val (timeData, schedule) = it
 
-    override fun onSchedulerData(scheduleDataObs: Observable<List<DateRange>>) {
-        disposable += scheduleDataObs
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(::schedulerHandler)
+            // После получения данных нужна задержка, чтобы прошли measure/layout
+            postDelayed({
+                mapHoursToSegments(timeData.startHour, timeData.endHour, schedule)
+                timeDataHandler(timeData)
+                schedulerHandler(schedule)
+            }, 100)
+        }
     }
 }

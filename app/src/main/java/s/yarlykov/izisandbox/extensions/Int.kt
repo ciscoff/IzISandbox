@@ -25,3 +25,17 @@ val Int.px: Int
  */
 val Int.minutes: Int
     get() = this * 60
+
+// Округлить до ближайшего кратного аргументу arg
+fun Int.multipleOf(arg: Int): Int {
+
+    val remainder = this % arg
+    val diff = arg - remainder
+
+    return if (remainder != 0) {
+        if (remainder >= diff)
+            this + diff
+        else
+            this - remainder
+    } else this
+}

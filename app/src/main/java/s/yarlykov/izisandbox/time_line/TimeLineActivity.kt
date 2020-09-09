@@ -42,6 +42,5 @@ class TimeLineActivity : AppCompatActivity() {
 
     private fun initTimeLine() {
         TimeLineViewModelV2(mockTimeData, mockSchedule, tsTimeLine2 as TimeLineView)
-        TimeLineViewModelV3(mockTimeData, mockSchedule, tsTimeLine3 as TimeLineView)
     }
 }
