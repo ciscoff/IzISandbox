@@ -15,7 +15,7 @@ class TimeLineViewModel : ViewModel() {
         itemDuration = 60,
         frameStartPosition = DateRange(11, 13),
         timeSlotType = TimeSlotType.SlotFixStart,
-        timeSlotValue = 60
+        timeSlotValue = 30
     )
 
     private val mockSchedule = listOf(
@@ -38,5 +38,4 @@ class TimeLineViewModel : ViewModel() {
      * Начальные данные для отрисовки компонента TimeSurface
      */
     val timeLineData = zipLiveData(timeData, schedule)
-
 }

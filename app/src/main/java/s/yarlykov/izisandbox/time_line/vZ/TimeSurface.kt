@@ -17,8 +17,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 
-private const val TAG_SURF = "TAG_SURF"
-
 class TimeSurface @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -34,12 +32,15 @@ class TimeSurface @JvmOverloads constructor(
     companion object {
         const val INVALID_POINTER_ID = -1
         const val BACKGROUND_HEIGHT_RATIO = 0.7f
+        const val SLOT_SIZE_MIN = 5
 
         // Параметры для рисования метрик (линий/цифр)
         const val METRICS_STROKE_WIDTH_DP = 1.4f
         const val METRICS_TEXT_SIZE_SP = 11f
         const val SEPARATOR_TOP_PADDING = 2f
         const val SEPARATOR_STROKE_WIDTH_DP = 0.8f
+        const val STICKY_STROKE_WIDTH_DP = 2.6f
+        const val STICKY_FRAME_CORNER_RADIUS_DP = 3f
     }
 
     /**
@@ -92,10 +93,10 @@ class TimeSurface @JvmOverloads constructor(
      * Признак слотовости и размер слота
      */
     private var slotType = TimeSlotType.NoSlotable
-    private var slotSize = 5
+    private var slotSize = SLOT_SIZE_MIN
 
     /**
-     * Режим UI
+     * Режим UI (master/client)
      */
     private lateinit var severityMode: SeverityMode
 
@@ -125,6 +126,13 @@ class TimeSurface @JvmOverloads constructor(
     private val paintSlot = Paint().apply {
         color = Color.WHITE
         strokeWidth = dp_f(SEPARATOR_STROKE_WIDTH_DP)
+        isAntiAlias = true
+    }
+
+    private val paintSticky = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.colorDecor16)
+        strokeWidth = dp_f(STICKY_STROKE_WIDTH_DP)
+        style = Paint.Style.STROKE
         isAntiAlias = true
     }
 
@@ -191,7 +199,7 @@ class TimeSurface @JvmOverloads constructor(
                 )
 
                 timeFrame = child
-                val params = timeFrame.layoutParams as LayoutParams
+                val params = child.layoutParams as LayoutParams
 
                 params.x = childX
                 params.y = childY
@@ -215,7 +223,6 @@ class TimeSurface @JvmOverloads constructor(
         }
 
         calculateDimensions()
-        translateFrame(0f)
     }
 
     override fun onDetachedFromWindow() {
@@ -296,14 +303,6 @@ class TimeSurface @JvmOverloads constructor(
         return true
     }
 
-    private fun sendTimeUpdate() {
-
-        val l = (timeFrame.translationX / mip).toInt()
-        val h = ((timeFrame.translationX + timeFrame.width) / mip).toInt()
-
-        timeChangeListener?.invoke(l, h)
-    }
-
     /**
      * Определить направление движения пальцев: в одном направлении или в противоположном.
      * Если направление противоположное, то это scale. Направление считается противоположным и в
@@ -342,6 +341,17 @@ class TimeSurface @JvmOverloads constructor(
         timeFrame.translationX = frameX
 
         sendTimeUpdate()
+    }
+
+    /**
+     * Отправить данные в listener внешним потребителям
+     */
+    private fun sendTimeUpdate() {
+
+        val l = (timeFrame.translationX / mip).toInt()
+        val h = ((timeFrame.translationX + timeFrame.width) / mip).toInt()
+
+        timeChangeListener?.invoke(l, h)
     }
 
     /**
@@ -452,7 +462,7 @@ class TimeSurface @JvmOverloads constructor(
     /**
      * Отрисовка заднего фона и линейки
      */
-    private fun drawInCache(model: List<DateRange>) {
+    private fun drawInCache(timeData: TimeData, model: List<DateRange>) {
         if (::cacheBitmap.isInitialized) {
             cacheBitmap.recycle()
         }
@@ -464,9 +474,10 @@ class TimeSurface @JvmOverloads constructor(
 
             paintBg.color = fgColor
 
-            drawRectangles(model)
+            drawRectangles(timeData, model)
             drawLines()
             drawHours()
+            drawStickyFrame(timeData)
             invalidate()
         }
     }
@@ -474,7 +485,7 @@ class TimeSurface @JvmOverloads constructor(
     /**
      * Цветной фон. Рисуется на всю высоту, потом нижняя часть для линейки заливается белым.
      */
-    private fun drawRectangles(model: List<DateRange>) {
+    private fun drawRectangles(timeData: TimeData, model: List<DateRange>) {
         model.forEach { dateRange ->
             val (from, to) = dateRange.from.minutes to dateRange.to.minutes
 
@@ -488,8 +499,27 @@ class TimeSurface @JvmOverloads constructor(
 
         // Это белая заливка, поверх которой будут метрики (линии/текст)
         paintBg.color = Color.WHITE
-        val rect = Rect(0, (backgroundHeight/*height * BG_HEIGHT_RATIO*/).toInt(), width, height)
+        val rect = Rect(0, backgroundHeight.toInt(), width, height)
         cacheCanvas.drawRect(rect, paintBg)
+    }
+
+    /**
+     * Рамка начального положения ползунка.
+     *
+     * @offset нужен для корректировки положения сторон прямоугольника, чтобы они не вылезали
+     * за ширину основного фрейма. Канва цетрирует линию по толщине.
+     */
+    private fun drawStickyFrame(timeData: TimeData) {
+        val offset = dp_f(STICKY_STROKE_WIDTH_DP) / 2
+        val radius = dp_f(STICKY_FRAME_CORNER_RADIUS_DP)
+
+        val leftX = (timeData.frameStartPosition.from - timeData.startHour).minutes * mip
+        val rightX = leftX + (timeData.itemDuration * mip)
+
+        val rect = RectF(
+            leftX + offset, offset, rightX - offset, backgroundHeight - offset
+        )
+        cacheCanvas.drawRoundRect(rect, radius, radius, paintSticky)
     }
 
     /**
@@ -576,7 +606,7 @@ class TimeSurface @JvmOverloads constructor(
     /**
      * Начальное позиционирование ползунка по данным из TimeData
      */
-    private fun setFrameInitPosition(timeData: TimeData) {
+    private fun setSliderInitPosition(timeData: TimeData) {
 
         if (this::timeFrame.isInitialized) {
             frameX = (timeData.frameStartPosition.from - timeData.startHour).minutes * mip
@@ -822,11 +852,7 @@ class TimeSurface @JvmOverloads constructor(
         slotSize = timeData.timeSlotValue
         mip = (measuredWidth.toFloat() / (hoursQty.minutes)) * timeUnit
 
-        setFrameInitPosition(timeData)
-    }
-
-    private fun scheduleDataHandler(model: List<DateRange>) {
-        drawInCache(model)
+        setSliderInitPosition(timeData)
     }
 
     override fun initialize(
@@ -838,7 +864,7 @@ class TimeSurface @JvmOverloads constructor(
 
         postDelayed({
             timeDataHandler(_timeData)
-            scheduleDataHandler(_schedule)
+            drawInCache(_timeData, _schedule)
             mapHoursToSegments(_timeData.startHour, _timeData.endHour, _schedule)
         }, 10)
     }

@@ -34,6 +34,9 @@ class TimeLine @JvmOverloads constructor(
         subscribe()
     }
 
+    /**
+     * Получить данные от ползунка. Сконвертить в читаемый вид и показать.
+     */
     private fun timeIntervalListener(_low: Int, _high: Int) {
         val low = _low + mockTimeData.startHour.minutes
         val high = _high + mockTimeData.startHour.minutes
@@ -70,5 +73,4 @@ class TimeLine @JvmOverloads constructor(
             }
         }
     }
-
 }
