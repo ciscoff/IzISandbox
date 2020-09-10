@@ -20,4 +20,11 @@
         <attr name="leftStrings"/>
         <attr name="rightStrings"/>
     </declare-styleable>
+    
+    <declare-styleable name="TimeSurfaceV4">
+        <attr name="mode" format="enum">
+            <enum name="client" value="0"/>
+            <enum name="master" value="1"/>
+        </attr>
+    </declare-styleable>
 </resources>
