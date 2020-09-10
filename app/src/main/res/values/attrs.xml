@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="SwipeItemSmartV1">
-        <attr name="layoutId" format="integer"/>
+        <attr name="layoutId" format="integer" />
         <attr name="leftFrame" format="boolean" />
         <attr name="rightFrame" format="boolean" />
-        <attr name="leftColors" format="reference"/>
-        <attr name="rightColors" format="reference"/>
-        <attr name="leftStrings" format="reference"/>
-        <attr name="rightStrings" format="reference"/>
+        <attr name="leftColors" format="reference" />
+        <attr name="rightColors" format="reference" />
+        <attr name="leftStrings" format="reference" />
+        <attr name="rightStrings" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="SwipeItemSmartV2">
         <attr name="state" format="integer" />
-        <attr name="layoutId"/>
-        <attr name="leftFrame"/>
-        <attr name="rightFrame"/>
-        <attr name="leftColors"/>
-        <attr name="rightColors"/>
-        <attr name="leftStrings"/>
-        <attr name="rightStrings"/>
+        <attr name="layoutId" />
+        <attr name="leftFrame" />
+        <attr name="rightFrame" />
+        <attr name="leftColors" />
+        <attr name="rightColors" />
+        <attr name="leftStrings" />
+        <attr name="rightStrings" />
     </declare-styleable>
-    
+
     <declare-styleable name="TimeSurfaceV4">
         <attr name="mode" format="enum">
-            <enum name="client" value="0"/>
-            <enum name="master" value="1"/>
+            <enum name="client" value="0" />
+            <enum name="master" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="TimeSurface">
+        <attr name="severity_mode" format="enum">
+            <enum name="client" value="0" />
+            <enum name="master" value="1" />
         </attr>
     </declare-styleable>
 </resources>

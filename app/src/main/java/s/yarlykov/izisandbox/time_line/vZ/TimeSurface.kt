@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.time_line.v4
+package s.yarlykov.izisandbox.time_line.vZ
 
 import android.content.Context
 import android.graphics.*
@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.observe
 import io.reactivex.disposables.CompositeDisposable
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.minutes
 import s.yarlykov.izisandbox.time_line.domain.*
@@ -18,12 +19,14 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 
-class TimeSurfaceV4 @JvmOverloads constructor(
+class TimeSurface @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr),
-    ViewModelAccessorV4 by ViewModelInjectorV4(context),
+    ViewModelAccessor by ViewModelInjector(
+        context
+    ),
     AttributesAccessor by AttributesInjector(
         context,
         attrs
@@ -157,7 +160,7 @@ class TimeSurfaceV4 @JvmOverloads constructor(
     private val pointers = mutableMapOf<Int, Float>()
     private val points = mutableMapOf(Pointer.Left to 0f, Pointer.Right to 0f)
 
-    private lateinit var timeFrame: TimeFrameV4
+    private lateinit var timeFrame: TimeFrame
 
     /**
      * У меня пока размеры задаются жестко. Поэтому вариант WRAP_CONTENT не учитываем.
@@ -174,7 +177,7 @@ class TimeSurfaceV4 @JvmOverloads constructor(
         for (i in 0 until childCount) {
             val child = getChildAt(i)
 
-            if (child is TimeFrameV4) {
+            if (child is TimeFrame) {
                 measureChild(
                     child,
                     widthMeasureSpec,
@@ -712,7 +715,9 @@ class TimeSurfaceV4 @JvmOverloads constructor(
 
         segments.clear()
 
-        val model = when(mode) {
+        val m = severityMode
+
+        val model = when (severityMode) {
             SeverityMode.Client -> _model
             SeverityMode.Master -> allDayModel(_startHour, _endHour, slotSize)
         }
@@ -731,7 +736,7 @@ class TimeSurfaceV4 @JvmOverloads constructor(
     /**
      * Весь день разделить на смежные диапазоны продолжительностью step.
      */
-    private fun allDayModel(startHour: Int, endHour: Int, step : Int) : List<DateRange> {
+    private fun allDayModel(startHour: Int, endHour: Int, step: Int): List<DateRange> {
         val model = mutableListOf<DateRange>()
 
         (startHour until endHour).forEach {
