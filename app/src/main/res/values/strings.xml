@@ -7,6 +7,9 @@
     <string name="nav_header_desc" translatable="false">Navigation header</string>
     <string name="action_settings" translatable="false">Settings</string>
 
+    <string name="title_client" translatable="false">Client</string>
+    <string name="title_master" translatable="false">Master</string>
+
     <string name="title_home" translatable="false">Home</string>
     <string name="title_gallery" translatable="false">Gallery</string>
     <string name="title_slideshow" translatable="false">Slideshow</string>
@@ -25,7 +28,8 @@
     <string name="button_undo" translatable="false">undo</string>
 
     <string name="menu_izi_login" translatable="false">iZiLogin Example</string>
-    <string name="menu_time_line" translatable="false">Time Line</string>
+    <string name="menu_time_line_edu" translatable="false">Time Line Edu</string>
+    <string name="menu_time_line_pro" translatable="false">Time Line Pro</string>
     <string name="menu_nav_graph" translatable="false">Navigation and Animations</string>
     <string name="menu_activity_transitions_1" translatable="false">Transitioning activities</string>
     <string name="menu_activities_shared_views" translatable="false">Activities shared views</string>
@@ -102,6 +106,7 @@
     <string name="list_item_8" translatable="false">PLAY</string>
     <string name="list_item_9" translatable="false">CodeIgniter</string>
     <string name="title_activity_swipe_with_undo" translatable="false">SwipeWithUndoActivity</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label" translatable="false">First Fragment</string>
     <string name="second_fragment_label" translatable="false">Second Fragment</string>

@@ -7,10 +7,8 @@ import android.view.MotionEvent
 import android.view.View.MeasureSpec.EXACTLY
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.observe
 import io.reactivex.disposables.CompositeDisposable
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.minutes
 import s.yarlykov.izisandbox.time_line.domain.*
@@ -19,23 +17,18 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 
+private const val TAG_SURF = "TAG_SURF"
+
 class TimeSurface @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr),
-    ViewModelAccessor by ViewModelInjector(
-        context
-    ),
-    AttributesAccessor by AttributesInjector(
-        context,
-        attrs
-    ) {
+    TimeDataConsumer {
 
     init {
         // Разрешить рисование для ViewGroup
         setWillNotDraw(false)
-        subscribe()
     }
 
     companion object {
@@ -84,6 +77,11 @@ class TimeSurface @JvmOverloads constructor(
     private val disposable = CompositeDisposable()
 
     /**
+     * Отправлять данные об изменении положения/размера ползунка
+     */
+    private var timeChangeListener: ((Int, Int) -> Unit)? = null
+
+    /**
      * Величины высот основных компонентов
      */
     private var backgroundHeight = 0f
@@ -95,6 +93,11 @@ class TimeSurface @JvmOverloads constructor(
      */
     private var slotType = TimeSlotType.NoSlotable
     private var slotSize = 5
+
+    /**
+     * Режим UI
+     */
+    private lateinit var severityMode: SeverityMode
 
     /**
      * Голубые сегменты. Координаты в минутах (не в px)
@@ -204,6 +207,7 @@ class TimeSurface @JvmOverloads constructor(
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+
         for (i in 0 until childCount) {
             val child = getChildAt(i)
             val params = child.layoutParams as LayoutParams
@@ -284,13 +288,20 @@ class TimeSurface @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                activePointerId =
-                    INVALID_POINTER_ID
+                activePointerId = INVALID_POINTER_ID
                 turnFrameBounds()
             }
         }
 
         return true
+    }
+
+    private fun sendTimeUpdate() {
+
+        val l = (timeFrame.translationX / mip).toInt()
+        val h = ((timeFrame.translationX + timeFrame.width) / mip).toInt()
+
+        timeChangeListener?.invoke(l, h)
     }
 
     /**
@@ -329,6 +340,8 @@ class TimeSurface @JvmOverloads constructor(
         }
 
         timeFrame.translationX = frameX
+
+        sendTimeUpdate()
     }
 
     /**
@@ -444,16 +457,18 @@ class TimeSurface @JvmOverloads constructor(
             cacheBitmap.recycle()
         }
 
-        cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        cacheCanvas = Canvas(cacheBitmap)
-        cacheCanvas.drawColor(bgColor)
+        if (width > 0 && height > 0) {
+            cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            cacheCanvas = Canvas(cacheBitmap)
+            cacheCanvas.drawColor(bgColor)
 
-        paintBg.color = fgColor
+            paintBg.color = fgColor
 
-        drawRectangles(model)
-        drawLines()
-        drawHours()
-        invalidate()
+            drawRectangles(model)
+            drawLines()
+            drawHours()
+            invalidate()
+        }
     }
 
     /**
@@ -715,8 +730,6 @@ class TimeSurface @JvmOverloads constructor(
 
         segments.clear()
 
-        val m = severityMode
-
         val model = when (severityMode) {
             SeverityMode.Client -> _model
             SeverityMode.Master -> allDayModel(_startHour, _endHour, slotSize)
@@ -798,7 +811,7 @@ class TimeSurface @JvmOverloads constructor(
      * ViewModel Block
      * ********************************************************************************
      *
-     * Получение данных из ViewModel
+     * Получение данных из ViewModel от родительского контейнера
      */
     private fun timeDataHandler(timeData: TimeData) {
         val hoursQty = timeData.hoursQty
@@ -812,20 +825,25 @@ class TimeSurface @JvmOverloads constructor(
         setFrameInitPosition(timeData)
     }
 
-    private fun schedulerHandler(model: List<DateRange>) {
+    private fun scheduleDataHandler(model: List<DateRange>) {
         drawInCache(model)
     }
 
-    private fun subscribe() {
-        viewModel.timeLineData.observe(activity) {
-            val (timeData, schedule) = it
+    override fun initialize(
+        _timeData: TimeData,
+        _schedule: List<DateRange>,
+        _severityMode: SeverityMode
+    ) {
+        severityMode = _severityMode
 
-            // После получения данных нужна задержка, чтобы прошли measure/layout
-            postDelayed({
-                timeDataHandler(timeData)
-                schedulerHandler(schedule)
-                mapHoursToSegments(timeData.startHour, timeData.endHour, schedule)
-            }, 100)
-        }
+        postDelayed({
+            timeDataHandler(_timeData)
+            scheduleDataHandler(_schedule)
+            mapHoursToSegments(_timeData.startHour, _timeData.endHour, _schedule)
+        }, 10)
+    }
+
+    override fun setOnTimeChangeListener(listener: (Int, Int) -> Unit) {
+        timeChangeListener = listener
     }
 }

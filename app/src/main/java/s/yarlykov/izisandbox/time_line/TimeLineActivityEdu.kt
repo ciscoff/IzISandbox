@@ -16,7 +16,7 @@ import s.yarlykov.izisandbox.time_line.v3.TimeLineViewModelV3
  * - вторая для ползунка (просто View и background как рамка)
  */
 
-class TimeLineActivity : AppCompatActivity() {
+class TimeLineActivityEdu : AppCompatActivity() {
 
     private val mockTimeData = TimeData(
         startHour = 10,

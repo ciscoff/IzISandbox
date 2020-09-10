@@ -23,7 +23,8 @@ class TimeLineViewModel : ViewModel() {
         DateRange(11, 14),
         DateRange(15, 17),
         DateRange(19, 20),
-        DateRange(21, 22))
+        DateRange(21, 22)
+    )
 
     private val timeData = MutableLiveData<TimeData>().apply {
         value = mockTimeData

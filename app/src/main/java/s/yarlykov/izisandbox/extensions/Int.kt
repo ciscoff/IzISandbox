@@ -26,7 +26,9 @@ val Int.px: Int
 val Int.minutes: Int
     get() = this * 60
 
-// Округлить до ближайшего кратного аргументу arg
+/**
+ * Округлить до ближайшего кратного аргументу arg
+ */
 fun Int.multipleOf(arg: Int): Int {
 
     val remainder = this % arg
@@ -38,4 +40,25 @@ fun Int.multipleOf(arg: Int): Int {
         else
             this - remainder
     } else this
+}
+
+/**
+ * Минуты в строку вида 07:15
+ */
+fun Int.hhMm(): String {
+    val h = this / 60
+    val m = this % 60
+    return "${"%02d".format(h)}:${"%02d".format(m)}"
+}
+
+/**
+ * Минуты в строки вида "1 h 20 min", "20 min"
+ */
+fun Int.hhMmFormatted(): String {
+
+    return if (this < 60) {
+        "${"%02d".format(this)} min"
+    } else {
+        "${"%02d".format(this / 60)} h  ${"%02d".format(this % 60)} min"
+    }
 }

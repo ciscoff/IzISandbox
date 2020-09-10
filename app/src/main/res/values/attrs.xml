@@ -34,4 +34,12 @@
             <enum name="master" value="1" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="TimeLine">
+        <attr name="control_mode" format="enum">
+            <enum name="client" value="0" />
+            <enum name="master" value="1" />
+        </attr>
+    </declare-styleable>
+
 </resources>

@@ -10,6 +10,7 @@ class AttributesInjector(val context: Context, val attrs: AttributeSet?) :
 
     private val _mode: SeverityMode
     private val _severityMode: SeverityMode
+    private val _controlMode: SeverityMode
 
     /**
      * Читаем кастомный enum-атрибут из XML
@@ -34,6 +35,11 @@ class AttributesInjector(val context: Context, val attrs: AttributeSet?) :
             .apply {
                 _severityMode = getEnum(R.styleable.TimeSurface_severity_mode, SeverityMode.Master)
             }.recycle()
+
+        context.obtainStyledAttributes(attrs, R.styleable.TimeLine)
+            .apply {
+                _controlMode = getEnum(R.styleable.TimeLine_control_mode, SeverityMode.Master)
+            }.recycle()
     }
 
     override val mode: SeverityMode
@@ -41,4 +47,7 @@ class AttributesInjector(val context: Context, val attrs: AttributeSet?) :
 
     override val severityMode: SeverityMode
         get() = _severityMode
+
+    override val controlMode: SeverityMode
+        get() = _controlMode
 }

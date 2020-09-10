@@ -8,4 +8,5 @@ enum class SeverityMode {
 interface AttributesAccessor {
     val mode : SeverityMode
     val severityMode : SeverityMode
+    val controlMode : SeverityMode
 }

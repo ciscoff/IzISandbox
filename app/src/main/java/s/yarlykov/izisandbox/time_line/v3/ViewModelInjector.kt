@@ -3,7 +3,7 @@ package s.yarlykov.izisandbox.time_line.v3
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import s.yarlykov.izisandbox.time_line.TimeLineActivity
+import s.yarlykov.izisandbox.time_line.TimeLineActivityEdu
 
 /**
  * Этому классу будет делегировано выполнение методов интерфейса ViewModelAccessor
@@ -13,7 +13,7 @@ class ViewModelInjector(val context: Context) : ViewModelAccessor {
 
     override val activity: AppCompatActivity by lazy {
         try {
-            context as TimeLineActivity
+            context as TimeLineActivityEdu
         } catch (e: ClassCastException) {
             throw ClassCastException("")
         }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:paddingTop="20dp"
     android:paddingBottom="20dp"
-    tools:context=".time_line.TimeLineActivity">
+    tools:context=".time_line.TimeLineActivityEdu">
 
     <s.yarlykov.izisandbox.time_line.v1.TimeLineV1
         android:id="@+id/tl_1"
@@ -74,7 +74,7 @@
         android:id="@+id/tl_4"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        app:layout_constraintBottom_toTopOf="@id/tl_client"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tl_3"
@@ -92,114 +92,27 @@
         </s.yarlykov.izisandbox.time_line.v4.TimeSurfaceV4>
     </s.yarlykov.izisandbox.time_line.v4.TimeLineV4>
 
-    <s.yarlykov.izisandbox.time_line.vZ.TimeLine
-        android:id="@+id/tl_client"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/tl_master"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tl_4"
-        app:layout_constraintWidth_percent="0.7">
+    <!--    <s.yarlykov.izisandbox.time_line.vZ.TimeLine-->
+    <!--        android:id="@+id/tl_client"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:control_mode="client"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/tl_master"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/tl_4"-->
+    <!--        app:layout_constraintWidth_percent="0.7" />-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvInterval"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center_vertical|start"
-                android:textColor="@color/colorAccentUi"
-                tools:text="18:00 - 19:00" />
-
-            <TextView
-                android:id="@+id/tvDuration"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical|start"
-                tools:text="60 мин" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:gravity="center_vertical|start"
-                android:textColor="@color/colorDecor6"
-                tools:text="Услуга первая" />
-
-        </LinearLayout>
-
-        <s.yarlykov.izisandbox.time_line.vZ.TimeSurface
-            android:id="@+id/tsTimeLineClient"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:severity_mode="client">
-
-            <s.yarlykov.izisandbox.time_line.vZ.TimeFrame
-                android:layout_width="60dp"
-                android:layout_height="match_parent" />
-        </s.yarlykov.izisandbox.time_line.vZ.TimeSurface>
-    </s.yarlykov.izisandbox.time_line.vZ.TimeLine>
-
-    <s.yarlykov.izisandbox.time_line.vZ.TimeLine
-        android:id="@+id/tl_master"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tl_4"
-        app:layout_constraintWidth_percent="0.7">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvInterval"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center_vertical|start"
-                android:textColor="@color/colorAccentUi"
-                tools:text="18:00 - 19:00" />
-
-            <TextView
-                android:id="@+id/tvDuration"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical|start"
-                tools:text="60 мин" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:gravity="center_vertical|start"
-                android:textColor="@color/colorDecor6"
-                tools:text="Услуга первая" />
-
-        </LinearLayout>
-
-        <s.yarlykov.izisandbox.time_line.vZ.TimeSurface
-            android:id="@+id/tsTimeLineMaster"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:severity_mode="master">
-
-            <s.yarlykov.izisandbox.time_line.vZ.TimeFrame
-                android:layout_width="60dp"
-                android:layout_height="match_parent" />
-        </s.yarlykov.izisandbox.time_line.vZ.TimeSurface>
-    </s.yarlykov.izisandbox.time_line.vZ.TimeLine>
+    <!--    <s.yarlykov.izisandbox.time_line.vZ.TimeLine-->
+    <!--        android:id="@+id/tl_master"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:control_mode="master"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/tl_client"-->
+    <!--        app:layout_constraintWidth_percent="0.7" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
