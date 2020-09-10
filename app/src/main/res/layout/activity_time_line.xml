@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    tools:context=".time_line.TimeLineActivityEdu">
+
+    <s.yarlykov.izisandbox.time_line.v1.TimeLineV1
+        android:id="@+id/tl_1"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toTopOf="@id/tl_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.7">
+
+        <s.yarlykov.izisandbox.time_line.v1.TimeSurfaceV1
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <s.yarlykov.izisandbox.time_line.v1.TimeFrameV1
+                android:layout_width="60dp"
+                android:layout_height="match_parent" />
+        </s.yarlykov.izisandbox.time_line.v1.TimeSurfaceV1>
+    </s.yarlykov.izisandbox.time_line.v1.TimeLineV1>
+
+    <s.yarlykov.izisandbox.time_line.v2.TimeLineV2
+        android:id="@+id/tl_2"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toTopOf="@id/tl_3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tl_1"
+        app:layout_constraintWidth_percent="0.7">
+
+        <s.yarlykov.izisandbox.time_line.v2.TimeSurfaceV2
+            android:id="@+id/tsTimeLine2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <s.yarlykov.izisandbox.time_line.v2.TimeFrameV2
+                android:layout_width="60dp"
+                android:layout_height="match_parent" />
+        </s.yarlykov.izisandbox.time_line.v2.TimeSurfaceV2>
+    </s.yarlykov.izisandbox.time_line.v2.TimeLineV2>
+
+    <s.yarlykov.izisandbox.time_line.v3.TimeLineV3
+        android:id="@+id/tl_3"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toTopOf="@id/tl_4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tl_2"
+        app:layout_constraintWidth_percent="0.7">
+
+        <s.yarlykov.izisandbox.time_line.v3.TimeSurfaceV3
+            android:id="@+id/tsTimeLine3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <s.yarlykov.izisandbox.time_line.v3.TimeFrameV3
+                android:layout_width="60dp"
+                android:layout_height="match_parent" />
+        </s.yarlykov.izisandbox.time_line.v3.TimeSurfaceV3>
+    </s.yarlykov.izisandbox.time_line.v3.TimeLineV3>
+
+    <s.yarlykov.izisandbox.time_line.v4.TimeLineV4
+        android:id="@+id/tl_4"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tl_3"
+        app:layout_constraintWidth_percent="0.7">
+
+        <s.yarlykov.izisandbox.time_line.v4.TimeSurfaceV4
+            android:id="@+id/tsTimeLine4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:mode="master">
+
+            <s.yarlykov.izisandbox.time_line.v4.TimeFrameV4
+                android:layout_width="60dp"
+                android:layout_height="match_parent" />
+        </s.yarlykov.izisandbox.time_line.v4.TimeSurfaceV4>
+    </s.yarlykov.izisandbox.time_line.v4.TimeLineV4>
+
+    <!--    <s.yarlykov.izisandbox.time_line.vZ.TimeLine-->
+    <!--        android:id="@+id/tl_client"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:control_mode="client"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/tl_master"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/tl_4"-->
+    <!--        app:layout_constraintWidth_percent="0.7" />-->
+
+    <!--    <s.yarlykov.izisandbox.time_line.vZ.TimeLine-->
+    <!--        android:id="@+id/tl_master"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:control_mode="master"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/tl_client"-->
+    <!--        app:layout_constraintWidth_percent="0.7" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

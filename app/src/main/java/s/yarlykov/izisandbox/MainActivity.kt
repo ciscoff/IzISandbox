@@ -10,10 +10,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
-import org.threeten.bp.ZoneId
-import org.threeten.bp.ZonedDateTime
-import org.threeten.bp.format.DateTimeFormatter
-import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
 import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.extensions.ZDate
@@ -28,6 +24,8 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
 import s.yarlykov.izisandbox.telegram.TelegramActivity
 import s.yarlykov.izisandbox.theme.ThemeActivity
+import s.yarlykov.izisandbox.time_line.TimeLineActivityEdu
+import s.yarlykov.izisandbox.time_line.TimeLineActivityPro
 import s.yarlykov.izisandbox.transitions.shared_with_activities.ActivitySharedFrom
 import s.yarlykov.izisandbox.transitions.shared_with_fragments.ActivityWithFragments
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity1
@@ -43,6 +41,8 @@ class MainActivity : AppCompatActivity() {
 
     private val stages = mapOf(
         IziLoginActivity::class.java to R.string.menu_izi_login,
+        TimeLineActivityEdu::class.java to R.string.menu_time_line_edu,
+        TimeLineActivityPro::class.java to R.string.menu_time_line_pro,
         ActivityGraph1::class.java to R.string.menu_nav_graph,
         ActivityFrom::class.java to R.string.menu_activity_transitions_1,
         ActivitySharedFrom::class.java to R.string.menu_activities_shared_views,

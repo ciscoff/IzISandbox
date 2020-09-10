@@ -19,7 +19,7 @@
     <!--    Swipe with undo activity -->
     <dimen name="ic_clear_margin">16dp</dimen>
 
-<!--    Advanced Swipe -->
+    <!--    Advanced Swipe -->
     <dimen name="order_editor_header_stroke_height">28dp</dimen>
     <dimen name="order_editor_iv_controls">30dp</dimen>
     <dimen name="order_editor_toolbar_iv_controls">24dp</dimen>
@@ -37,13 +37,14 @@
     <dimen name="frame_outbound_stroke_radius_w">12dp</dimen>
     <dimen name="frame_outbound_elevation_w">2dp</dimen>
 
-<!--    Telegram -->
+    <!--    Telegram -->
     <dimen name="app_bar_height_telegram">200dp</dimen>
     <dimen name="circle_diameter">48dp</dimen>
     <dimen name="margin_rounded">20dp</dimen>
     <dimen name="margin_rounded_bottom">4dp</dimen>
     <dimen name="margin_rect">60dp</dimen>
 
-
+    <!-- TimeLine -->
+    <dimen name="time_line_container_height">200dp</dimen>
 
 </resources>
