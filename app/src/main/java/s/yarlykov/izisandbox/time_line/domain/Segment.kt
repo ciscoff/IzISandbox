@@ -1,6 +1,6 @@
 package s.yarlykov.izisandbox.time_line.domain
 
-import s.yarlykov.izisandbox.extensions.multipleOf
+import s.yarlykov.izisandbox.extensions.roundTo
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -88,7 +88,7 @@ class Segment(val x1: Int, val x2: Int) {
      * Длина нормализована если кратна слоту.
      */
     fun normalize(arg: Int, threshold: Int): Segment {
-        var l = length.multipleOf(arg)
+        var l = length.roundTo(arg)
 
         while (l > threshold) {
             l -= arg

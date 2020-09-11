@@ -27,12 +27,12 @@ val Int.minutes: Int
     get() = this * 60
 
 /**
- * Округлить до ближайшего кратного аргументу arg
+ * Округлить до ближайшего числа, кратного значению multiplicity
  */
-fun Int.multipleOf(arg: Int): Int {
+fun Int.roundTo(multiplicity: Int): Int {
 
-    val remainder = this % arg
-    val diff = arg - remainder
+    val remainder = this % multiplicity
+    val diff = multiplicity - remainder
 
     return if (remainder != 0) {
         if (remainder >= diff)
@@ -44,21 +44,29 @@ fun Int.multipleOf(arg: Int): Int {
 
 /**
  * Минуты в строку вида 07:15
+ *
+ * Для улучшения читабельности округляем исходное число до ближайшего приближенного, кратного
+ * значению multiplicity. В результате будем получать строки вида 13:00-14:00, вместо 13:00-13:59.
  */
-fun Int.hhMm(): String {
-    val h = this / 60
-    val m = this % 60
+fun Int.hhMm(multiplicity : Int = 5): String {
+
+    val time = this.roundTo(multiplicity)
+
+    val h = time / 60
+    val m = time % 60
     return "${"%02d".format(h)}:${"%02d".format(m)}"
 }
 
 /**
  * Минуты в строки вида "1 h 20 min", "20 min"
  */
-fun Int.hhMmFormatted(): String {
+fun Int.hhMmFormatted(multiplicity : Int = 5): String {
 
-    return if (this < 60) {
-        "${"%02d".format(this)} min"
+    val time = this.roundTo(multiplicity)
+
+    return if (time < 60) {
+        "${"%02d".format(time)} min"
     } else {
-        "${"%02d".format(this / 60)} h  ${"%02d".format(this % 60)} min"
+        "${"%02d".format(time / 60)} h  ${"%02d".format(time % 60)} min"
     }
 }
