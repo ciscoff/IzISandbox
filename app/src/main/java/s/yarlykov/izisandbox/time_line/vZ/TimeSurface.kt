@@ -605,15 +605,18 @@ class TimeSurface @JvmOverloads constructor(
 
     /**
      * Начальное позиционирование ползунка по данным из TimeData
+     *
+     * NOTE: Сначала layout потом translate, иначе могут возникать разного рода траблы.
      */
     private fun setSliderInitPosition(timeData: TimeData) {
 
         if (this::timeFrame.isInitialized) {
             frameX = (timeData.frameStartPosition.from - timeData.startHour).minutes * mip
-            translateFrame(0f)
 
             timeFrame.layoutParams =
                 timeFrame.layoutParams.apply { width = (timeData.itemDuration * mip).toInt() }
+
+            postDelayed({ translateFrame(0f) }, 10)
         }
     }
 
