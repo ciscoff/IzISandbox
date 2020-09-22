@@ -48,12 +48,17 @@
     <string name="menu_dsl_edu" translatable="false">DSL Edu</string>
     <string name="menu_bottom_bar" translatable="false">Custom BottomAppBar</string>
     <string name="menu_telegram_profile" translatable="false">Telegram Profile</string>
+    <string name="menu_rv_layout_animation" translatable="false">Recycler View Layout Animation</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
     <string name="menu_nav_auth" translatable="false">Auth</string>
 
     <string name="text_graph_2" translatable="false">Graph 2</string>
+
+    <!-- Options Menu-->
+    <string name="menu_linear" translatable="false">Linear</string>
+    <string name="menu_grid" translatable="false">Grid</string>
 
     <!--    Login UI-->
     <string name="ui_login_phone" translatable="false">Phone</string>
