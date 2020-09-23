@@ -47,4 +47,7 @@
     <!-- TimeLine -->
     <dimen name="time_line_container_height">200dp</dimen>
 
+    <!-- RecyclerView item spacing -->
+    <dimen name="default_spacing_small">4dp</dimen>
+
 </resources>

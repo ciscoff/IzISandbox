@@ -4,13 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:layout_gravity="center"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginEnd="8dp"
-    android:layout_marginBottom="4dp"
     android:background="@drawable/background_rounded_gray"
-    android:gravity="center"
-    android:padding="12dp">
+    android:gravity="center">
 
     <TextView
         android:id="@+id/tv_title"
