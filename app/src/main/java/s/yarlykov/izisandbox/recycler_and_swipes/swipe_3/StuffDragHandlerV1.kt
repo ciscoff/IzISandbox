@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.LinearInterpolator
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler_and_swipes.animation.AnimatorListenerTemplate
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.AnimatorListenerTemplate
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.EditorAction
 import kotlin.math.abs
 

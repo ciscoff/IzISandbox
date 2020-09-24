@@ -16,18 +16,7 @@
         app:titleTextColor="@android:color/white" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvLinear"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layoutAnimation="@anim/layout_animation_fall_down"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintVertical_weight="1"
-        tools:itemCount="6"
-        tools:listitem="@layout/layout_item_recycler_5" />
-
-    <s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.GridRecyclerView
-        android:id="@+id/rvGrid"
+        android:id="@+id/rvList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layoutAnimation="@anim/layout_animation_fall_down"

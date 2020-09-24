@@ -16,7 +16,8 @@ import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
-import s.yarlykov.izisandbox.recycler_and_swipes.layout_animation.RecyclerViewLayoutAnimationActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
@@ -62,7 +63,8 @@ class MainActivity : AppCompatActivity() {
         DslActivity::class.java to R.string.menu_dsl_edu,
         CustomBottomAppBarActivity::class.java to R.string.menu_bottom_bar,
         TelegramActivity::class.java to R.string.menu_telegram_profile,
-        RecyclerViewLayoutAnimationActivity::class.java to R.string.menu_rv_layout_animation
+        RecyclerViewLayoutAnimationActivity::class.java to R.string.menu_rv_layout_animation,
+        RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -49,6 +49,7 @@
     <string name="menu_bottom_bar" translatable="false">Custom BottomAppBar</string>
     <string name="menu_telegram_profile" translatable="false">Telegram Profile</string>
     <string name="menu_rv_layout_animation" translatable="false">Recycler View Layout Animation</string>
+    <string name="menu_rv_item_animation" translatable="false">Recycler View Item Animators</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>

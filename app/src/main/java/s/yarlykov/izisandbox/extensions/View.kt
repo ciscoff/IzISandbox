@@ -1,7 +1,6 @@
 package s.yarlykov.izisandbox.extensions
 
 import android.graphics.Rect
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -9,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler_and_swipes.animation.Animators
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.Animators
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.animation.ItemDragHandlerV4
 
 /**

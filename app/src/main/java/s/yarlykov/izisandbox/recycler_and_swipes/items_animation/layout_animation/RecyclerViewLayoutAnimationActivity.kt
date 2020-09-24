@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.layout_animation
+package s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation
 
 import android.os.Bundle
 import android.view.Menu
@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_recycler_view_layout_animation.*
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.ItemOffsetDecoration
 
 class RecyclerViewLayoutAnimationActivity : AppCompatActivity() {
 
@@ -24,7 +25,10 @@ class RecyclerViewLayoutAnimationActivity : AppCompatActivity() {
         rvLinear.visibility = View.INVISIBLE
         rvGrid.visibility = View.INVISIBLE
 
-        itemDecorator = ItemOffsetDecoration(this)
+        itemDecorator =
+            ItemOffsetDecoration(
+                this
+            )
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -58,7 +62,8 @@ class RecyclerViewLayoutAnimationActivity : AppCompatActivity() {
             layoutAnimation = animationController
             itemAnimator = DefaultItemAnimator()
             addItemDecoration(itemDecorator)
-            adapter = AdapterLinear()
+            adapter =
+                AdapterLinear()
             scheduleLayoutAnimation()
         }
 
@@ -84,7 +89,10 @@ class RecyclerViewLayoutAnimationActivity : AppCompatActivity() {
 
             layoutManager = GridLayoutManager(context, columns)
             layoutAnimation = animationController
-            adapter = AdapterGrid(columns * rows)
+            adapter =
+                AdapterGrid(
+                    columns * rows
+                )
             addItemDecoration(itemDecorator)
             scheduleLayoutAnimation()
         }

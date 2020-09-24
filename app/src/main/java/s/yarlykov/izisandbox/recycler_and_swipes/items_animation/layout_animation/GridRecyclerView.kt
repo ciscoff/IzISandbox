@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.layout_animation
+package s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation
 
 import android.content.Context
 import android.util.AttributeSet

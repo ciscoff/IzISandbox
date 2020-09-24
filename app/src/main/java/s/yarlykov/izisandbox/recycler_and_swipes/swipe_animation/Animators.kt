@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.animation
+package s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation
 
 import android.animation.Animator
 import android.animation.AnimatorSet

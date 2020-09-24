@@ -12,7 +12,7 @@ import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.extensions.animateBack
 import s.yarlykov.izisandbox.extensions.findRecyclerViewParent
 import s.yarlykov.izisandbox.extensions.viewHierarchyActivationLoop
-import s.yarlykov.izisandbox.recycler_and_swipes.animation.AnimatorListenerTemplate
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.AnimatorListenerTemplate
 import kotlin.math.abs
 
 /**
