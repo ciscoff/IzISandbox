@@ -15,6 +15,7 @@ import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
+import s.yarlykov.izisandbox.matrix.MatrixActivityV1
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
@@ -64,7 +65,8 @@ class MainActivity : AppCompatActivity() {
         CustomBottomAppBarActivity::class.java to R.string.menu_bottom_bar,
         TelegramActivity::class.java to R.string.menu_telegram_profile,
         RecyclerViewLayoutAnimationActivity::class.java to R.string.menu_rv_layout_animation,
-        RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation
+        RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation,
+        MatrixActivityV1::class.java to R.string.menu_matrix_reflect_image
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

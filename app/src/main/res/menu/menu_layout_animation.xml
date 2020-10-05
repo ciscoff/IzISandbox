@@ -10,5 +10,5 @@
         android:id="@+id/menu_grid"
         android:icon="@drawable/ic_grid"
         android:title="@string/menu_grid"
-        app:showAsAction="ifRoom|withText"/>
+        app:showAsAction="ifRoom"/>
 </menu>

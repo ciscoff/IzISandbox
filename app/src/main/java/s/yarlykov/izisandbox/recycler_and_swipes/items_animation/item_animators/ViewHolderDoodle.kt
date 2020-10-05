@@ -24,5 +24,4 @@ class ViewHolderDoodle (
             clickHandler(position)
         }
     }
-
 }

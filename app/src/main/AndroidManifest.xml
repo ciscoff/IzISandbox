@@ -10,8 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity"/>
-        <activity android:name=".recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity"/>
+        <activity android:name=".matrix.MatrixActivityV1"></activity>
+        <activity android:name=".recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity" />
+        <activity android:name=".recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity" />
         <activity android:name=".time_line.TimeLineActivityEdu" />
         <activity android:name=".time_line.TimeLineActivityPro" />
         <activity android:name=".ui.CustomBottomAppBarActivity" />
