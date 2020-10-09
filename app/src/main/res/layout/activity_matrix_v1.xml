@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".matrix.MatrixActivityV1">
+    tools:context=".matrix.v1.MatrixActivityV1">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

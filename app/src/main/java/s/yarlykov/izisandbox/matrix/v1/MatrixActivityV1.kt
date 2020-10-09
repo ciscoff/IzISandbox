@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix
+package s.yarlykov.izisandbox.matrix.v1
 
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
