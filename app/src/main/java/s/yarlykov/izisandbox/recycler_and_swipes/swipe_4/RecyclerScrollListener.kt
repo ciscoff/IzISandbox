@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.viewHierarchyActivationLoop
-import s.yarlykov.izisandbox.recycler_and_swipes.animation.Animators
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.Animators
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.animation.ItemDragHandlerV4
 
 /**

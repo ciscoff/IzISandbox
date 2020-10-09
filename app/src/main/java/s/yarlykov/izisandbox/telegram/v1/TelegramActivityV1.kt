@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.telegram
+package s.yarlykov.izisandbox.telegram.v1
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,7 +17,7 @@ import s.yarlykov.izisandbox.extensions.setRoundedDrawable
 import kotlin.math.max
 import kotlin.math.min
 
-class TelegramActivity : AppCompatActivity() {
+class TelegramActivityV1 : AppCompatActivity() {
 
     lateinit var collapsingToolbar: CollapsingToolbarLayout
     lateinit var roundedDrawable: RoundedBitmapDrawable

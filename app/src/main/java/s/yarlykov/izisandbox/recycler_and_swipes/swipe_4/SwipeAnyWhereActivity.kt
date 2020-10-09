@@ -17,13 +17,11 @@ class SwipeAnyWhereActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         findViewById<RecyclerView>(R.id.recycler_any_where).apply {
-            apply {
-                setHasFixedSize(true)
-                itemAnimator = DefaultItemAnimator()
-                adapter = AdapterItem()
-                layoutManager = LinearLayoutManager(this@SwipeAnyWhereActivity)
-                addOnScrollListener(RecyclerScrollListener)
-            }
+            setHasFixedSize(true)
+            itemAnimator = DefaultItemAnimator()
+            adapter = AdapterItem()
+            layoutManager = LinearLayoutManager(this@SwipeAnyWhereActivity)
+            addOnScrollListener(RecyclerScrollListener)
         }
     }
 }

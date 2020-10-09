@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler_and_swipes.animation.Animators
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.Animators
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.DoerDatum
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.DoerRole
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.domain.EditorAction

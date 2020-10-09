@@ -15,14 +15,19 @@ import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
+import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
+import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
+import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.SwipeAnyWhereActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
-import s.yarlykov.izisandbox.telegram.TelegramActivity
+import s.yarlykov.izisandbox.telegram.v1.TelegramActivityV1
+import s.yarlykov.izisandbox.telegram.v2.TelegramActivityV2
 import s.yarlykov.izisandbox.theme.ThemeActivity
 import s.yarlykov.izisandbox.time_line.TimeLineActivityEdu
 import s.yarlykov.izisandbox.time_line.TimeLineActivityPro
@@ -60,7 +65,12 @@ class MainActivity : AppCompatActivity() {
         AccordionSwipeActivity::class.java to R.string.menu_swipe_accordion,
         DslActivity::class.java to R.string.menu_dsl_edu,
         CustomBottomAppBarActivity::class.java to R.string.menu_bottom_bar,
-        TelegramActivity::class.java to R.string.menu_telegram_profile
+        TelegramActivityV1::class.java to R.string.menu_telegram_profile_v1,
+        TelegramActivityV2::class.java to R.string.menu_telegram_profile_v2,
+        RecyclerViewLayoutAnimationActivity::class.java to R.string.menu_rv_layout_animation,
+        RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation,
+        MatrixActivityV1::class.java to R.string.menu_matrix_reflect_image,
+        MatrixActivityV2::class.java to R.string.menu_matrix_transform_image
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

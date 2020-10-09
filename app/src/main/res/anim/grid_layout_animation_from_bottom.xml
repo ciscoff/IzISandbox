@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+android:direction - определяет направление обхода дочерних View для применения анимации.
+                    в данном случае это сверху вниз, слева направо.
+android:animationOrder - определяет как будет выполняться обход, заданный через direction.
+                    в данном случае ("normal") обход будет согласно заданного направления. Однако
+                    можно указать reverse и направление обхода сменится не реверсивное. При
+                    значении random направление обхода сохранится (??), но выбор очередного
+                    элемента станет рандомным.
+-->
+
+<gridLayoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
+    android:animation="@anim/item_animation_from_bottom"
+    android:animationOrder="normal"
+    android:columnDelay="15%"
+    android:direction="top_to_bottom|left_to_right"
+    android:rowDelay="15%" />
