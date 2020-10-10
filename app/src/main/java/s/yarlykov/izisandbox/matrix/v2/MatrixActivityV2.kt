@@ -78,7 +78,6 @@ class MatrixActivityV2 : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_matrix_v2)
 
-
         avatarHeightMax = resources.getDimension(R.dimen.avatar_max_height)
         avatarHeightMin = resources.getDimension(R.dimen.avatar_min_height)
         avatarCollapsed = resources.getDimension(R.dimen.avatar_collapsed)
@@ -104,10 +103,10 @@ class MatrixActivityV2 : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
              * animatedTransform - работает с прогрессом из ValueAnimator
              */
             if (isAnimating) {
-                animatedTransform(animatorUpdate)
-            } else {
-                manualTransform(seekBar.progress)
-            }
+            animatedTransform(animatorUpdate)
+        } else {
+            manualTransform(seekBar.progress)
+        }
 
             wMax = max(v.measuredWidth, wMax)
             hMax = max(v.measuredHeight, hMax)
@@ -118,6 +117,9 @@ class MatrixActivityV2 : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
     }
 
+    /**
+     * Высота ImageView меняется и при каждом изменении нужно знать значение scale
+     */
     private val currentScale: Float
         get() {
             val viewWidth: Float = getImageViewWidth(ivAvatar).toFloat()
@@ -256,5 +258,4 @@ class MatrixActivityV2 : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             RoundedBitmapDrawableFactory.create(resources, srcBitmap)
         )
     }
-
 }

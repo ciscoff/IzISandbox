@@ -48,7 +48,7 @@
     <dimen name="avatar_min_height">60dp</dimen>
     <dimen name="avatar_collapsed">56dp</dimen>
 
-    <dimen name="action_bar_max_height">200dp</dimen>
+    <dimen name="action_bar_max_height">256dp</dimen>
     <dimen name="action_bar_min_height">?attr/actionBarSize</dimen>
 
     <!-- TimeLine -->
@@ -56,5 +56,6 @@
 
     <!-- RecyclerView item spacing -->
     <dimen name="default_spacing_small">4dp</dimen>
+    <dimen name="default_spacing_medium">8dp</dimen>
 
 </resources>

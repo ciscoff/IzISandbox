@@ -15,6 +15,11 @@
 
     </style>
 
+    <style name="TelegramTheme" parent="AppTheme" >
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+    </style>
+
     <style name="AppThemeTransitions" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#673AB7</item>
