@@ -57,5 +57,6 @@
 <!--    Telegram-->
     <color name="color_dark_1">#151D26</color>
     <color name="color_dark_2">#1C2733</color>
+    <color name="color_dark_3">#222E3C</color>
 
 </resources>

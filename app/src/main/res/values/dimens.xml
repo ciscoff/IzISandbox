@@ -44,9 +44,12 @@
     <dimen name="margin_rounded_bottom">4dp</dimen>
     <dimen name="margin_rect">60dp</dimen>
 
+    <!--    MatrixActivityV2 -->
     <dimen name="avatar_max_height">200dp</dimen>
     <dimen name="avatar_min_height">60dp</dimen>
-    <dimen name="avatar_collapsed">56dp</dimen>
+
+    <dimen name="avatar_collapsed">48dp</dimen>
+    <dimen name="avatar_margin_start">40dp</dimen>
 
     <dimen name="action_bar_max_height">256dp</dimen>
 
