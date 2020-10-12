@@ -6,7 +6,7 @@ import android.util.TypedValue
 const val TAG_DEBUG = "TAG_DEBUG"
 const val NOT_FIRST_ON_TOP = -1
 
-val Context.appBarHeight : Float
+val Context.actionBarSize : Float
 get() {
     val tv = TypedValue()
 
