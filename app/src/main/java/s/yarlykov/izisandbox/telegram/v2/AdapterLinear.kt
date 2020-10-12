@@ -9,7 +9,7 @@ class AdapterLinear : RecyclerView.Adapter<ViewHolderX>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderX {
         return ViewHolderX(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.layout_item_recycler_5,
+                R.layout.layout_item_recycler_7,
                 parent,
                 false
             )

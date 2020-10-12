@@ -10,8 +10,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".matrix.v2.MatrixActivityV2"></activity>
-        <activity android:name=".telegram.v2.TelegramActivityV2" />
+        <activity android:name=".matrix.v2.MatrixActivityV2" />
+        <activity
+            android:name=".telegram.v2.TelegramActivityV2"
+            android:theme="@style/TelegramTheme" />
         <activity android:name=".matrix.v1.MatrixActivityV1" />
         <activity android:name=".recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity" />
         <activity android:name=".recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity" />

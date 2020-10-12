@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/contentContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="s.yarlykov.izisandbox.telegram.v2.TelegramActivityV2">
@@ -10,15 +11,26 @@
         android:id="@+id/actionBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
+        android:background="@color/color_dark_1"
         android:minHeight="?attr/actionBarSize"
         app:layout_constraintBottom_toTopOf="@id/listView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivAvatar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/action_bar_max_height"
+            android:layout_gravity="start|bottom"
+            android:contentDescription="@null"
+            android:scaleType="matrix"
+            tools:srcCompat="@drawable/valery" />
+    </s.yarlykov.izisandbox.telegram.v2.ActionBarLayout>
 
     <s.yarlykov.izisandbox.telegram.v2.SmartRecyclerView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/color_dark_2"
         android:overScrollMode="never"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/actionBarLayout"
