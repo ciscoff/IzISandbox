@@ -23,7 +23,7 @@ class ActionBarLayout @JvmOverloads constructor(
     }
 
     companion object {
-        const val animationDuration = 150L
+        const val animationDuration = 450L
         const val progressMax = 100f
         const val progressMin = 0f
         const val progressThreshold = 40
@@ -96,7 +96,7 @@ class ActionBarLayout @JvmOverloads constructor(
      */
     private var statusBarHeight = 0
 
-    private val minHeight: Float
+    private var minHeight: Float
     private val maxHeight: Float
     private val scrollRange: Float
         get() = maxHeight - minHeight
@@ -117,8 +117,8 @@ class ActionBarLayout @JvmOverloads constructor(
         }
 
     init {
+        minHeight = context.appBarHeight
         maxHeight = context.resources.getDimension(R.dimen.action_bar_max_height)
-        minHeight = context.resources.getDimension(R.dimen.avatar_min_height)
         avatarCollapsedSize = resources.getDimension(R.dimen.avatar_collapsed)
     }
 
@@ -228,6 +228,7 @@ class ActionBarLayout @JvmOverloads constructor(
 
         // Смещение по Y для матрицы трансформаций
         val offsetY = dYMin + (dYMax - dYMin) * k
+        dY = offsetY
 
         logIt("manualTransformUp: offsetY=$offsetY, progressManual=$progressManual, k=$k, (dYMax - dYMin)=${dYMax - dYMin}", TAG_DEBUG)
 
@@ -242,18 +243,13 @@ class ActionBarLayout @JvmOverloads constructor(
     private fun manualTransformDown() {
         ivAvatar.drawable ?: return
 
-        val avatarViewHeight: Float = getImageViewHeight(ivAvatar).toFloat()
         val scale = currentScale
 
-//        val k = 0.1f + 0.5f * (progressMax - progressManual) / progressMax
-//        // Смещение по Y которое устанавливается в матрице трансформаций
-//        dY = (avatarViewHeight - drawableHeight * scale) * k
-        val offsetY = dY * (progressMax - progressManual) / progressMax
+        val k = (progressMax - progressManual) / (progressMax - progressThreshold)
+        val offsetY = dYMin + (dYMax - dYMin) * k
 
-        logIt(
-            "manualTransformDown: dY=$dY, progressManual=$progressManual, avatarViewHeight=$avatarViewHeight, scale=$scale",
-            TAG_DEBUG
-        )
+        logIt("manualTransformUp: offsetY=$offsetY, progressManual=$progressManual, k=$k, (dYMax - dYMin)=${dYMax - dYMin}", TAG_DEBUG)
+
 
         val baseMatrix = Matrix().apply {
             postTranslate(0f, offsetY)
@@ -272,10 +268,11 @@ class ActionBarLayout @JvmOverloads constructor(
     private fun animatedTransform(progress: Float) {
         ivAvatar.drawable ?: return
 
-        logIt("animatedTransform: dY=$dY", TAG_DEBUG)
 
         val scale = currentScale
         val offsetY = dY * progress
+
+        logIt("animatedTransform: dY=$dY, offsetY=$offsetY", TAG_DEBUG)
 
         val baseMatrix = Matrix().apply {
             postTranslate(0f, offsetY)
@@ -307,10 +304,12 @@ class ActionBarLayout @JvmOverloads constructor(
 
         val h = measuredHeight + offset
 
-        return when {
+        val hMin = minHeight + statusBarHeight
+
+            return when {
             h >= maxHeight -> progressMax
-            h <= minHeight -> progressMin
-            else -> ((h - minHeight) / scrollRange * progressMax)
+            h <= hMin -> progressMin
+            else -> ((h - hMin) / scrollRange * progressMax)
         }
     }
 
@@ -407,7 +406,7 @@ class ActionBarLayout @JvmOverloads constructor(
             siblingScrollingDown(abs(offset))
         }
 
-        if (progressManual < progressThreshold) {
+        if (progressManual < 40/*progressThreshold*/) {
             if (!isAvatarCollapsing) {
                 isAvatarCollapsing = true
                 animateBounds(AnimationType.Collapse)

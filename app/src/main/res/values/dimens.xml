@@ -49,7 +49,6 @@
     <dimen name="avatar_collapsed">56dp</dimen>
 
     <dimen name="action_bar_max_height">256dp</dimen>
-    <dimen name="action_bar_min_height">?attr/actionBarSize</dimen>
 
     <!-- TimeLine -->
     <dimen name="time_line_container_height">200dp</dimen>
