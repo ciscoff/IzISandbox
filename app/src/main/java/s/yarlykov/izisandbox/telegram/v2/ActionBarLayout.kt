@@ -8,7 +8,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.extensions.setRoundedDrawable
 import kotlin.math.abs
 import kotlin.math.max
@@ -89,6 +88,8 @@ class ActionBarLayout @JvmOverloads constructor(
      */
     private var statusBarHeight = 0
 
+    private val leftMarginMax: Float
+    private val bottomMarginMax: Float
     private var minHeight: Float
     private val maxHeight: Float
     private val scrollRange: Float
@@ -113,7 +114,11 @@ class ActionBarLayout @JvmOverloads constructor(
     init {
         minHeight = context.actionBarSize
         maxHeight = context.resources.getDimension(R.dimen.action_bar_max_height)
+
         avatarCollapsedSize = resources.getDimension(R.dimen.avatar_collapsed)
+
+        leftMarginMax = context.resources.getDimension(R.dimen.avatar_margin_start)
+        bottomMarginMax = (minHeight - avatarCollapsedSize) / 2
     }
 
     override fun onAttachedToWindow() {
@@ -199,12 +204,19 @@ class ActionBarLayout @JvmOverloads constructor(
      * Изменение размера ImageView в процессе анимации.
      * @measuredWidth/@measuredHeight - размеры AppBar'а
      */
-    private fun changeAvatarViewSize(progress: Float) {
+    private fun changeAvatarViewParams(progress: Float) {
         val size = avatarCollapsedSize
 
         ivAvatar.layoutParams = ivAvatar.layoutParams.apply {
             width = (size + (measuredWidth - size) * progress).toInt()
             height = (size + (measuredHeight - size) * progress).toInt()
+
+            (this as MarginLayoutParams).apply {
+                // Инвертируем значение прогресса. 0 -> 1, 1 -> 0
+                val l = (leftMarginMax * abs(1 - progress)).toInt()
+                val b = (bottomMarginMax * abs(1 - progress)).toInt()
+                setMargins(l, 0, 0, b)
+            }
         }
     }
 
@@ -349,10 +361,12 @@ class ActionBarLayout @JvmOverloads constructor(
         }.apply {
             duration = animationDuration
 
+//            interpolator = AnimationUtils.loadInterpolator(context, R.anim.telegram_interpolator)
+
             addUpdateListener {
                 isAnimating = true
                 animatedProgress = animatedValue as Float
-                changeAvatarViewSize(animatedProgress)
+                changeAvatarViewParams(animatedProgress)
                 changeAvatarDrawableCornerRadius(animatedProgress)
             }
         }
