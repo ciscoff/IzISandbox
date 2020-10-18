@@ -96,6 +96,10 @@
     <string name="name_hint" translatable="false">Kid name</string>
     <string name="parent_hint" translatable="false">Parent</string>
 
+    <string name="parent_label" translatable="false">Label</string>
+    <string name="parent_placeholder" translatable="false">Placeholder</string>
+    <string name="child_hint" translatable="false">Hint</string>
+
     <!-- Scenes -->
     <string name="scene_title" translatable="false">Scene Animations</string>
     <string name="scene_one" translatable="false">Scene one</string>

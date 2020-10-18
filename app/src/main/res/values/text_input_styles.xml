@@ -15,9 +15,9 @@
 
 
     <style name="CustomTextInputOverlay" parent="ThemeOverlay.MaterialComponents.TextInputEditText">
-        <!-- Цвет рамки когда элемент в ФОКУСЕ-->
+        <!-- Цвет рамки и лебла когда элемент в ФОКУСЕ-->
         <item name="colorPrimary">@android:color/holo_green_dark</item>
-        <!-- Цвет рамкм и подсказки в ней когда элемент НЕ В ФОКУСЕ -->
+        <!-- Цвет рамки и подсказки в ней когда элемент НЕ В ФОКУСЕ -->
         <item name="colorOnSurface">@android:color/holo_blue_dark</item>
         <!-- Цвет мигающего курсора и "капли" под ним -->
         <item name="colorControlActivated">@color/colorAccentPress</item>
@@ -46,6 +46,112 @@
         <item name="colorPrimary">@color/colorAccentUi</item>
         <item name="colorControlNormal">@android:color/darker_gray</item>
         <item name="colorControlActivated">@color/colorAccentUi</item>
+    </style>
+
+    <!-- Эксперименты -->
+
+    <!--
+    Это стиль для EditText'а, который не кликабельный, без фокуса, без курсора (он прозрачный) и
+    вообще без всякого ввода inputType=none.
+    -->
+    <style name="DumbEditText">
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:inputType">none</item>
+        <item name="android:textCursorDrawable">@android:color/transparent</item>
+    </style>
+
+    <!--
+    Этот стиль меняет высоту всего элемента TextInputLayout благодаря изменениям
+    вертикальных padding'ов у дочернего TextInputEditText
+    -->
+    <style name="LowEditText">
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
+    <!--    Эксперименты -->
+    <style name="CustomErrorText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/red</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CustomHintText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextInputLayoutAppearance" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- reference our hint & error styles -->
+        <item name="hintTextAppearance">@style/CustomHintText</item>
+        <item name="errorTextAppearance">@style/CustomErrorText</item>
+        <item name="android:textColor">@color/user_input_color</item>
+        <item name="android:textColorHint">@color/unfocused_color</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorControlActivated">@color/blue</item>
+        <item name="colorControlHighlight">@color/green</item>
+    </style>
+
+    <!--
+    Вот тут кое что
+    https://medium.com/fw-engineering/textinputlayout-proper-theming-dde422e86c43
+    https://medium.com/@muhammadahmedabutalib/for-com-google-android-material-textfield-textinputlayout-c43642b14df1
+    https://medium.com/@suragch/theme-appcompat-vs-themeoverlay-appcompat-in-android-c4abdc4d9683
+    -->
+
+
+    <!-- Это нужно применить к TextInputLayout как стиль, а не как тему -->
+    <style name="CustomizeHintAndBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Цвет фона внутри рамки TextInputLayout (в фокусе и без) -->
+        <item name="boxBackgroundColor">#FFEB3B</item>
+        <!-- Цвет рамки КОГДА элемент В ФОКУСЕ-->
+        <item name="boxStrokeColor">@color/blue</item>
+
+        <item name="android:textColor">@color/user_input_color</item>
+        <item name="android:textColorHint">@color/unfocused_color</item>
+
+    </style>
+
+    <style name="MyHintStyle" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/red</item>
+    </style>
+
+
+    <style name="CustomizeHintAndBoxTheme" parent="AppTheme">
+
+        <!-- Цвет мигающего курсора и underline в режиме "В фокусе". colorControlActivated -->
+        <item name="colorAccent">@color/blue</item>
+
+        <!-- Цвет underline в режиме "Не в фокусе". colorControlNormal-->
+        <item name="android:textColorSecondary">@color/red</item>
+
+        <!-- Текст печатаемого текста и линии baseline под ним -->
+        <item name="android:textColorPrimary">@color/user_input_color</item>
+
+        <!-- Цвет подсказки ПУСТОГО поля в режиме "Не в фокусе" -->
+        <item name="android:textColorHint">@color/unfocused_color</item>
+    </style>
+
+    <!--    Это расширение существующего стиля, не ThemeOverlay !!! -->
+    <style name="Custom.TextInput.Box.And.Label.Style" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Цвет подсказки, когда "НЕ В ФОКУСЕ". Явное значение, селектор не работает. -->
+        <item name="android:textColorHint">@color/blue</item>
+        <!-- Цвет подсказки, когда "В ФОКУСЕ". Явное значение, селектор не работает. -->
+        <item name="hintTextColor">@color/red</item>
+        <!-- Селектор для смены цвета рамки "В ФОКУСЕ"/"НЕ В ФОКУСЕ"  -->
+        <item name="boxStrokeColor">@color/selector_box_and_label_init</item>
+    </style>
+
+    <!-- Переопределяем цвет мигающего курсора. ThemeOverlay !!! -->
+    <style name="Custom.TextInput.Box.And.Label.Theme" parent="ThemeOverlay.MaterialComponents">
+        <item name="colorPrimary">@color/red</item>
+    </style>
+
+    <!-- Цвет текста в TextEditText -->
+    <style name="Custom.TextEditText" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/colorDecor1</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
 </resources>

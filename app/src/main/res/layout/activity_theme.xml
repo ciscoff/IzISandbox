@@ -10,6 +10,26 @@
     tools:context=".theme.ThemeActivity">
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_last"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginTop="8dp"
+        android:hint="@string/parent_label">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_text_last"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_first"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
@@ -57,5 +77,27 @@
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Custom.TextInput.Box.And.Label.Style"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginTop="8dp"
+        android:hint="@string/parent_label"
+        android:theme="@style/Custom.TextInput.Box.And.Label.Theme"
+        app:placeholderText="@string/parent_placeholder">
+
+        <com.google.android.material.textfield.TextInputEditText
+            style="@style/Custom.TextEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
 </LinearLayout>

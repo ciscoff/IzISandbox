@@ -15,7 +15,7 @@
 
     </style>
 
-    <style name="TelegramTheme" parent="AppTheme" >
+    <style name="TelegramTheme" parent="AppTheme">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">false</item>
     </style>
@@ -87,7 +87,7 @@
         <item name="android:paddingBottom">0dp</item>
     </style>
 
-<!-- ===================== BottomAppBar UI ====================  -->
+    <!-- ===================== BottomAppBar UI ====================  -->
     <!-- Кнопка без теней -->
     <style name="EditorButtonUndo.Filled" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:layout_width">0dp</item>

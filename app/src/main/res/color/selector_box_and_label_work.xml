@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Это для ситуации, когда получаем фокус и текст уже есть.
+В этом случае рамка в фокусе синяя, а вот дефолтовое состояние ставим в черный цвет.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/blue" android:state_focused="true" />
+    <item android:color="@android:color/holo_red_dark"/>
+</selector>
