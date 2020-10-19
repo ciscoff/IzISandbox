@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Для ситуации, когда текст есть. Рамка в фокусе по прежнему синяя, дефолтовое состояние ставим
+в цвет purple. В итоге при потере фокуса и наличии текста рамка будет purple.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/blue" android:state_focused="true" />
+    <item android:color="@color/purple"/>
+</selector>

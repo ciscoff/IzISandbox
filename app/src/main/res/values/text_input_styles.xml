@@ -15,7 +15,7 @@
 
 
     <style name="CustomTextInputOverlay" parent="ThemeOverlay.MaterialComponents.TextInputEditText">
-        <!-- Цвет рамки и лебла когда элемент в ФОКУСЕ-->
+        <!-- Цвет рамки и подсказки когда элемент в ФОКУСЕ-->
         <item name="colorPrimary">@android:color/holo_green_dark</item>
         <!-- Цвет рамки и подсказки в ней когда элемент НЕ В ФОКУСЕ -->
         <item name="colorOnSurface">@android:color/holo_blue_dark</item>
@@ -93,13 +93,63 @@
         <item name="colorControlHighlight">@color/green</item>
     </style>
 
+    <!-- //////////////////////////////////////////////////////////////////////////// -->
+
+    <!--
+    Функционал элементов TextInputLayout:
+    1. Текста нет, не в фокусе: рамка серая, подсказка серая.
+    2. Попали в фокус: подсказка и рамка синие.
+    3. Потеряли фокус, но текст напечатали: рамка и подсказка пурпурные.
+    4. Стерли текст, потеряли фокус: рамка серая, подсказка серая.
+    -->
+
+    <!--
+    Вообще странно, что используются селекторы, ведь оба атрибута срабатывают в разных
+    состояниях: один в фокусе, другой не в фокусе, а мы передаем селекторы, где тоже разные
+    цвета для разных состояний. Ну да ладно. Тут можно конечно и просто цвета подставить,
+    но если делать через код, то там только CSL.
+    -->
+    <style name="Widget.Hint" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Цвет подсказки, когда "НЕ В ФОКУСЕ". Селектор. -->
+        <item name="android:textColorHint">@color/selector_box_without_text</item>
+        <!-- Цвет подсказки, когда "В ФОКУСЕ". Селектор. -->
+        <item name="hintTextColor">@color/selector_box_without_text</item>
+        <!-- Цвет рамки в состоянии "В ФОКУСЕ" -->
+        <item name="boxStrokeWidthFocused">1dp</item>
+    </style>
+
+    <!-- Переопределяем цвет мигающего курсора. ThemeOverlay !!! -->
+    <style name="ThemeOverlay.TextInput.Cursor" parent="ThemeOverlay.MaterialComponents">
+        <item name="colorPrimary">@color/blue</item>
+    </style>
+
+    <!-- Цвет текста в TextEditText -->
+    <style name="Widget.EditText.Text" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/purple</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- Цвет текста в TextEditText -->
+    <style name="Widget.EditText.Dumb" parent="Widget.MaterialComponents.TextView">
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:inputType">none</item>
+        <item name="android:textColor">@color/purple</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textCursorDrawable">@android:color/transparent</item>
+    </style>
+
+    <!-- //////////////////////////////////////////////////////////////////////////// -->
+
+    <!-- Ниже всякое экспериментальное г... -->
+
     <!--
     Вот тут кое что
     https://medium.com/fw-engineering/textinputlayout-proper-theming-dde422e86c43
     https://medium.com/@muhammadahmedabutalib/for-com-google-android-material-textfield-textinputlayout-c43642b14df1
     https://medium.com/@suragch/theme-appcompat-vs-themeoverlay-appcompat-in-android-c4abdc4d9683
     -->
-
 
     <!-- Это нужно применить к TextInputLayout как стиль, а не как тему -->
     <style name="CustomizeHintAndBox" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
@@ -135,12 +185,12 @@
 
     <!--    Это расширение существующего стиля, не ThemeOverlay !!! -->
     <style name="Custom.TextInput.Box.And.Label.Style" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <!-- Цвет подсказки, когда "НЕ В ФОКУСЕ". Явное значение, селектор не работает. -->
+        <!-- Цвет подсказки, когда "НЕ В ФОКУСЕ". Явное значение, но можно и селектор. -->
         <item name="android:textColorHint">@color/blue</item>
-        <!-- Цвет подсказки, когда "В ФОКУСЕ". Явное значение, селектор не работает. -->
+        <!-- Цвет подсказки, когда "В ФОКУСЕ". Явное значение, но можно и селектор. -->
         <item name="hintTextColor">@color/red</item>
         <!-- Селектор для смены цвета рамки "В ФОКУСЕ"/"НЕ В ФОКУСЕ"  -->
-        <item name="boxStrokeColor">@color/selector_box_and_label_init</item>
+        <item name="boxStrokeColor">@color/selector_box_without_text</item>
     </style>
 
     <!-- Переопределяем цвет мигающего курсора. ThemeOverlay !!! -->
@@ -153,5 +203,6 @@
         <item name="android:textColor">@color/colorDecor1</item>
         <item name="android:textSize">18sp</item>
     </style>
+
 
 </resources>

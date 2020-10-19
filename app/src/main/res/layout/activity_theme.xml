@@ -10,19 +10,57 @@
     tools:context=".theme.ThemeActivity">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_last"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:id="@+id/inputStyled"
+        style="@style/Widget.Hint"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:layout_marginTop="8dp"
-        android:hint="@string/parent_label">
+        android:hint="@string/parent_label"
+        android:theme="@style/ThemeOverlay.TextInput.Cursor">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/input_text_last"
+            android:id="@+id/inputStyledText"
+            style="@style/Widget.EditText.Text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputDumb"
+        style="@style/Widget.Hint"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginTop="8dp"
+        android:hint="@string/parent_label"
+        android:theme="@style/ThemeOverlay.TextInput.Cursor">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputDumbText"
+            style="@style/Widget.EditText.Dumb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--
+    Кнопка, которая захватывает фокус при первом показе активити. Это чтобы клава не всплывала.
+    -->
+    <Button
+        android:id="@+id/textButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:text="@string/btn_on_focus">
+
+        <requestFocus />
+    </Button>
 
     <Space
         android:layout_width="match_parent"

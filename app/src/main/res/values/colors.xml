@@ -63,6 +63,7 @@
     <color name="green">#0f0</color>
     <color name="blue">#00f</color>
     <color name="white">#fff</color>
+    <color name="purple">#673AB7</color>
     <color name="user_input_color">#7c43bd</color>
     <color name="unfocused_color">#BC6300</color>
 

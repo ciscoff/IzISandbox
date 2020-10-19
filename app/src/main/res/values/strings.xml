@@ -168,6 +168,7 @@
     <string name="btn_order_for_all" translatable="false">For all</string>
     <string name="btn_select_mode" translatable="false">Select Mode</string>
     <string name="btn_order_for_all_ex" translatable="false">Confirm\nfor all</string>
+    <string name="btn_on_focus" translatable="false">On Focus</string>
 
     <string name="button_creator_save" translatable="false">Save</string>
     <string name="button_creator_cancel" translatable="false">Cancel</string>

@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
+        ThemeActivity::class.java to R.string.menu_themes,
         IziLoginActivity::class.java to R.string.menu_izi_login,
         TimeLineActivityEdu::class.java to R.string.menu_time_line_edu,
         TimeLineActivityPro::class.java to R.string.menu_time_line_pro,
@@ -56,7 +57,6 @@ class MainActivity : AppCompatActivity() {
         ScenesInsideActivity2::class.java to R.string.menu_with_scenes_2,
         ScenesInsideActivity3::class.java to R.string.menu_with_scenes_3,
         DialogsActivity::class.java to R.string.menu_dialogs,
-        ThemeActivity::class.java to R.string.menu_themes,
         SwipeActivityFirst::class.java to R.string.menu_swipe_with_helper,
         SwipeActivitySecond::class.java to R.string.menu_swipe_gesture_detector,
         SmartSwipeActivity::class.java to R.string.menu_swipe_smart,
