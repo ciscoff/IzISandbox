@@ -18,6 +18,8 @@ import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
 import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
+import s.yarlykov.izisandbox.places.PlacesAutoCompleteActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.InfiniteRecyclerActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
@@ -45,7 +47,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        ThemeActivity::class.java to R.string.menu_themes,
         IziLoginActivity::class.java to R.string.menu_izi_login,
         TimeLineActivityEdu::class.java to R.string.menu_time_line_edu,
         TimeLineActivityPro::class.java to R.string.menu_time_line_pro,
@@ -63,14 +64,17 @@ class MainActivity : AppCompatActivity() {
         SwipeAnyWhereActivity::class.java to R.string.menu_swipe_any_where,
         SwipeWithUndoActivity::class.java to R.string.menu_swipe_drop_undo,
         AccordionSwipeActivity::class.java to R.string.menu_swipe_accordion,
+        RecyclerViewLayoutAnimationActivity::class.java to R.string.menu_rv_layout_animation,
+        RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation,
+        InfiniteRecyclerActivity::class.java to R.string.menu_rv_infinite_loop,
         DslActivity::class.java to R.string.menu_dsl_edu,
         CustomBottomAppBarActivity::class.java to R.string.menu_bottom_bar,
         TelegramActivityV1::class.java to R.string.menu_telegram_profile_v1,
         TelegramActivityV2::class.java to R.string.menu_telegram_profile_v2,
-        RecyclerViewLayoutAnimationActivity::class.java to R.string.menu_rv_layout_animation,
-        RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation,
         MatrixActivityV1::class.java to R.string.menu_matrix_reflect_image,
-        MatrixActivityV2::class.java to R.string.menu_matrix_transform_image
+        MatrixActivityV2::class.java to R.string.menu_matrix_transform_image,
+        ThemeActivity::class.java to R.string.menu_themes,
+        PlacesAutoCompleteActivity::class.java to R.string.menu_places_auto_complete
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

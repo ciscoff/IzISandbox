@@ -18,6 +18,7 @@
     <color name="colorCyan">#4BBAC5</color>
     <color name="colorWhite">#FFF</color>
     <color name="colorHalfWhite">#F4F4F4</color>
+    <color name="colorGray">#eee</color>
 
     <!--    Advanced Swipe -->
     <color name="client_state_confirmed">#4BBAC5</color>

@@ -51,8 +51,10 @@
     <string name="menu_telegram_profile_v2" translatable="false">Telegram Profile v2</string>
     <string name="menu_rv_layout_animation" translatable="false">Recycler View Layout Animation</string>
     <string name="menu_rv_item_animation" translatable="false">Recycler View Item Animators</string>
+    <string name="menu_rv_infinite_loop" translatable="false">Infinite Loop Recycler</string>
     <string name="menu_matrix_reflect_image" translatable="false">Reflect Image</string>
     <string name="menu_matrix_transform_image" translatable="false">Transform with matrix</string>
+    <string name="menu_places_auto_complete" translatable="false">Places AutoComplete</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
@@ -177,6 +179,8 @@
     <!--    Scenes -->
     <string name="scene_enter" translatable="false">Enter</string>
     <string name="scene_exit" translatable="false">Exit</string>
+
+    <string name="simple_id" translatable="false">"SyBMIFWgp5cD2C_CVDrYX8PBEcscu"</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>
