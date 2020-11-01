@@ -180,6 +180,9 @@
     <string name="scene_enter" translatable="false">Enter</string>
     <string name="scene_exit" translatable="false">Exit</string>
 
+<!--    Infinite Looper-->
+    <string name="adapter_position" translatable="false">My position is %1$d</string>
+
     <string name="simple_id" translatable="false">"SyBMIFWgp5cD2C_CVDrYX8PBEcscu"</string>
 
     <string-array name="leftTextArray">

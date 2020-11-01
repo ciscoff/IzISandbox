@@ -6,4 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".recycler_and_swipes.infinite_loop.InfiniteRecyclerActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/infiniteList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
