@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".recycler_and_swipes.infinite_loop.InfiniteRecyclerActivity"></activity>
+        <activity android:name=".recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity"></activity>
+        <activity android:name=".recycler_and_swipes.infinite_loop.infinite_01.InfiniteRecyclerActivity" />
         <activity android:name=".places.PlacesAutoCompleteActivity" />
         <activity android:name=".matrix.v2.MatrixActivityV2" />
         <activity

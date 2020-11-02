@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop
+package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_01
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

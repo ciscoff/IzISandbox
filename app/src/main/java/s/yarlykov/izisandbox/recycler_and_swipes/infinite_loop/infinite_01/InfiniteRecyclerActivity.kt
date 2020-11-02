@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop
+package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_01
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -11,8 +11,10 @@ class InfiniteRecyclerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_infinite_recycler)
 
         infiniteList.apply {
-            adapter = AdapterInfinite()
-            layoutManager = LoopRecyclerManager()
+            adapter =
+                AdapterInfinite()
+            layoutManager =
+                LoopRecyclerManager()
         }
     }
 }
