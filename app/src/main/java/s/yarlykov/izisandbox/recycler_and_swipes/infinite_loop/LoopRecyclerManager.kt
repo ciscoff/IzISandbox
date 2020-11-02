@@ -37,15 +37,21 @@ class LoopRecyclerManager : RecyclerView.LayoutManager() {
         detachAndScrapAttachedViews(recycler)
         var summaryHeight = 0
 
-        (0 until itemCount).forEach { i ->
-            val child = recycler.getViewForPosition(i)
-            addView(child)
-            measureChildWithMargins(child, 0, 0)
-            val (w, h) = getDecoratedMeasuredWidth(child) to getDecoratedMeasuredHeight(child)
-            layoutDecorated(child, 0, summaryHeight, w, h + summaryHeight)
-            summaryHeight += h
+        /**
+         * Для корректного выхода из forEach()
+         * ref: https://kotlinlang.org/docs/reference/returns.html
+         */
+        run loop@{
+            (0 until itemCount).forEach { i ->
+                val child = recycler.getViewForPosition(i)
+                addView(child)
+                measureChildWithMargins(child, 0, 0)
+                val (w, h) = getDecoratedMeasuredWidth(child) to getDecoratedMeasuredHeight(child)
+                layoutDecorated(child, 0, summaryHeight, w, h + summaryHeight)
+                summaryHeight += h
 
-            if (summaryHeight > height) return@forEach
+                if (summaryHeight > height) return@loop
+            }
         }
 
         trackRelativeCenter(alphaTuner, scaleTuner)
