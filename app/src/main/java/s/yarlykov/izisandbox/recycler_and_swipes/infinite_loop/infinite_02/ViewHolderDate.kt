@@ -14,6 +14,7 @@ class ViewHolderDate (private val listItem : View) : RecyclerView.ViewHolder(lis
         get() = listItem
 
     fun bind(date : ZDate) {
+        listItem.tag = date.toInstant().toEpochMilli()
         textTitle.text = date.toReadable(listItem.context)
     }
 }

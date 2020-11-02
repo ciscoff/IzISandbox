@@ -5,7 +5,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 
-class LoopRecyclerManager : RecyclerView.LayoutManager() {
+class LoopRecyclerManagerV01 : RecyclerView.LayoutManager() {
 
     /**
      * Хотим скролиться по вертикали
