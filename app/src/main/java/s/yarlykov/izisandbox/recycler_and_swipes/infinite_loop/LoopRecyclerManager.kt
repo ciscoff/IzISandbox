@@ -1,6 +1,9 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop
 
+import android.view.View
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import s.yarlykov.izisandbox.R
 
 class LoopRecyclerManager : RecyclerView.LayoutManager() {
 
@@ -44,6 +47,8 @@ class LoopRecyclerManager : RecyclerView.LayoutManager() {
 
             if (summaryHeight > height) return@forEach
         }
+
+        trackRelativeCenter(alphaTuner, scaleTuner)
     }
 
     /**
@@ -54,6 +59,7 @@ class LoopRecyclerManager : RecyclerView.LayoutManager() {
      * 3. После скрола нужно проверить "крайние" условия и добавить новые Views сверху/снизу
      *    если стребуется.
      * 4. Выполнить очистку - ставшие невидимыми View удалить.
+     * 5. Опциональные плюшки, например визуальные эффекты, завязанные на изменение положения View.
      */
     override fun scrollVerticallyBy(
         dy: Int,
@@ -67,6 +73,9 @@ class LoopRecyclerManager : RecyclerView.LayoutManager() {
         fill(dy, recycler, state)
         // 4.
         recycleInvisibleViews(dy, recycler, state)
+
+        // 5. Опционально. Меняем прозрачность элемента и размер текста внутри.
+        trackRelativeCenter(alphaTuner, scaleTuner)
         return dy
     }
 
@@ -163,6 +172,75 @@ class LoopRecyclerManager : RecyclerView.LayoutManager() {
                     removeAndRecycleView(view, recycler)
                 }
             }
+        }
+    }
+
+    /**
+     * Для каждого дочернего View функция расчитывает отношение его вертикального центра
+     * к вертикальному центру родительского RecyclerView. Фактически это "степень" приближения к
+     * центру RecyclerView.
+     * 1 - говорит, что центры совпадают.
+     * 0 - дочерняя View центрирована по верхней или нижней границе родительского контейнера.
+     * 0.xxx - промежуточное значение.
+     *
+     * На основании полученного результата к View можно применить какой-нибудь визуальный эффект,
+     * например менять прозрачность или масштабирование.
+     *
+     * @handlers - массив функций, применяющих визуальные эффекты.
+     */
+    private fun trackRelativeCenter(vararg handlers: (View, Float) -> Unit) {
+
+        val pivot = height / 2f
+        if (pivot == 0f) return
+
+        (0 until childCount - 1).forEach { i ->
+            getChildAt(i)?.let { child ->
+
+                var viewCenter =
+                    (getDecoratedBottom(child) - getDecoratedTop(child)) / 2f +
+                            getDecoratedTop(child)
+
+                viewCenter = when {
+                    (viewCenter < 0) -> 0f
+                    (viewCenter > height) -> height.toFloat()
+                    else -> viewCenter
+                }
+
+                val relation = when {
+                    viewCenter < pivot -> {
+                        viewCenter / pivot
+                    }
+                    viewCenter > pivot -> {
+                        2f - viewCenter / pivot
+                    }
+                    else -> 1f
+                }
+                handlers.forEach { it(child, relation) }
+            }
+        }
+    }
+
+    /**
+     * Установить alpha
+     */
+    private val alphaTuner: (View, Float) -> Unit = { view, alpha ->
+        view.alpha = alpha
+    }
+
+    /**
+     * Установить масштаб. Здесь для нужной View устанавливается масштаб равный (1 + maxDelta).
+     * То есть размер View постепенно меняется между значениями 1 и (1 + maxDelta), а maxDelta
+     * меняется в диапазоне от 0 до 0.8 благодаря тому, что аргумент scale меняется от 0 до 1.
+     */
+    private val scaleTuner: (View, Float) -> Unit = { view, scale ->
+        val maxDelta = 0.8f
+
+        view.findViewById<TextView>(R.id.textTitle)?.let { child ->
+
+            val factor = scale * maxDelta + 1f
+
+            child.scaleX = factor
+            child.scaleY = factor
         }
     }
 }
