@@ -1,36 +1,34 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02
 
-import org.threeten.bp.Instant
-import org.threeten.bp.ZoneId
-import s.yarlykov.izisandbox.Utils.logIt
+import org.threeten.bp.LocalDate
 import s.yarlykov.izisandbox.extensions.ZDate
-import s.yarlykov.izisandbox.extensions.toReadable
-import java.util.*
 
-class InfiniteModel(model: MutableList<ZDate>) : MutableList<ZDate> by model, OverScrollListener {
+class InfiniteModel : OverScrollListener {
 
-    override fun onTopOverScroll(millis: Long) {
-        val instant = Instant.ofEpochMilli(millis)
-        val topDate = ZDate.ofInstant(instant, ZoneId.systemDefault())
+    companion object {
+        const val MODEL_SIZE = Int.MAX_VALUE
+        const val VIEW_PORT_CAPACITY = 4
+    }
 
-        Collections.rotate(this, 1)
-        this[0] = topDate.minusDays(1)
-        logIt("onTopOverScroll new model:", "PLPLPL")
-        this.forEach {
-            logIt("... $it", "PLPLPL")
+    private var direction = 1
+    val size = MODEL_SIZE
+
+    operator fun get(i: Int): LocalDate {
+
+        val now = ZDate.now().toLocalDate()
+
+        return if (direction > 0) {
+            now.plusDays(i.toLong())
+        } else {
+            now.minusDays(i.toLong())
         }
     }
 
-    override fun onBottomOverScroll(millis: Long) {
-        val instant = Instant.ofEpochMilli(millis)
-        val bottomDate = ZDate.ofInstant(instant, ZoneId.systemDefault())
+    override fun onTopOverScroll() {
+        direction = -1
+    }
 
-        Collections.rotate(this, -1)
-        this[0] = bottomDate.plusDays(1)
-
-        logIt("onTopOverScroll new model:", "PLPLPL")
-        this.forEach {
-            logIt("... $it", "PLPLPL")
-        }
+    override fun onBottomOverScroll() {
+        direction = 1
     }
 }

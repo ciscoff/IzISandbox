@@ -6,7 +6,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
-import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity.Companion.MODEL_SIZE
+import s.yarlykov.izisandbox.extensions.ZDate
+import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteModel.Companion.VIEW_PORT_CAPACITY
+import kotlin.math.abs
 
 class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener) :
     RecyclerView.LayoutManager() {
@@ -42,7 +44,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
 
         detachAndScrapAttachedViews(recycler)
         var summaryHeight = 0
-        val viewHeight = height / MODEL_SIZE
+        val viewHeight = height / VIEW_PORT_CAPACITY
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
@@ -52,7 +54,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
          * ref: https://kotlinlang.org/docs/reference/returns.html
          */
         run loop@{
-            (0 until itemCount).forEach { i ->
+            (0 until VIEW_PORT_CAPACITY).forEach { i ->
                 val child = recycler.getViewForPosition(i)
                 addView(child)
                 measureChildWithoutInsets(child, widthSpec, heightSpec)
@@ -65,6 +67,11 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         }
 
 //        trackRelativeCenter(alphaTuner, scaleTuner)
+    }
+
+    private fun indexToMillis(index: Long): Long {
+        val date = ZDate.now().plusDays(index)
+        return date.toInstant().toEpochMilli()
     }
 
     /**
@@ -99,7 +106,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
 
         val lastIndex = childCount - 1
 
-        val viewHeight = height / MODEL_SIZE
+        val viewHeight = height / VIEW_PORT_CAPACITY
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
@@ -111,20 +118,29 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                 lastChild ?: return
 
                 // Позиция в адаптере
-                val lastChildPos = getPosition(lastChild)
+//                val lastChildPos = getPosition(lastChild)
 
                 // Если последняя видимая View полностью вошла в экран....
                 if (getDecoratedBottom(lastChild) < height) {
+                    val interval = lastChild.tag as Int
+
+                    if(interval >= 0) overScrollListener.onBottomOverScroll()
+                    else overScrollListener.onTopOverScroll()
+
+//                    overScrollListener.onBottomOverScroll()
+                    val scrap = recycler.getViewForPosition(abs(interval + 1))
+
+                    logIt("onBottomOverScroll ${abs(interval + 1)}", "PLPLPL")
 
                     // ...и является последней в адаптере
-                    val scrap = if (lastChildPos == (itemCount - 1)) {
-                        overScrollListener.onBottomOverScroll(lastChild.tag as Long)
-                        recycler.getViewForPosition(itemCount - 1)
-                    }
-                    // ...и НЕ является последней в адаптере
-                    else {
-                        recycler.getViewForPosition(lastChildPos + 1)
-                    }
+//                    val scrap = if (lastChildPos == (itemCount - 1)) {
+//
+//                        recycler.getViewForPosition(itemCount - 1)
+//                    }
+//                    // ...и НЕ является последней в адаптере
+//                    else {
+//                        recycler.getViewForPosition(lastChildPos + 1)
+//                    }
 
                     addView(scrap)
                     measureChildWithoutInsets(scrap, widthSpec, heightSpec)
@@ -147,16 +163,26 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                 firstChild ?: return
 
                 // Позиция в адаптере
-                val firstChildPos = getPosition(firstChild)
+//                val firstChildPos = getPosition(firstChild)
 
                 // Если первая видимая View полностью вошла в экран....
                 if (getDecoratedTop(firstChild) >= 0) {
-                    val scrap = if (firstChildPos == 0) {
-                        overScrollListener.onTopOverScroll(firstChild.tag as Long)
-                        recycler.getViewForPosition(0)
-                    } else {
-                        recycler.getViewForPosition(firstChildPos - 1)
-                    }
+
+                    val interval = firstChild.tag as Int
+
+                    if(interval >= 0) overScrollListener.onBottomOverScroll()
+                    else overScrollListener.onTopOverScroll()
+
+                    val scrap = recycler.getViewForPosition(abs(interval - 1))
+
+                    logIt("onTopOverScroll -${abs(interval - 1)}", "PLPLPL")
+
+//                    val scrap = if (firstChildPos == 0) {
+//                        overScrollListener.onTopOverScroll()
+//                        recycler.getViewForPosition(0)
+//                    } else {
+//                        recycler.getViewForPosition(firstChildPos - 1)
+//                    }
 
                     addView(scrap, 0)
                     measureChildWithoutInsets(scrap, widthSpec, heightSpec)
@@ -196,7 +222,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                 if ((dY > 0 && getDecoratedBottom(view) <= 0) ||
                     (dY < 0 && getDecoratedTop(view) >= height)
                 ) {
-                    logIt("Removing view for position=${getPosition(view)}", "PLPLPL")
+//                    logIt("Removing view for position=${getPosition(view)}", "PLPLPL")
                     removeAndRecycleView(view, recycler)
 
                     // Это совсем на крайний случай

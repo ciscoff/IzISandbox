@@ -4,9 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.extensions.ZDate
 
-class AdapterDates(private val model: List<ZDate>) : RecyclerView.Adapter<ViewHolderDate>() {
+class AdapterDates(private val model: InfiniteModel) : RecyclerView.Adapter<ViewHolderDate>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderDate {
         return ViewHolderDate(
@@ -17,8 +16,6 @@ class AdapterDates(private val model: List<ZDate>) : RecyclerView.Adapter<ViewHo
             )
         )
     }
-
-    override fun getItemViewType(position: Int): Int = 0
 
     override fun getItemCount(): Int = model.size
 
