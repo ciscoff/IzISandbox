@@ -11,10 +11,8 @@ class InfiniteRecyclerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_infinite_recycler)
 
         infiniteList.apply {
-            adapter =
-                AdapterInfinite()
-            layoutManager =
-                LoopRecyclerManager()
+            adapter = AdapterInfinite()
+            layoutManager = LoopRecyclerManagerV01()
         }
     }
 }
