@@ -5,11 +5,26 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
-import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteModel.Companion.VIEW_PORT_CAPACITY
 import kotlin.math.abs
+import kotlin.math.sign
 
+/**
+ * Алгоритм.
+ * Используются три ключевых компонента:
+ * - Модель InfiniteModel (она же OverScrollListener)
+ * - ViewHolderDate
+ * - данный LayoutManager
+ *
+ * Основная идея: в качестве позоции в адаптере используется смещение в днях от текущей даты.
+ * Сегодня имеет смещение 0 (и позицию 0), завтра: смещение 1 (и позицию 1). вчера: смещение (-1),
+ * но позицию 1. Как видно из примера - смещение знаковое, так как пикер листает календарь вперед
+ * и назад от сегодня. Однако мы не можем вызывать getViewForPosition с отрицательным аргументом.
+ * На помощь приходит OverScrollListener. Через него мы заранее сообщаем в InfiniteModel "в какую
+ * сторону" она должна высчитывать очередное значение при следующем запросе от адаптера. Адаптер
+ * всегда обращается к модели с положительным индексом, но модель значет какой реальный знак
+ * у этого индекса.
+ */
 class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener) :
     RecyclerView.LayoutManager() {
 
@@ -32,6 +47,10 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
      */
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
 
+        /**
+         * Сразу отключаем кэш у Recycler'а, чтобы он при каждом getViewForPosition
+         * обращался к адаптеру. Адаптер будет дергать модель, которая выдаст правильные данные.
+         */
         recycler.setViewCacheSize(0)
 
         // Адаптер пустой или стал пустым после обновления модели
@@ -66,12 +85,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
             }
         }
 
-//        trackRelativeCenter(alphaTuner, scaleTuner)
-    }
-
-    private fun indexToMillis(index: Long): Long {
-        val date = ZDate.now().plusDays(index)
-        return date.toInstant().toEpochMilli()
+        trackRelativeCenter(alphaTuner, scaleTuner)
     }
 
     /**
@@ -79,9 +93,9 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
      * 1. Через вызов scrollVerticallyBy система сообщила, что палец двинулся по экрану на dy
      * 2. Мы должны проскроллить (offsetChildrenVertical) именно на это значение, потому что
      *    у нас Infinite Loop
-     * 3. После скрола нужно проверить "крайние" условия и добавить новые Views сверху/снизу
+     * 3. Выполнить очистку - ставшие невидимыми View удалить.
+     * 4. После скрола нужно проверить "крайние" условия и добавить новые Views сверху/снизу
      *    если стребуется.
-     * 4. Выполнить очистку - ставшие невидимыми View удалить.
      * 5. Опциональные плюшки, например визуальные эффекты, завязанные на изменение положения View.
      */
     override fun scrollVerticallyBy(
@@ -90,16 +104,23 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         state: RecyclerView.State?
     ): Int {
 
+        // Блокируем резкие движения пальцем (TODO Доработать нужно этот момент)
+        val dY = if(abs(dy) > height/ VIEW_PORT_CAPACITY) {
+            VIEW_PORT_CAPACITY * dy.sign
+        } else {
+            dy
+        }
+
         // 2.
-        offsetChildrenVertical(-dy)
-        // 4.
-        recycleInvisibleViews(dy, recycler, state)
+        offsetChildrenVertical(-dY)
         // 3.
-        fill(dy, recycler, state)
+        recycleInvisibleViews(dY, recycler, state)
+        // 4.
+        fill(dY, recycler, state)
 
         // 5. Опционально. Меняем прозрачность элемента и размер текста внутри.
-//        trackRelativeCenter(alphaTuner, scaleTuner)
-        return dy
+        trackRelativeCenter(alphaTuner, scaleTuner)
+        return dY
     }
 
     private fun fill(dY: Int, recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
@@ -117,37 +138,21 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                 val lastChild = getChildAt(lastIndex)
                 lastChild ?: return
 
-                // Позиция в адаптере
-//                val lastChildPos = getPosition(lastChild)
-
                 // Если последняя видимая View полностью вошла в экран....
                 if (getDecoratedBottom(lastChild) < height) {
-                    val interval = lastChild.tag as Int
 
-                    if(interval >= 0) overScrollListener.onBottomOverScroll()
-                    else overScrollListener.onTopOverScroll()
+                    val lastChildOffset = lastChild.tag as Int
+                    val nextChildOffset = lastChildOffset + 1
 
-//                    overScrollListener.onBottomOverScroll()
-                    val scrap = recycler.getViewForPosition(abs(interval + 1))
+                    overScrollListener.setOffsetDirection(nextChildOffset)
 
-                    logIt("onBottomOverScroll ${abs(interval + 1)}", "PLPLPL")
-
-                    // ...и является последней в адаптере
-//                    val scrap = if (lastChildPos == (itemCount - 1)) {
-//
-//                        recycler.getViewForPosition(itemCount - 1)
-//                    }
-//                    // ...и НЕ является последней в адаптере
-//                    else {
-//                        recycler.getViewForPosition(lastChildPos + 1)
-//                    }
-
+                    val scrap = recycler.getViewForPosition(abs(nextChildOffset))
                     addView(scrap)
                     measureChildWithoutInsets(scrap, widthSpec, heightSpec)
-//                    measureChildWithMargins(scrap, 0, 0)
-                    val (w, h) = getDecoratedMeasuredWidth(scrap) to getDecoratedMeasuredHeight(
-                        scrap
-                    )
+
+                    val (w, h) =
+                        getDecoratedMeasuredWidth(scrap) to getDecoratedMeasuredHeight(scrap)
+
                     layoutDecorated(
                         scrap,
                         0,
@@ -162,34 +167,21 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                 val firstChild = getChildAt(0)
                 firstChild ?: return
 
-                // Позиция в адаптере
-//                val firstChildPos = getPosition(firstChild)
-
                 // Если первая видимая View полностью вошла в экран....
                 if (getDecoratedTop(firstChild) >= 0) {
 
-                    val interval = firstChild.tag as Int
+                    val firstChildOffset = firstChild.tag as Int
+                    val nextChildOffset = firstChildOffset - 1
 
-                    if(interval >= 0) overScrollListener.onBottomOverScroll()
-                    else overScrollListener.onTopOverScroll()
+                    overScrollListener.setOffsetDirection(nextChildOffset)
 
-                    val scrap = recycler.getViewForPosition(abs(interval - 1))
-
-                    logIt("onTopOverScroll -${abs(interval - 1)}", "PLPLPL")
-
-//                    val scrap = if (firstChildPos == 0) {
-//                        overScrollListener.onTopOverScroll()
-//                        recycler.getViewForPosition(0)
-//                    } else {
-//                        recycler.getViewForPosition(firstChildPos - 1)
-//                    }
+                    val scrap = recycler.getViewForPosition(abs(nextChildOffset))
 
                     addView(scrap, 0)
                     measureChildWithoutInsets(scrap, widthSpec, heightSpec)
-//                    measureChildWithMargins(scrap, 0, 0)
-                    val (w, h) = getDecoratedMeasuredWidth(scrap) to getDecoratedMeasuredHeight(
-                        scrap
-                    )
+                    val (w, h) =
+                        getDecoratedMeasuredWidth(scrap) to getDecoratedMeasuredHeight(scrap)
+
                     layoutDecorated(
                         scrap,
                         0,
@@ -222,7 +214,6 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                 if ((dY > 0 && getDecoratedBottom(view) <= 0) ||
                     (dY < 0 && getDecoratedTop(view) >= height)
                 ) {
-//                    logIt("Removing view for position=${getPosition(view)}", "PLPLPL")
                     removeAndRecycleView(view, recycler)
 
                     // Это совсем на крайний случай
@@ -250,7 +241,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         val pivot = height / 2f
         if (pivot == 0f) return
 
-        (0 until childCount - 1).forEach { i ->
+        (0 until childCount).forEach { i ->
             getChildAt(i)?.let { child ->
 
                 var viewCenter =
@@ -290,7 +281,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
      * меняется в диапазоне от 0 до 0.8 благодаря тому, что аргумент scale меняется от 0 до 1.
      */
     private val scaleTuner: (View, Float) -> Unit = { view, scale ->
-        val maxDelta = 0.8f
+        val maxDelta = 0.6f
 
         view.findViewById<TextView>(R.id.textTitle)?.let { child ->
 
@@ -325,9 +316,7 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
             lp.topMargin + decorRect.top,
             lp.bottomMargin + decorRect.bottom
         )
-
         child.measure(widthSpecUpdated, heightSpecUpdated)
-
     }
 
     /**

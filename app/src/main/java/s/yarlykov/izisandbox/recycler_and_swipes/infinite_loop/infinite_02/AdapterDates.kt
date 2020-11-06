@@ -10,7 +10,7 @@ class AdapterDates(private val model: InfiniteModel) : RecyclerView.Adapter<View
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderDate {
         return ViewHolderDate(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.layout_item_recycler_infinite,
+                R.layout.layout_item_recycler_infinite_date_picker,
                 parent,
                 false
             )

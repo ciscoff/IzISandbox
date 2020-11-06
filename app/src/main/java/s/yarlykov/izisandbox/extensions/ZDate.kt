@@ -36,7 +36,7 @@ fun ZDate.toReadable(context: Context): String {
     }.toUpperCase(Locale.getDefault())
 }
 
-fun LocalDate.toReadable(context: Context): String {
+fun LocalDate.toReadable(context: Context, withDetails: Boolean = false): String {
 
     val readableFormatterEee: DateTimeFormatter = DateTimeFormatter.ofPattern(readableFormatEee)
     val readableFormatterName: DateTimeFormatter = DateTimeFormatter.ofPattern(readableFormatName)
@@ -47,12 +47,14 @@ fun LocalDate.toReadable(context: Context): String {
 
     val date = this
 
-    val prefixId = when {
-        date.isEqual(today) -> R.string.ui_day_today
-        date.isEqual(yesterday) -> R.string.ui_day_yesterday
-        date.isEqual(tomorrow) -> R.string.ui_day_tomorrow
-        else -> 0
-    }
+    val prefixId = if (withDetails) {
+        when {
+            date.isEqual(today) -> R.string.ui_day_today
+            date.isEqual(yesterday) -> R.string.ui_day_yesterday
+            date.isEqual(tomorrow) -> R.string.ui_day_tomorrow
+            else -> 0
+        }
+    } else 0
 
     return if (prefixId != 0) {
         "${context.getString(prefixId)}${format(readableFormatterName)}"
