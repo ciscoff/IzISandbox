@@ -27,7 +27,7 @@ class InfiniteModel : OverScrollListener {
         }
     }
 
-    override fun setOffsetDirection(offset: Int) {
-        this.direction = offset.sign
+    override fun setOffsetDirection(direction: Int) {
+        this.direction = direction.sign
     }
 }
