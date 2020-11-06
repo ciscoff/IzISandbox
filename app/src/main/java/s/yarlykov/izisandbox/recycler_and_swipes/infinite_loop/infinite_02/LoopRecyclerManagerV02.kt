@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteModel.Companion.VIEW_PORT_CAPACITY
 import kotlin.math.abs
-import kotlin.math.sign
 
 /**
  * Алгоритм.
@@ -43,7 +42,9 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
     }
 
     /**
-     * Метод, который располагает элементы внутри RecyclerView
+     * Метод, который располагает элементы внутри RecyclerView.
+     * Основная задача: центральным должен оказаться элемент с сегодняшней датой. То есть он должен
+     * быть не вверху в начале списка, а в центре.
      */
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
 
@@ -64,25 +65,32 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         detachAndScrapAttachedViews(recycler)
         var summaryHeight = 0
         val viewHeight = height / VIEW_PORT_CAPACITY
-
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+
+        // Индекс позиции, располагаемой по центру вертикально (VIEW_PORT_CAPACITY нечетная)
+        // Она соответствует элементу с сегодняшней датой.
+        val centerPosition = VIEW_PORT_CAPACITY / 2
 
         /**
          * Для корректного выхода из forEach()
          * ref: https://kotlinlang.org/docs/reference/returns.html
          */
         run loop@{
-            (0 until VIEW_PORT_CAPACITY).forEach { i ->
-                val child = recycler.getViewForPosition(i)
-                addView(child)
-                measureChildWithoutInsets(child, widthSpec, heightSpec)
-                val (w, h) = getDecoratedMeasuredWidth(child) to getDecoratedMeasuredHeight(child)
-                layoutDecorated(child, 0, summaryHeight, w, h + summaryHeight)
-                summaryHeight += h
+            (0 until VIEW_PORT_CAPACITY)
+                .map { position -> position - centerPosition }
+                .forEach { i ->
+                    overScrollListener.setOffsetDirection(i)
+                    val child = recycler.getViewForPosition(abs(i))
+                    addView(child)
+                    measureChildWithoutInsets(child, widthSpec, heightSpec)
+                    val (w, h) = getDecoratedMeasuredWidth(child) to
+                            getDecoratedMeasuredHeight(child)
+                    layoutDecorated(child, 0, summaryHeight, w, h + summaryHeight)
+                    summaryHeight += h
 
-                if (summaryHeight >= height) return@loop
-            }
+                    if (summaryHeight >= height) return@loop
+                }
         }
 
         trackRelativeCenter(alphaTuner, scaleTuner)
@@ -95,21 +103,14 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
      *    у нас Infinite Loop
      * 3. Выполнить очистку - ставшие невидимыми View удалить.
      * 4. После скрола нужно проверить "крайние" условия и добавить новые Views сверху/снизу
-     *    если стребуется.
+     *    если требуется.
      * 5. Опциональные плюшки, например визуальные эффекты, завязанные на изменение положения View.
      */
     override fun scrollVerticallyBy(
-        dy: Int,
+        dY: Int,
         recycler: RecyclerView.Recycler,
         state: RecyclerView.State?
     ): Int {
-
-        // Блокируем резкие движения пальцем (TODO Доработать нужно этот момент)
-        val dY = if(abs(dy) > height/ VIEW_PORT_CAPACITY) {
-            VIEW_PORT_CAPACITY * dy.sign
-        } else {
-            dy
-        }
 
         // 2.
         offsetChildrenVertical(-dY)
@@ -123,20 +124,81 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         return dY
     }
 
+    /**
+     * Управляем заполнением пустых мест, которые образовались в результате сдвига по скролу,
+     * новыми Views. При сильном толчке пальцем дистанция dY может превышать высоту одной или
+     * нескольких View, поэтому используются методы fillUp/fillDown, которые делают работу в цикле
+     * и устанавливают столько дополнительных Views сколько требуется (в изнечальном варианте
+     * добавлялось по одной)
+     */
     private fun fill(dY: Int, recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
+        when {
+            // Палец идет вверх. Контролируем появление View снизу.
+            (dY > 0) -> fillDown(recycler)
+            // Палец идет вниз. Контролируем появление View сверху.
+            (dY < 0) -> fillUp(recycler)
+            else -> {
+            }
+        }
+    }
 
-        val lastIndex = childCount - 1
-
+    /**
+     * Заполнить пространство сверху
+     */
+    private fun fillUp(recycler: RecyclerView.Recycler) {
         val viewHeight = height / VIEW_PORT_CAPACITY
-
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
 
-        when {
-            // Палец идет вверх. Контролируем появление View снизу.
-            (dY > 0) -> {
-                val lastChild = getChildAt(lastIndex)
-                lastChild ?: return
+        var isContinue = true
+
+        do {
+            getChildAt(0)?.let { firstChild ->
+                // Если первая видимая View полностью вошла в экран....
+                if (getDecoratedTop(firstChild) > 0) {
+
+                    val firstChildOffset = firstChild.tag as Int
+                    val nextChildOffset = firstChildOffset - 1
+
+                    overScrollListener.setOffsetDirection(nextChildOffset)
+
+                    val scrap = recycler.getViewForPosition(abs(nextChildOffset))
+
+                    addView(scrap, 0)
+                    measureChildWithoutInsets(scrap, widthSpec, heightSpec)
+                    val (w, h) =
+                        getDecoratedMeasuredWidth(scrap) to getDecoratedMeasuredHeight(scrap)
+
+                    layoutDecorated(
+                        scrap,
+                        0,
+                        getDecoratedTop(firstChild) - h,
+                        w,
+                        getDecoratedTop(firstChild)
+                    )
+
+                } else {
+                    isContinue = false
+                }
+            } ?: run { isContinue = false }
+
+        } while (isContinue)
+    }
+
+    /**
+     * Заполнить пространство снизу
+     */
+    private fun fillDown(recycler: RecyclerView.Recycler) {
+        val viewHeight = height / VIEW_PORT_CAPACITY
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+
+        var isContinue = true
+
+        do {
+            val lastIndex = childCount - 1
+
+            getChildAt(lastIndex)?.let { lastChild ->
 
                 // Если последняя видимая View полностью вошла в экран....
                 if (getDecoratedBottom(lastChild) < height) {
@@ -160,41 +222,12 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                         w,
                         h + getDecoratedBottom(lastChild)
                     )
+                } else {
+                    isContinue = false
                 }
-            }
-            // Палец идет вниз. Контролируем появление View сверху.
-            (dY < 0) -> {
-                val firstChild = getChildAt(0)
-                firstChild ?: return
+            } ?: run { isContinue = false }
 
-                // Если первая видимая View полностью вошла в экран....
-                if (getDecoratedTop(firstChild) >= 0) {
-
-                    val firstChildOffset = firstChild.tag as Int
-                    val nextChildOffset = firstChildOffset - 1
-
-                    overScrollListener.setOffsetDirection(nextChildOffset)
-
-                    val scrap = recycler.getViewForPosition(abs(nextChildOffset))
-
-                    addView(scrap, 0)
-                    measureChildWithoutInsets(scrap, widthSpec, heightSpec)
-                    val (w, h) =
-                        getDecoratedMeasuredWidth(scrap) to getDecoratedMeasuredHeight(scrap)
-
-                    layoutDecorated(
-                        scrap,
-                        0,
-                        getDecoratedTop(firstChild) - h,
-                        w,
-                        getDecoratedTop(firstChild)
-                    )
-                }
-            }
-            else -> {
-            }
-
-        }
+        } while (isContinue)
     }
 
     /**
