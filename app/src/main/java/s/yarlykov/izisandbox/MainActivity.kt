@@ -21,6 +21,7 @@ import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.places.PlacesAutoCompleteActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_01.InfiniteRecyclerActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         RecyclerViewItemAnimationActivity::class.java to R.string.menu_rv_item_animation,
         InfiniteRecyclerActivity::class.java to R.string.menu_rv_infinite_loop,
         InfiniteDatePickerActivity::class.java to R.string.menu_rv_infinite_date_picker,
+        InfiniteCalendarActivity::class.java to R.string.menu_rv_scrolling_calendar,
         DslActivity::class.java to R.string.menu_dsl_edu,
         CustomBottomAppBarActivity::class.java to R.string.menu_bottom_bar,
         TelegramActivityV1::class.java to R.string.menu_telegram_profile_v1,

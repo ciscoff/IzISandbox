@@ -1,30 +1,14 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02
+package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar
 
 import android.graphics.Rect
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteModel.Companion.VIEW_PORT_CAPACITY
+import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.ModelDate.Companion.VIEW_PORT_CAPACITY
 import kotlin.math.abs
 
-/**
- * Алгоритм.
- * Используются три ключевых компонента:
- * - Модель InfiniteModel (она же OverScrollListener)
- * - ViewHolderDate
- * - данный LayoutManager
- *
- * Основная идея: в качестве позоции в адаптере используется смещение в днях от текущей даты.
- * Сегодня имеет смещение 0 (и позицию 0), завтра: смещение 1 (и позицию 1). вчера: смещение (-1),
- * но позицию 1. Как видно из примера - смещение знаковое, так как пикер листает календарь вперед
- * и назад от сегодня. Однако мы не можем вызывать getViewForPosition с отрицательным аргументом.
- * На помощь приходит OverScrollListener. Через него мы заранее сообщаем в InfiniteModel "в какую
- * сторону" она должна высчитывать очередное значение при следующем запросе от адаптера. Адаптер
- * всегда обращается к модели с положительным индексом, но модель значет какой реальный знак
- * у этого индекса.
- */
-class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener) :
+class InfiniteLayoutManager(private val overScrollListener: OverScrollListener) :
     RecyclerView.LayoutManager() {
 
     private val cachedChildren = mutableListOf<View>()
@@ -43,19 +27,8 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         )
     }
 
-    /**
-     * Метод, который располагает элементы внутри RecyclerView.
-     * Основная задача: центральным должен оказаться элемент с сегодняшней датой. То есть он должен
-     * быть не вверху в начале списка, а в центре.
-     */
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
 
-        /**
-         * Сразу отключаем кэш у Recycler'а, чтобы он при каждом getViewForPosition
-         * обращался к адаптеру. Адаптер будет дергать модель, которая выдаст правильные данные.
-         *
-         * NOTE: Ниже в комментах описано, что это не спасает. Нужно разобраться с кешированием.
-         */
         recycler.setViewCacheSize(0)
 
         // Адаптер пустой или стал пустым после обновления модели
@@ -66,23 +39,11 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
 
         if (state?.isPreLayout == true) return
 
-        /**
-         * NOTE: Метод onLayoutChildren вызывается дважды. Причем в первый раз ещё никаких дочерних
-         * View нет, метод detachAndScrapAttachedViews бесполезен и layout проходит правильно:
-         * элементы с прошедшими датами располагаются сверху, а с будущими снизу.
-         * Однако при повторном onLayoutChildren снова вызывается detachAndScrapAttachedViews,
-         * Views уже есть и они кэшируются и потом извлекаются из кэша с помощью getViewForPosition.
-         * Проблема в том, что в нашем случае у всех View, кроме центральной дублируется position,
-         * плюс они извлекаются из кэша в неправильном порядке, задом наперед. Короче, чтобы этого
-         * избежать я после detachAndScrapAttachedViews поставил recycler.clear(), который вычищает
-         * кэш и все работает ОК.
-         *
-         * NOTE++: Решил проблему по другому: создал свой кэш cachedChildren. Туда попадают все
-         * Views после getViewForPosition, потом сортируются по возрастанию по значению своего tag
-         * и только после сортировки в правильном порядке проходят measure/layout.
-         */
         detachAndScrapAttachedViews(recycler)
-        //recycler.clear()
+        var summaryHeight = 0
+        val viewHeight = height / VIEW_PORT_CAPACITY
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
 
         // Индекс позиции, располагаемой по центру вертикально (VIEW_PORT_CAPACITY нечетная)
         // Она соответствует элементу с сегодняшней датой.
@@ -134,16 +95,6 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         }
     }
 
-    /**
-     * Порядок действий должен быть такой:
-     * 1. Через вызов scrollVerticallyBy система сообщила, что палец двинулся по экрану на dy
-     * 2. Мы должны проскроллить (offsetChildrenVertical) именно на это значение, потому что
-     *    у нас Infinite Loop
-     * 3. Выполнить очистку - ставшие невидимыми View удалить.
-     * 4. После скрола нужно проверить "крайние" условия и добавить новые Views сверху/снизу
-     *    если требуется.
-     * 5. Опциональные плюшки, например визуальные эффекты, завязанные на изменение положения View.
-     */
     override fun scrollVerticallyBy(
         dY: Int,
         recycler: RecyclerView.Recycler,
@@ -162,13 +113,6 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         return dY
     }
 
-    /**
-     * Управляем заполнением пустых мест, которые образовались в результате сдвига по скролу,
-     * новыми Views. При сильном толчке пальцем дистанция dY может превышать высоту одной или
-     * нескольких View, поэтому используются методы fillUp/fillDown, которые делают работу в цикле
-     * и устанавливают столько дополнительных Views сколько требуется (в изнечальном варианте
-     * добавлялось по одной)
-     */
     private fun fill(dY: Int, recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
         when {
             // Палец идет вверх. Контролируем появление View снизу.
@@ -180,9 +124,6 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         }
     }
 
-    /**
-     * Заполнить пространство сверху
-     */
     private fun fillUp(recycler: RecyclerView.Recycler) {
         val viewHeight = height / VIEW_PORT_CAPACITY
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
@@ -286,27 +227,11 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
                     (dY < 0 && getDecoratedTop(view) >= height)
                 ) {
                     removeAndRecycleView(view, recycler)
-
-                    // Это совсем на крайний случай
-//                    recycler.clear()
                 }
             }
         }
     }
 
-    /**
-     * Для каждого дочернего View функция расчитывает отношение его вертикального центра
-     * к вертикальному центру родительского RecyclerView. Фактически это "степень" приближения к
-     * центру RecyclerView.
-     * 1 - говорит, что центры совпадают.
-     * 0 - дочерняя View центрирована по верхней или нижней границе родительского контейнера.
-     * 0.xxx - промежуточное значение.
-     *
-     * На основании полученного результата к View можно применить какой-нибудь визуальный эффект,
-     * например менять прозрачность или масштабирование.
-     *
-     * @handlers - массив функций, применяющих визуальные эффекты.
-     */
     private fun trackRelativeCenter(vararg handlers: (View, Float) -> Unit) {
 
         val pivot = height / 2f

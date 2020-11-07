@@ -53,6 +53,7 @@
     <string name="menu_rv_item_animation" translatable="false">Recycler View Item Animators</string>
     <string name="menu_rv_infinite_loop" translatable="false">Infinite Loop Recycler</string>
     <string name="menu_rv_infinite_date_picker" translatable="false">Infinite DatePicker</string>
+    <string name="menu_rv_scrolling_calendar" translatable="false">Scrolling Calendar</string>
     <string name="menu_matrix_reflect_image" translatable="false">Reflect Image</string>
     <string name="menu_matrix_transform_image" translatable="false">Transform with matrix</string>
     <string name="menu_places_auto_complete" translatable="false">Places AutoComplete</string>
@@ -185,6 +186,8 @@
     <string name="adapter_position" translatable="false">My position is %1$d</string>
 
     <string name="simple_id" translatable="false">"SyBMIFWgp5cD2C_CVDrYX8PBEcscu"</string>
+
+    <string name="colon" translatable="false">:</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>

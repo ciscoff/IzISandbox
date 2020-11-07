@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listDates"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.7"
+        tools:itemCount="5"
+        tools:listitem="@layout/layout_item_calendar_date_picker" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listHours"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/listDates"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.12"
+        tools:itemCount="5"
+        tools:listitem="@layout/layout_item_calendar_time_picker" />
+
+    <TextView
+        android:id="@+id/textColon"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|start"
+        android:text="@string/colon"
+        android:textColor="@android:color/holo_red_dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/listMinutes"
+        app:layout_constraintStart_toEndOf="@id/listHours"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.06" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listMinutes"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textColon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.12"
+        tools:itemCount="5"
+        tools:listitem="@layout/layout_item_calendar_time_picker" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/background_calendar_frame"
+        android:clickable="false"
+        android:focusable="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</merge>
