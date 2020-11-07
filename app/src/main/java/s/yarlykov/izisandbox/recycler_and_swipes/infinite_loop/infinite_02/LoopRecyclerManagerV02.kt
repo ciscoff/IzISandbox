@@ -27,6 +27,8 @@ import kotlin.math.abs
 class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener) :
     RecyclerView.LayoutManager() {
 
+    private val cachedChildren = mutableListOf<View>()
+
     /**
      * Хотим скролиться по вертикали
      */
@@ -51,6 +53,8 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
         /**
          * Сразу отключаем кэш у Recycler'а, чтобы он при каждом getViewForPosition
          * обращался к адаптеру. Адаптер будет дергать модель, которая выдаст правильные данные.
+         *
+         * NOTE: Ниже в комментах описано, что это не спасает. Нужно разобраться с кешированием.
          */
         recycler.setViewCacheSize(0)
 
@@ -62,38 +66,67 @@ class LoopRecyclerManagerV02(private val overScrollListener: OverScrollListener)
 
         if (state?.isPreLayout == true) return
 
+        /**
+         * NOTE: Метод onLayoutChildren вызывается дважды. Причем в первый раз ещё никаких дочерних
+         * View нет, метод detachAndScrapAttachedViews бесполезен и layout проходит правильно:
+         * элементы с прошедшими датами располагаются сверху, а с будущими снизу.
+         * Однако при повторном onLayoutChildren снова вызывается detachAndScrapAttachedViews,
+         * Views уже есть и они кэшируются и потом извлекаются из кэша с помощью getViewForPosition.
+         * Проблема в том, что в нашем случае у всех View, кроме центральной дублируется, position
+         * и они извлекаются из кэша в неправильном порядке, задом наперед. Короче, чтобы этого
+         * избежать я после detachAndScrapAttachedViews поставил recycler.clear(), который вычищает
+         * кэш и все работает ОК.
+         */
         detachAndScrapAttachedViews(recycler)
-        var summaryHeight = 0
-        val viewHeight = height / VIEW_PORT_CAPACITY
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
 
         // Индекс позиции, располагаемой по центру вертикально (VIEW_PORT_CAPACITY нечетная)
         // Она соответствует элементу с сегодняшней датой.
         val centerPosition = VIEW_PORT_CAPACITY / 2
 
+        cachedChildren.clear()
+
         /**
          * Для корректного выхода из forEach()
          * ref: https://kotlinlang.org/docs/reference/returns.html
+         *
+         * Заполняем собственный кэш
          */
-        run loop@{
-            (0 until VIEW_PORT_CAPACITY)
-                .map { position -> position - centerPosition }
-                .forEach { i ->
-                    overScrollListener.setOffsetDirection(i)
-                    val child = recycler.getViewForPosition(abs(i))
-                    addView(child)
-                    measureChildWithoutInsets(child, widthSpec, heightSpec)
-                    val (w, h) = getDecoratedMeasuredWidth(child) to
-                            getDecoratedMeasuredHeight(child)
-                    layoutDecorated(child, 0, summaryHeight, w, h + summaryHeight)
-                    summaryHeight += h
+        (0 until VIEW_PORT_CAPACITY)
+            .map { position -> position - centerPosition }
+            .forEach { i ->
+                overScrollListener.setOffsetDirection(i)
+                val child = recycler.getViewForPosition(abs(i))
+                cachedChildren.add(child)
+            }
 
-                    if (summaryHeight >= height) return@loop
-                }
-        }
+        layoutCachedChildren()
 
         trackRelativeCenter(alphaTuner, scaleTuner)
+    }
+
+    private fun layoutCachedChildren() {
+        var summaryHeight = 0
+        val viewHeight = height / VIEW_PORT_CAPACITY
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+
+        // Сортировка по возрастанию значений в тегах.
+        cachedChildren.sortBy {
+            it.tag as Int
+        }
+
+        run loop@{
+            cachedChildren.forEach { child ->
+                addView(child)
+                measureChildWithoutInsets(child, widthSpec, heightSpec)
+                val (w, h) = getDecoratedMeasuredWidth(child) to
+                        getDecoratedMeasuredHeight(child)
+                layoutDecorated(child, 0, summaryHeight, w, h + summaryHeight)
+                summaryHeight += h
+
+                if (summaryHeight >= height) return@loop
+            }
+        }
     }
 
     /**
