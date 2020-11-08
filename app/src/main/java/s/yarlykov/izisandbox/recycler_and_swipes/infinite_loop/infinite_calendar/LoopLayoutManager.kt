@@ -2,25 +2,14 @@ package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calenda
 
 import android.graphics.Rect
 import android.view.View
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.ModelBase.Companion.VIEW_PORT_CAPACITY
 
-class LoopLayoutManager : RecyclerView.LayoutManager() {
-
-    /**
-     * Хотим скролиться по вертикали
-     */
-    override fun canScrollVertically(): Boolean {
-        return true
-    }
-
-    override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
-        return RecyclerView.LayoutParams(
-            RecyclerView.LayoutParams.WRAP_CONTENT,
-            RecyclerView.LayoutParams.WRAP_CONTENT
-        )
-    }
+/**
+ * TODO Нужно реализовать методы FillUp/FillDown для правильной отрисовки элементов после
+ * TODO сильного жеста прокрутки.
+ */
+class LoopLayoutManager : BaseLayoutManager() {
 
     /**
      * Метод, который располагает элементы внутри RecyclerView
@@ -38,7 +27,7 @@ class LoopLayoutManager : RecyclerView.LayoutManager() {
         detachAndScrapAttachedViews(recycler)
         var summaryHeight = 0
 
-        val viewHeight = height / ModelDate.VIEW_PORT_CAPACITY
+        val viewHeight = height / VIEW_PORT_CAPACITY
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
 
@@ -92,7 +81,7 @@ class LoopLayoutManager : RecyclerView.LayoutManager() {
 
     private fun fill(dY: Int, recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
 
-        val viewHeight = height / ModelDate.VIEW_PORT_CAPACITY
+        val viewHeight = height / VIEW_PORT_CAPACITY
         val widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
 
@@ -189,74 +178,6 @@ class LoopLayoutManager : RecyclerView.LayoutManager() {
         }
     }
 
-    /**
-     * Для каждого дочернего View функция расчитывает отношение его вертикального центра
-     * к вертикальному центру родительского RecyclerView. Фактически это "степень" приближения к
-     * центру RecyclerView.
-     * 1 - говорит, что центры совпадают.
-     * 0 - дочерняя View центрирована по верхней или нижней границе родительского контейнера.
-     * 0.xxx - промежуточное значение.
-     *
-     * На основании полученного результата к View можно применить какой-нибудь визуальный эффект,
-     * например менять прозрачность или масштабирование.
-     *
-     * @handlers - массив функций, применяющих визуальные эффекты.
-     */
-    private fun trackRelativeCenter(vararg handlers: (View, Float) -> Unit) {
-
-        val pivot = height / 2f
-        if (pivot == 0f) return
-
-        (0 until childCount - 1).forEach { i ->
-            getChildAt(i)?.let { child ->
-
-                var viewCenter =
-                    (getDecoratedBottom(child) - getDecoratedTop(child)) / 2f +
-                            getDecoratedTop(child)
-
-                viewCenter = when {
-                    (viewCenter < 0) -> 0f
-                    (viewCenter > height) -> height.toFloat()
-                    else -> viewCenter
-                }
-
-                val relation = when {
-                    viewCenter < pivot -> {
-                        viewCenter / pivot
-                    }
-                    viewCenter > pivot -> {
-                        2f - viewCenter / pivot
-                    }
-                    else -> 1f
-                }
-                handlers.forEach { it(child, relation) }
-            }
-        }
-    }
-
-    /**
-     * Установить alpha
-     */
-    private val alphaTuner: (View, Float) -> Unit = { view, alpha ->
-        view.alpha = alpha
-    }
-
-    /**
-     * Установить масштаб. Здесь для нужной View устанавливается масштаб равный (1 + maxDelta).
-     * То есть размер View постепенно меняется между значениями 1 и (1 + maxDelta), а maxDelta
-     * меняется в диапазоне от 0 до 0.8 благодаря тому, что аргумент scale меняется от 0 до 1.
-     */
-    private val scaleTuner: (View, Float) -> Unit = { view, scale ->
-        val maxDelta = 0.8f
-
-        view.findViewById<TextView>(R.id.textTitle)?.let { child ->
-
-            val factor = scale * maxDelta + 1f
-
-            child.scaleX = factor
-            child.scaleY = factor
-        }
-    }
 
     private fun measureChildWithoutInsets(child: View, widthSpec: Int, heightSpec: Int) {
 

@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ViewHolderTime(val listItem : View) : RecyclerView.ViewHolder(listItem) {
     fun bind (timeUnit : Int) {
+        listItem.tag = timeUnit
         (listItem as TextView).text = "%02d".format(timeUnit)
     }
 }

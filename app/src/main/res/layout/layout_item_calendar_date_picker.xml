@@ -5,11 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:gravity="center"
-    android:textSize="14sp"
+    android:textSize="12sp"
     android:textStyle="bold"
     tools:text="05" />
-
-
-
-
-

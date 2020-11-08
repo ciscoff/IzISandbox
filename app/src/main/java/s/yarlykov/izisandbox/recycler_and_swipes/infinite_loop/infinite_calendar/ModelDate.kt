@@ -3,12 +3,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calenda
 import org.threeten.bp.LocalDate
 import kotlin.math.sign
 
-class ModelDate : OverScrollListener {
-
-    companion object {
-        const val MODEL_SIZE = Int.MAX_VALUE
-        const val VIEW_PORT_CAPACITY = 5
-    }
+class ModelDate : ModelBase(), OverScrollListener {
 
     private var direction = 1
     val size = MODEL_SIZE
