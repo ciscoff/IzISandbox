@@ -91,6 +91,7 @@
 
     <!-- Actions/Buttons -->
     <string name="action_ok" translatable="false">OK</string>
+    <string name="action_test" translatable="false">test</string>
     <string name="action_example_1" translatable="false">Two layouts</string>
     <string name="action_example_2" translatable="false">One layout</string>
 

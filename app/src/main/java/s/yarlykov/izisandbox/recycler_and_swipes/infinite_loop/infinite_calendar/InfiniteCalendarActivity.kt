@@ -2,6 +2,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calenda
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
@@ -17,13 +18,12 @@ class InfiniteCalendarActivity : AppCompatActivity() {
 
         calendar = findViewById(R.id.calendarCompound)
 
+        val textView = findViewById<TextView>(R.id.textResult)
+
         // Кнопка для теста
         findViewById<Button>(R.id.buttonTest).apply {
             setOnClickListener {
-                logIt(
-                    "result = ${calendar.selectedDateTime.toReadable(this@InfiniteCalendarActivity)}",
-                    "PLPLPL"
-                )
+                textView.text = calendar.selectedDateTime.toReadable(this@InfiniteCalendarActivity)
             }
         }
     }
