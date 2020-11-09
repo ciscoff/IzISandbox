@@ -55,6 +55,8 @@
 
     <color name="color_time_line_chart">#CCC</color>
 
+    <color name="color_calendar_selection_border">#88CCCCCC</color>
+
 <!--    Telegram-->
     <color name="color_dark_1">#151D26</color>
     <color name="color_dark_2">#1C2733</color>
