@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.Month
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.extensions.toReadable
@@ -16,7 +18,10 @@ class InfiniteCalendarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_infinite_calendar)
 
-        calendar = findViewById(R.id.calendarCompound)
+        calendar = findViewById<ScrollingCalendar>(R.id.calendarCompound).apply {
+            // DEBUG
+//            initialDateTime = LocalDateTime.of(2020, Month.NOVEMBER, 19, 15, 30, 0)
+        }
 
         val textView = findViewById<TextView>(R.id.textResult)
 

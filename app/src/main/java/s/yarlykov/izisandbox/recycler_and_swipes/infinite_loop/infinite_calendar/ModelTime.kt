@@ -3,7 +3,8 @@ package s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calenda
 import org.threeten.bp.LocalDateTime
 import java.util.*
 
-class ModelTime(units: List<Int>, type: Type) : ModelBase(), List<Int> by units {
+class ModelTime(units: List<Int>, type: Type, from: LocalDateTime) : ModelBase(from),
+    List<Int> by units {
 
     enum class Type {
         Hour,
@@ -11,7 +12,7 @@ class ModelTime(units: List<Int>, type: Type) : ModelBase(), List<Int> by units 
     }
 
     init {
-        val now = LocalDateTime.now()
+        val now = from
 
         val unit = when (type) {
             Type.Hour -> now.hour
