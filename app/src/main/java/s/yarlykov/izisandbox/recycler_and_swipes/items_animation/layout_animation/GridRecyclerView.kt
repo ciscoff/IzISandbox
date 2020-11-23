@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.view.animation.GridLayoutAnimationController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 
 /**
  * Если View анимируется с помощью LayoutAnimation (а точнее с помощью layout animation controller),

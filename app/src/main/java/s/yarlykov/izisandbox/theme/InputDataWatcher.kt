@@ -6,7 +6,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import com.google.android.material.textfield.TextInputLayout
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 
 class InputDataWatcher(
     view: EditText,

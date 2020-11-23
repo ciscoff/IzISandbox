@@ -11,7 +11,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 import s.yarlykov.izisandbox.extensions.dimensionPix
 import s.yarlykov.izisandbox.extensions.setRoundedDrawable
 import kotlin.math.max

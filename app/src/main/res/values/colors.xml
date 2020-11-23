@@ -19,6 +19,7 @@
     <color name="colorWhite">#FFF</color>
     <color name="colorHalfWhite">#F4F4F4</color>
     <color name="colorGray">#eee</color>
+    <color name="colorRippleAccent">#C8EAEE</color>
 
     <!--    Advanced Swipe -->
     <color name="client_state_confirmed">#4BBAC5</color>

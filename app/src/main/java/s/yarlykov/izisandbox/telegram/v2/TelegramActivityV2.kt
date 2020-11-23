@@ -3,11 +3,8 @@ package s.yarlykov.izisandbox.telegram.v2
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_telegram_v2.*
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
-import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.ItemOffsetDecoration
 
 class TelegramActivityV2 : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

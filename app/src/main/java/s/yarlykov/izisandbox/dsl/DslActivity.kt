@@ -12,7 +12,6 @@ import android.widget.LinearLayout.VERTICAL
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
 import s.yarlykov.izisandbox.dsl.extenstions.*
 
 const val ID_HTML_VIEW = 100500

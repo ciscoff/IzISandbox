@@ -2,7 +2,7 @@ package s.yarlykov.izisandbox.time_line.vZ
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import s.yarlykov.izisandbox.Utils.zipLiveData
+import s.yarlykov.izisandbox.utils.zipLiveData
 import s.yarlykov.izisandbox.time_line.domain.DateRange
 import s.yarlykov.izisandbox.time_line.domain.TimeData
 import s.yarlykov.izisandbox.time_line.domain.TimeSlotType
