@@ -190,6 +190,7 @@
     <string name="simple_id" translatable="false">"SyBMIFWgp5cD2C_CVDrYX8PBEcscu"</string>
 
     <string name="colon" translatable="false">:</string>
+    <string name="camera_access_issue" translatable="false">Camera access issue</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>

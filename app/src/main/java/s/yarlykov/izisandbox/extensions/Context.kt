@@ -8,3 +8,9 @@ import android.content.Context
 fun Context.dimensionPix(dimenId: Int): Int {
     return this.resources.getDimensionPixelOffset(dimenId)
 }
+
+val Context.screenWidth: Int
+    get() = resources.displayMetrics.widthPixels
+
+val Context.screenHeight: Int
+    get() = resources.displayMetrics.heightPixels

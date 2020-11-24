@@ -17,9 +17,11 @@ import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.activity_funny_avatar.*
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.showResultNotification
 import s.yarlykov.izisandbox.utils.LiveDataT
 import s.yarlykov.izisandbox.utils.PermissionCatcher
 import s.yarlykov.izisandbox.utils.PhotoHelper
+import java.lang.IllegalArgumentException
 
 class FunnyAvatarActivity : AppCompatActivity() {
 
@@ -62,7 +64,6 @@ class FunnyAvatarActivity : AppCompatActivity() {
         fabCamera.setOnClickListener {
             takePhoto(this)
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -103,12 +104,8 @@ class FunnyAvatarActivity : AppCompatActivity() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             takePictureIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 
-            takePictureIntent.resolveActivity(context.packageManager)?.also {
-                try {
-                    PhotoHelper.createImageFile(context)
-                } catch (e: Exception) {
-                    null
-                }?.also { file ->
+            try {
+                PhotoHelper.createImageFile(context).also { file ->
                     photoPath = file.path
                     photoURI = FileProvider.getUriForFile(
                         this,
@@ -119,6 +116,8 @@ class FunnyAvatarActivity : AppCompatActivity() {
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                 }
+            } catch (e: Exception) {
+                fabCamera.showResultNotification(R.string.camera_access_issue, false)
             }
         }
     }

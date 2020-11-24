@@ -1,6 +1,5 @@
 package s.yarlykov.izisandbox.extensions
 
-import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -8,10 +7,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import kotlin.math.max
-
 
 fun ImageView.setRoundedDrawable(drawableId: Int) {
     val resources = context.resources
@@ -25,13 +22,12 @@ fun ImageView.setRoundedDrawable(drawableId: Int) {
 }
 
 fun ImageView.setRoundedDrawable(uri: Uri) {
-
     if (uri == Uri.EMPTY) return
 
     context.contentResolver.openInputStream(uri)?.use { stream ->
         setImageDrawable(
             RoundedBitmapDrawableFactory.create(resources, stream).apply {
-                cornerRadius = max(this.bitmap!!.width, this.bitmap!!.height) / 2.0f
+                cornerRadius = this.bitmap?.let { max(it.width, it.height) / 2.0f } ?: 0f
             }
         )
     }
@@ -40,7 +36,7 @@ fun ImageView.setRoundedDrawable(uri: Uri) {
 /**
  * Для конвертации ShapeDrawable в Bitmap
  */
-fun drawableToBitmap(drawable: Drawable): Bitmap {
+fun shapeToBitmap(drawable: Drawable): Bitmap {
     if (drawable is BitmapDrawable) {
         return drawable.bitmap
     }

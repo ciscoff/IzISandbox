@@ -20,10 +20,10 @@ open class LiveImageView @JvmOverloads constructor(
     var liveURI: LiveData<Uri>? = null
         set(value) {
 
-            value?.let { liveData ->
-                if (liveData == field) return
+            value?.let { _liveUri ->
+                if (_liveUri == field) return
 
-                field = liveData
+                field = _liveUri
                 disposable?.dispose()
                 disposable = liveURI?.observe(::makeRounded)
 

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="s.yarlykov.izisandbox">
-
     <!-- GPS location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
-
-    <!-- Take and save Photo -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" /> <!-- Take and save Photo -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACTION_IMAGE_CAPTURE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -22,6 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".matrix.avatar_maker.EditorAvatarActivity"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -30,7 +28,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/avatar_path"/>
+                android:resource="@xml/avatar_path" />
         </provider>
 
         <activity android:name=".matrix.avatar_maker.FunnyAvatarActivity" />

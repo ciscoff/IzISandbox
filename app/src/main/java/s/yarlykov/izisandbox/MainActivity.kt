@@ -15,6 +15,7 @@ import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
+import s.yarlykov.izisandbox.matrix.avatar_maker.EditorAvatarActivity
 import s.yarlykov.izisandbox.matrix.avatar_maker.FunnyAvatarActivity
 import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
 import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
@@ -60,7 +61,8 @@ class MainActivity : AppCompatActivity() {
         ScenesInsideActivity1::class.java to R.string.menu_with_scenes_1,
         ScenesInsideActivity2::class.java to R.string.menu_with_scenes_2,
         ScenesInsideActivity3::class.java to R.string.menu_with_scenes_3,
-        FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
+//        FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
+        EditorAvatarActivity::class.java to R.string.menu_funny_avatar,
         DialogsActivity::class.java to R.string.menu_dialogs,
         SwipeActivityFirst::class.java to R.string.menu_swipe_with_helper,
         SwipeActivitySecond::class.java to R.string.menu_swipe_gesture_detector,
