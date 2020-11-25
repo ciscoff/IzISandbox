@@ -5,8 +5,9 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.extensions.screenHeight
-import s.yarlykov.izisandbox.extensions.screenWidth
+import kotlin.math.min
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 class AvatarPreView @JvmOverloads constructor(
     context: Context,
@@ -14,29 +15,70 @@ class AvatarPreView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private var backgroundBitmap: Bitmap? = null
-    private var rectSource = Rect()
-    private val rectDest: Rect
-        get() = scaleWithRatio()
+    /**
+     * Исходная Bitmap и её размеры
+     */
+    private var sourceImageBitmap: Bitmap? = null
+    private var rectSourceImage = Rect()
 
+    /**
+     * @rectDest прямоугольник (в координатах канвы) куда будем рисовать исходную Bitmap.
+     * Он может выходить краями за пределя экрана.
+     */
+    private val rectDest: Rect by rectDestDelegate()
+
+    /**
+     * @rectVisible прямоугольник (в координатах канвы) определяющий видимую часть
+     * картинки. Все что не влезло в экран не учитвыается.
+     */
+    private val rectVisible: Rect by rectVisibleDelegate()
+
+    /**
+     * @rectClip область (квадратная) для рисования рамки выбора части изображения под аватарку.
+     */
+    private val rectClip: RectF by rectClipDelegate()
+
+    /**
+     * @pathClip определяется через @rectClip.
+     */
+    private val pathClip = Path()
+
+    /**
+     * Цветовые фильтры поярче/потемнее.
+     */
     private val colorFilterLighten = LightingColorFilter(0xFFFFFFFF.toInt(), 0x00222222)
     private val colorFilterDarken = LightingColorFilter(0xFF7F7F7F.toInt(), 0x00000000)
 
-    private val paint = Paint(Color.GRAY).apply { colorFilter = colorFilterDarken }
+    /**
+     * Paint для заливки фона исходной Bitmap'ой с применением цветового фильтра.
+     */
+    private val paintBackground = Paint(Color.GRAY).apply { colorFilter = colorFilterDarken }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        backgroundBitmap =
+        sourceImageBitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.nature)?.also {
-                rectSource = Rect(0, 0, it.width, it.height)
+                rectSourceImage = Rect(0, 0, it.width, it.height)
             }
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        backgroundBitmap?.let {
-            canvas.drawBitmap(it, rectSource, rectDest, paint)
+        sourceImageBitmap?.let {
+            canvas.drawBitmap(it, rectSourceImage, rectDest, paintBackground)
+        }
+
+        sourceImageBitmap?.let {
+            pathClip.apply {
+                reset()
+                addRect(rectClip, Path.Direction.CW)
+            }.close()
+
+            canvas.save()
+            canvas.clipPath(pathClip)
+            canvas.drawBitmap(it, rectSourceImage, rectDest, null)
+            canvas.restore()
         }
     }
 
@@ -46,24 +88,82 @@ class AvatarPreView @JvmOverloads constructor(
      * При любой ориентации "натягиваем" битмапу по высоте. При этом, часть битмапы
      * может оказаться за пределами боковых границ view. Но это фигня. Главное, что
      * нет искажений от растяжки/сжатия.
+     *
+     * Делегат зависит от rectSourceImage
      */
-    private fun scaleWithRatio(): Rect {
+    private fun rectDestDelegate(): ReadWriteProperty<Any?, Rect> =
+        object : ReadWriteProperty<Any?, Rect> {
 
-        val ratio = height.toFloat() / rectSource.height()
-        val scaledWidth = (rectSource.width() * ratio).toInt()
+            var rect = Rect()
 
-        return Rect().apply {
-            top = 0
-            bottom = this@AvatarPreView.height
-            left = (this@AvatarPreView.width - scaledWidth) / 2
-            right = left + scaledWidth
+            override fun getValue(thisRef: Any?, property: KProperty<*>): Rect {
+                val ratio = height.toFloat() / rectSourceImage.height()
+                val scaledWidth = (rectSourceImage.width() * ratio).toInt()
+
+                return rect.apply {
+                    top = 0
+                    bottom = this@AvatarPreView.height
+                    left = (this@AvatarPreView.width - scaledWidth) / 2
+                    right = left + scaledWidth
+                }
+            }
+
+            override fun setValue(thisRef: Any?, property: KProperty<*>, value: Rect) {}
         }
-    }
 
     /**
-     * Растянуть по всему экрану
+     * Делегат зависит от rectDest
      */
-    private fun scaleNoRatio(): Rect {
-        return Rect(0, 0, context.screenWidth, context.screenHeight)
-    }
+    private fun rectVisibleDelegate(): ReadWriteProperty<Any?, Rect> =
+        object : ReadWriteProperty<Any?, Rect> {
+
+            var rect = Rect()
+
+            override fun getValue(thisRef: Any?, property: KProperty<*>): Rect {
+                return rect.apply {
+                    top = 0
+                    bottom = this@AvatarPreView.height
+                    left =
+                        if (rectDest.left <= 0) 0 else rectDest.left
+                    right =
+                        if (rectDest.right >= this@AvatarPreView.width) this@AvatarPreView.width else rectDest.right
+                }
+            }
+
+            override fun setValue(thisRef: Any?, property: KProperty<*>, value: Rect) {}
+        }
+
+    /**
+     * Делегат зависит от rectVisible
+     */
+    private fun rectClipDelegate(): ReadWriteProperty<Any?, RectF> =
+        object : ReadWriteProperty<Any?, RectF> {
+
+            var rect = RectF()
+
+            override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
+
+                val isVertical = rectVisible.height() >= rectVisible.width()
+                val frameDimen = min(rectVisible.height(), rectVisible.width())
+
+                return rect.apply {
+                    top = if (isVertical) {
+                        (rectVisible.height() - frameDimen) / 2f
+                    } else {
+                        rectVisible.top.toFloat()
+                    }
+
+                    bottom = top + frameDimen
+
+                    left = if (isVertical) {
+                        rectVisible.left.toFloat()
+                    } else {
+                        (rectVisible.width() - frameDimen) / 2f
+                    }
+                    right = left + frameDimen
+                }
+            }
+
+            override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {}
+        }
 }
