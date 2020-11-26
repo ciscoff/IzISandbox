@@ -3,7 +3,9 @@ package s.yarlykov.izisandbox.matrix.avatar_maker
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
+import androidx.core.graphics.contains
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.utils.logIt
@@ -26,6 +28,8 @@ class AvatarPreView @JvmOverloads constructor(
      * Изменился размер View. Потребуется пересчет всех компонентов.
      */
     private var sizeChanged = false
+
+    private var clipChanged = false
 
     /**
      * Раидиус закругления рамки
@@ -65,7 +69,17 @@ class AvatarPreView @JvmOverloads constructor(
      */
     private val pathClip = Path()
 
+    /**
+     * @pathBorder для рамки "видоискателя"
+     */
     private val pathBorder = Path()
+
+    /**
+     * @offsetV - это дополнительный вертикальный offset учитывающий жест перетаскивания
+     * @offsetH - это дополнительный горизонтальный offset учитывающий жест перетаскивания
+     */
+    private var offsetV = 0f
+    private var offsetH = 0f
 
     /**
      * Цветовые фильтры поярче/потемнее.
@@ -96,6 +110,62 @@ class AvatarPreView @JvmOverloads constructor(
             BitmapFactory.decodeResource(context.resources, R.drawable.nature)?.also {
                 rectSourceImage = Rect(0, 0, it.width, it.height)
             }
+    }
+
+    private var lastX = 0f
+    private var lastY = 0f
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+
+        return when (event.action) {
+            // Вернуть true если палец внутри рамки
+            MotionEvent.ACTION_DOWN -> {
+                lastX = event.x
+                lastY = event.y
+                rectClip.contains(lastX, lastY)
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val dragX = event.x
+                val dragY = event.y
+
+                val dX = dragX - lastX
+                val dY = dragY - lastY
+
+                offsetV += dY
+                offsetH += dX
+
+                lastX = dragX
+                lastY = dragY
+
+                moveIfPossible()
+
+//                clipChanged = true
+//                invalidate()
+                true
+
+            }
+            MotionEvent.ACTION_UP -> {
+                true
+
+            }
+            else -> false
+        }
+    }
+
+    private fun moveIfPossible() {
+        val rectC = RectF(rectClip).apply { offset(0f, offsetV) }
+        val rectV = RectF(rectVisible)
+
+        val offBefore = offsetV
+
+        if(!rectV.contains(rectC)) {
+            offsetV += if(rectC.top < rectV.top) rectV.top - rectC.top else rectC.bottom - rectV.bottom
+        }
+
+        logIt("rectC=$rectC, rectV=$rectV, offsetV_before=$offBefore, offsetV_after=$offsetV contains=${rectV.contains(rectC)}", "PLPL")
+
+        clipChanged = true
+        invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -224,46 +294,58 @@ class AvatarPreView @JvmOverloads constructor(
             override fun setValue(thisRef: Any?, property: KProperty<*>, value: Rect) {}
         }
 
+
+    private var offsetMaxV = 0f
+
+
     /**
      * Делегат зависит от rectVisible
      */
     private fun rectClipDelegate(): ReadWriteProperty<Any?, RectF> =
         object : ReadWriteProperty<Any?, RectF> {
 
+            // Опорный Rect установленный по центру rectVisible
             var rect = RectF()
 
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
-                if (rect.isEmpty || sizeChanged) {
+                return when {
+                    rect.isEmpty || sizeChanged -> {
+                        val isVertical = rectVisible.height() >= rectVisible.width()
+                        val frameDimen = min(rectVisible.height(), rectVisible.width())
 
-                    val isVertical = rectVisible.height() >= rectVisible.width()
-                    val frameDimen = min(rectVisible.height(), rectVisible.width())
+                        rect.apply {
+                            top = if (isVertical) {
+                                (rectVisible.height() - frameDimen) / 2f
+                            } else {
+                                rectVisible.top.toFloat()
+                            }
 
-                    rect.apply {
-                        top = if (isVertical) {
-                            (rectVisible.height() - frameDimen) / 2f
-                        } else {
-                            rectVisible.top.toFloat()
+                            bottom = top + frameDimen
+
+                            left = if (isVertical) {
+                                rectVisible.left.toFloat()
+                            } else {
+                                (rectVisible.width() - frameDimen) / 2f
+                            }
+                            right = left + frameDimen
                         }
-
-                        bottom = top + frameDimen
-
-                        left = if (isVertical) {
-                            rectVisible.left.toFloat()
-                        } else {
-                            (rectVisible.width() - frameDimen) / 2f
-                        }
-                        right = left + frameDimen
                     }
+                    clipChanged -> {
+                        val rect2 = RectF(rect).apply { offset(0f, offsetV) }
+
+                        rect2
+                    }
+
+                    else -> rect
                 }
-                return rect
             }
 
             override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {}
         }
 
     /**
-     * Делегат зависит от rectVisible
+     * Делегат зависит от rectClip
      */
     private fun rectBorderDelegate(): ReadWriteProperty<Any?, RectF> =
         object : ReadWriteProperty<Any?, RectF> {
@@ -272,7 +354,7 @@ class AvatarPreView @JvmOverloads constructor(
 
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
-                if (rect.isEmpty || sizeChanged) {
+                if (rect.isEmpty || sizeChanged || clipChanged) {
 
                     rect.apply {
                         left = rectClip.left + borderWidth / 2f
@@ -281,6 +363,7 @@ class AvatarPreView @JvmOverloads constructor(
                         bottom = rectClip.bottom - borderWidth / 2f
                     }
                 }
+
                 return rect
             }
 
