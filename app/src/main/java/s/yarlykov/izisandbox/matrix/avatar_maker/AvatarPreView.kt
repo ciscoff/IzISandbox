@@ -5,11 +5,11 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import androidx.core.graphics.contains
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
-import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.abs
 import kotlin.math.min
+import kotlin.math.sign
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -25,14 +25,7 @@ class AvatarPreView @JvmOverloads constructor(
     private val borderWidth = dp_f(2f)
 
     /**
-     * Изменился размер View. Потребуется пересчет всех компонентов.
-     */
-    private var sizeChanged = false
-
-    private var clipChanged = false
-
-    /**
-     * Раидиус закругления рамки
+     * Раидиус закругления рамки видоискателя
      */
     private val cornerRadius = dp_f(2f)
 
@@ -44,15 +37,21 @@ class AvatarPreView @JvmOverloads constructor(
 
     /**
      * @rectDest прямоугольник (в координатах канвы) куда будем рисовать исходную Bitmap.
-     * Он может выходить краями за пределя экрана.
+     * Он может выходить краями за пределы экрана.
      */
-    private val rectDest: Rect by rectDestDelegate()
+    private val rectDest = Rect()
 
     /**
      * @rectVisible прямоугольник (в координатах канвы) определяющий видимую часть
-     * картинки. Все что не влезло в экран не учитвыается.
+     * картинки. Все что не влезло в экран не учитывается.
      */
-    private val rectVisible: Rect by rectVisibleDelegate()
+    private val rectVisible = Rect()
+
+    /**
+     * @rectPivot КВАДРАТ (в координатах канвы) выровненный по центру rectVisible.
+     * Сторона квадрата равна наименьшей из сторон rectVisible.
+     */
+    private val rectPivot = RectF()
 
     /**
      * @rectClip область (квадратная) для рисования рамки выбора части изображения под аватарку.
@@ -80,6 +79,15 @@ class AvatarPreView @JvmOverloads constructor(
      */
     private var offsetV = 0f
     private var offsetH = 0f
+
+    private var offsetMaxV = 0f
+    private var offsetMaxH = 0f
+
+    /**
+     * Отслеживаем движения пальца в жестах
+     */
+    private var lastX = 0f
+    private var lastY = 0f
 
     /**
      * Цветовые фильтры поярче/потемнее.
@@ -112,13 +120,10 @@ class AvatarPreView @JvmOverloads constructor(
             }
     }
 
-    private var lastX = 0f
-    private var lastY = 0f
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
-            // Вернуть true если палец внутри рамки
+            // Вернуть true, если палец внутри рамки.
             MotionEvent.ACTION_DOWN -> {
                 lastX = event.x
                 lastY = event.y
@@ -137,40 +142,19 @@ class AvatarPreView @JvmOverloads constructor(
                 lastX = dragX
                 lastY = dragY
 
-                moveIfPossible()
-
-//                clipChanged = true
-//                invalidate()
+                invalidate()
                 true
-
             }
             MotionEvent.ACTION_UP -> {
                 true
-
             }
             else -> false
         }
     }
 
-    private fun moveIfPossible() {
-        val rectC = RectF(rectClip).apply { offset(0f, offsetV) }
-        val rectV = RectF(rectVisible)
-
-        val offBefore = offsetV
-
-        if(!rectV.contains(rectC)) {
-            offsetV += if(rectC.top < rectV.top) rectV.top - rectC.top else rectC.bottom - rectV.bottom
-        }
-
-        logIt("rectC=$rectC, rectV=$rectV, offsetV_before=$offBefore, offsetV_after=$offsetV contains=${rectV.contains(rectC)}", "PLPL")
-
-        clipChanged = true
-        invalidate()
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        // Background
+        // 1. Background
         drawLayer1(canvas)
 
         sourceImageBitmap?.let {
@@ -181,19 +165,21 @@ class AvatarPreView @JvmOverloads constructor(
 
             canvas.save()
             canvas.clipPath(pathClip)
-            // Выделенная область
+            // 2. Выделенная область
             drawLayer2(canvas, it)
-            // Рамка вокруг выделенной области
+            // 3. Рамка вокруг выделенной области
             drawLayer3(canvas)
             canvas.restore()
-
-            sizeChanged = false
         }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        sizeChanged = true
+
+        rectDestUpdate()
+        rectVisibleUpdate()
+        rectPivotUpdate()
+        invalidate()
     }
 
     /**
@@ -239,105 +225,89 @@ class AvatarPreView @JvmOverloads constructor(
      * При любой ориентации "натягиваем" битмапу по высоте. При этом, часть битмапы
      * может оказаться за пределами боковых границ view. Но это фигня. Главное, что
      * нет искажений от растяжки/сжатия.
+     */
+    private fun rectDestUpdate() {
+
+        val ratio = height.toFloat() / rectSourceImage.height()
+        val scaledWidth = (rectSourceImage.width() * ratio).toInt()
+
+        rectDest.apply {
+            top = 0
+            bottom = this@AvatarPreView.height
+            left = ((this@AvatarPreView.width - scaledWidth) / 2f).toInt()
+            right = left + scaledWidth
+        }
+    }
+
+    /**
+     * Зависит от rectDest
+     */
+    private fun rectVisibleUpdate() {
+        rectVisible.apply {
+            top = 0
+            bottom = this@AvatarPreView.height
+            left =
+                if (rectDest.left <= 0) 0 else rectDest.left
+            right =
+                if (rectDest.right >= this@AvatarPreView.width) this@AvatarPreView.width else rectDest.right
+        }
+    }
+
+    /**
+     * Опорный квадрат от которого будем смещать rectClip/rectBorder
+     */
+    private fun rectPivotUpdate() {
+
+        val isVertical = rectVisible.height() >= rectVisible.width()
+        val frameDimen = min(rectVisible.height(), rectVisible.width())
+
+        rectPivot.apply {
+            top = if (isVertical) {
+                (rectVisible.height() - frameDimen) / 2f
+            } else {
+                rectVisible.top.toFloat()
+            }
+
+            bottom = top + frameDimen
+
+            left = if (isVertical) {
+                rectVisible.left.toFloat()
+            } else {
+                (rectVisible.width() - frameDimen) / 2f
+            }
+            right = left + frameDimen
+        }
+
+        offsetMaxV = rectVisible.bottom - rectPivot.bottom
+        offsetMaxH = rectVisible.right - rectPivot.right
+    }
+
+    /**
+     * Делегат зависит от rectPivot.
      *
-     * Делегат зависит от rectSourceImage
-     */
-    private fun rectDestDelegate(): ReadWriteProperty<Any?, Rect> =
-        object : ReadWriteProperty<Any?, Rect> {
-
-            var rect = Rect()
-
-            override fun getValue(thisRef: Any?, property: KProperty<*>): Rect {
-
-                if (rect.isEmpty || sizeChanged) {
-
-                    val ratio = height.toFloat() / rectSourceImage.height()
-                    val scaledWidth = (rectSourceImage.width() * ratio).toInt()
-
-                    rect.apply {
-                        top = 0
-                        bottom = this@AvatarPreView.height
-                        left = ((this@AvatarPreView.width - scaledWidth) / 2f).toInt()
-                        right = left + scaledWidth
-                    }
-                }
-                return rect
-            }
-
-            override fun setValue(thisRef: Any?, property: KProperty<*>, value: Rect) {}
-        }
-
-    /**
-     * Делегат зависит от rectDest
-     */
-    private fun rectVisibleDelegate(): ReadWriteProperty<Any?, Rect> =
-        object : ReadWriteProperty<Any?, Rect> {
-
-            var rect = Rect()
-
-            override fun getValue(thisRef: Any?, property: KProperty<*>): Rect {
-
-                if (rect.isEmpty || sizeChanged) {
-                    rect.apply {
-                        top = 0
-                        bottom = this@AvatarPreView.height
-                        left =
-                            if (rectDest.left <= 0) 0 else rectDest.left
-                        right =
-                            if (rectDest.right >= this@AvatarPreView.width) this@AvatarPreView.width else rectDest.right
-                    }
-                }
-
-                return rect
-            }
-
-            override fun setValue(thisRef: Any?, property: KProperty<*>, value: Rect) {}
-        }
-
-
-    private var offsetMaxV = 0f
-
-
-    /**
-     * Делегат зависит от rectVisible
+     * После каждого события MotionEvent.ACTION_MOVE нужно спозиционировать rectClip. Для этого
+     * сначала возвращаем его в исходное состояние (не позицию rectPivot), а потом с этой позиции
+     * делаем offset на offsetV/offsetH предварительно проверяя крайние условия и внося
+     * корректировки в offsetV/offsetH, чтобы не вылезать за края.
      */
     private fun rectClipDelegate(): ReadWriteProperty<Any?, RectF> =
         object : ReadWriteProperty<Any?, RectF> {
 
-            // Опорный Rect установленный по центру rectVisible
             var rect = RectF()
 
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
+                return rect.apply {
+                    set(rectPivot)
 
-                return when {
-                    rect.isEmpty || sizeChanged -> {
-                        val isVertical = rectVisible.height() >= rectVisible.width()
-                        val frameDimen = min(rectVisible.height(), rectVisible.width())
-
-                        rect.apply {
-                            top = if (isVertical) {
-                                (rectVisible.height() - frameDimen) / 2f
-                            } else {
-                                rectVisible.top.toFloat()
-                            }
-
-                            bottom = top + frameDimen
-
-                            left = if (isVertical) {
-                                rectVisible.left.toFloat()
-                            } else {
-                                (rectVisible.width() - frameDimen) / 2f
-                            }
-                            right = left + frameDimen
-                        }
-                    }
-                    clipChanged -> {
-                        val rect2 = RectF(rect).apply { offset(0f, offsetV) }
-
-                        rect2
+                    if(abs(offsetV) > offsetMaxV) {
+                        offsetV = offsetMaxV * sign(offsetV)
                     }
 
-                    else -> rect
+                    if(abs(offsetH) > offsetMaxH) {
+                        offsetH = offsetMaxH * sign(offsetH)
+                    }
+
+                    offset(offsetH, offsetV)
                 }
             }
 
@@ -354,14 +324,11 @@ class AvatarPreView @JvmOverloads constructor(
 
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
-                if (rect.isEmpty || sizeChanged || clipChanged) {
-
-                    rect.apply {
-                        left = rectClip.left + borderWidth / 2f
-                        top = rectClip.top + borderWidth / 2f
-                        right = rectClip.right - borderWidth / 2f
-                        bottom = rectClip.bottom - borderWidth / 2f
-                    }
+                rect.apply {
+                    left = rectClip.left + borderWidth / 2f
+                    top = rectClip.top + borderWidth / 2f
+                    right = rectClip.right - borderWidth / 2f
+                    bottom = rectClip.bottom - borderWidth / 2f
                 }
 
                 return rect
