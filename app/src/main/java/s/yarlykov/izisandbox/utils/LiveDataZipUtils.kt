@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.Utils
+package s.yarlykov.izisandbox.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData

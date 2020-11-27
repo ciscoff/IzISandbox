@@ -2,7 +2,6 @@ package s.yarlykov.izisandbox.places
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.EditText
 import com.google.android.gms.common.api.Status
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -10,7 +9,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import kotlinx.android.synthetic.main.activity_places_auto_complete.*
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 
 class PlacesAutoCompleteActivity : AppCompatActivity() {
 

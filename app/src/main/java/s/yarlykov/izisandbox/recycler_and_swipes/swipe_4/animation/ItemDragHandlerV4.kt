@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 import s.yarlykov.izisandbox.extensions.animateBack
 import s.yarlykov.izisandbox.extensions.findRecyclerViewParent
 import s.yarlykov.izisandbox.extensions.viewHierarchyActivationLoop

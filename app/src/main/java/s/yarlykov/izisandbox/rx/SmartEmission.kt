@@ -1,10 +1,7 @@
 package s.yarlykov.izisandbox.rx
 
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
-import io.reactivex.schedulers.Schedulers
-import s.yarlykov.izisandbox.Utils.logIt
 import java.util.concurrent.TimeUnit
 
 

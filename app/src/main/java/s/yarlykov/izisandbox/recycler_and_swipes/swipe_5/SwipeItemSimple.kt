@@ -13,7 +13,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.google.android.material.card.MaterialCardView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 
 private const val TAG_SWIPE = "TAG_SWIPE"

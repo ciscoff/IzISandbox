@@ -6,7 +6,6 @@ import android.view.View
 import com.google.android.material.bottomappbar.BottomAppBar
 import kotlinx.android.synthetic.main.activity_custom_bottom_app_bar.*
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
 import kotlin.properties.Delegates
 
 class CustomBottomAppBarActivity : AppCompatActivity(), View.OnClickListener {

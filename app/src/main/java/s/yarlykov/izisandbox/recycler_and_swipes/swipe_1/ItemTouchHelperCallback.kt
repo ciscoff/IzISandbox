@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 import s.yarlykov.izisandbox.extensions.dimensionPix
 
 /**

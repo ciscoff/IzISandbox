@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.Utils
+package s.yarlykov.izisandbox.utils
 
 import android.util.Log
 import com.google.gson.Gson

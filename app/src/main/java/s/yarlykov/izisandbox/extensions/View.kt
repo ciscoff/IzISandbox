@@ -17,11 +17,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.animation.ItemDragHandl
 fun View.showSnackBarNotification(message: String, callback: Snackbar.Callback? = null) {
     Snackbar.make(this, message, Snackbar.LENGTH_LONG).apply {
         setActionTextColor(ContextCompat.getColor(view.context, R.color.colorAccent))
-
-        callback?.let { block ->
-            addCallback(block)
-        }
-
+        callback?.let { block -> addCallback(block) }
     }.show()
 }
 
@@ -31,6 +27,31 @@ val View.globLeft: Int
         this.getGlobalVisibleRect(rect)
         return rect.left
     }
+
+fun View.showResultNotification(
+    message: String,
+    isSuccess: Boolean,
+    callback: Snackbar.Callback? = null
+) {
+
+    val bgColorId = if (isSuccess) R.color.colorAccent else R.color.colorDecor2
+
+    Snackbar.make(this, message, Snackbar.LENGTH_SHORT).apply {
+        view.setBackgroundColor(ContextCompat.getColor(context, bgColorId))
+
+        callback?.let { block ->
+            addCallback(block)
+        }
+    }.show()
+}
+
+fun View.showResultNotification(
+    messageId: Int,
+    isSuccess: Boolean,
+    callback: Snackbar.Callback? = null
+) {
+    showResultNotification(context.getString(messageId), isSuccess, callback)
+}
 
 /**
  * Рекурсивный обход иерархии View

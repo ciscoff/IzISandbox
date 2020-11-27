@@ -57,6 +57,7 @@
     <string name="menu_matrix_reflect_image" translatable="false">Reflect Image</string>
     <string name="menu_matrix_transform_image" translatable="false">Transform with matrix</string>
     <string name="menu_places_auto_complete" translatable="false">Places AutoComplete</string>
+    <string name="menu_funny_avatar" translatable="false">Create Avatar</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
@@ -189,6 +190,7 @@
     <string name="simple_id" translatable="false">"SyBMIFWgp5cD2C_CVDrYX8PBEcscu"</string>
 
     <string name="colon" translatable="false">:</string>
+    <string name="camera_access_issue" translatable="false">Camera access issue</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>

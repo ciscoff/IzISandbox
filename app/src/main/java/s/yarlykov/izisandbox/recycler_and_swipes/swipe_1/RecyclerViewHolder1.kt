@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 
 class RecyclerViewHolder1 (private val listItem: View) : RecyclerView.ViewHolder(listItem) {
 

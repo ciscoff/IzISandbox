@@ -6,7 +6,7 @@ import android.graphics.Rect
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 import s.yarlykov.izisandbox.recycler_and_swipes.helpers.LocalAnimatorListener
 import kotlin.math.abs
 

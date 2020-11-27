@@ -14,7 +14,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.Utils.logIt
+import s.yarlykov.izisandbox.utils.logIt
 import s.yarlykov.izisandbox.dsl.extenstions.*
 import s.yarlykov.izisandbox.dsl.frameLayout
 import s.yarlykov.izisandbox.dsl.frameLayoutParams
