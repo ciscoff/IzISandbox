@@ -19,7 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".matrix.avatar_maker.EditorAvatarActivity"></activity>
+        <activity android:name=".matrix.surface.SurfaceDrawingActivity"></activity>
+        <activity android:name=".matrix.avatar_maker.EditorAvatarActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
