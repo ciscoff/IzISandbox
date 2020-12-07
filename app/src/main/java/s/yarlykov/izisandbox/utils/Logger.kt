@@ -3,9 +3,14 @@ package s.yarlykov.izisandbox.utils
 import android.util.Log
 import com.google.gson.Gson
 
+fun logIt(message: String, stamp: Boolean = false, tag: String = "APP_TAG") {
 
-fun logIt(message : String, tag : String = "APP_TAG") {
-    Log.e(tag, message)
+    val sz = if (stamp) {
+        message + ", time=${System.currentTimeMillis().toString(16).takeLast(4)}"
+    } else message
+
+
+    Log.d(tag, sz)
 }
 
 fun logJson(obj : Any, message : String = "") {

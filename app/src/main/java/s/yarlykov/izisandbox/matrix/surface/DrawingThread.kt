@@ -1,10 +1,7 @@
 package s.yarlykov.izisandbox.matrix.surface
 
-import android.view.SurfaceView
-
 class DrawingThread(
-    private val view : SurfaceView,
-    private val monitor: Monitor
+    private val view : CustomSurfaceView
 ) : Thread() {
 
     private var isRunning = false
@@ -22,7 +19,9 @@ class DrawingThread(
 
         while (isRunning) {
 
-            val point = monitor.center
+            if(view.holder.surface.isValid) {
+//                view.render()
+            }
         }
 
     }
