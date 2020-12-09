@@ -16,8 +16,7 @@ import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.matrix.avatar_maker.EditorAvatarActivity
-import s.yarlykov.izisandbox.matrix.avatar_maker.FunnyAvatarActivity
-import s.yarlykov.izisandbox.matrix.surface.SurfaceDrawingActivity
+import s.yarlykov.izisandbox.matrix.surface.v02.SmoothDraggingActivity
 import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
 import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
@@ -52,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        SurfaceDrawingActivity::class.java to R.string.menu_surface_edu_activity,
+        SmoothDraggingActivity::class.java to R.string.menu_surface_edu_activity,
         IziLoginActivity::class.java to R.string.menu_izi_login,
         TimeLineActivityEdu::class.java to R.string.menu_time_line_edu,
         TimeLineActivityPro::class.java to R.string.menu_time_line_pro,

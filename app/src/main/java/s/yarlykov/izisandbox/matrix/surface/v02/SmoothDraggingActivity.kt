@@ -1,17 +1,17 @@
-package s.yarlykov.izisandbox.matrix.surface
+package s.yarlykov.izisandbox.matrix.surface.v02
 
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_surface_drawing.*
+import kotlinx.android.synthetic.main.activity_smooth_dragging.*
+
 import s.yarlykov.izisandbox.R
 
-class SurfaceDrawingActivity : AppCompatActivity() {
-
+class SmoothDraggingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.activity_surface_drawing)
+        setContentView(R.layout.activity_smooth_dragging)
     }
 
     override fun onResume() {

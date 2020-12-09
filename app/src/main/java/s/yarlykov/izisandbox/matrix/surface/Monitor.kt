@@ -44,4 +44,9 @@ class Monitor {
                 lock.notify()
             }
         }
+
+    fun wakeUpSleeping() {
+        isValueSet = !isValueSet
+        lock.notify()
+    }
 }
