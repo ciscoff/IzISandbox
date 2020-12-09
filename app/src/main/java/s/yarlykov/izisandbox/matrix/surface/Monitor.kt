@@ -12,66 +12,36 @@ class Monitor {
     private var isValueSet = false
     private val lock = Object()
 
-    private val point = PointF(0f, 0f)
-
-    fun getPoint() : PointF {
-        synchronized(lock) {
-
-            while (!isValueSet) {
-                try {
-                    lock.wait()
-                } catch (e: InterruptedException) {
-                    logIt("InterruptedException caught")
+    var point: PointF = PointF()
+        get() {
+            synchronized(lock) {
+                // Пока не положили новое значение - ждем
+                while (!isValueSet) {
+                    try {
+                        lock.wait()
+                    } catch (e: InterruptedException) {
+                        logIt("InterruptedException caught")
+                    }
                 }
+                isValueSet = false
+                lock.notify()
+                return field
             }
-            logIt("Monitor::getPoint OK, point=$point", true, "PLPL")
-            isValueSet = false
-            lock.notify()
-            return point
         }
-    }
-
-    fun setPoint(p : PointF) {
-        synchronized(lock) {
-            while (isValueSet) {
-                try {
-                    lock.wait()
-                } catch (e: InterruptedException) {
-                    logIt("InterruptedException caught")
+        set(value) {
+            synchronized(lock) {
+                // Пока не забрали предыдущее значение - ждем
+                while (isValueSet) {
+                    try {
+                        lock.wait()
+                    } catch (e: InterruptedException) {
+                        logIt("InterruptedException caught")
+                    }
                 }
+                field.x = value.x
+                field.y = value.y
+                isValueSet = true
+                lock.notify()
             }
-            logIt("Monitor::setPoint OK", true, "PLPL")
-            point.x = p.x
-            point.y = p.y
-            isValueSet = true
         }
-    }
-
-//    var center: PointF = PointF()
-//        get() = synchronized(lock) {
-//
-//            while (!isValueSet) {
-//                try {
-//                    lock.wait()
-//                } catch (e: InterruptedException) {
-//                    logIt("InterruptedException caught")
-//                }
-//            }
-//            isValueSet = false
-//            lock.notify()
-//            return@synchronized field
-//        }
-//        set(value) = synchronized(lock) {
-//
-//            while (isValueSet) {
-//                try {
-//                    lock.wait()
-//                } catch (e: InterruptedException) {
-//                    logIt("InterruptedException caught")
-//                }
-//            }
-//            field = value
-//            isValueSet = true
-//            return@synchronized
-//        }
 }

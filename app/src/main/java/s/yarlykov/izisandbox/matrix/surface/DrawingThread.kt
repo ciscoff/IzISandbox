@@ -1,8 +1,6 @@
 package s.yarlykov.izisandbox.matrix.surface
 
-class DrawingThread(
-    private val view : CustomSurfaceView
-) : Thread() {
+class DrawingThread(private val monitor: Monitor, private val renderer: Renderer) : Thread() {
 
     private var isRunning = false
 
@@ -16,13 +14,8 @@ class DrawingThread(
     }
 
     override fun run() {
-
         while (isRunning) {
-
-            if(view.holder.surface.isValid) {
-//                view.render()
-            }
+            renderer.render(monitor.point)
         }
-
     }
 }

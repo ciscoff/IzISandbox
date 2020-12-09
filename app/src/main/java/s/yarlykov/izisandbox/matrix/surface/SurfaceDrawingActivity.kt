@@ -1,10 +1,8 @@
 package s.yarlykov.izisandbox.matrix.surface
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.Window
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_surface_drawing.*
 import s.yarlykov.izisandbox.R
 
