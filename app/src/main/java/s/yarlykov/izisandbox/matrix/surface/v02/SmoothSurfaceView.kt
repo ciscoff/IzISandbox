@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.surface.v02
 
+import android.animation.ArgbEvaluator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -17,6 +18,11 @@ class SmoothSurfaceView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : SurfaceView(context, attrs, defStyleAttr), SurfaceHolder.Callback, Renderer {
 
+    companion object {
+        const val CONTOUR_WIDTH = 2f
+        const val CORNER_RADIUS = 10f
+    }
+
     private var surfaceHeight = 0f
     private var surfaceWidth = 0f
 
@@ -29,15 +35,53 @@ class SmoothSurfaceView @JvmOverloads constructor(
     private var cacheCanvas: Canvas? = null
 
     private val identityMatrix = Matrix()
+    private val square = RectF()
 
+    /**
+     * При работе с этим классом показалось, что плавность движения "заикается"
+     */
+    private val colorGenerator = ArgbEvaluator()
 
     /**
      * Paint (color Red)
      */
-    private val paintCircle: Paint = Paint().apply {
+    private val paintRed255: Paint = Paint().apply {
         color = Color.argb(0xff, 0xff, 0x00, 0x0)
         style = Paint.Style.FILL
         isAntiAlias = true
+    }
+
+    /**
+     * Red бледнее
+     */
+    private val paintRed121: Paint = Paint().apply {
+        color = Color.argb(0xff, 0xff, 0x79, 0x79)
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        isAntiAlias = true
+        strokeWidth = CONTOUR_WIDTH
+    }
+
+    /**
+     * Red совсем бледный. Светло светло розовый.
+     */
+    private val paintRed215: Paint = Paint().apply {
+        color = Color.argb(0xff, 0xff, 0xd7, 0xd7)
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        isAntiAlias = true
+        strokeWidth = CONTOUR_WIDTH
+    }
+
+    /**
+     * Paint (color Blue)
+     */
+    private val paintSquare: Paint = Paint().apply {
+        color = Color.argb(0xff, 0x00, 0x00, 0xff)
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        isAntiAlias = true
+        strokeWidth = 2f
     }
 
     init {
@@ -58,7 +102,7 @@ class SmoothSurfaceView @JvmOverloads constructor(
                 join()
             }
         } catch (e: InterruptedException) {
-            logIt("pause() InterruptedException caught", true)
+            logIt("InterruptedException caught", true)
         }
     }
 
@@ -77,15 +121,17 @@ class SmoothSurfaceView @JvmOverloads constructor(
         return true
     }
 
-
     override fun render(point: PointF) {
+
         if (holder.surface.isValid) {
 
             holder.lockCanvas()?.let { canvas ->
                 try {
                     cacheCanvas?.let { c ->
                         c.drawColor(Color.WHITE)
-                        c.drawCircle(point.x, point.y, radius, paintCircle)
+                        drawSpot(point, c, paintRed255)
+                        drawCircle(point, radius + CONTOUR_WIDTH * 0.5f, c, paintRed121)
+                        drawCircle(point, radius + CONTOUR_WIDTH * 1.5f, c, paintRed215)
                         canvas.drawBitmap(cacheBitmap!!, identityMatrix, null)
                     }
 
@@ -95,6 +141,33 @@ class SmoothSurfaceView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    /**
+     * fraction = 0f, получим Color.RED
+     * fraction = 1f, получим Color.WHITE
+     */
+    private fun tintRed(fraction : Float) : Int {
+        return colorGenerator.evaluate(fraction, Color.RED, Color.WHITE) as Int
+    }
+
+    private fun drawSpot(point: PointF, canvas: Canvas, paint : Paint) {
+        canvas.drawCircle(point.x, point.y, radius, paint)
+    }
+
+    private fun drawCircle(point: PointF, radius : Float, canvas: Canvas, paint : Paint) {
+        canvas.drawCircle(point.x, point.y, radius, paint)
+    }
+
+    private fun drawSquare(point: PointF, canvas: Canvas) {
+        square.apply {
+            left = point.x - radius
+            right = point.x + radius
+            top = point.y - radius
+            bottom = point.y + radius
+        }
+
+        canvas.drawRoundRect(square, CORNER_RADIUS, CORNER_RADIUS, paintSquare)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {

@@ -5,23 +5,32 @@ import s.yarlykov.izisandbox.matrix.surface.Monitor
 import s.yarlykov.izisandbox.matrix.surface.Renderer
 import s.yarlykov.izisandbox.utils.logIt
 
+/**
+ * Итак, точки предоставляет UI, который "снимает показания" тачей каждые 16.67ms (60 fps). Эту
+ * периодичность обеспечивает Choreographer.
+ *
+ * Наш поток получает точки через Monitor и генерит команды для рисования окружности. Далее эти
+ * команды уходят на SurfaceFlinger и тот ретранслирует их далее. Положительный момент использования
+ * отдельного потока для рисования в том, что он не привязан к UI и может выполнять долгую работу
+ * по подготовке рисунка. После окончания этой работы - отправлять результат в SurfaceFlinger.
+ *
+ * Точно также он может очень быстро формировать новые кадры и кидать их в SurfaceFlinger, ОДНАКО
+ * это не значит, что эти кадры будут также быстро отрисовываться на экране !!! Кадры отрисовываются
+ * на той же скокрости 60 fps, которую обеспечивает VSYNC и не более того.
+ *
+ * Поэтому мое первое решение разбивать расстояние между двумя последовательными точками тача
+ * на несколько мелких отрезков и последовательно их отрисовывать - ошибочно.
+ */
+
 class SmoothDrawingThread(private val monitor: Monitor, private val renderer: Renderer) : Thread() {
 
-    companion object {
-        const val REDRAW_INTERVAL = 1L
-        const val DRAW_STEPS = 4
-    }
-
     private var isRunning = false
-    private var lastPoint = PointF()
-    private val pathPoints = Array(DRAW_STEPS) { PointF() }
 
-    private var lastPointTime = 0L
-
-    private val analyzer = DragAnalyzer()
+    private var prevPointTime = 0L
+    private var prevPoint = PointF()
 
     private val currentTime: Long
-        get() = System.nanoTime() / 1_000
+        get() = System.currentTimeMillis()
 
     fun startThread() {
         isRunning = true
@@ -34,77 +43,21 @@ class SmoothDrawingThread(private val monitor: Monitor, private val renderer: Re
 
     override fun run() {
 
-        lastPointTime = currentTime
+        // DEBUG (ловим VSYNC)
+        prevPointTime = currentTime
 
         while (isRunning) {
 
-            val point = monitor.point
+            // В этот момент поток должен засыпать до следующего VSYNC
+            val nextPoint = monitor.point
 
-            if (point.x == lastPoint.x && point.y == lastPoint.y) continue
+            // DEBUG (ловим VSYNC)
+            logIt("Thread got the point:$nextPoint. Time between points: ${currentTime - prevPointTime} ms")
+            prevPointTime = currentTime
 
-            renderLoop(analyzer.analyze(lastPoint, point, currentTime - lastPointTime))
+            if (nextPoint.x == prevPoint.x && nextPoint.y == prevPoint.y) continue
 
-            lastPointTime = currentTime
-            lastPoint.x = point.x
-            lastPoint.y = point.y
-
-//            fillPath(point)
-//            renderLoop()
+            renderer.render(nextPoint)
         }
-    }
-
-    private fun fillPath(point: PointF) {
-        logIt(
-            "fillPath:start point: ${point.x}, ${point.y}, lastPoint: ${lastPoint.x}, ${lastPoint.y}, offsets: x=${point.x - lastPoint.x}, y=${point.y - lastPoint.y}",
-            false,
-            "PLPL"
-        )
-
-        val stepX = (point.x - lastPoint.x) / pathPoints.size
-        val stepY = (point.y - lastPoint.y) / pathPoints.size
-
-        (0..pathPoints.lastIndex).forEach { i ->
-            pathPoints[i].x = lastPoint.x + stepX * (i + 1)
-            pathPoints[i].y = lastPoint.y + stepY * (i + 1)
-            logIt("pathPoints[$i]=${pathPoints[i]}", true, "PLPL")
-        }
-
-        lastPoint.x = point.x
-        lastPoint.y = point.y
-        logIt(
-            "fillPath:end point: ${point.x}, ${point.y}, lastPoint: ${lastPoint.x}, ${lastPoint.y}",
-            false,
-            "PLPL"
-        )
-    }
-
-    private fun renderLoop() {
-        (0..pathPoints.lastIndex).forEach { i ->
-
-            val prevRenderTime = currentTime
-            var isContinue: Boolean
-
-            do {
-                isContinue = (currentTime - prevRenderTime) < REDRAW_INTERVAL
-            } while (isContinue)
-
-            renderer.render(pathPoints[i])
-        }
-    }
-
-    private fun renderLoop(roadBook: RoadBook) {
-
-        (0..roadBook.points.lastIndex).forEach { i ->
-
-            val prevRenderTime = currentTime
-            var isContinue: Boolean
-
-            do {
-                isContinue = (currentTime - prevRenderTime) < roadBook.redrawInterval
-            } while (isContinue)
-
-            renderer.render(roadBook.points[i])
-        }
-
     }
 }
