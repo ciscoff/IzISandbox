@@ -138,8 +138,6 @@ class SwipeItemSimple @JvmOverloads constructor(
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
 
-        logIt("$dbgPrefix", TAG_SWIPE)
-
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 onTouchBegin(cardView, event)
@@ -201,16 +199,11 @@ class SwipeItemSimple @JvmOverloads constructor(
     override fun performClick(): Boolean {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
-        logIt("$dbgPrefix", TAG_SWIPE)
-
         return super.performClick()
     }
 
     override fun onClick(v: View?) {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
-
-        logIt("$dbgPrefix", TAG_SWIPE)
-
     }
 }

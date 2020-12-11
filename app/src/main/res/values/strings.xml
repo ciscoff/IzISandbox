@@ -58,6 +58,7 @@
     <string name="menu_matrix_transform_image" translatable="false">Transform with matrix</string>
     <string name="menu_places_auto_complete" translatable="false">Places AutoComplete</string>
     <string name="menu_funny_avatar" translatable="false">Create Avatar</string>
+    <string name="menu_surface_edu_activity" translatable="false">Drawing On Surface</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>

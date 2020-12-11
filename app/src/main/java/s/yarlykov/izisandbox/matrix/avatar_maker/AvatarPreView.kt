@@ -7,6 +7,8 @@ import android.view.MotionEvent
 import android.view.View
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
+import s.yarlykov.izisandbox.extensions.scale
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign
@@ -18,6 +20,16 @@ class AvatarPreView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    /**
+     * Квадратные области для масштабирования рамки видоискателя
+     */
+    private val tapSquares = mapOf(
+        lt to RectF(),
+        rt to RectF(),
+        rb to RectF(),
+        lb to RectF()
+    )
 
     /**
      * Ширина линии рамки
@@ -152,6 +164,9 @@ class AvatarPreView @JvmOverloads constructor(
         }
     }
 
+    // DEBUG
+    private val paintTemp = Paint(Color.WHITE).apply { style = Paint.Style.FILL }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         // 1. Background
@@ -171,6 +186,11 @@ class AvatarPreView @JvmOverloads constructor(
             drawLayer3(canvas)
             canvas.restore()
         }
+
+        // DEBUG
+        tapSquares.values.forEach {
+            canvas.drawRect(it, paintTemp)
+        }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -179,6 +199,7 @@ class AvatarPreView @JvmOverloads constructor(
         rectDestUpdate()
         rectVisibleUpdate()
         rectPivotUpdate()
+        tapSquaresUpdate()
         invalidate()
     }
 
@@ -283,6 +304,44 @@ class AvatarPreView @JvmOverloads constructor(
     }
 
     /**
+     * Области для масштабирования рамки
+     */
+    private fun tapSquaresUpdate() {
+
+        val ratio = 0.25f
+        val square = RectF(rectPivot).apply { scale(ratio, ratio) }
+
+        tapSquares.entries.forEach { e ->
+            when (e.key) {
+                lt -> {
+                    e.value.set(square)
+                }
+                rb -> {
+                    e.value.apply {
+                        set(square)
+                        offset(
+                            rectPivot.width() - square.width(),
+                            rectPivot.height() - square.height()
+                        )
+                    }
+                }
+                rt -> {
+                    e.value.apply {
+                        set(square)
+                        offset(rectPivot.width() - square.width(), 0f)
+                    }
+                }
+                lb -> {
+                    e.value.apply {
+                        set(square)
+                        offset(0f, rectPivot.height() - square.height())
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Делегат зависит от rectPivot.
      *
      * После каждого события MotionEvent.ACTION_MOVE нужно спозиционировать rectClip. Для этого
@@ -299,11 +358,11 @@ class AvatarPreView @JvmOverloads constructor(
                 return rect.apply {
                     set(rectPivot)
 
-                    if(abs(offsetV) > offsetMaxV) {
+                    if (abs(offsetV) > offsetMaxV) {
                         offsetV = offsetMaxV * sign(offsetV)
                     }
 
-                    if(abs(offsetH) > offsetMaxH) {
+                    if (abs(offsetH) > offsetMaxH) {
                         offsetH = offsetMaxH * sign(offsetH)
                     }
 

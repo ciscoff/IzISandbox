@@ -14,13 +14,13 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.utils.logIt
 import s.yarlykov.izisandbox.dsl.extenstions.*
 import s.yarlykov.izisandbox.dsl.frameLayout
 import s.yarlykov.izisandbox.dsl.frameLayoutParams
 import s.yarlykov.izisandbox.dsl.textView
 import s.yarlykov.izisandbox.extensions.findMostSuitable
 import s.yarlykov.izisandbox.extensions.showSnackBarNotification
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -604,8 +604,6 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
     override fun onClick(v: View) {
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
-
-        logIt("$dbgPrefix on ${v::class.java.simpleName}", TAG_SWIPE)
     }
 
     /**
@@ -627,15 +625,12 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
-                logIt("$dbgPrefix ACTION_DOWN", TAG_SWIPE)
                 false
             }
             MotionEvent.ACTION_MOVE -> {
-                logIt("$dbgPrefix ACTION_MOVE", TAG_SWIPE)
                 false
             }
             MotionEvent.ACTION_UP -> {
-                logIt("$dbgPrefix ACTION_UP", TAG_SWIPE)
                 false
             }
             else -> {
@@ -651,9 +646,9 @@ class SwipeItemSmartV2 : FrameLayout, View.OnTouchListener, View.OnClickListener
         val dbgPrefix =
             "${this::class.java.simpleName}::${object {}.javaClass.enclosingMethod?.name}"
         when (event.action) {
-            MotionEvent.ACTION_DOWN -> logIt("$dbgPrefix ACTION_DOWN", TAG_SWIPE)
-            MotionEvent.ACTION_MOVE -> logIt("$dbgPrefix ACTION_MOVE", TAG_SWIPE)
-            MotionEvent.ACTION_UP -> logIt("$dbgPrefix ACTION_UP", TAG_SWIPE)
+            MotionEvent.ACTION_DOWN -> logIt("$dbgPrefix ACTION_DOWN", false, TAG_SWIPE)
+            MotionEvent.ACTION_MOVE -> logIt("$dbgPrefix ACTION_MOVE", false, TAG_SWIPE)
+            MotionEvent.ACTION_UP -> logIt("$dbgPrefix ACTION_UP", false, TAG_SWIPE)
         }
 
         return super.onTouchEvent(event)

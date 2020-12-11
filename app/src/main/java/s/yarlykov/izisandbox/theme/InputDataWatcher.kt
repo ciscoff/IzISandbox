@@ -32,12 +32,9 @@ class InputDataWatcher(
     private val viewParent = view.findParent()
 
     override fun afterTextChanged(s: Editable?) {
-        logIt("afterTextChanged: ${s.toString()}", "PLPLPL")
         val csl = if (s.toString().isNotEmpty()) {
-            logIt("afterTextChanged: with text", "PLPLPL")
             cslWithText
         } else {
-            logIt("afterTextChanged: no text", "PLPLPL")
             cslNoText
         }
         viewParent?.setBoxStrokeColorStateList(csl)
@@ -45,10 +42,8 @@ class InputDataWatcher(
     }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        logIt("beforeTextChanged: ${s.toString()}", "PLPLPL")
     }
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        logIt("onTextChanged: ${s.toString()}", "PLPLPL")
     }
 }
