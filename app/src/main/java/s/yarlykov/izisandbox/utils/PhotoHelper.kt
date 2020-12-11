@@ -65,7 +65,7 @@ object PhotoHelper {
                 }
 
             originalBitmap
-                ?.halve()
+                ?.reduce()
                 ?.cropCenter()
                 ?.rotate(cameraOrientation)
                 ?.writeToStorage(dest) ?: false
@@ -98,13 +98,13 @@ object PhotoHelper {
     }
 
     /**
-     * Уменьшенная вдвое Bitmap
+     * Bitmap уменьшенная в ratio раз.
      */
-    private fun Bitmap.halve(): Bitmap =
+    fun Bitmap.reduce(ratio : Int = 2): Bitmap =
         if (height > width) {
-            scaleToFitHeight(height / 2)
+            scaleToFitHeight(height / ratio)
         } else {
-            scaleToFitWidth(width / 2)
+            scaleToFitWidth(width / ratio)
         }
 
     private fun Bitmap.scaleToFitWidth(w: Int): Bitmap {
