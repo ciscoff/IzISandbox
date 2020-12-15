@@ -1,11 +1,10 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker_v1
 
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
-import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
 import kotlin.math.abs
@@ -39,7 +38,24 @@ import kotlin.reflect.KProperty
 //  |_________________|
 //
 
-class AvatarFrontView @JvmOverloads constructor(
+/**
+ * Видимо понадобятся:
+ * ScaleGestureDetector.OnScaleGestureListener
+ * GestureDetector.OnGestureListener
+ *
+ * И вообще видимо придется переделать под
+ * https://alexmeuer.com/blog/android-highlighting-parts-of-an-imageview
+ * (доп материалы https://startandroid.ru/ru/uroki/vse-uroki-spiskom/325-urok-147-risovanie-region.html)
+ *
+ * Здесь идея в том, что снизу лежит обычная, незатемненная картинка. Слоем выше устанавливается
+ * кастомный BitmapDrawable такого же размера и в его onDraw два действия:
+ *  - установить clip, который охватывает не внутреннюю часть видоискателя, а внешнюю. И залить
+ *  её каким-то полупрозрачным цветом для создания затенения. При этом внутри прямоугольника
+ *  картинка останется светлой.
+ *  - затем можно изменить режит clip'а и нарисовать рамку уже по границам прямоугольника.
+ */
+
+class AvatarFrontViewV2 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -167,11 +183,17 @@ class AvatarFrontView @JvmOverloads constructor(
             }.close()
 
             canvas.save()
-            canvas.clipPath(pathClip)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                canvas.clipOutPath(pathClip)
+            } else {
+                canvas.clipPath(pathClip, Region.Op.DIFFERENCE);
+            }
+
             // 1. Выделенная область
             drawLayer2(canvas, it)
             // 2. Рамка вокруг выделенной области
-            drawLayer3(canvas)
+//            drawLayer3(canvas)
             canvas.restore()
         }
 

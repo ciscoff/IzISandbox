@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker_v1
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer

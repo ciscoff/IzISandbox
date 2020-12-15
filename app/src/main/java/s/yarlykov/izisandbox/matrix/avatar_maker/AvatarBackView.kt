@@ -1,8 +1,10 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker_v1
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.time_line.domain.SeverityMode
 
 class AvatarBackView @JvmOverloads constructor(
     context: Context,
@@ -13,7 +15,7 @@ class AvatarBackView @JvmOverloads constructor(
     /**
      * Paint для заливки фона исходной Bitmap'ой с применением цветового фильтра.
      */
-    private val paintBackground = Paint(Color.GRAY).apply { colorFilter = colorFilterDarken }
+    private var paintBackground : Paint? = null
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -24,5 +26,9 @@ class AvatarBackView @JvmOverloads constructor(
         sourceImageBitmap?.let {
             canvas.drawBitmap(it, rectSourceImage, rectDest, paintBackground)
         }
+    }
+
+    fun setDarkPaint() {
+        paintBackground = Paint(Color.GRAY).apply { colorFilter = colorFilterDarken }
     }
 }
