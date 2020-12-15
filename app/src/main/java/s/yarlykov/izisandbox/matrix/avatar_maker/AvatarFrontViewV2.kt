@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker_v1
+package s.yarlykov.izisandbox.matrix.avatar_maker
 
 import android.content.Context
 import android.graphics.*
@@ -13,46 +13,10 @@ import kotlin.math.sign
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-
-/**
- * В общем проблема в том, что при полноэкранном режиме получается слишком большая битмапа
- * (даже для квадратика clip) и из-за этого подлагивает. Прорисовка кадра занимает больше 16.67ms.
- * Padding в родительском контейнере отчасти решил проблему, но мне кажется, что можно пойти
- * дальше. Например двигаем рамку вверх. Тогда у старого и нового прямоугольника остается общая
- * часть (закрашена точками) и её не нужно перерисовывать. Нужно только добавить немного сверху и
- * удалить немного снизу. Нужно подумать как это сделать. Кстати SurfaceView не затирается
- * на каждой итерации.
- *
- * NOTE: Наверное не прокатит, потому что метод invalidate(Rect) больше не работает !
- */
-
-//   _________________
-//   |               |
-//  _|_______________|_   /\
-//  ||. . . . . . . .||   ||  Move UP
-//  || . . . . . . . ||
-//  ||. . . . . . . .||
-//  || . . . . . . . ||
-//  ||_______________||
-//  |                 |
-//  |_________________|
-//
-
 /**
  * Видимо понадобятся:
  * ScaleGestureDetector.OnScaleGestureListener
  * GestureDetector.OnGestureListener
- *
- * И вообще видимо придется переделать под
- * https://alexmeuer.com/blog/android-highlighting-parts-of-an-imageview
- * (доп материалы https://startandroid.ru/ru/uroki/vse-uroki-spiskom/325-urok-147-risovanie-region.html)
- *
- * Здесь идея в том, что снизу лежит обычная, незатемненная картинка. Слоем выше устанавливается
- * кастомный BitmapDrawable такого же размера и в его onDraw два действия:
- *  - установить clip, который охватывает не внутреннюю часть видоискателя, а внешнюю. И залить
- *  её каким-то полупрозрачным цветом для создания затенения. При этом внутри прямоугольника
- *  картинка останется светлой.
- *  - затем можно изменить режит clip'а и нарисовать рамку уже по границам прямоугольника.
  */
 
 class AvatarFrontViewV2 @JvmOverloads constructor(
@@ -124,6 +88,11 @@ class AvatarFrontViewV2 @JvmOverloads constructor(
     private var lastY = 0f
 
     /**
+     * Темный полупрозрачный цвет
+     */
+    private val darkShadeColor = Color.argb(0x88, 0x00, 0x00, 0x00)
+
+    /**
      * Paint (color Yellow)
      */
     private val paintStroke: Paint = Paint().apply {
@@ -182,25 +151,24 @@ class AvatarFrontViewV2 @JvmOverloads constructor(
                 addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
             }.close()
 
-            canvas.save()
+            // 1. Затененная область
+            drawLayer2(canvas)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                canvas.clipOutPath(pathClip)
-            } else {
-                canvas.clipPath(pathClip, Region.Op.DIFFERENCE);
-            }
-
-            // 1. Выделенная область
-            drawLayer2(canvas, it)
             // 2. Рамка вокруг выделенной области
-//            drawLayer3(canvas)
-            canvas.restore()
+            drawLayer3(canvas)
         }
+    }
 
-        // DEBUG
-        tapSquares.values.forEach {
-            canvas.drawRect(it, paintTemp)
+    private fun setOuterClipping(canvas: Canvas) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            canvas.clipOutPath(pathClip)
+        } else {
+            canvas.clipPath(pathClip, Region.Op.DIFFERENCE)
         }
+    }
+
+    private fun setInnerClipping(canvas: Canvas) {
+        canvas.clipPath(pathClip)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -213,8 +181,14 @@ class AvatarFrontViewV2 @JvmOverloads constructor(
     /**
      * Выделенная область
      */
-    private fun drawLayer2(canvas: Canvas, bitmap: Bitmap) {
-        canvas.drawBitmap(bitmap, rectSourceImage, rectDest, null)
+    private fun drawLayer2(canvas: Canvas) {
+        try {
+            canvas.save()
+            setOuterClipping(canvas)
+            canvas.drawColor(darkShadeColor)
+            canvas.restore()
+        } catch (e: Exception) {
+        }
     }
 
     /**
@@ -222,20 +196,31 @@ class AvatarFrontViewV2 @JvmOverloads constructor(
      */
     private fun drawLayer3(canvas: Canvas) {
 
-        pathBorder.apply {
-            reset()
-            moveTo(rectBorder.left, rectBorder.top + rectBorder.height() / 4f)
-            lineTo(rectBorder.left, rectBorder.top)
-            lineTo(rectBorder.left + rectBorder.width(), rectBorder.top)
-            lineTo(rectBorder.left + rectBorder.width(), rectBorder.top + rectBorder.height())
-            lineTo(rectBorder.left, rectBorder.top + rectBorder.height())
-            close()
+        try {
+            canvas.save()
+            setInnerClipping(canvas)
+            pathBorder.apply {
+                reset()
+                moveTo(rectBorder.left, rectBorder.top + rectBorder.height() / 4f)
+                lineTo(rectBorder.left, rectBorder.top)
+                lineTo(rectBorder.left + rectBorder.width(), rectBorder.top)
+                lineTo(rectBorder.left + rectBorder.width(), rectBorder.top + rectBorder.height())
+                lineTo(rectBorder.left, rectBorder.top + rectBorder.height())
+                close()
+            }
+
+            paintStroke.pathEffect =
+                DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
+            canvas.drawPath(pathBorder, paintStroke)
+
+            // DEBUG
+            tapSquares.values.forEach {
+                canvas.drawRect(it, paintTemp)
+            }
+
+            canvas.restore()
+        } catch (e: Exception) {
         }
-
-        paintStroke.pathEffect =
-            DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
-        canvas.drawPath(pathBorder, paintStroke)
-
     }
 
     /**

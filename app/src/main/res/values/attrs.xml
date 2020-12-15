@@ -42,4 +42,11 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="AvatarBackView">
+        <attr name="bitmap_mode" format="enum">
+            <enum name="light" value="0" />
+            <enum name="dark" value="1" />
+        </attr>
+    </declare-styleable>
+
 </resources>

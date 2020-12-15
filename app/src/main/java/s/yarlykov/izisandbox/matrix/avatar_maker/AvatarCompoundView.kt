@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker_v1
+package s.yarlykov.izisandbox.matrix.avatar_maker
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -35,7 +35,10 @@ class AvatarCompoundView @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        if(avatarFront is AvatarFrontViewV1) {
+        /**
+         * Если используем AvatarFrontViewV1 (старая версия), то нужна Paint с затенением.
+         */
+        if (avatarFront is AvatarFrontViewV1) {
             (avatarBack as AvatarBackView).setDarkPaint()
         }
     }
@@ -54,7 +57,7 @@ class AvatarCompoundView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.nature, w, h).also {  bitmap ->
+        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.nature, w, h).also { bitmap ->
             avatarBack.onBitmapReady(bitmap)
             avatarFront.onBitmapReady(bitmap)
         }
@@ -69,7 +72,8 @@ class AvatarCompoundView @JvmOverloads constructor(
     private fun loadSampledBitmapFromResource(
         resourceId: Int,
         reqWidth: Int,
-        reqHeight: Int) : Bitmap {
+        reqHeight: Int
+    ): Bitmap {
 
         return BitmapFactory.Options().run {
             inJustDecodeBounds = true

@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker_v1
+package s.yarlykov.izisandbox.matrix.avatar_maker
 
 import android.content.Context
 import android.graphics.*
@@ -52,6 +52,9 @@ import kotlin.reflect.KProperty
  *  её каким-то полупрозрачным цветом для создания затенения. При этом внутри прямоугольника
  *  картинка останется светлой.
  *  - затем можно изменить режит clip'а и нарисовать рамку уже по границам прямоугольника.
+ *
+ *
+ *  ДА ! Это оказалось правильным решением. Используем AvatarFrontViewV2.
  */
 
 class AvatarFrontViewV1 @JvmOverloads constructor(
