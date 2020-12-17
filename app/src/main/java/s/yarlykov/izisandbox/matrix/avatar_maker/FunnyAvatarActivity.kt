@@ -7,13 +7,10 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.View
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
-import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.activity_funny_avatar.*
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
@@ -21,7 +18,6 @@ import s.yarlykov.izisandbox.extensions.showResultNotification
 import s.yarlykov.izisandbox.utils.LiveDataT
 import s.yarlykov.izisandbox.utils.PermissionCatcher
 import s.yarlykov.izisandbox.utils.PhotoHelper
-import java.lang.IllegalArgumentException
 
 class FunnyAvatarActivity : AppCompatActivity() {
 

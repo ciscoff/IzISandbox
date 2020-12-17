@@ -4,22 +4,64 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
-import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class AvatarPreView @JvmOverloads constructor(
+
+/**
+ * В общем проблема в том, что при полноэкранном режиме получается слишком большая битмапа
+ * (даже для квадратика clip) и из-за этого подлагивает. Прорисовка кадра занимает больше 16.67ms.
+ * Padding в родительском контейнере отчасти решил проблему, но мне кажется, что можно пойти
+ * дальше. Например двигаем рамку вверх. Тогда у старого и нового прямоугольника остается общая
+ * часть (закрашена точками) и её не нужно перерисовывать. Нужно только добавить немного сверху и
+ * удалить немного снизу. Нужно подумать как это сделать. Кстати SurfaceView не затирается
+ * на каждой итерации.
+ *
+ * NOTE: Наверное не прокатит, потому что метод invalidate(Rect) больше не работает !
+ */
+
+//   _________________
+//   |               |
+//  _|_______________|_   /\
+//  ||. . . . . . . .||   ||  Move UP
+//  || . . . . . . . ||
+//  ||. . . . . . . .||
+//  || . . . . . . . ||
+//  ||_______________||
+//  |                 |
+//  |_________________|
+//
+
+/**
+ * Видимо понадобятся:
+ * ScaleGestureDetector.OnScaleGestureListener
+ * GestureDetector.OnGestureListener
+ *
+ * И вообще видимо придется переделать под
+ * https://alexmeuer.com/blog/android-highlighting-parts-of-an-imageview
+ * (доп материалы https://startandroid.ru/ru/uroki/vse-uroki-spiskom/325-urok-147-risovanie-region.html)
+ *
+ * Здесь идея в том, что снизу лежит обычная, незатемненная картинка. Слоем выше устанавливается
+ * кастомный BitmapDrawable такого же размера и в его onDraw два действия:
+ *  - установить clip, который охватывает не внутреннюю часть видоискателя, а внешнюю. И залить
+ *  её каким-то полупрозрачным цветом для создания затенения. При этом внутри прямоугольника
+ *  картинка останется светлой.
+ *  - затем можно изменить режит clip'а и нарисовать рамку уже по границам прямоугольника.
+ *
+ *
+ *  ДА ! Это оказалось правильным решением. Используем AvatarFrontViewV2.
+ */
+
+class AvatarFrontViewV1 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : AvatarBaseView(context, attrs, defStyleAttr) {
 
     /**
      * Квадратные области для масштабирования рамки видоискателя
@@ -37,27 +79,9 @@ class AvatarPreView @JvmOverloads constructor(
     private val borderWidth = dp_f(2f)
 
     /**
-     * Раидиус закругления рамки видоискателя
+     * Радиус закругления рамки видоискателя
      */
     private val cornerRadius = dp_f(2f)
-
-    /**
-     * Исходная Bitmap и её размеры
-     */
-    private var sourceImageBitmap: Bitmap? = null
-    private var rectSourceImage = Rect()
-
-    /**
-     * @rectDest прямоугольник (в координатах канвы) куда будем рисовать исходную Bitmap.
-     * Он может выходить краями за пределы экрана.
-     */
-    private val rectDest = Rect()
-
-    /**
-     * @rectVisible прямоугольник (в координатах канвы) определяющий видимую часть
-     * картинки. Все что не влезло в экран не учитывается.
-     */
-    private val rectVisible = Rect()
 
     /**
      * @rectPivot КВАДРАТ (в координатах канвы) выровненный по центру rectVisible.
@@ -102,17 +126,6 @@ class AvatarPreView @JvmOverloads constructor(
     private var lastY = 0f
 
     /**
-     * Цветовые фильтры поярче/потемнее.
-     */
-    private val colorFilterLighten = LightingColorFilter(0xFFFFFFFF.toInt(), 0x00222222)
-    private val colorFilterDarken = LightingColorFilter(0xFF7F7F7F.toInt(), 0x00000000)
-
-    /**
-     * Paint для заливки фона исходной Bitmap'ой с применением цветового фильтра.
-     */
-    private val paintBackground = Paint(Color.GRAY).apply { colorFilter = colorFilterDarken }
-
-    /**
      * Paint (color Yellow)
      */
     private val paintStroke: Paint = Paint().apply {
@@ -121,15 +134,6 @@ class AvatarPreView @JvmOverloads constructor(
         strokeCap = Paint.Cap.ROUND
         strokeWidth = borderWidth
         isAntiAlias = true
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-        sourceImageBitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.nature)?.also {
-                rectSourceImage = Rect(0, 0, it.width, it.height)
-            }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -165,12 +169,14 @@ class AvatarPreView @JvmOverloads constructor(
     }
 
     // DEBUG
-    private val paintTemp = Paint(Color.WHITE).apply { style = Paint.Style.FILL }
+    private val paintTemp = Paint().apply {
+        color = Color.argb(0xff, 0xff, 0xff, 0xff)
+        style = Paint.Style.STROKE
+        strokeWidth = 1.2f
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        // 1. Background
-        drawLayer1(canvas)
 
         sourceImageBitmap?.let {
             pathClip.apply {
@@ -180,9 +186,9 @@ class AvatarPreView @JvmOverloads constructor(
 
             canvas.save()
             canvas.clipPath(pathClip)
-            // 2. Выделенная область
+            // 1. Выделенная область
             drawLayer2(canvas, it)
-            // 3. Рамка вокруг выделенной области
+            // 2. Рамка вокруг выделенной области
             drawLayer3(canvas)
             canvas.restore()
         }
@@ -195,21 +201,9 @@ class AvatarPreView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-
-        rectDestUpdate()
-        rectVisibleUpdate()
         rectPivotUpdate()
         tapSquaresUpdate()
         invalidate()
-    }
-
-    /**
-     * Background
-     */
-    private fun drawLayer1(canvas: Canvas) {
-        sourceImageBitmap?.let {
-            canvas.drawBitmap(it, rectSourceImage, rectDest, paintBackground)
-        }
     }
 
     /**
@@ -238,40 +232,6 @@ class AvatarPreView @JvmOverloads constructor(
             DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
         canvas.drawPath(pathBorder, paintStroke)
 
-    }
-
-    /**
-     * Растянуть по высоте с ratio.
-     *
-     * При любой ориентации "натягиваем" битмапу по высоте. При этом, часть битмапы
-     * может оказаться за пределами боковых границ view. Но это фигня. Главное, что
-     * нет искажений от растяжки/сжатия.
-     */
-    private fun rectDestUpdate() {
-
-        val ratio = height.toFloat() / rectSourceImage.height()
-        val scaledWidth = (rectSourceImage.width() * ratio).toInt()
-
-        rectDest.apply {
-            top = 0
-            bottom = this@AvatarPreView.height
-            left = ((this@AvatarPreView.width - scaledWidth) / 2f).toInt()
-            right = left + scaledWidth
-        }
-    }
-
-    /**
-     * Зависит от rectDest
-     */
-    private fun rectVisibleUpdate() {
-        rectVisible.apply {
-            top = 0
-            bottom = this@AvatarPreView.height
-            left =
-                if (rectDest.left <= 0) 0 else rectDest.left
-            right =
-                if (rectDest.right >= this@AvatarPreView.width) this@AvatarPreView.width else rectDest.right
-        }
     }
 
     /**
