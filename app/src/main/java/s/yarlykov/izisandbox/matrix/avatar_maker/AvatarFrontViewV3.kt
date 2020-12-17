@@ -7,9 +7,8 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
-import kotlin.math.abs
-import kotlin.math.min
-import kotlin.math.sign
+import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -25,7 +24,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AvatarBaseView(context, attrs, defStyleAttr) {
 
-    private var draggingMode = DragMode.Dragging
+    private var mode: Mode = Mode.Dragging
 
     /**
      * Квадратные области для масштабирования рамки видоискателя
@@ -105,39 +104,56 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         isAntiAlias = true
     }
 
+    private var prevDistance: Float = 0f
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
             // Вернуть true, если палец внутри рамки.
             MotionEvent.ACTION_DOWN -> {
+                prevDistance = distanceToViewPortCenter(event.x, event.y)
+
                 lastX = event.x
                 lastY = event.y
-                chooseMode(event.x, event.y)
+                offsetV = 0f
+                offsetH = 0f
+                chooseMode(lastX, lastY)
+                logIt("ACTION_DOWN prevDistance=$prevDistance, mode=${mode::class.java.simpleName}", true, "PLPL")
                 rectClip.contains(lastX, lastY)
             }
             MotionEvent.ACTION_MOVE -> {
-                val dragX = event.x
-                val dragY = event.y
+                val dX = event.x - lastX
+                val dY = event.y - lastY
 
-                val dX = dragX - lastX
-                val dY = dragY - lastY
+                if(mode is Mode.Scaling) {
+                    chooseScalingMode(event.x, event.y)
+                }
 
-                when (draggingMode) {
-                    DragMode.Dragging -> {
+                logIt(
+                    "ACTION_MOVE new_dist=${
+                        distanceToViewPortCenter(
+                            event.x,
+                            event.y
+                        )
+                    }, mode=${mode::class.java.simpleName}", true, "PLPL"
+                )
+
+                when (mode) {
+                    is Mode.Dragging -> {
                         offsetV += dY
                         offsetH += dX
                     }
-                    DragMode.Scaling -> {
-                        // Делаем смещения одинаковыми в абс значении. Этим поддкрживаем
-                        // квадратную форму видоискателя.
+                    is Mode.Scaling -> {
+                        // Делаем смещения одинаковыми в абс значении.
+                        // Этим поддерживаем квадратную форму ViewPort'а.
                         val d = min(abs(dX), abs(dY))
                         offsetV = d * sign(dY)
                         offsetH = d * sign(dX)
                     }
                 }
 
-                lastX = dragX
-                lastY = dragY
+                lastX = event.x
+                lastY = event.y
 
                 invalidate()
                 true
@@ -147,6 +163,45 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             else -> false
         }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        logIt(
+            "onDraw Mode=${mode::class.java.simpleName}, mode=${mode::class.java.simpleName}",
+            true,
+            "PLPL"
+        )
+
+        sourceImageBitmap?.let {
+//            pathClip.apply {
+//                reset()
+//                addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
+//            }.close()
+
+            when (mode) {
+                Mode.Dragging -> {
+                    drawDragging(canvas)
+                }
+                else -> {
+                    drawScaling(canvas)
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Дистанция о места последнего TouchEvent до центра ViewPort'а (то есть до центра
+     * текущего rectClip). Если эта дистанция сокращается, то мы сжимаем ViewPort,
+     * иначе мы его расширяем.
+     */
+    private fun distanceToViewPortCenter(x: Float, y: Float): Float {
+        val cX = rectClip.left + rectClip.width() / 2
+        val cY = rectClip.top + rectClip.height() / 2
+
+        return sqrt((x - cX) * (x - cX) + (y - cY) * (y - cY))
     }
 
     private fun drawDragging(canvas: Canvas) {
@@ -172,13 +227,17 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             offset(offsetH, offsetV)
         }
 
-        // Палец вошел в границы rectClip: нужно сжимать.
-        if(rectClip.contains(lastX, lastY)) {
-            shrinkClipping()
-        }
-        // Палец вышел за границы rectClip: нужно расширять.
-        else {
-            extendClipping()
+        when (mode) {
+            // Палец идет к центру ViewPort'а
+            Mode.Scaling.Shrink -> {
+                shrinkClipping()
+            }
+            // Палец идет от центра ViewPort'а
+            Mode.Scaling.Squeeze -> {
+                squeezeClipping()
+            }
+            else -> {
+            }
         }
 
         pathClip.apply {
@@ -193,41 +252,18 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         drawLayer3(canvas)
     }
 
+    /**
+     * Растягиваем квадрат. Вычислить объединение.
+     */
     private fun shrinkClipping() {
-        // Вычислить пересечение
-        rectClip.intersect(rectClipShifted)
-    }
-
-    private fun extendClipping() {
-        // Вычислить объединение
         rectClip.union(rectClipShifted)
     }
 
-    // DEBUG
-    private val paintTemp = Paint().apply {
-        color = Color.argb(0xff, 0xff, 0xff, 0xff)
-        style = Paint.Style.STROKE
-        strokeWidth = 1.2f
-    }
-
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-
-        sourceImageBitmap?.let {
-            pathClip.apply {
-                reset()
-                addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
-            }.close()
-
-            when (draggingMode) {
-                DragMode.Dragging -> {
-                    drawDragging(canvas)
-                }
-                DragMode.Scaling -> {
-                    drawScaling(canvas)
-                }
-            }
-        }
+    /**
+     * Сжимаем ViewPort. Вычислить перечечение.
+     */
+    private fun squeezeClipping() {
+        rectClip.intersect(rectClipShifted)
     }
 
     /**
@@ -319,9 +355,8 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
-
-                return when (draggingMode) {
-                    DragMode.Dragging -> {
+                return when (mode) {
+                    is Mode.Dragging -> {
                         rect.apply {
                             set(rectPivot)
 
@@ -333,11 +368,13 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                                 offsetH = offsetMaxH * sign(offsetH)
                             }
 
+                            // Смещаем прямоугольник
+                            // TODO Это ХУЕВО ! При каждом чтении смещаем !! Хуево
                             offset(offsetH, offsetV)
                         }
-
                     }
-                    DragMode.Scaling -> {
+                    else -> {
+                        // Возвращаем без смещения
                         rect
                     }
                 }
@@ -459,11 +496,23 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
         tapSquares.values.forEach { rect ->
             if (rect.contains(x, y)) {
-                draggingMode = DragMode.Scaling
+                mode = Mode.Scaling.Init
                 return
             }
         }
 
-        draggingMode = DragMode.Dragging
+        mode = Mode.Dragging
+    }
+
+    private fun chooseScalingMode(x: Float, y: Float) {
+        val dist = distanceToViewPortCenter(x, y)
+        mode = if (dist < prevDistance) Mode.Scaling.Squeeze else Mode.Scaling.Shrink
+    }
+
+    // DEBUG
+    private val paintTemp = Paint().apply {
+        color = Color.argb(0xff, 0xff, 0xff, 0xff)
+        style = Paint.Style.STROKE
+        strokeWidth = 1.2f
     }
 }
