@@ -24,7 +24,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AvatarBaseView(context, attrs, defStyleAttr) {
 
-    private var mode: Mode = Mode.Dragging
+    private var mode: Mode = Mode.Unknown
 
     /**
      * Квадратные области для масштабирования рамки видоискателя
@@ -113,21 +113,21 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 prevDistance = distanceToViewPortCenter(event.x, event.y)
 
-                lastX = event.x
-                lastY = event.y
                 offsetV = 0f
                 offsetH = 0f
+                lastX = event.x
+                lastY = event.y
                 chooseMode(lastX, lastY)
-                logIt("ACTION_DOWN prevDistance=$prevDistance, mode=${mode::class.java.simpleName}", true, "PLPL")
-                rectClip.contains(lastX, lastY)
+                logIt(
+                    "ACTION_DOWN prevDistance=$prevDistance, mode=${mode::class.java.simpleName}",
+                    true,
+                    "PLPL"
+                )
+                mode != Mode.Unknown
             }
             MotionEvent.ACTION_MOVE -> {
                 val dX = event.x - lastX
                 val dY = event.y - lastY
-
-                if(mode is Mode.Scaling) {
-                    chooseScalingMode(event.x, event.y)
-                }
 
                 logIt(
                     "ACTION_MOVE new_dist=${
@@ -144,11 +144,19 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                         offsetH += dX
                     }
                     is Mode.Scaling -> {
+
+                        // Нужно каждый раз выбирать Scaling Mode, потому что палец
+                        // может сменить направление движения на противоположное.
+                        chooseScalingSubMode(event.x, event.y)
+
                         // Делаем смещения одинаковыми в абс значении.
                         // Этим поддерживаем квадратную форму ViewPort'а.
                         val d = min(abs(dX), abs(dY))
                         offsetV = d * sign(dY)
                         offsetH = d * sign(dX)
+                    }
+                    else -> {
+                        logIt("unknown mode")
                     }
                 }
 
@@ -159,6 +167,9 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
+                mode = Mode.Unknown
+                offsetV = 0f
+                offsetH = 0f
                 true
             }
             else -> false
@@ -181,10 +192,10 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 //            }.close()
 
             when (mode) {
-                Mode.Dragging -> {
+                is Mode.Dragging, is Mode.Unknown -> {
                     drawDragging(canvas)
                 }
-                else -> {
+                is Mode.Scaling -> {
                     drawScaling(canvas)
                 }
             }
@@ -198,8 +209,8 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
      * иначе мы его расширяем.
      */
     private fun distanceToViewPortCenter(x: Float, y: Float): Float {
-        val cX = rectClip.left + rectClip.width() / 2
-        val cY = rectClip.top + rectClip.height() / 2
+        val cX = rectClip.centerX()/*left + rectClip.width() / 2*/
+        val cY = rectClip.centerY()/*top + rectClip.height() / 2*/
 
         return sqrt((x - cX) * (x - cX) + (y - cY) * (y - cY))
     }
@@ -356,7 +367,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
                 return when (mode) {
-                    is Mode.Dragging -> {
+                    is Mode.Dragging, is Mode.Unknown -> {
                         rect.apply {
                             set(rectPivot)
 
@@ -373,7 +384,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                             offset(offsetH, offsetV)
                         }
                     }
-                    else -> {
+                    is Mode.Scaling -> {
                         // Возвращаем без смещения
                         rect
                     }
@@ -501,10 +512,10 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
         }
 
-        mode = Mode.Dragging
+        mode = if (rectClip.contains(x, y)) Mode.Dragging else Mode.Unknown
     }
 
-    private fun chooseScalingMode(x: Float, y: Float) {
+    private fun chooseScalingSubMode(x: Float, y: Float) {
         val dist = distanceToViewPortCenter(x, y)
         mode = if (dist < prevDistance) Mode.Scaling.Squeeze else Mode.Scaling.Shrink
     }
