@@ -5,12 +5,13 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
-import androidx.core.graphics.toRectF
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.utils.logIt
-import java.lang.Exception
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.min
+import kotlin.math.sign
+import kotlin.math.sqrt
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -88,9 +89,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     private var offsetV = 0f
     private var offsetH = 0f
 
-    private var offsetMaxV = 0f
-    private var offsetMaxH = 0f
-
     /**
      * Отслеживаем движения пальца в жестах
      */
@@ -120,11 +118,17 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 prevDistance = distanceToViewPortCenter(event.x, event.y)
 
-                offsetV = 0f
-                offsetH = 0f
                 lastX = event.x
                 lastY = event.y
                 chooseMode(lastX, lastY)
+
+                // Если собираемся перетаскивать, то нужно установить rectPivot
+                // на текущую позицию rectClip и сбросить offsetH/offsetV.
+                if (mode == Mode.Dragging) {
+                    rectPivotReplace()
+                    offsetV = 0f
+                    offsetH = 0f
+                }
 
                 // Вернуть true, если палец внутри рамки.
                 mode != Mode.Waiting
@@ -165,15 +169,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
-//                mode = Mode.Waiting //??
-//                lastX = event.x
-//                lastY = event.y
-                offsetV = 0f
-                offsetH = 0f
-                lastX = 0f
-                lastY = 0f
-//                preDrawing() // Настроить pathBorder/paintStroke для рисования рамки
-//                invalidate()
                 true
             }
             else -> false
@@ -235,6 +230,9 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         return sqrt((x - cX) * (x - cX) + (y - cY) * (y - cY))
     }
 
+    /**
+     * Сформировать Path для рисования рамки.
+     */
     private fun preDrawing() {
         pathBorder.apply {
             reset()
@@ -250,19 +248,44 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
     }
 
+    /**
+     * Проверить, что прямоугольник @rect не ходит за границы rectVisible и если выходит,
+     * то поправить offsetH/offsetV.
+     */
+    private fun checkBounds(rect: RectF) {
+
+        if (rect.left + offsetH < rectVisible.left) {
+            offsetH = rectVisible.left - rect.left
+        } else if (rect.right + offsetH > rectVisible.right) {
+            offsetH = rectVisible.right - rect.right
+        }
+        if (rect.top + offsetV < rectVisible.top) {
+            offsetV = rectVisible.top - rect.top
+        } else if (rect.bottom + offsetV > rectVisible.bottom) {
+            offsetV = rectVisible.bottom - rect.bottom
+        }
+
+        val offset = min(abs(offsetH), abs(offsetV))
+        offsetV = offset * sign(offsetV)
+        offsetH = offset * sign(offsetH)
+    }
+
     private fun preScaling() {
-        // Скопировать из rectClip и сдвинуть
+        // Скопировать из rectClip, проверить, что не выходим за границы экрана и сдвинуть
         rectClipShifted.apply {
             set(rectClip)
+            if (mode == Mode.Scaling.Shrink) {
+                checkBounds(this)
+            }
             offset(offsetH, offsetV)
         }
 
         when (mode) {
-            // Палец идет к центру ViewPort'а
+            // Палец идет от центра ViewPort'а (растягиваем)
             Mode.Scaling.Shrink -> {
                 shrinkClipping()
             }
-            // Палец идет от центра ViewPort'а
+            // Палец идет к центру ViewPort'а (уменьшаем)
             Mode.Scaling.Squeeze -> {
                 squeezeClipping()
             }
@@ -280,6 +303,10 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             reset()
             addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
         }.close()
+
+        // Также нужно обновить положение и размер rectPivot. В режиме Scaling он перемещается
+        // за rectClip, чтобы потом в режиме dragging сразу иметь правильную опорную точку.
+        rectPivotReplace()
     }
 
     /**
@@ -330,11 +357,13 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             right = left + frameDimen
         }
-
-        offsetMaxV = rectVisible.bottom - rectPivot.bottom
-        offsetMaxH = rectVisible.right - rectPivot.right
     }
 
+    /**
+     * Установить размер и положение rectPivot по параметрам rectClip.
+     * Главное, чтобы в момент выполнения set(rectClip) в переменных offsetH/offsetV были
+     * актуальные значение, потому что rectClip вычисляется делегатом и использует эти поля.
+     */
     private fun rectPivotReplace() {
         val rectTmp = RectF().apply { set(rectClip) }
         rectPivot.set(rectTmp)
@@ -391,21 +420,12 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 }
                 if (rect.top + offsetV < rectVisible.top) {
                     offsetV = rectVisible.top - rect.top
-                }
-                if (rect.bottom + offsetV > rectVisible.bottom) {
+                } else if (rect.bottom + offsetV > rectVisible.bottom) {
                     offsetV = rectVisible.bottom - rect.bottom
                 }
 
                 prevOffsetH = offsetH
                 prevOffsetV = offsetV
-
-//                if (abs(offsetV) > offsetMaxV) {
-//                    offsetV = offsetMaxV * sign(offsetV)
-//                }
-//
-//                if (abs(offsetH) > offsetMaxH) {
-//                    offsetH = offsetMaxH * sign(offsetH)
-//                }
             }
         }
 
@@ -428,7 +448,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                     right = rectTmp.right - borderWidth / 2f
                     bottom = rectTmp.bottom - borderWidth / 2f
                 }
-
                 return rect
             }
 
@@ -538,7 +557,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         }
 
         mode = if (rectClip.contains(x, y)) {
-            rectPivotReplace()
             Mode.Dragging
         } else {
             Mode.Waiting
