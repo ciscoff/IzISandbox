@@ -1,7 +1,10 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker
 
+/**
+ * Модель состояний
+ */
 sealed class Mode {
-    object Unknown : Mode()
+    object Waiting : Mode()
     object Dragging : Mode()
     sealed class Scaling : Mode() {
         object Init : Scaling()
