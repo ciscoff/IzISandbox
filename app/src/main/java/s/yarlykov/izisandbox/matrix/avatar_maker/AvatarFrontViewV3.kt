@@ -251,6 +251,11 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
         }
 
+        // После того как rectClip изменен нужно пересчитать prevDistance потому что
+        // при обработке следующего ACTION_MOVE расстояние до центра rectClip будет сравниваться
+        // с расстоянием от текущего расстояния пальца.
+        prevDistance = distanceToViewPortCenter(lastX, lastY)
+
         pathClip.apply {
             reset()
             addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
