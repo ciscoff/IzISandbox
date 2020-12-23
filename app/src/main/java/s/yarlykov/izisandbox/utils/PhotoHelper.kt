@@ -3,10 +3,10 @@ package s.yarlykov.izisandbox.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Environment
+import s.yarlykov.izisandbox.extensions.cameraOrientation
+import s.yarlykov.izisandbox.extensions.rotate
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -48,26 +48,21 @@ object PhotoHelper {
      * http://sylvana.net/jpegcrop/exif_orientation.html
      * https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media#rotating-the-picture
      */
-    fun reduceImageFile(context: Context, src: Uri, dest: String): Boolean {
+    fun reduceImageFile(context: Context, photoUri: Uri, dest: String): Boolean {
 
         var originalBitmap: Bitmap? = null
 
         return try {
 
-            val cameraOrientation =
-                context.contentResolver.openInputStream(src)?.use { inputStream ->
-                    ExifInterface(inputStream).getAttributeInt(ExifInterface.TAG_ORIENTATION, 0)
-                } ?: 0
-
             originalBitmap =
-                context.contentResolver.openInputStream(src)?.use {
+                context.contentResolver.openInputStream(photoUri)?.use {
                     BitmapFactory.decodeStream(it)
                 }
 
             originalBitmap
                 ?.reduce()
                 ?.cropCenter()
-                ?.rotate(cameraOrientation)
+                ?.rotate(context.cameraOrientation(photoUri))
                 ?.writeToStorage(dest) ?: false
         } catch (e: IOException) {
             false
@@ -77,30 +72,9 @@ object PhotoHelper {
     }
 
     /**
-     * Определить ориентацию камеры относительно снимаемого объекта и повернуть картинку.
-     * В результате картинка всегда встает вертикально в аватарке.
-     */
-    private fun Bitmap.rotate(orientation: Int): Bitmap {
-
-        val angle = when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            ExifInterface.ORIENTATION_ROTATE_270 -> 270
-            else -> 0
-        }
-
-        return if (angle != 0) {
-            val matrix = Matrix().apply { postRotate(angle.toFloat()) }
-            Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-        } else {
-            this
-        }
-    }
-
-    /**
      * Bitmap уменьшенная в ratio раз.
      */
-    fun Bitmap.reduce(ratio : Int = 2): Bitmap =
+    fun Bitmap.reduce(ratio: Int = 2): Bitmap =
         if (height > width) {
             scaleToFitHeight(height / ratio)
         } else {

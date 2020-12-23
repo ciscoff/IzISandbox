@@ -3,14 +3,12 @@ package s.yarlykov.izisandbox.matrix.scale_animated
 /**
  * https://guides.codepath.com/android/Working-with-the-ImageView
  */
-import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.net.Uri
-import androidx.exifinterface.media.ExifInterface
-import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
+import s.yarlykov.izisandbox.extensions.cameraOrientation
+import s.yarlykov.izisandbox.extensions.drawableUri
+import s.yarlykov.izisandbox.extensions.rotate
 
 object BitmapScaleHelper {
 
@@ -71,7 +69,7 @@ object BitmapScaleHelper {
             BitmapFactory
                 .decodeResource(context.resources, resourceId, this)
                 .scaleToFit(fit, reqWidth)
-                .rotate(cameraOrientation(context, drawableUri(context, resourceId)))
+                .rotate(context.run { cameraOrientation(drawableUri(resourceId)) })
         }
     }
 
@@ -104,53 +102,4 @@ object BitmapScaleHelper {
         return inSampleSize
     }
 
-    /**
-     * Определить ориентацию камеры в битмапе.
-     */
-    private fun cameraOrientation(context: Context, src: Uri): Int {
-
-        return try {
-            context.contentResolver.openInputStream(src)?.use { inputStream ->
-                ExifInterface(inputStream).getAttributeInt(TAG_ORIENTATION, 0)
-            } ?: 0
-
-        } catch (e: Exception) {
-            0
-        }
-    }
-
-    /**
-     * Создаем Uri для битмапы из ресурсов. Например, имеем R.drawable.batumi и на выходе получим
-     * "android.resource://s.yarlykov.izisandbox/drawable/batumi"
-     */
-    private fun drawableUri(context: Context, resourceId: Int): Uri {
-        val resources = context.resources
-
-        return (Uri.Builder())
-            .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-            .authority(resources.getResourcePackageName(resourceId))
-            .appendPath(resources.getResourceTypeName(resourceId))
-            .appendPath(resources.getResourceEntryName(resourceId))
-            .build()
-    }
-
-    /**
-     * Повернуть картинку, чтобы она встала вертикально в области просмотра.
-     */
-    private fun Bitmap.rotate(orientation: Int): Bitmap {
-
-        val angle = when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180
-            ExifInterface.ORIENTATION_ROTATE_270 -> 270
-            else -> 0
-        }
-
-        return if (angle != 0) {
-            val matrix = Matrix().apply { setRotate(angle.toFloat()) }
-            Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-        } else {
-            this
-        }
-    }
 }
