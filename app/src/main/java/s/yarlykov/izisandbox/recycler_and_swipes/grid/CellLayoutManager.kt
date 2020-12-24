@@ -51,6 +51,11 @@ class CellLayoutManager(val context: Context) : RecyclerView.LayoutManager() {
                 val (w, h) = getDecoratedMeasuredWidth(child) to getDecoratedMeasuredHeight(child)
 
 
+
+
+                layoutDecoratedWithMargins(child, 0, summaryHeight, w, h + summaryHeight)
+                summaryHeight += h
+
                 /**
                  * Одни и теже значения в результатах
                  */
@@ -64,15 +69,9 @@ class CellLayoutManager(val context: Context) : RecyclerView.LayoutManager() {
 
                 val leftDecW = getLeftDecorationWidth(child)
                 val rightDecW = getRightDecorationWidth(child)
-                /**
-                 *
-                 */
 
                 logIt("1. decorated: l,t,r,b=$l,$t,$r,$b. bounds=$rect, leftDecW=$leftDecW, rightDecW=$rightDecW", true, "PLPL")
 
-                layoutDecoratedWithMargins(child, 0, summaryHeight, w, h + summaryHeight)
-                logIt("2. decorated: l,t,r,b=$l,$t,$r,$b", true, "PLPL")
-                summaryHeight += h
 
                 if (summaryHeight > height) return@loop
             }
