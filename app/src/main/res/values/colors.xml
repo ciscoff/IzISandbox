@@ -58,7 +58,7 @@
 
     <color name="color_calendar_selection_border">#88CCCCCC</color>
 
-<!--    Telegram-->
+    <!--    Telegram-->
     <color name="color_dark_1">#151D26</color>
     <color name="color_dark_2">#1C2733</color>
     <color name="color_dark_3">#222E3C</color>
@@ -70,5 +70,23 @@
     <color name="purple">#673AB7</color>
     <color name="user_input_color">#7c43bd</color>
     <color name="unfocused_color">#BC6300</color>
+
+    <!-- Decorator -->
+    <color name="material_50">#0091EA</color>
+    <color name="material_501">#00B8D4</color>
+    <color name="material_50_alpha_50">#800091EA</color>
+    <color name="material_green_700">#00BFA5</color>
+    <color name="material_900">#0D47A1</color>
+    <color name="material_red_A700">#D50000</color>
+
+    <color name="gray_A100">#F7EEEE</color>
+    <color name="gray_A150">#DBD4D4</color>
+    <color name="gray_A200">#B9B5B5</color>
+    <color name="gray_A700">#A5A1A1</color>
+    <color name="gray_A400">#8A8383</color>
+
+    <color name="black">#000000</color>
+    <color name="black_12">#1F000000</color>
+
 
 </resources>

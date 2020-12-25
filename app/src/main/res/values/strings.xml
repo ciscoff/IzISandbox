@@ -61,6 +61,7 @@
     <string name="menu_surface_edu_activity" translatable="false">Drawing On Surface</string>
     <string name="menu_scale_big_bitmap" translatable="false">Scale big bitmap</string>
     <string name="menu_grid_list" translatable="false">Grid List</string>
+    <string name="menu_cool_decor_1" translatable="false">Cool decor</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
