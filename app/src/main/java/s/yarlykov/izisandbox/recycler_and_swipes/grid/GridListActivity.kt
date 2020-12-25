@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_grid_list.*
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.utils.logIt
 
 class GridListActivity : AppCompatActivity() {
 
@@ -15,16 +16,18 @@ class GridListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grid_list)
-
         initRecyclerView()
     }
 
     private fun initRecyclerView() {
 
+        val manager = CellLayoutManager(this, COLUMNS)
+        val decorator = manager.decorator
+
         recyclerView.apply {
-            adapter = AdapterCell(3)
-            layoutManager = CellLayoutManager(this@GridListActivity, COLUMNS)
-            addItemDecoration(CellDecorator(this@GridListActivity, 1))
+            adapter = AdapterCell(11)
+            layoutManager = manager
+            addItemDecoration(decorator)
         }
     }
 }

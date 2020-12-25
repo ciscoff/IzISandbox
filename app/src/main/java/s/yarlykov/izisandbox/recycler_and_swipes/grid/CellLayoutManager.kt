@@ -4,18 +4,34 @@ import android.content.Context
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.DimenRes
+import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
+import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.min
 import s.yarlykov.izisandbox.utils.logIt
 import java.lang.IllegalArgumentException
 import kotlin.math.ceil
 import kotlin.math.min
 
-class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.LayoutManager() {
+/**
+ * Данный CellLayoutManager использует свой собственный декоратор CellDecorator
+ * для определения отступов.
+ */
+class CellLayoutManager(
+    val context: Context,
+    val colSpan: Int,
+    @DimenRes divider: Int = R.dimen.cell_spacer
+) : RecyclerView.LayoutManager() {
 
     init {
         if (colSpan < 0) throw IllegalArgumentException("Invalid colSpan argument")
     }
+
+    /**
+     * Декоратор
+     */
+    val decorator: CellDecorator by lazy { CellDecorator(context, divider) }
 
     /**
      * Размер декоратора между ячейками.
@@ -25,6 +41,11 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
     private var spacer: Int = -1
 
     /**
+     * Переменная для layout'а наборов строк.
+     */
+    private var summaryHeight = 0
+
+    /**
      * Ширина отдельного элемента
      */
     private val spanSize: Int by lazy {
@@ -32,13 +53,6 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
         val spacersSize = spacersQty * spacer
         val remain = width - spacersSize
         ceil(remain.toFloat() / colSpan).toInt()
-    }
-
-    override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
-        return RecyclerView.LayoutParams(
-            RecyclerView.LayoutParams.WRAP_CONTENT,
-            RecyclerView.LayoutParams.WRAP_CONTENT
-        )
     }
 
     /**
@@ -70,30 +84,27 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
      * Нужно просто вызывать child.layout(...)
      */
     private fun fillGrid(recycler: RecyclerView.Recycler) {
-        var summaryHeight = 0
 
-        run loop@{
+        var nextItem = 0
+        summaryHeight = spacer
 
-            var lastItem = 0
-
-            while (lastItem != itemCount) {
-                lastItem = fillRow(lastItem, spacer, recycler)
-            }
+        while (nextItem != itemCount && summaryHeight < height) {
+            nextItem = fillRow(nextItem, summaryHeight, recycler)
         }
     }
 
     /**
      * Сделать layout элементов одной строки
      */
-    private fun fillRow(indexFrom: Int, topFrom: Int, recycler: RecyclerView.Recycler): Int {
-        val indexTo = min(itemCount, indexFrom + colSpan)
+    private fun fillRow(positionFrom: Int, topFrom: Int, recycler: RecyclerView.Recycler): Int {
+        val positionTo = min(itemCount, positionFrom + colSpan)
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY)
 
         var leftFrom = spacer
 
-        (indexFrom until indexTo).forEach { i ->
+        (positionFrom until positionTo).forEach { i ->
             val child = recycler.getViewForPosition(i)
 
             addView(child)
@@ -102,7 +113,9 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
             leftFrom += (spanSize + spacer)
         }
 
-        return indexTo
+        summaryHeight += (spanSize + spacer)
+
+        return positionTo
     }
 
     /**
@@ -140,7 +153,7 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
     }
 
     /**
-     * Корректируем отдельную размерность (ширина/высота) view с учетом имеющихся insets.
+     * Установить размер в MeasureSpec
      */
     private fun updateMeasureSpecs(spec: Int, size: Int): Int {
 
@@ -150,6 +163,13 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
             return View.MeasureSpec.makeMeasureSpec(size, mode)
         }
         return spec
+    }
+
+    override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
+        return RecyclerView.LayoutParams(
+            RecyclerView.LayoutParams.WRAP_CONTENT,
+            RecyclerView.LayoutParams.WRAP_CONTENT
+        )
     }
 
     /**
@@ -179,4 +199,56 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
         )
     }
 
+    /**
+     * Класс декоратора для работы с данным LayoutManager'ом
+     */
+    inner class CellDecorator(
+        val context: Context,
+        @DimenRes divider: Int
+    ) : RecyclerView.ItemDecoration() {
+
+        private var spacer = context.resources.getDimension(divider).toInt()
+
+        override fun getItemOffsets(
+            rect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            val position = parent.getChildAdapterPosition(view).let {
+                if (it == RecyclerView.NO_POSITION) return else it
+            }
+
+            rect.set(spacer, spacer, spacer, spacer)
+        }
+
+        /**
+         * Установить разные отступы в зависимости от номера столбца.
+         */
+        private fun setByColumn(rect: Rect, position: Int) {
+
+            val halfSpacer = spacer / 2
+
+            when {
+                // Первый столбец
+                (position % colSpan == 0) -> {
+                    rect.left = spacer
+                    rect.right = halfSpacer
+                }
+                // Последний столбец
+                ((position + 1 % colSpan) == 0) -> {
+                    rect.left = halfSpacer
+                    rect.right = spacer
+
+                }
+                // Серединка
+                else -> {
+                    rect.left = halfSpacer
+                    rect.right = halfSpacer
+                }
+            }
+            rect.top = spacer
+            rect.bottom = 0
+        }
+    }
 }
