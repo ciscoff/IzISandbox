@@ -25,17 +25,14 @@ class CellView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
-        val spec = MeasureSpec.makeMeasureSpec(w/4, MeasureSpec.EXACTLY)
+        val spec = MeasureSpec.makeMeasureSpec(w / 4, MeasureSpec.EXACTLY)
         super.onMeasure(spec, spec)
     }
 
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-
-        val r = min(measuredWidth, measuredHeight)/4f
+        val r = min(width, height) / 4f
 
         canvas.drawColor(Color.DKGRAY)
-        canvas.drawCircle(measuredWidth/2f, measuredHeight/2f, r, paintFill)
+        canvas.drawCircle(width / 2f, height / 2f, r, paintFill)
     }
-
 }

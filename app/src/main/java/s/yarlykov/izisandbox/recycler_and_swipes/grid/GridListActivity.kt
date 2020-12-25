@@ -7,6 +7,11 @@ import kotlinx.android.synthetic.main.activity_grid_list.*
 import s.yarlykov.izisandbox.R
 
 class GridListActivity : AppCompatActivity() {
+
+    companion object {
+        const val COLUMNS = 3
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grid_list)
@@ -17,8 +22,8 @@ class GridListActivity : AppCompatActivity() {
     private fun initRecyclerView() {
 
         recyclerView.apply {
-            adapter = AdapterCell(10)
-            layoutManager = CellLayoutManager(this@GridListActivity, 3)
+            adapter = AdapterCell(3)
+            layoutManager = CellLayoutManager(this@GridListActivity, COLUMNS)
             addItemDecoration(CellDecorator(this@GridListActivity, 1))
         }
     }

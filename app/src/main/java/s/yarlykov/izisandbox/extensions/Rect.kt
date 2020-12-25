@@ -42,10 +42,17 @@ fun RectF.scale(
 }
 
 /**
- * Используется для работы с прямоугольниками от ItemDecoration
+ * Используется для работы с прямоугольниками от ItemDecoration.
+ * Там могут присутствовать отрицательные значения.
  */
 val Rect.min: Int
-    get() = abs(listOf(left, top, right, bottom).min() ?: 0)
+    get() = listOf(left, top, right, bottom).filter { it != 0 }.map { abs(it) }.min() ?: 0
+
+
+
+
+
+
 
 
 

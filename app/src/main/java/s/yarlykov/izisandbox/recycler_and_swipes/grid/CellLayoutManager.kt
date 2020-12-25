@@ -9,6 +9,7 @@ import s.yarlykov.izisandbox.extensions.min
 import s.yarlykov.izisandbox.utils.logIt
 import java.lang.IllegalArgumentException
 import kotlin.math.ceil
+import kotlin.math.min
 
 class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.LayoutManager() {
 
@@ -60,7 +61,7 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
 
         detachAndScrapAttachedViews(recycler)
 
-        fillDown(recycler)
+        fillGrid(recycler)
     }
 
     /**
@@ -68,32 +69,40 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
      * они используют данные декоратора, хранящиеся в недоступной layoutParams.mDecorInsets.
      * Нужно просто вызывать child.layout(...)
      */
-    private fun fillDown(recycler: RecyclerView.Recycler) {
-
+    private fun fillGrid(recycler: RecyclerView.Recycler) {
         var summaryHeight = 0
+
+        run loop@{
+
+            var lastItem = 0
+
+            while (lastItem != itemCount) {
+                lastItem = fillRow(lastItem, spacer, recycler)
+            }
+        }
+    }
+
+    /**
+     * Сделать layout элементов одной строки
+     */
+    private fun fillRow(indexFrom: Int, topFrom: Int, recycler: RecyclerView.Recycler): Int {
+        val indexTo = min(itemCount, indexFrom + colSpan)
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.EXACTLY)
 
-        run loop@{
-            (0 until itemCount).forEach { i ->
-                val child = recycler.getViewForPosition(i)
+        var leftFrom = spacer
 
-                addView(child)
-                measureChildWithoutInsets(child, widthSpec, heightSpec)
-//                measureChildWithMargins(child, 0, 0)
+        (indexFrom until indexTo).forEach { i ->
+            val child = recycler.getViewForPosition(i)
 
-                printDecorValues(child)
-//                val (w, h) = getDecoratedMeasuredWidth(child) to getDecoratedMeasuredHeight(child)
-
-                summaryHeight += spacer
-                child.layout(spacer, summaryHeight, spacer + spanSize, summaryHeight + spanSize)
-//                layoutDecoratedWithMargins(child, spacer, summaryHeight, spanSize, h + summaryHeight)
-                summaryHeight += spanSize
-
-                if (summaryHeight > height) return@loop
-            }
+            addView(child)
+            measureChildWithoutInsets(child, widthSpec, heightSpec)
+            child.layout(leftFrom, topFrom, leftFrom + spanSize, topFrom + spanSize)
+            leftFrom += (spanSize + spacer)
         }
+
+        return indexTo
     }
 
     /**
@@ -111,21 +120,22 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
             spacer = decorRect.min
         }
 
-        // Обнуляем все маргины. Все отступы будут согласно декору.
-        (child.layoutParams as RecyclerView.LayoutParams).apply {
-            leftMargin = 0
-            rightMargin = 0
-            bottomMargin = 0
-            topMargin = 0
-        }
+        resetMargins(child)
 
         val widthSpecUpdated = updateMeasureSpecs(widthSpec, spanSize)
         val heightSpecUpdated = updateMeasureSpecs(heightSpec, spanSize)
         child.measure(widthSpecUpdated, heightSpecUpdated)
     }
 
-    private fun resetDecor(child: View) {
+    /**
+     * Обнуляем все маргины. Все отступы будут согласно декору.
+     */
+    private fun resetMargins(child: View) {
         (child.layoutParams as ViewGroup.MarginLayoutParams).apply {
+            leftMargin = 0
+            rightMargin = 0
+            bottomMargin = 0
+            topMargin = 0
         }
     }
 
@@ -160,8 +170,10 @@ class CellLayoutManager(val context: Context, val colSpan: Int) : RecyclerView.L
         val leftDecW = getLeftDecorationWidth(child)
         val rightDecW = getRightDecorationWidth(child)
 
+        val (w, h) = getDecoratedMeasuredWidth(child) to getDecoratedMeasuredHeight(child)
+
         logIt(
-            "1. decorated: l,t,r,b=$l,$t,$r,$b. bounds=$rect, leftDecW=$leftDecW, rightDecW=$rightDecW",
+            "1. decorated: l,t,r,b=$l,$t,$r,$b. bounds=$rect, leftDecW=$leftDecW, rightDecW=$rightDecW, fullW=$w, fullH=$h",
             true,
             "PLPL"
         )
