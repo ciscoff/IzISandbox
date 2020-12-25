@@ -37,7 +37,7 @@ class EasyAdapter<H : RecyclerView.ViewHolder> : RecyclerView.Adapter<H>() {
      * @param adapterPosition - position in EasyAdapter
      */
     private fun computeAdditionalItemListParams(
-        item: BaseItem<*>,
+        item: BaseItem<H>,
         position: Int,
         adapterPosition: Int
     ) {

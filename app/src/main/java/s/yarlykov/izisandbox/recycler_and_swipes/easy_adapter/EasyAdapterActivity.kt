@@ -3,6 +3,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.easy_adapter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_easy_adapter.*
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.px
@@ -12,6 +13,7 @@ class EasyAdapterActivity : AppCompatActivity() {
 
     private val shortCardController = Controller(R.layout.item_controller_short_card)
     private val longCardController = Controller(R.layout.item_controller_long_card)
+    private val easyAdapter = EasyAdapter<RecyclerView.ViewHolder>()
 
     private val horizontalAndVerticalOffsetDecor by lazy {
         SimpleOffsetDrawer(
@@ -57,12 +59,13 @@ class EasyAdapterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_easy_adapter)
+        init()
     }
 
     private fun init() {
         with(recyclerView) {
             layoutManager = LinearLayoutManager(this@EasyAdapterActivity)
-//            adapter = easyAdapter
+            adapter = easyAdapter
             addItemDecoration(decorator)
             setPadding(0, 16.px, 0, 16.px)
         }
