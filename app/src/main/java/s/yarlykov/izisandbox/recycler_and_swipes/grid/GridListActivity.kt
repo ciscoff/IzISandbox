@@ -18,7 +18,7 @@ class GridListActivity : AppCompatActivity() {
 
         recyclerView.apply {
             adapter = AdapterCell(10)
-            layoutManager = CellLayoutManager(this@GridListActivity)
+            layoutManager = CellLayoutManager(this@GridListActivity, 3)
             addItemDecoration(CellDecorator(this@GridListActivity, 1))
         }
     }
