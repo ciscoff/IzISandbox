@@ -23,13 +23,13 @@ import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
 import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.places.PlacesAutoCompleteActivity
-import s.yarlykov.izisandbox.recycler_and_swipes.easy_adapter.EasyAdapterActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.grid.GridListActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_01.InfiniteRecyclerActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.SmartAdapterActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        EasyAdapterActivity::class.java to R.string.menu_cool_decor_1,
+        SmartAdapterActivity::class.java to R.string.menu_cool_decor_1,
         GridListActivity::class.java to R.string.menu_grid_list,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
         EditorAvatarActivity::class.java to R.string.menu_funny_avatar,
