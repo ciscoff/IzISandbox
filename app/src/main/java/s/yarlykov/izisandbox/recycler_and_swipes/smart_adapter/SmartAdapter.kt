@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemControllerBase
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemList
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.ItemBase
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.model.ItemList
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.model.ItemBase
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
 class SmartAdapter : RecyclerView.Adapter<ViewHolderBase>() {

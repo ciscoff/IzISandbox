@@ -19,8 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".recycler_and_swipes.smart_adapter.SmartAdapterActivity"></activity>
-        <activity android:name=".recycler_and_swipes.easy_adapter.EasyAdapterActivity" />
+        <activity android:name=".recycler_and_swipes.smart_adapter.sand_box.app.SmartAdapterActivityV2"/>
+        <activity android:name=".recycler_and_swipes.smart_adapter.SmartAdapterActivity" />
         <activity android:name=".recycler_and_swipes.grid.GridListActivity" />
         <activity android:name=".matrix.scale_animated.ScaleAnimatedActivity" />
         <activity android:name=".matrix.surface.v02.SmoothDraggingActivity" />

@@ -8,7 +8,7 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.px
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.*
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.Controller
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemList
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.model.ItemList
 
 class SmartAdapterActivity : AppCompatActivity() {
 

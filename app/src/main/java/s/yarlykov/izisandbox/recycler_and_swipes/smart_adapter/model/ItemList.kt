@@ -1,8 +1,7 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller
+package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.model
 
 
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.ItemBase
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.NoDataItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.NoDataItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
 class ItemList : ArrayList<ItemBase<*>>() {

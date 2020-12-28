@@ -1,6 +1,6 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller
 
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.NoDataItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.model.NoDataItem
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
 /**

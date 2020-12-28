@@ -2,7 +2,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.ItemBase
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.model.ItemBase
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 import kotlin.random.Random
 
