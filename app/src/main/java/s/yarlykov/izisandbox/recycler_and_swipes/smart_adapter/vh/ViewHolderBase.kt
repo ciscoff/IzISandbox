@@ -14,5 +14,6 @@ abstract class ViewHolderBase : RecyclerView.ViewHolder {
             : super(
         LayoutInflater.from(recyclerView.context).inflate(layoutId, recyclerView, false)
     )
-    constructor(itemView : View) : super(itemView)
+
+    constructor(itemView: View) : super(itemView)
 }

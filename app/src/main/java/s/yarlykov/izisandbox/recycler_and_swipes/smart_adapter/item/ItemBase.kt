@@ -1,9 +1,13 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item
 
-import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemControllerBase
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
-open class ItemBase<H : RecyclerView.ViewHolder>(
+/**
+ * Subtyping:
+ * ItemBase работает "какбэ" со стандартным ViewHolder'ом
+ */
+open class ItemBase<H : ViewHolderBase>(
     val itemController: ItemControllerBase<H, ItemBase<H>>
 ) {
     var nextItem: ItemBase<H>? = null

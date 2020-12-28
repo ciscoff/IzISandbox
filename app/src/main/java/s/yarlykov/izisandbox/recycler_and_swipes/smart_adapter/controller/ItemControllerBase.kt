@@ -3,28 +3,57 @@ package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.ItemBase
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 import kotlin.random.Random
 
 /**
- * @param <H> type of ViewHolder
- * @param <I> type of Item
+ * Отдельный тип контроллера отвечает за работу с отдельной viewType.
+ * В задачи контроллера входит:
+ * - создание viewHolder'а
+ * - биндинг viewHolder'а с данными
+ *
+ * @param <H> - ViewHolder
+ * @param <I> - Item
  */
-abstract class ItemControllerBase<H : RecyclerView.ViewHolder, I : ItemBase<H>> {
+abstract class ItemControllerBase<H : ViewHolderBase, I : ItemBase<H>> {
 
     companion object {
         const val NO_ID = RecyclerView.NO_ID
     }
 
-    private val viewTypeIdsMap = mutableMapOf<Class<ItemControllerBase<H, I>>, Int>()
+    /**
+     * Каждый контроллер обслуживает элементы одного viewType. Связь контроллера и viewType
+     * обеспечивается HashMap'ой viewTypeIdsMap.
+     *
+     * key = Class<Controller>
+     * value = viewType
+     */
+    private val viewTypeIdsMap = mutableMapOf<Class<out ItemControllerBase<in H, in I>>, Int>()
 
-    abstract fun bind(holder: H, item: I)
+    /**
+     * Биндинг viewHolder'а с элементом данных
+     *
+     * Изначально функция определялась как "abstract fun bind(holder: H, item: I)"
+     * но это порождало ошибку компиляции типа "Out-projected type ItemControllerBase ... prohibits
+     * the use of 'public open fun bind ...".
+     * В общем ответ был найден по ссылке https://youtrack.jetbrains.com/issue/KT-10857.
+     */
+    abstract fun <H, I> bind(holder: H, item: I)
 
     abstract fun createViewHolder(recyclerView: ViewGroup): H
 
+    /**
+     * В качестве viewType используется hash от класса контроллера. Этот hash хранится в
+     * viewTypeIdsMap, ключом является сам класс.
+     */
     val viewType: Int
-        get() = typeHashCode()
+        get() = viewTypeHashCode()
 
-    fun typeHashCode(): Int {
+    /**
+     * Функция возвращает hash. Если при первом проходе hashMap'ы элемент не найден, то рандомно
+     * генерится новый viewType, создается элемент в map'е и функция вызывается рекурсивно.
+     */
+    private fun viewTypeHashCode(): Int {
         var id = viewTypeIdsMap[javaClass]
 
         if (id == null) {
@@ -38,11 +67,10 @@ abstract class ItemControllerBase<H : RecyclerView.ViewHolder, I : ItemBase<H>> 
                 }
             }
 
-            if (hasId) return typeHashCode()
+            if (hasId) return viewTypeHashCode()
 
             viewTypeIdsMap[javaClass] = id
         }
         return id
     }
-
 }

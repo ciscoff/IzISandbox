@@ -1,11 +1,10 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item
 
-import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemControllerBase
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.NoDataItemController
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
-class NoDataItem<H : RecyclerView.ViewHolder>(
-    itemController: NoDataItemController<H>
-) : ItemBase<H>(itemController as ItemControllerBase<H, ItemBase<H>>) {
-
+@Suppress("UNCHECKED_CAST")
+class NoDataItem<H : ViewHolderBase>(itemController: NoDataItemController<H>) :
+    ItemBase<H>(itemController as ItemControllerBase<H, ItemBase<H>>) {
 }

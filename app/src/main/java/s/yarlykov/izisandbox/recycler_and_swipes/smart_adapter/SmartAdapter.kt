@@ -2,28 +2,40 @@ package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter
 
 import android.util.SparseArray
 import android.view.ViewGroup
-import androidx.annotation.NonNull
+import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemControllerBase
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller.ItemList
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.ItemBase
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
-class SmartAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SmartAdapter : RecyclerView.Adapter<ViewHolderBase>() {
 
-    private val items = mutableListOf<ItemBase<RecyclerView.ViewHolder>>()
+    /**
+     * Модель
+     */
+    private val items = mutableListOf<ItemBase<*>>()
+
+    /**
+     * Контроллеры. Хранят layoutId и отвечают за создание viewHolder'ов и их биндинг с данными.
+     */
     private val supportedItemControllers =
-        SparseArray<ItemControllerBase<RecyclerView.ViewHolder, ItemBase<RecyclerView.ViewHolder>>>()
+        SparseArray<ItemControllerBase<ViewHolderBase, ItemBase<ViewHolderBase>>>()
 
-    @NonNull
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    /**
+     * Создание viewHolder'а делегируется контроллеру
+     */
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderBase {
         return supportedItemControllers[viewType].createViewHolder(parent)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, adapterPosition: Int) {
+    /**
+     * Binding делегируется контроллеру
+     */
+    override fun onBindViewHolder(holder: ViewHolderBase, adapterPosition: Int) {
         val position = getListPosition(adapterPosition)
-
         val item = items[position]
         item.itemController.bind(holder, item)
-
     }
 
     override fun getItemCount(): Int = items.size
@@ -33,9 +45,31 @@ class SmartAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     /**
-     * В оригинале вариант сложнее
+     * См. оригинальный метод
      */
-    private fun getListPosition(adapterPosition : Int) : Int = adapterPosition
+    private fun getListPosition(adapterPosition: Int): Int = adapterPosition
+
+    /**
+     * Обновить модель
+     */
+    fun updateItems(list: ItemList) {
+        items.clear()
+        items.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * Обновить списко контроллеров
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun updateControllers(list: ItemList) {
+        supportedItemControllers.clear()
+
+        list.forEach { item ->
+            val controller = item.itemController as ItemControllerBase<ViewHolderBase, ItemBase<ViewHolderBase>>
+            supportedItemControllers[controller.viewType] = controller
+        }
+    }
 }
 
 

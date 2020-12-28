@@ -1,13 +1,15 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.controller
 
-import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.item.NoDataItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.vh.ViewHolderBase
 
-abstract class NoDataItemController<H : RecyclerView.ViewHolder>
-    : ItemControllerBase<H, NoDataItem<H>>() {
+/**
+ * Контроллер для элементов без данных
+ */
+abstract class NoDataItemController<H : ViewHolderBase> :
+    ItemControllerBase<H, NoDataItem<H>>() {
 
-    override fun bind(holder: H, item: NoDataItem<H>) {
-        // empty. no data
+    override fun <H, I> bind(holder: H, item: I) {
+        // nothing to do. no data
     }
-
 }
