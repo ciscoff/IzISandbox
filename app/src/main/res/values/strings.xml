@@ -196,7 +196,8 @@
     <string name="colon" translatable="false">:</string>
     <string name="camera_access_issue" translatable="false">Camera access issue</string>
 
-    <string name="text_header" translatable="false">Text Header</string>
+    <string name="text_header_one_row" translatable="false">One Row</string>
+    <string name="text_header_two_rows" translatable="false">Two Rows</string>
     <string name="text_footer" translatable="false">Text Footer</string>
 
     <string-array name="leftTextArray">

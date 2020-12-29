@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".recycler_and_swipes.smart_adapter.sand_box.app.SmartAdapterActivityV2">
+    tools:context=".recycler_and_swipes.smart_adapter_v2.SmartAdapterActivityV2">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

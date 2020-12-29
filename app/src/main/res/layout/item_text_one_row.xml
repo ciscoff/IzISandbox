@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:background="#eee"
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
     android:layout_height="?attr/actionBarSize">
@@ -9,6 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="start|center_vertical"
-        android:text="@string/text_header"/>
+        android:text="@string/text_header_one_row"/>
 
 </LinearLayout>
