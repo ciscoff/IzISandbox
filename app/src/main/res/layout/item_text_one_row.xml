@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#eee"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp"
+    android:orientation="horizontal"
     android:layout_height="?attr/actionBarSize">
+
+    <s.yarlykov.izisandbox.ui.stub_view.StubView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:cornerRadius="24dp"
+        app:stubColor="@color/gray_A150"/>
 
     <TextView
         android:layout_width="match_parent"

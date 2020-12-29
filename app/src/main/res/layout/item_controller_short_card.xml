@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <s.yarlykov.izisandbox.recycler_and_swipes.custom_decor.StubView
+        <s.yarlykov.izisandbox.ui.stub_view.StubView
             android:layout_width="56dp"
             android:layout_height="56dp"
             app:isCircle="true"
@@ -34,13 +34,13 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <s.yarlykov.izisandbox.recycler_and_swipes.custom_decor.StubView
+        <s.yarlykov.izisandbox.ui.stub_view.StubView
             android:layout_width="match_parent"
             android:layout_height="8dp"
             app:cornerRadius="8dp"
             app:stubColor="@color/gray_A150" />
 
-        <s.yarlykov.izisandbox.recycler_and_swipes.custom_decor.StubView
+        <s.yarlykov.izisandbox.ui.stub_view.StubView
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:layout_marginTop="16dp"
