@@ -29,8 +29,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.Infin
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.sand_box.app.SmartAdapterActivity
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.sand_box.SmartAdapterActivityV2
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.sand_box.SmartAdapterActivityV2
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
