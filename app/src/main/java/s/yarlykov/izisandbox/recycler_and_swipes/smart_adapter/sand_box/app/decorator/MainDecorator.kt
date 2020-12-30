@@ -5,13 +5,19 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class MainDecorator(private val controller : DecorController) : RecyclerView.ItemDecoration() {
+class MainDecorator(private val controller: DecorController) : RecyclerView.ItemDecoration() {
 
+    /**
+     * Рисование уже после вызова onDraw() на view элемента списка
+     */
     override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(canvas, parent, state)
         controller.drawUnderlay(canvas, parent, state)
     }
 
+    /**
+     * Рисование ещё до вызова onDraw() на view элемента списка
+     */
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDraw(canvas, parent, state)
 

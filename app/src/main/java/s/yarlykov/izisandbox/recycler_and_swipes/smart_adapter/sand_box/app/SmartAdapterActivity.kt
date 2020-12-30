@@ -17,36 +17,40 @@ class SmartAdapterActivity : AppCompatActivity() {
 
     private val simpleAdapter = SmartAdapter()
 
-    private val horizontalOffsetSetter1 by lazy {
+    // Декоратор отступов 1
+    private val horizontalOffsetsDecor1 by lazy {
         OffsetDecorator(
             left = 46.px,
             right = 16.px
         )
     }
 
-    private val horizontalOffsetSetter2 by lazy {
+    // Декоратор отступов 2
+    private val horizontalOffsetsDecor2 by lazy {
         OffsetDecorator(
             left = 16.px,
             right = 46.px
         )
     }
 
+    // Декоратор, который закругляет углы (TODO: нужно добавить политику)
     private val roundDecor by lazy {
         RoundDecorator(12.px.toFloat())
     }
 
+    // Генерим инстанс RecyclerView.ItemDecoration с помощью билдера.
+    // Билдеру сообщаем обо всех декораторах, которые хотим применить.
     private val decorator by lazy {
         Decorator.Builder()
             .underlay(OneRowDataItem::class.java.viewType to roundDecor)
-//            .offset(OneRowDataItem::class.java.viewType to horizontalOffsetSetter1)
-//            .offset(TwoRowsDataItem::class.java.viewType to horizontalOffsetSetter2)
+            .offset(OneRowDataItem::class.java.viewType to horizontalOffsetsDecor1)
+            .offset(TwoRowsDataItem::class.java.viewType to horizontalOffsetsDecor2)
             .build()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_smart_adapter)
-
         init()
     }
 
