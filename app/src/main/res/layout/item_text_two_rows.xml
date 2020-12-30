@@ -20,6 +20,7 @@
         app:stubColor="@color/gray_A150"/>
 
     <TextView
+        android:id="@+id/textTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@+id/stubView"
@@ -31,6 +32,7 @@
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/textDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="20dp"

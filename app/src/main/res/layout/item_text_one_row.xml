@@ -16,6 +16,7 @@
         app:stubColor="@color/gray_A150"/>
 
     <TextView
+        android:id="@+id/textTitle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="start|center_vertical"

@@ -30,6 +30,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.sand_box.app.SmartAdapterActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.sand_box.SmartAdapterActivityV2
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
@@ -55,7 +56,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        SmartAdapterActivity::class.java to R.string.menu_cool_decor_1,
+        /*SmartAdapterActivity::class.java to R.string.menu_cool_decor_1,*/
+        SmartAdapterActivityV2::class.java to R.string.menu_cool_decor_1,
         GridListActivity::class.java to R.string.menu_grid_list,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
         EditorAvatarActivity::class.java to R.string.menu_funny_avatar,

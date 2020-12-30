@@ -6,6 +6,7 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.controller.BaseItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.holder.BaseViewHolder
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BaseItem
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.model.SmartList
 
 class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
@@ -21,11 +22,11 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     private val supportedControllers = SparseArray<BaseItemController<*, *>>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return supportedControllers[viewType].createViewHolder(parent) as BaseViewHolder
+        return supportedControllers[viewType].createViewHolder(parent)
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-        model[position].also { item -> item.controller.bind(holder, item) }
+        model[position].also { item -> item.controller.bind(holder, item as BaseItem<BaseViewHolder>) }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -43,11 +44,11 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
         model.apply {
             clear()
             addAll(model)
-            notifyDataSetChanged()
         }
 
         // Обновить контроллеры
         updateControllers()
+        notifyDataSetChanged()
     }
 
     /**
