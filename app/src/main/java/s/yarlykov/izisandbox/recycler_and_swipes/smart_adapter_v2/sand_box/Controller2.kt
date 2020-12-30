@@ -5,6 +5,7 @@ import androidx.annotation.LayoutRes
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.holder.BaseViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BaseItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BindableItem
 
 /**
  * Определяем конкретный ТИП на базе дженерик-КЛАССОВ, поэтому для всех type parameters
@@ -14,8 +15,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BaseItem
 class Controller2(@LayoutRes val layoutRes: Int) : BindableItemController<TextModel, ViewHolder2>() {
 
     private var viewType : Int = 0
-
-    override fun <H : BaseViewHolder, I : BaseItem<H>> bind(holder: H, item: I) {
+    override fun bind(holder: ViewHolder2, item: BindableItem<TextModel, ViewHolder2>) {
 
     }
 
@@ -23,9 +23,6 @@ class Controller2(@LayoutRes val layoutRes: Int) : BindableItemController<TextMo
         return ViewHolder2(parent, layoutRes)
     }
 
-    override fun setViewType(clazz: Class<Any>) {
-        viewType = clazz.hashCode() + layoutRes
-    }
 
     override fun viewType(): Int = layoutRes
 }

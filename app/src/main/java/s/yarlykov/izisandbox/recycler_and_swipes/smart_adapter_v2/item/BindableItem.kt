@@ -1,6 +1,6 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item
 
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.controller.BaseItemController
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.controller.BaseController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.holder.BindableViewHolder
 
@@ -11,4 +11,4 @@ import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.holder.Bindabl
 open class BindableItem<T, H : BindableViewHolder<T>>(
     val data: T,
     controller: BindableItemController<T, H>
-) : BaseItem<H>(controller as BaseItemController<H, BaseItem<H>>)
+) : BaseItem<H>(controller as BaseController<H, BaseItem<H>>)

@@ -1,6 +1,7 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.model
 
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.controller.BindableItemController
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.holder.BaseViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.holder.BindableViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BaseItem
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BindableItem
@@ -20,7 +21,7 @@ class SmartList : ArrayList<ListItem>() {
         data: T,
         controller: BindableItemController<T, H>
     ) {
-        add(BindableItem(data, controller))
+        insert(size, BindableItem(data, controller))
         val a = 1
     }
 

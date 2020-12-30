@@ -16,21 +16,12 @@ import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter_v2.item.BindableI
  */
 class Controller1(@LayoutRes val layoutRes: Int) : BindableItemController<TextModel, ViewHolder1>() {
 
-    private var viewType : Int = 0
-
-//    override fun <H, I> bind(holder: H, item: I) {
-//        TODO("Not yet implemented")
-//    }
-
-    override fun <H : BaseViewHolder, I : BaseItem<H>> bind(holder: H, item: I) {
+    override fun bind(holder: ViewHolder1, item: BindableItem<TextModel, ViewHolder1>) {
+        bind(holder, item.data)
     }
 
     override fun createViewHolder(parent: ViewGroup): ViewHolder1 {
         return ViewHolder1(parent, layoutRes)
-    }
-
-    override fun setViewType(clazz: Class<Any>) {
-        viewType = clazz.hashCode() + layoutRes
     }
 
     override fun viewType(): Int = layoutRes
