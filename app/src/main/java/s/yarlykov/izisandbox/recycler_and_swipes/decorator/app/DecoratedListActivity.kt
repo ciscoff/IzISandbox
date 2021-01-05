@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.format.DateFormat
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_smart_adapter.*
+import kotlinx.android.synthetic.main.activity_decorated_list.*
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.px
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.StubViewController
@@ -13,6 +13,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.offset.OffsetDecorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round.RoundDecorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.StickyItemDecorator
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.StickyItemDecoratorSmart
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BindableViewHolder
@@ -43,7 +44,7 @@ class DecoratedListActivity : AppCompatActivity() {
     val decorator by lazy {
         Decorator.Builder()
             .underlay(stubViewController.viewType() to roundDecor)
-            .overlay(StickyItemDecorator())
+            .overlay(StickyItemDecoratorSmart())
             .offset(stubViewController.viewType() to offsetsDecor)
             .build()
     }
@@ -68,7 +69,7 @@ class DecoratedListActivity : AppCompatActivity() {
             repeat(20) { i ->
 
                 // Добавить sticky элемент
-                if(i.rem(4) == 0) {
+                if(i.rem(2) == 0) {
                     val date = DateFormat.format("dd MMMM yyyy HH:mm:ss", System.currentTimeMillis() + i * 1000)
                     addItem(date.toString(), timeStampController as BindableItemController<String, BindableViewHolder<String>>)
                 }
@@ -77,5 +78,6 @@ class DecoratedListActivity : AppCompatActivity() {
                 addItem(stubViewController)
             }
         }.also(smartAdapter::updateModel)
+
     }
 }
