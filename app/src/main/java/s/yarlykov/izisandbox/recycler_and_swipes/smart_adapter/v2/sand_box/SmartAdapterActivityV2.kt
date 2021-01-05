@@ -37,16 +37,16 @@ class SmartAdapterActivityV2 : AppCompatActivity() {
 
         SmartList.create().apply {
             repeat(2) {
-                addBindable(model[0], controller1)
+                addItem(model[0], controller1)
             }
             repeat(3) {
-                addBindable(model[1], controller2)
+                addItem(model[1], controller2)
             }
             repeat(1) {
-                addBindable(model[0], controller1)
+                addItem(model[0], controller1)
             }
             repeat(5) {
-                addBindable(model[1], controller2)
+                addItem(model[1], controller2)
             }
         }.also(smartAdapter::updateModel)
     }

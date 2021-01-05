@@ -1,16 +1,19 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round
 
 import android.graphics.Canvas
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.round.RoundMode
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.round.RoundOutlineProvider
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator.UNDEFINE_VIEW_HOLDER
 
-
-class RoundDecor(
+/**
+ * Его задача установить кастомный ViewOutlineProvider, который будет возвращать форму
+ * для обрезки View.
+ */
+class RoundDecorator(
     private val cornerRadius: Float,
     private val roundPolitic: RoundPolitic = RoundPolitic.Every(RoundMode.ALL)
-) : Decorator.ViewHolderDecor {
+) : Decorator.ViewHolderDecorator {
 
     override fun draw(
         canvas: Canvas,
@@ -20,12 +23,15 @@ class RoundDecor(
     ) {
 
         val viewHolder = recyclerView.getChildViewHolder(view)
-        val nextViewHolder = recyclerView.findViewHolderForAdapterPosition(viewHolder.adapterPosition + 1)
-        val previousChildViewHolder = recyclerView.findViewHolderForAdapterPosition(viewHolder.adapterPosition - 1)
+        val nextViewHolder =
+            recyclerView.findViewHolderForAdapterPosition(viewHolder.adapterPosition + 1)
+        val previousChildViewHolder =
+            recyclerView.findViewHolderForAdapterPosition(viewHolder.adapterPosition - 1)
 
-        if (cornerRadius.compareTo(0f) != 0) {
+        if (cornerRadius != 0f) {
             val roundMode = getRoundMode(previousChildViewHolder, viewHolder, nextViewHolder)
             val outlineProvider = view.outlineProvider
+
             if (outlineProvider is RoundOutlineProvider) {
                 outlineProvider.roundMode = roundMode
                 view.invalidateOutline()
@@ -36,6 +42,9 @@ class RoundDecor(
         }
     }
 
+    /**
+     * Определить что закруглять согласно установленной политике.
+     */
     private fun getRoundMode(
         previousChildViewHolder: RecyclerView.ViewHolder?,
         currentViewHolder: RecyclerView.ViewHolder?,
@@ -46,8 +55,13 @@ class RoundDecor(
         val currentHolderItemType = currentViewHolder?.itemViewType ?: UNDEFINE_VIEW_HOLDER
         val nextHolderItemType = nextChildViewHolder?.itemViewType ?: UNDEFINE_VIEW_HOLDER
 
-        if(roundPolitic is RoundPolitic.Every) return roundPolitic.roundMode
+        // Если RoundPolitic.Every, то просто вернуть roundMode. Он будет действовать одинаково
+        // на каждый элемент списка.
+        if (roundPolitic is RoundPolitic.Every) return roundPolitic.roundMode
 
+        // Если RoundPolitic.Group, то нужно определить находится ли текущий viewHolder в группе
+        // однотипных элементов и какое положение он в ней занимает. В зависимости от полученных
+        // данных принимаем решение о том что закруглять и нужно ли закруглять вообще.
         return when {
             previousHolderItemType != currentHolderItemType && currentHolderItemType != nextHolderItemType -> RoundMode.ALL
             previousHolderItemType != currentHolderItemType && currentHolderItemType == nextHolderItemType -> RoundMode.TOP
@@ -56,9 +70,4 @@ class RoundDecor(
             else -> RoundMode.NONE
         }
     }
-}
-
-sealed class RoundPolitic {
-    class Every(val roundMode: RoundMode): RoundPolitic()
-    class Group(): RoundPolitic()
 }

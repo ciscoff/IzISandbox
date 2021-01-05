@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own
 
 /**
  * Контейнер DecorBinder связывает viewType с декоратором отдельного типа.

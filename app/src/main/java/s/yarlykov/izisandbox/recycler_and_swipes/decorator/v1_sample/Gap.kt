@@ -1,10 +1,10 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample
 
 import android.annotation.SuppressLint
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.Rules.END
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.Rules.MIDDLE
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample.Rules.END
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample.Rules.MIDDLE
 
 /**
  * Модель для описания разделителя

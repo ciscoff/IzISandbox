@@ -9,9 +9,9 @@ import s.yarlykov.izisandbox.extensions.px
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.adapter.SmartAdapter
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.base.viewType
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.model.ItemList
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator.Decorator
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator.offset.OffsetDecorator
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator.round.RoundDecorator
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.offset.OffsetDecorator
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round.RoundDecorator
 
 class SmartAdapterActivityV1 : AppCompatActivity() {
 

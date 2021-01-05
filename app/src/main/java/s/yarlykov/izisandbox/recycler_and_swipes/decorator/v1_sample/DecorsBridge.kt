@@ -1,11 +1,11 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample
 
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.view.View
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.Decorator.EACH_VIEW
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample.Decorator.EACH_VIEW
 
 /**
  * Calls appropriate drawers for every ViewHolder or RecyclerView

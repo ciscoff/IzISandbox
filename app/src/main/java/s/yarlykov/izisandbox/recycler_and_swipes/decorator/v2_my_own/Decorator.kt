@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own
 
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -14,6 +14,7 @@ object Decorator {
      * Если какой-то декор нужно вывести на все views, то устанавливаем viewType == EACH_VIEW
      */
     const val EACH_VIEW = -1
+    const val UNDEFINE_VIEW_HOLDER: Int = -1
 
     class Builder {
 
@@ -51,7 +52,7 @@ object Decorator {
         }
 
         /**
-         * underlay рисование на ВСЕХ элементах
+         * underlay рисование на ВСЕХ (EACH_VIEW) элементах
          */
         fun underlay(decor: ViewHolderDecorator): Builder {
             return apply { scopeViewHolderUnderlay.add(DecorBinder(EACH_VIEW, decor)) }
@@ -82,7 +83,7 @@ object Decorator {
         }
 
         /**
-         * overlay рисование на ВСЕХ элементах
+         * overlay рисование на ВСЕХ (EACH_VIEW) элементах
          */
         fun overlay(decor: ViewHolderDecorator): Builder {
             return apply {
@@ -116,6 +117,9 @@ object Decorator {
             return MainDecorator(
                 DecorController(
                     scopeViewHolderUnderlay,
+                    scopeRecyclerViewUnderlay,
+                    scopeViewHolderOverlay,
+                    scopeRecyclerViewOverlay,
                     scopeOffsets
                 )
             )

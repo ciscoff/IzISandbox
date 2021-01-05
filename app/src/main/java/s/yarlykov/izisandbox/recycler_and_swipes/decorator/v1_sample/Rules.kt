@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample
 
 object Rules {
     const val MIDDLE = 1

@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator.round
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round
 
 import android.graphics.Outline
 import android.os.Build

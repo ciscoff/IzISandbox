@@ -1,10 +1,9 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v1_sample
 
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.DecorsBridge
 
 /**
  * Main item decorator for drawing all decors of RecyclerView and ViewHolders decors

@@ -1,9 +1,11 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model
 
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.NoDataItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BindableViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BaseItem
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BindableItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.NoDataItem
 
 /**
  * Это фактически использования Java Raw Types
@@ -16,7 +18,17 @@ class SmartList : ArrayList<ListItem>() {
         fun create() = SmartList()
     }
 
-    fun <T : Any, H : BindableViewHolder<T>> addBindable(
+    /**
+     * Добавить элемент, который не содержит данных
+     */
+    fun addItem(controller : NoDataItemController<*>) {
+        insert(size, NoDataItem(controller))
+    }
+
+    /**
+     * Добавить элемент с данными.
+     */
+    fun <T : Any, H : BindableViewHolder<T>> addItem(
         data: T,
         controller: BindableItemController<T, H>
     ) {
@@ -24,11 +36,7 @@ class SmartList : ArrayList<ListItem>() {
         val a = 1
     }
 
-    fun addItem(item: ListItem): SmartList {
-        return insert(this.size, item)
-    }
-
-    fun insert(index: Int, item: ListItem): SmartList {
+    private fun insert(index: Int, item: ListItem): SmartList {
         this.add(index, item)
         return this
     }

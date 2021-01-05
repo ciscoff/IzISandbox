@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v1.sand_box.app.decorator
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own
 
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -12,7 +12,7 @@ class MainDecorator(private val controller: DecorController) : RecyclerView.Item
      */
     override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(canvas, parent, state)
-        controller.drawUnderlay(canvas, parent, state)
+        controller.drawOverlay(canvas, parent, state)
     }
 
     /**
@@ -20,7 +20,6 @@ class MainDecorator(private val controller: DecorController) : RecyclerView.Item
      */
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDraw(canvas, parent, state)
-
         controller.drawUnderlay(canvas, parent, state)
     }
 
