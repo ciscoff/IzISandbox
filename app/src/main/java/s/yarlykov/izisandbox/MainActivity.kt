@@ -30,7 +30,6 @@ import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.Infin
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.item_animators.RecyclerViewItemAnimationActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.items_animation.layout_animation.RecyclerViewLayoutAnimationActivity
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.sand_box.SmartAdapterActivityV2
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_1.SwipeActivityFirst
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_2.SwipeActivitySecond
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
@@ -56,10 +55,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        DecoratedListActivity::class.java to R.string.menu_cool_decor_1,
-        /*SmartAdapterActivity::class.java to R.string.menu_cool_decor_1,*/
-        /*SmartAdapterActivityV2::class.java to R.string.menu_cool_decor_1,*/
         GridListActivity::class.java to R.string.menu_grid_list,
+        DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
         EditorAvatarActivity::class.java to R.string.menu_funny_avatar,
         ScaleAnimatedActivity::class.java to R.string.menu_scale_big_bitmap,

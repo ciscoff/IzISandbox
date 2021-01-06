@@ -7,32 +7,53 @@ import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.StickyHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.utils.logIt
-import java.lang.Exception
 
 /**
  * Алгоритм такой:
  * При первом показе списка самым верхним его элементом является sticky и его view.y = 0.
- * Декоратор копируем битмапу этого верхнего sticky и рисует на канве выше видимой области экрана.
- * То есть в самом начале мы видим sticky в верхней строке списка и НЕ видим копию его битмапы
+ * Декоратор "копирует" битмапу этого верхнего sticky и рисует на канве выше видимой области экрана.
+ * Поэтому в самом начале мы видим sticky в верхней строке списка и НЕ видим копию его битмапы
  * за верхней границей экрана.
  *
  * Далее двигаем пальцем вверх. RecyclerView.LayoutManager отрабатывает скроллинг и у sticky
  * view.y становится меньше нуля (выполнен offset элемента). Декоратор реагирует и скрывает
- * sticky (view.alpha = 0f) и вместо него рисует его битмапу в верхней части экрана. Кажется, что
- * элемент приклеился, а на самом деле скрылся и утилизировался.
+ * sticky (view.alpha = 0f) и вместо него рисует его битмапу в верхней части экрана (bitmap.y = 0).
+ * Кажется, что элемент приклеился, а на самом деле скрылся и утилизировался.
  *
- * Если продолжать двигать пальцем вверх, то новый sticky приблизится в битмапе и начинает
- * "выталкивать" её вверх за экран. И когда его view.y станет меньше 0, то произойдет смена битмапы,
- * а сам sticky получит alpha 0f.
+ * Если продолжать двигать пальцем вверх, то новый sticky приближается к битмапе, его view.y
+ * попадает в диапазон '0 < y < bitmap.height' и sticky начинает "выталкивать" битмапу вверх
+ * за экран. И когда его view.y станет меньше 0, то произойдет смена битмапы, а сам sticky
+ * получит alpha 0f.
+ *
+ * В данной версии декоратора (Smart) реализован контроль за правильным показом битмапы при
+ * движении пальца вниз. В результате битмапа всегда показывает дату того блока записей, которые в
+ * данный момент находятся в верхней части экрана.
+ * Реализовано с использованием стэка битмап, хотя можно пойти другим путем и хранить в стеке
+ * только данные Date и "рисовать" их на канве внутри закругленного фона. Или как-то ещё.
+ *
+ * NOTE: Алгоритм с "фотографированием" битмап и их хранением в стеке работает ненадежно.
+ * При резком скроле/флинге часть битмап теряется (не успевает создаваться). Наверное нужно генерить
+ * битмапы на лету в зависимости от текущего видимого контента. Но в целом, в демонстрационных
+ * целях, вполне себе прилично работает.
  */
 class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
 
-    private val bitmapStack = StickyStack()
+    private val bitmapStack: Stack<Bitmap> = StickyStack()
 
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        colorFilter = LightingColorFilter(Color.CYAN, 0)
+    private val paintSimple = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private val paintDebug = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        colorFilter = LightingColorFilter(Color.GREEN, 0)
     }
+
+    private var paintCurrent = paintSimple
+
+    fun highlightMode(mode: Boolean) {
+        paintCurrent = if (mode) paintDebug else paintSimple
+    }
+
     private var currentStickyBitmap: Bitmap? = null
+    private var lastStickyBitmapOffset: Float = 0f
 
     @ExperimentalStdlibApi
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
@@ -56,75 +77,74 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
         val topStickyY = topStickyHolder?.itemView?.y ?: 0f
 
         /**
-         * 1. Определить чью битмапу будем использовать в качестве currentStickyBitmap
+         * Битмапа попадает в стек только побывав в currentStickyBitmap. Когда битмапа снимается со
+         * стека, то попадает в currentStickyBitmap.
          */
         when {
+            // Начальное состояние - старт активити.
             (currentStickyBitmap == null) -> {
                 topStickyBitmap?.let {
                     currentStickyBitmap = it
                 }
             }
+            // sticky view выходит за верхнюю границу. В этом случае создается её битмапа и
+            // помещается в currentStickyBitmap, а содержимое currentStickyBitmap уходит в стек.
+            // topStickyBitmap не перезапишет currentStickyBitmap, если она там уже есть (sameAs) и
+            // currentStickyBitmap не попадет в стек, если она там уже есть (pushOnce).
             (topStickyY < 0) -> {
-
                 topStickyBitmap?.let {
-                    if(currentStickyBitmap?.sameAs(it) != true) {
-                        currentStickyBitmap?.also (bitmapStack::pushOnce)
+                    if (currentStickyBitmap?.sameAs(it) != true) {
+                        currentStickyBitmap?.also(bitmapStack::pushOnce)
                         currentStickyBitmap = it
                     }
                 }
             }
         }
 
-        logIt("bitmapStack size = ${bitmapStack.size}")
-
         val bitmapHeight = currentStickyBitmap?.height ?: 0
-        // Надвигающийся снизу sticky касается битмапы и начинает "выталкивать" её вверх за экран.
-        // И когда его view.y станет меньше 0, то произойдет смена битмапы, а сам sticky получит
-        // alpha 0f.
-        val bitmapTopOffset = if (0 <= topStickyY && topStickyY <= bitmapHeight) {
-            topStickyY - bitmapHeight
-        } else {
-            0f
+
+        val bitmapTopOffset =
+            /**
+             * Когда sticky view.y попадает в диапазон '0 < y < bitmap.height', то он начинает
+             * тянуть вниз за собой или толкать вверх битмапу. Это достигается изменением
+             * top-позиции битмапы в координатах канвы. Например, надвигающийся снизу
+             * sticky касается битмапы снизу и начинает "выталкивать" её вверх за экран.
+             *
+             * Если sticky view.y в другом диапазоне, то битмапа имеет top = 0 и висит
+             * вверху экрана.
+             */
+            if (0 <= topStickyY && topStickyY <= bitmapHeight) {
+                topStickyY - bitmapHeight
+            } else {
+                0f
+            }
+
+        /**
+         * После того как вычислили текущее top-смещение битмапы нужно сравнить его с предыдущим
+         * значением. Нужно поймать момент, когда значение из ненулевого (битмапа частично или
+         * полностью за верхней границей экрана) переходит в 0. И в этом случае берем верхнюю
+         * битмапу из стека и помещаем в currentStickyBitmap.
+         */
+        if (lastStickyBitmapOffset != 0f && bitmapTopOffset == 0f) {
+
+            with(bitmapStack) {
+                if (isNotEmpty() && peek()?.sameAs(currentStickyBitmap!!) != true) {
+                    currentStickyBitmap = pop()
+                }
+            }
         }
 
-//        if((abs(bitmapTopOffset) == bitmapHeight.toFloat()) && bitmapStack.isNotEmpty()) {
-//            currentStickyBitmap = bitmapStack.removeLast()
-//        }
+        lastStickyBitmapOffset = bitmapTopOffset
 
         topStickyHolder?.itemView?.alpha = if (topStickyY < 0f) 0f else 1f
 
-//        logIt("topStickyY=$topStickyY, bitmapTopOffset=$bitmapTopOffset, bitmapHeight=$bitmapHeight")
-
         currentStickyBitmap?.let {
-            canvas.drawBitmap(it, 0f, bitmapTopOffset, paint)
-        }
-    }
-
-    var started : Boolean = false
-
-    private fun scrollProgress(recyclerView: RecyclerView): Float {
-        val currentOffset = recyclerView.computeVerticalScrollOffset()
-        val maxOffset =
-            recyclerView.computeVerticalScrollRange() - recyclerView.computeVerticalScrollExtent()
-        return currentOffset.toFloat() / maxOffset
-    }
-
-    private fun MutableList<Bitmap>.containsOther(other : Bitmap) : Boolean {
-        forEach {
-            if(it.sameAs(other)) return true
+            canvas.drawBitmap(it, 0f, bitmapTopOffset, paintCurrent)
         }
 
-        return false
-    }
-
-    private fun MutableList<Bitmap>.doesNotContain(other : Bitmap) : Boolean {
-        return !containsOther(other)
-    }
-
-    private fun MutableList<Bitmap>.pushOnce(other : Bitmap) {
-        if(doesNotContain(other)) {
-            add(other)
+        // Очистить стек если верхний sticky полностью на экране
+        if (topStickyHolder?.adapterPosition == 0 && topStickyY >= 0) {
+            bitmapStack.clear()
         }
     }
-
 }

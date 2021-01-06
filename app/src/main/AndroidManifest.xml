@@ -19,10 +19,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".recycler_and_swipes.decorator.app.DecoratedListActivity"></activity>
+        <activity
+            android:name=".recycler_and_swipes.decorator.app.DecoratedListActivity"
+            android:theme="@style/StickyDecorTheme"
+            android:label="@string/sticky_decor_title"/>
         <activity android:name=".recycler_and_swipes.smart_adapter.v2.sand_box.SmartAdapterActivityV2" />
         <activity android:name=".recycler_and_swipes.smart_adapter.v1.sand_box.app.SmartAdapterActivityV1" />
-        <activity android:name=".recycler_and_swipes.smart_adapter.v1.SmartAdapterActivity" />
         <activity android:name=".recycler_and_swipes.grid.GridListActivity" />
         <activity android:name=".matrix.scale_animated.ScaleAnimatedActivity" />
         <activity android:name=".matrix.surface.v02.SmoothDraggingActivity" />

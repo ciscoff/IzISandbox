@@ -61,7 +61,7 @@
     <string name="menu_surface_edu_activity" translatable="false">Drawing On Surface</string>
     <string name="menu_scale_big_bitmap" translatable="false">Scale big bitmap</string>
     <string name="menu_grid_list" translatable="false">Grid List</string>
-    <string name="menu_cool_decor_1" translatable="false">Cool decor</string>
+    <string name="menu_sticky_decor" translatable="false">Sticky Decorator</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
@@ -199,6 +199,11 @@
     <string name="text_header_one_row" translatable="false">One Row</string>
     <string name="text_header_two_rows" translatable="false">Two Rows</string>
     <string name="text_footer" translatable="false">Text Footer</string>
+
+    <!-- Sticky Decorator Title and Menu Items -->
+    <string name="sticky_decor_title" translatable="false">Sticky Decor Demo</string>
+    <string name="menu_highlight" translatable="false">Highlight</string>
+    <string name="menu_highlight_sticky" translatable="false">Highlight Sticky</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>
