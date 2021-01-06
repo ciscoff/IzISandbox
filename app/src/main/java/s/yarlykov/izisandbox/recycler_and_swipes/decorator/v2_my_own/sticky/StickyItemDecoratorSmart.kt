@@ -8,7 +8,6 @@ import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.Sticky
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.utils.logIt
 import java.lang.Exception
-import kotlin.math.abs
 
 /**
  * Алгоритм такой:
@@ -28,15 +27,12 @@ import kotlin.math.abs
  */
 class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
 
-    private val bitmapStack = mutableListOf<Bitmap>()
+    private val bitmapStack = StickyStack()
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         colorFilter = LightingColorFilter(Color.CYAN, 0)
     }
     private var currentStickyBitmap: Bitmap? = null
-
-    private var lastScrollProgress = 0f
-    private var lastStickyTop = 0f
 
     @ExperimentalStdlibApi
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
@@ -45,7 +41,6 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
         val stickyViewHolders = recyclerView.children
             .map { recyclerView.findContainingViewHolder(it) }
             .filter { it is StickyHolder }
-
 
         // Сделать все sticky видимыми
         stickyViewHolders.forEach { it?.itemView?.alpha = 1.0f }
@@ -67,22 +62,20 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
             (currentStickyBitmap == null) -> {
                 topStickyBitmap?.let {
                     currentStickyBitmap = it
-//                    bitmapStack.add(it)
                 }
             }
             (topStickyY < 0) -> {
+
                 topStickyBitmap?.let {
-                    if (bitmapStack.isEmpty() || bitmapStack.doesNotContain(currentStickyBitmap!!)) {
-                        bitmapStack.add(currentStickyBitmap!!)
+                    if(currentStickyBitmap?.sameAs(it) != true) {
+                        currentStickyBitmap?.also (bitmapStack::pushOnce)
                         currentStickyBitmap = it
-//                        bitmapStack.add(it)
                     }
                 }
             }
         }
 
         logIt("bitmapStack size = ${bitmapStack.size}")
-
 
         val bitmapHeight = currentStickyBitmap?.height ?: 0
         // Надвигающийся снизу sticky касается битмапы и начинает "выталкивать" её вверх за экран.
@@ -116,7 +109,7 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
         return currentOffset.toFloat() / maxOffset
     }
 
-    private fun List<Bitmap>.containsOther(other : Bitmap) : Boolean {
+    private fun MutableList<Bitmap>.containsOther(other : Bitmap) : Boolean {
         forEach {
             if(it.sameAs(other)) return true
         }
@@ -124,7 +117,14 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
         return false
     }
 
-    private fun List<Bitmap>.doesNotContain(other : Bitmap) : Boolean {
+    private fun MutableList<Bitmap>.doesNotContain(other : Bitmap) : Boolean {
         return !containsOther(other)
     }
+
+    private fun MutableList<Bitmap>.pushOnce(other : Bitmap) {
+        if(doesNotContain(other)) {
+            add(other)
+        }
+    }
+
 }
