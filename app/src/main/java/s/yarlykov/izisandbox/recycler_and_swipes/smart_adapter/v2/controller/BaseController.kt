@@ -2,13 +2,13 @@ package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller
 
 import android.view.ViewGroup
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BaseViewHolder
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BaseItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BaseItem
 
 /**
  * Базовый класс контроллера. Его задача сформировать viwType, сгенерить ViewHolder и
- * сбиндить holder и элемент модели <T>. viewType формируется на базе двух значений:
- * - тип данных T
- * - layoutId для элемента списка
+ * сбиндить holder и Item. viewType формируется на базе двух значений:
+ * - тип данных T (сейчас не используется)
+ * - layoutId элемента списка
  *
  * Это позволит не только назначать различные холдеры для различных данных, но и
  * показывать однотипные данные в разных представляениях. Например часть элемента однотипного

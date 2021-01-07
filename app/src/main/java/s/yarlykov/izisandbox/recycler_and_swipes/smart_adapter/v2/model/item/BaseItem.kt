@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item
+package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item
 
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BaseController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BaseViewHolder

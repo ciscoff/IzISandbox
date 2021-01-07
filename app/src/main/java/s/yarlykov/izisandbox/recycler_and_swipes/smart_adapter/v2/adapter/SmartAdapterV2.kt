@@ -6,8 +6,21 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BaseController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BaseViewHolder
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BaseItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BaseItem
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
+
+/**
+ * Алгоритм работы следующий:
+ * Адаптер использует в качестве модели SmartList Item'ов. Каждый Item имеет ссылку на свой
+ * контроллер и опционально ссылку на 'data: T' (если данные имеются). На каждый viewType создается
+ * отдельный контроллер. Зависимость такова: ControllerA -> layoutIdA -> ViewHolderA, то есть
+ * layoutIdA - это viewType, а ViewHolderA знает только про иерархию внутри layoutIdA. Универсальные
+ * холдеры под несколько layoutId не применяются.
+ *
+ * Для создания ViewHolder'а и binding'а адаптер использует контроллер Item'а.
+ * - Создание холдера: контроллер инфлейтит view с помощью layoutId, создает и возвращает холдер.
+ * - Binding: адаптер передает контроллеру созданный ранее холдер и ссылку на Item.
+ */
 
 class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
 
@@ -19,7 +32,7 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     /**
      * Список контроллеров для текущей модели данных
      */
-    private val supportedControllers = SparseArray<BaseController<*, *>>()
+    private val supportedControllers = SparseArray<BaseController</*H*/*, /*I*/*>>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return supportedControllers[viewType].createViewHolder(parent)
@@ -48,7 +61,6 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     override fun getItemCount(): Int = model.size
-
 
     /**
      * Обновляем модель данных

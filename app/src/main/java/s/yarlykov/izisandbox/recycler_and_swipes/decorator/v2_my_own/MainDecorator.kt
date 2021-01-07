@@ -5,14 +5,14 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class MainDecorator(private val controller: DecorController) : RecyclerView.ItemDecoration() {
+class MainDecorator(private val helper: DecorHelper) : RecyclerView.ItemDecoration() {
 
     /**
      * Рисование уже после вызова onDraw() на view элемента списка
      */
     override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(canvas, parent, state)
-        controller.drawOverlay(canvas, parent, state)
+        helper.drawOverlay(canvas, parent, state)
     }
 
     /**
@@ -20,7 +20,7 @@ class MainDecorator(private val controller: DecorController) : RecyclerView.Item
      */
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDraw(canvas, parent, state)
-        controller.drawUnderlay(canvas, parent, state)
+        helper.drawUnderlay(canvas, parent, state)
     }
 
     override fun getItemOffsets(
@@ -30,6 +30,6 @@ class MainDecorator(private val controller: DecorController) : RecyclerView.Item
         state: RecyclerView.State
     ) {
         super.getItemOffsets(outRect, view, parent, state)
-        controller.getItemOffsets(outRect, view, parent, state)
+        helper.getItemOffsets(outRect, view, parent, state)
     }
 }

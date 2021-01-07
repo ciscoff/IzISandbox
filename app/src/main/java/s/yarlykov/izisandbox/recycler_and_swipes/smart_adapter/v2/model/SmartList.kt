@@ -3,9 +3,9 @@ package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.NoDataItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BindableViewHolder
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BaseItem
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BindableItem
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.NoDataItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BaseItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BindableItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.NoDataItem
 
 /**
  * Это фактически использования Java Raw Types

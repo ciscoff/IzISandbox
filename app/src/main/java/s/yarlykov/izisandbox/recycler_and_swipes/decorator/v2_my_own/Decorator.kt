@@ -20,13 +20,14 @@ object Decorator {
 
         /**
          * Хранилище декораторов. Scope задает область их применения:
-         * - Underlay - рисуем до onDraw() у view элемента списка.
-         * - Overlay - рисуем после onDraw() у view элемента списка.
+         * - Underlay - рисуем до вызова itemView::onDraw.
+         * - Overlay - рисуем после вызова itemView::onDraw.
          * - ViewHolder - рисуем в области, занимаемой view элемента списка.
          * - RecyclerView - рисуем в любом месте RecyclerView.
          * - Offsets - просто определить отступы.
          *
-         * В скоупе хранятся элементы DecorBinder, которые связывают viewType и его декоратор.
+         * В скоупе ViewHolder хранятся элементы DecorBinder, которые связывают viewType
+         * и его декоратор.
          */
         private var scopeViewHolderUnderlay: MutableList<DecorBinder<ViewHolderDecorator>> =
             mutableListOf()
@@ -115,7 +116,7 @@ object Decorator {
             ) { "Any ViewHolder can have only a single OffsetDecorator" }
 
             return MainDecorator(
-                DecorController(
+                DecorHelper(
                     scopeViewHolderUnderlay,
                     scopeRecyclerViewUnderlay,
                     scopeViewHolderOverlay,

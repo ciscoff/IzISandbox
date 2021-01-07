@@ -3,7 +3,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.sand_box
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BindableItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BindableItem
 
 /**
  * Определяем конкретный ТИП на базе дженерик-КЛАССОВ, поэтому для всех type parameters

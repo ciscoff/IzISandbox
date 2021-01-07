@@ -5,7 +5,7 @@ import androidx.annotation.LayoutRes
 import kotlinx.android.synthetic.main.item_time_stamp.view.*
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BindableViewHolder
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.item.BindableItem
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BindableItem
 
 class TimeStampController(@LayoutRes val layoutRes: Int) :
     BindableItemController<String, TimeStampController.Holder>() {

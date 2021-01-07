@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.StickyHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.abs
 
 /**
  * Алгоритм такой:
@@ -53,7 +54,7 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
     }
 
     private var currentStickyBitmap: Bitmap? = null
-    private var lastStickyBitmapOffset: Float = 0f
+    private var prevBitmapTopOffset: Float = 0f
 
     @ExperimentalStdlibApi
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
@@ -122,10 +123,15 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
         /**
          * После того как вычислили текущее top-смещение битмапы нужно сравнить его с предыдущим
          * значением. Нужно поймать момент, когда значение из ненулевого (битмапа частично или
-         * полностью за верхней границей экрана) переходит в 0. И в этом случае берем верхнюю
+         * полностью ниже верхней границы экрана) переходит в 0. И в этом случае берем верхнюю
          * битмапу из стека и помещаем в currentStickyBitmap.
+         *
+         * NOTE: Забираем из стека только если двигали пальцем сверху вниз. Поэтому выполняется
+         * проверка 'abs(prevBitmapTopOffset.toInt()) < bitmapHeight/2'
          */
-        if (lastStickyBitmapOffset != 0f && bitmapTopOffset == 0f) {
+        if (prevBitmapTopOffset != 0f &&
+            abs(prevBitmapTopOffset.toInt()) < bitmapHeight/2
+            && bitmapTopOffset == 0f) {
 
             with(bitmapStack) {
                 if (isNotEmpty() && peek()?.sameAs(currentStickyBitmap!!) != true) {
@@ -134,7 +140,7 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
             }
         }
 
-        lastStickyBitmapOffset = bitmapTopOffset
+        prevBitmapTopOffset = bitmapTopOffset
 
         topStickyHolder?.itemView?.alpha = if (topStickyY < 0f) 0f else 1f
 
@@ -142,7 +148,7 @@ class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
             canvas.drawBitmap(it, 0f, bitmapTopOffset, paintCurrent)
         }
 
-        // Очистить стек если верхний sticky полностью на экране
+        // Очистить стек если верхний sticky (adapterPosition 0) полностью на экране
         if (topStickyHolder?.adapterPosition == 0 && topStickyY >= 0) {
             bitmapStack.clear()
         }

@@ -58,7 +58,7 @@ class SmartAdapterActivityV1 : AppCompatActivity() {
 
         recyclerView.apply {
             adapter = simpleAdapter
-            addItemDecoration(/*MainDecorator(DecorController())*/decorator)
+            addItemDecoration(/*MainDecorator(DecorHelper())*/decorator)
             layoutManager = LinearLayoutManager(this@SmartAdapterActivityV1)
             setPadding(8.px, 0, 8.px, 0)
         }

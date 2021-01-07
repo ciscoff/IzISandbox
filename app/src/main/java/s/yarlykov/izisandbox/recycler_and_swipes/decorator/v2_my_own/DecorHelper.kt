@@ -5,46 +5,66 @@ import android.graphics.Rect
 import android.view.View
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
-import s.yarlykov.izisandbox.extensions.px
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator.EACH_VIEW
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round.RoundDecorator
 
-class DecorController(
-    private val underlays: List<DecorBinder<Decorator.ViewHolderDecorator>>,
+/**
+ * Класс аккумулирует все декораторы. Декораторы для viewHolder'ов он раскладывает в отдельные
+ * HashMap'ы для быстрого вызова нужного декоратора по viewType.
+ *
+ * @underlaysViewType - связки 'viewType - underlayDecorator' для отрисовки под itemView
+ * @overlaysViewType - связки 'viewType - overlayDecorator' для отрисовки над itemView
+ *
+ * @underlaysRecycler - список декораторов для отрисовки на поверхности RecyclerView
+ * @overlaysRecycler - список декораторов для отрисовки по поверхности RecyclerView
+ *
+ * @offsetsViewType - связки 'viewType - offsets'
+ */
+class DecorHelper(
+    private val underlaysViewType: List<DecorBinder<Decorator.ViewHolderDecorator>>,
     private val underlaysRecycler: List<Decorator.RecyclerViewDecorator>,
-    private val overlays: List<DecorBinder<Decorator.ViewHolderDecorator>>,
+    private val overlaysViewType: List<DecorBinder<Decorator.ViewHolderDecorator>>,
     private val overlaysRecycler: List<Decorator.RecyclerViewDecorator>,
-    private val offsets: List<DecorBinder<Decorator.OffsetDecorator>>
+    private val offsetsViewType: List<DecorBinder<Decorator.OffsetDecorator>>
 ) {
-
     /**
-     * Сконвертировать список в hashMap. На один К - только один V, где К = viewType,
-     * V = элемент исходного списка.
+     * Сконвертировать список в hashMap.
+     * На один К только один V, где К = viewType, V = элемент исходного списка.
+     *
+     * Все элементы с одинаковым viewType имеют одинаковые offsets.
      */
-    private val associatedOffsets = offsets.associateBy { it.viewType }
+    private val associatedOffsetsViewType = offsetsViewType.associateBy { it.viewType }
 
     /**
      * Сконвертировать список в hashMap.
      * На один K может получиться несколько V (где К = viewType, V = элемент списка).
      */
-    private val groupedUnderlays = underlays.groupBy { it.viewType }
+    private val groupedUnderlaysViewType = underlaysViewType.groupBy { it.viewType }
 
     /**
      * Сконвертировать список в hashMap.
      * На один K может получиться несколько V (где К = viewType, V = элемент списка).
      */
-    private val groupedOverlays = overlays.groupBy { it.viewType }
+    private val groupedOverlaysViewType = overlaysViewType.groupBy { it.viewType }
 
-
+    /**
+     * Порядок рисования:
+     * 1. сначала по поверхности RecyclerView
+     * 2 и 3. затем под местами размещения элементов (то есть поверх предыдущего рисования п.1)
+     */
     fun drawUnderlay(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
         underlaysRecycler.drawRecyclerViewDecors(canvas, recyclerView, state)
-        groupedUnderlays.drawNotAttachedDecors(canvas, recyclerView, state)
-        groupedUnderlays.drawAttachedDecors(canvas, recyclerView, state)
+        groupedUnderlaysViewType.drawNotAttachedDecors(canvas, recyclerView, state)
+        groupedUnderlaysViewType.drawAttachedDecors(canvas, recyclerView, state)
     }
 
+    /**
+     * Порядок рисования:
+     * 1 и 2. сначала поверх элементов
+     * 3. затем по всей поверхности RecyclerView.
+     */
     fun drawOverlay(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
-        groupedOverlays.drawAttachedDecors(canvas, recyclerView, state)
-        groupedOverlays.drawNotAttachedDecors(canvas, recyclerView, state)
+        groupedOverlaysViewType.drawAttachedDecors(canvas, recyclerView, state)
+        groupedOverlaysViewType.drawNotAttachedDecors(canvas, recyclerView, state)
         overlaysRecycler.drawRecyclerViewDecors(canvas, recyclerView, state)
     }
 
@@ -99,7 +119,7 @@ class DecorController(
         recyclerView: RecyclerView,
         state: RecyclerView.State
     ) {
-        associatedOffsets[viewType]
+        associatedOffsetsViewType[viewType]
             ?.decorator
             ?.getItemOffsets(outRect, view, recyclerView, state)
     }
