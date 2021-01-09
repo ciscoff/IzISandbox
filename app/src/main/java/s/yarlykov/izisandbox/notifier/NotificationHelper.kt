@@ -5,12 +5,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
+import androidx.core.content.ContextCompat
 import s.yarlykov.izisandbox.R
 
 object NotificationHelper {
@@ -30,7 +32,7 @@ object NotificationHelper {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
-        return PendingIntent.getActivity(context, 0, intent, 0)
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     /**
@@ -54,6 +56,7 @@ object NotificationHelper {
             .setSmallIcon(iconId)
             .setContentTitle(title)
             .setContentText(content)
+            .setColor(ContextCompat.getColor(context, R.color.colorAccentUi))
             /*.setStyle(NotificationCompat.BigTextStyle().bigText(content))*/
             .setPriority(priorityDefault)
             .setContentIntent(pendingIntentActivity(context, clazz))

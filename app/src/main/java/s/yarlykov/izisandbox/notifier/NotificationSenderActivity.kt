@@ -24,7 +24,7 @@ class NotificationSenderActivity : AppCompatActivity() {
 
         val builder1 = NotificationHelper.builderToStartActivity(
             this,
-            R.drawable.ic_izibook_logo_mono,
+            R.drawable.ic_izi_pizi,
             R.string.notification_1_title,
             R.string.notification_1_text
         )
