@@ -11,13 +11,13 @@ import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator.E
  * Класс аккумулирует все декораторы. Декораторы для viewHolder'ов он раскладывает в отдельные
  * HashMap'ы для быстрого вызова нужного декоратора по viewType.
  *
- * @underlaysViewType - связки 'viewType - underlayDecorator' для отрисовки под itemView
- * @overlaysViewType - связки 'viewType - overlayDecorator' для отрисовки над itemView
+ * @param underlaysViewType - связки 'viewType - underlayDecorator' для отрисовки под itemView
+ * @param overlaysViewType - связки 'viewType - overlayDecorator' для отрисовки над itemView
  *
- * @underlaysRecycler - список декораторов для отрисовки на поверхности RecyclerView
- * @overlaysRecycler - список декораторов для отрисовки по поверхности RecyclerView
+ * @param underlaysRecycler - список декораторов для отрисовки на поверхности RecyclerView
+ * @param overlaysRecycler - список декораторов для отрисовки по поверхности RecyclerView
  *
- * @offsetsViewType - связки 'viewType - offsets'
+ * @param offsetsViewType - связки 'viewType - offsets'
  */
 class DecorHelper(
     private val underlaysViewType: List<DecorBinder<Decorator.ViewHolderDecorator>>,

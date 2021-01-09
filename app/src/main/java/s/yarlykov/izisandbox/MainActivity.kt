@@ -22,6 +22,7 @@ import s.yarlykov.izisandbox.matrix.surface.v02.SmoothDraggingActivity
 import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
 import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
+import s.yarlykov.izisandbox.notifier.NotificationSenderActivity
 import s.yarlykov.izisandbox.places.PlacesAutoCompleteActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.DecoratedListActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.grid.GridListActivity
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
+        NotificationSenderActivity::class.java to R.string.menu_send_notification,
         GridListActivity::class.java to R.string.menu_grid_list,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,

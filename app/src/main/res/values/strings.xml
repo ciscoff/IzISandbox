@@ -61,6 +61,7 @@
     <string name="menu_surface_edu_activity" translatable="false">Drawing On Surface</string>
     <string name="menu_scale_big_bitmap" translatable="false">Scale big bitmap</string>
     <string name="menu_grid_list" translatable="false">Grid List</string>
+    <string name="menu_send_notification" translatable="false">Send Notification</string>
     <string name="menu_sticky_decor" translatable="false">Sticky Decorator</string>
 
     <!-- Navigation menu -->
@@ -204,6 +205,11 @@
     <string name="sticky_decor_title" translatable="false">Sticky Decor Demo</string>
     <string name="menu_highlight" translatable="false">Highlight</string>
     <string name="menu_highlight_sticky" translatable="false">Highlight Sticky</string>
+
+    <string name="button_notify" translatable="false">Notify</string>
+    <string name="channel_notify_1_id" translatable="false">1001</string>
+    <string name="channel_notify_1_name" translatable="false">Channel 1</string>
+    <string name="channel_notify_1_description" translatable="false">Start Activity</string>
 
     <string-array name="leftTextArray">
         <item>Blue View</item>
