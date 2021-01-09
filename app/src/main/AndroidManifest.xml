@@ -19,7 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".notifier.NotificationSenderActivity"></activity>
+        <activity android:name=".notifier.PopUpActivity"></activity>
+        <activity android:name=".notifier.NotificationSenderActivity" />
         <activity
             android:name=".recycler_and_swipes.decorator.app.DecoratedListActivity"
             android:label="@string/sticky_decor_title"

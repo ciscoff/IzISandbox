@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        NotificationSenderActivity::class.java to R.string.menu_send_notification,
         GridListActivity::class.java to R.string.menu_grid_list,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
@@ -92,7 +91,8 @@ class MainActivity : AppCompatActivity() {
         MatrixActivityV2::class.java to R.string.menu_matrix_transform_image,
         ThemeActivity::class.java to R.string.menu_themes,
         PlacesAutoCompleteActivity::class.java to R.string.menu_places_auto_complete,
-        SmoothDraggingActivity::class.java to R.string.menu_surface_edu_activity
+        SmoothDraggingActivity::class.java to R.string.menu_surface_edu_activity,
+        NotificationSenderActivity::class.java to R.string.menu_send_notification
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

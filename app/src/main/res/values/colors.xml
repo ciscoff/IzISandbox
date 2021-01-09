@@ -6,6 +6,7 @@
 
     <color name="colorTitle">#222</color>
     <color name="colorText">#888</color>
+    <color name="colorLogo">#6b71e3</color>
 
     <color name="color_card_stroke">@android:color/darker_gray</color>
 
