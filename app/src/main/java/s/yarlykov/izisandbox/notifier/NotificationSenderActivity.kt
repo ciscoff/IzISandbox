@@ -25,6 +25,7 @@ class NotificationSenderActivity : AppCompatActivity() {
         val builder1 = NotificationHelper.builderToStartActivity(
             this,
             R.drawable.ic_izi_pizi,
+            R.drawable.vd_doer_colored,
             R.string.notification_1_title,
             R.string.notification_1_text
         )
@@ -32,6 +33,7 @@ class NotificationSenderActivity : AppCompatActivity() {
         val builder2 = NotificationHelper.builderToSendUserInputFromNotification(
             this,
             R.drawable.ic_beer,
+            R.drawable.ic_roboto,
             R.string.notification_2_title,
             R.string.notification_2_text
         )

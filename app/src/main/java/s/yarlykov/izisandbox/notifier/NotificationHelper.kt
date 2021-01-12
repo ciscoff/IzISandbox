@@ -1,23 +1,24 @@
 package s.yarlykov.izisandbox.notifier
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Bitmap
 import android.os.Build
+import android.widget.RemoteViews
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import s.yarlykov.izisandbox.R
 
 object NotificationHelper {
-
-    private const val priorityDefault = NotificationCompat.PRIORITY_DEFAULT
 
     /**
      * Определить действие для клика по сообщению:
@@ -36,11 +37,18 @@ object NotificationHelper {
     }
 
     /**
-     * Создать builder для запуска активти clazz
+     * Создать builder для запуска активти clazz.
+     *
+     * @param smallIconRes - маленькая иконка, которая появляется в status bar'е
+     * @param mainIconRes - картинка, которая видна внутри всплывающего HeadsUp и
+     * внутри сообщения в открытом notification drawer.
+     * @param titleId - заголовок
+     * @param contentId - текст
      */
     fun builderToStartActivity(
         context: Context,
-        @DrawableRes iconId: Int,
+        @DrawableRes smallIconRes: Int,
+        @DrawableRes mainIconRes: Int,
         @StringRes titleId: Int,
         @StringRes contentId: Int,
         @StringRes channelId: Int = R.string.channel_notify_1_id,
@@ -51,15 +59,31 @@ object NotificationHelper {
         val title = context.getString(titleId)
         val content = context.getString(contentId)
 
-        return NotificationCompat.Builder(context, channel)
+        val packageName = context.applicationContext.packageName
+        val notificationLayout = RemoteViews(packageName, R.layout.layout_notification)
 
-            .setSmallIcon(iconId)
+        // Заголовок сообщения
+        notificationLayout.setTextViewText(R.id.notificationTitle, title)
+
+        // Текст сообщения
+        notificationLayout.setTextViewText(R.id.notificationBody, content)
+
+        // Иконка сообщения
+        ContextCompat.getDrawable(context, mainIconRes)?.run {
+            val bitmap = toBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            notificationLayout.setImageViewBitmap(R.id.iconLogo, bitmap)
+        }
+
+        return NotificationCompat.Builder(context, channel)
+            .setSmallIcon(smallIconRes)
             .setContentTitle(title)
             .setContentText(content)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(notificationLayout)
             .setColor(ContextCompat.getColor(context, R.color.colorAccentUi))
-            /*.setStyle(NotificationCompat.BigTextStyle().bigText(content))*/
-            .setPriority(priorityDefault)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntentActivity(context, clazz))
+            .setDefaults(Notification.DEFAULT_ALL)
             .setAutoCancel(true)
     }
 
@@ -76,7 +100,8 @@ object NotificationHelper {
      */
     fun builderToSendUserInputFromNotification(
         context: Context,
-        @DrawableRes iconId: Int,
+        @DrawableRes smallIconRes: Int,
+        @DrawableRes mainIconRes: Int,
         @StringRes titleId: Int,
         @StringRes contentId: Int,
         @StringRes channelId: Int = R.string.channel_notify_1_id,
@@ -87,6 +112,21 @@ object NotificationHelper {
         val channel = context.getString(channelId)
         val title = context.getString(titleId)
         val content = context.getString(contentId)
+
+        val packageName = context.applicationContext.packageName
+        val notificationLayout = RemoteViews(packageName, R.layout.layout_notification)
+
+        // Заголовок сообщения
+        notificationLayout.setTextViewText(R.id.notificationTitle, title)
+
+        // Текст сообщения
+        notificationLayout.setTextViewText(R.id.notificationBody, content)
+
+        // Иконка сообщения
+        ContextCompat.getDrawable(context, mainIconRes)?.run {
+            val bitmap = toBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            notificationLayout.setImageViewBitmap(R.id.iconLogo, bitmap)
+        }
 
         // Label для кнопки action и key для упаковки пользовательского ввода в Intent.
         val replyKey = context.getString(R.string.key_text_reply)
@@ -101,10 +141,15 @@ object NotificationHelper {
         ).addRemoteInput(remoteInput).build()
 
         return NotificationCompat.Builder(context, channel)
-            .setSmallIcon(iconId)
+            .setSmallIcon(smallIconRes)
             .setContentTitle(title)
             .setContentText(content)
-            .setPriority(priorityDefault)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(notificationLayout)
+            .setColor(ContextCompat.getColor(context, R.color.colorAccentUi))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntentActivity(context, clazz))
+            .setDefaults(Notification.DEFAULT_ALL)
             .addAction(action)
             .setAutoCancel(true)
     }

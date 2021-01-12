@@ -206,15 +206,15 @@
     <string name="menu_highlight" translatable="false">Highlight</string>
     <string name="menu_highlight_sticky" translatable="false">Highlight Sticky</string>
 
-    <string name="button_start_activity" translatable="false">Activity</string>
-    <string name="button_send_response" translatable="false">Reply</string>
+    <string name="button_start_activity" translatable="false">Start Activity</string>
+    <string name="button_send_response" translatable="false">Reply to Mr.Roboto</string>
     <string name="text_notify" translatable="false">Notified</string>
     <string name="channel_notify_1_id" translatable="false">1001</string>
     <string name="channel_notify_1_name" translatable="false">Channel 1</string>
     <string name="channel_notify_1_description" translatable="false">Start Activity</string>
 
-    <string name="notification_1_title" translatable="false">Cool Notification Title</string>
-    <string name="notification_1_text" translatable="false">Hello, Hello, Hello</string>
+    <string name="notification_1_title" translatable="false">Notification Title</string>
+    <string name="notification_1_text" translatable="false">Everything Is Alright</string>
 
     <string name="notification_2_title" translatable="false">Mr. Roboto</string>
     <string name="notification_2_text" translatable="false">Do you want to drink tonight ?</string>
