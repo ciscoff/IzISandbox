@@ -85,6 +85,9 @@ object NotificationHelper {
             .setContentIntent(pendingIntentActivity(context, clazz))
             .setDefaults(Notification.DEFAULT_ALL)
             .setAutoCancel(true)
+            .apply {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) setVibrate(LongArray(0))
+            }
     }
 
     /**

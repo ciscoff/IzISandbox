@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.DrawableRes
 import s.yarlykov.izisandbox.R
 
 class AvatarCompoundView @JvmOverloads constructor(
@@ -70,7 +71,7 @@ class AvatarCompoundView @JvmOverloads constructor(
      * + https://stackoverflow.com/questions/32121058/most-memory-efficient-way-to-resize-bitmaps-on-android
      */
     private fun loadSampledBitmapFromResource(
-        resourceId: Int,
+        @DrawableRes resourceId: Int,
         reqWidth: Int,
         reqHeight: Int
     ): Bitmap {
