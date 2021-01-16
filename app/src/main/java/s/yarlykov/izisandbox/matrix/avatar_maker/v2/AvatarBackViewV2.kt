@@ -1,12 +1,13 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker.v2
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import s.yarlykov.izisandbox.matrix.avatar_maker.AvatarBaseView
 
-class AvatarBackView @JvmOverloads constructor(
+class AvatarBackViewV2 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

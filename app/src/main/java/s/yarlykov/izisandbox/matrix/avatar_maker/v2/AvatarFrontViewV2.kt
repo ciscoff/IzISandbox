@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker.v2
 
 import android.content.Context
 import android.graphics.*
@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
+import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.min
@@ -21,7 +22,7 @@ import kotlin.reflect.KProperty
  * GestureDetector.OnGestureListener
  */
 
-class AvatarFrontViewV3 @JvmOverloads constructor(
+class AvatarFrontViewV2 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
