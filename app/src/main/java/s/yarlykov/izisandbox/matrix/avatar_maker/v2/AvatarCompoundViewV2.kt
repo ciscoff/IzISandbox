@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker.v2
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,9 +8,13 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.DrawableRes
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
+import s.yarlykov.izisandbox.matrix.avatar_maker.v1.AvatarBackViewV1
+import s.yarlykov.izisandbox.matrix.avatar_maker.v1.AvatarFrontViewV1
 
-class AvatarCompoundView @JvmOverloads constructor(
+class AvatarCompoundViewV2 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -26,7 +30,7 @@ class AvatarCompoundView @JvmOverloads constructor(
     private var rectSourceImage = Rect()
 
     init {
-        View.inflate(context, R.layout.layout_avatar_components, this).also { view ->
+        View.inflate(context, R.layout.layout_avatar_components_v2, this).also { view ->
             avatarBack = view.findViewById<ViewGroup>(R.id.avatarBack) as MediaDataConsumer
             avatarFront = view.findViewById<ViewGroup>(R.id.avatarFront) as MediaDataConsumer
         }
@@ -39,7 +43,7 @@ class AvatarCompoundView @JvmOverloads constructor(
          * Если используем AvatarFrontViewV1 (старая версия), то нужна Paint с затенением.
          */
         if (avatarFront is AvatarFrontViewV1) {
-            (avatarBack as AvatarBackView).setDarkPaint()
+            (avatarBack as AvatarBackViewV1).setDarkPaint()
         }
     }
 
@@ -70,7 +74,7 @@ class AvatarCompoundView @JvmOverloads constructor(
      * + https://stackoverflow.com/questions/32121058/most-memory-efficient-way-to-resize-bitmaps-on-android
      */
     private fun loadSampledBitmapFromResource(
-        resourceId: Int,
+        @DrawableRes resourceId: Int,
         reqWidth: Int,
         reqHeight: Int
     ): Bitmap {

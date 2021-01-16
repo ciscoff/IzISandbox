@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s.yarlykov.izisandbox.matrix.avatar_maker.AvatarCompoundView xmlns:android="http://schemas.android.com/apk/res/android"
+<s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarCompoundViewV3 xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@android:color/black"
     android:layout_width="match_parent"

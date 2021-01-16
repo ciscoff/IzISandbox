@@ -17,11 +17,15 @@ import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
 import s.yarlykov.izisandbox.matrix.avatar_maker.EditorAvatarActivity
 import s.yarlykov.izisandbox.matrix.avatar_maker.FunnyAvatarActivity
+import s.yarlykov.izisandbox.matrix.scale_animated.ScaleAnimatedActivity
 import s.yarlykov.izisandbox.matrix.surface.v02.SmoothDraggingActivity
 import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
 import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
+import s.yarlykov.izisandbox.notifier.NotificationSenderActivity
 import s.yarlykov.izisandbox.places.PlacesAutoCompleteActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.DecoratedListActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.grid.GridListActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_01.InfiniteRecyclerActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity
@@ -52,8 +56,11 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
+        GridListActivity::class.java to R.string.menu_grid_list,
+        DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
         EditorAvatarActivity::class.java to R.string.menu_funny_avatar,
+        ScaleAnimatedActivity::class.java to R.string.menu_scale_big_bitmap,
         IziLoginActivity::class.java to R.string.menu_izi_login,
         TimeLineActivityEdu::class.java to R.string.menu_time_line_edu,
         TimeLineActivityPro::class.java to R.string.menu_time_line_pro,
@@ -84,7 +91,8 @@ class MainActivity : AppCompatActivity() {
         MatrixActivityV2::class.java to R.string.menu_matrix_transform_image,
         ThemeActivity::class.java to R.string.menu_themes,
         PlacesAutoCompleteActivity::class.java to R.string.menu_places_auto_complete,
-        SmoothDraggingActivity::class.java to R.string.menu_surface_edu_activity
+        SmoothDraggingActivity::class.java to R.string.menu_surface_edu_activity,
+        NotificationSenderActivity::class.java to R.string.menu_send_notification
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

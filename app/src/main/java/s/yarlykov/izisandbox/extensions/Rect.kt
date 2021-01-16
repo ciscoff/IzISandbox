@@ -3,6 +3,7 @@ package s.yarlykov.izisandbox.extensions
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.annotation.FloatRange
+import kotlin.math.abs
 
 /**
  * https://github.com/rock3r/uplift/blob/master/app/src/main/java/me/seebrock3r/elevationtester/OutlineProvider.kt#L22
@@ -19,7 +20,12 @@ fun Rect.scale(
     val deltaX = (width() - newWidth) / 2
     val deltaY = (height() - newHeight) / 2
 
-    set((left + deltaX).toInt(), (top + deltaY).toInt(), (right - deltaX).toInt(), (bottom - deltaY).toInt())
+    set(
+        (left + deltaX).toInt(),
+        (top + deltaY).toInt(),
+        (right - deltaX).toInt(),
+        (bottom - deltaY).toInt()
+    )
 }
 
 /**
@@ -34,3 +40,20 @@ fun RectF.scale(
 
     set(left, top, left + newWidth, top + newHeight)
 }
+
+/**
+ * Используется для работы с прямоугольниками от ItemDecoration.
+ * Там могут присутствовать отрицательные значения.
+ */
+val Rect.min: Int
+    get() = listOf(left, top, right, bottom).filter { it != 0 }.map { abs(it) }.min() ?: 0
+
+
+
+
+
+
+
+
+
+

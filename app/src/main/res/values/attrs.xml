@@ -49,4 +49,10 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="StubView">
+        <attr name="isCircle" format="boolean" />
+        <attr name="cornerRadius" format="dimension" />
+        <attr name="stubColor" format="reference" />
+    </declare-styleable>
+
 </resources>

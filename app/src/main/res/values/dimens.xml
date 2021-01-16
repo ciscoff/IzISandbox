@@ -65,4 +65,6 @@
     <dimen name="fab_camera_margins">12dp</dimen>
     <dimen name="fab_camera_elevation">2dp</dimen>
 
+    <dimen name="cell_spacer">20dp</dimen>
+
 </resources>

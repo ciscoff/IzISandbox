@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker.v1
 
 import android.content.Context
 import android.graphics.*
@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
+import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign

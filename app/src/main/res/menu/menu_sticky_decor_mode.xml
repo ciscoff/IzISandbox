@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="all">
+        <item android:id="@+id/menu_highlight"
+            android:titleCondensed="@string/menu_highlight"
+            android:title="@string/menu_highlight_sticky"
+            android:icon="@android:drawable/ic_menu_preferences">
+        </item>
+    </group>
+</menu>
