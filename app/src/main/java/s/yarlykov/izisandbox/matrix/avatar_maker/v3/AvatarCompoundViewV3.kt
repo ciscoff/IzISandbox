@@ -20,8 +20,8 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private val avatarBack: MediaDataConsumer
-    private val avatarFront: MediaDataConsumer
+    private val avatarBack: AvatarBaseViewV3
+    private val avatarFront: AvatarBaseViewV3
 
     /**
      * Исходная Bitmap и её размеры
@@ -31,41 +31,40 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
 
     init {
         View.inflate(context, R.layout.layout_avatar_components_v3, this).also { view ->
-            avatarBack = view.findViewById<ViewGroup>(R.id.avatarBack) as MediaDataConsumer
-            avatarFront = view.findViewById<ViewGroup>(R.id.avatarFront) as MediaDataConsumer
+            avatarBack = view.findViewById(R.id.avatarBack)
+            avatarFront = view.findViewById(R.id.avatarFront)
+
+            avatarFront.onScaleChangeListener = ::onViewPortScaled
         }
     }
 
+    private fun onViewPortScaled(scale: Float) {
+        avatarBack.onScaleChanged(scale)
+    }
+
+    /**
+     * Сразу загружаем полную bitmap без скалирования. Далее она будет использоваться как
+     * исходный материал для скалированных картинок.
+     */
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        /**
-         * Если используем AvatarFrontViewV1 (старая версия), то нужна Paint с затенением.
-         */
-        if (avatarFront is AvatarFrontViewV1) {
-            (avatarBack as AvatarBackViewV1).setDarkPaint()
-        }
+        sourceImageBitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.nature)
+                ?.also { bitmap ->
+                    avatarBack.onBitmapReady(bitmap)
+                    avatarFront.onBitmapReady(bitmap)
+                }
     }
 
-//    override fun onAttachedToWindow() {
-//        super.onAttachedToWindow()
+//    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+//        super.onSizeChanged(w, h, oldw, oldh)
 //
-//        sourceImageBitmap =
-//            BitmapFactory.decodeResource(context.resources, R.drawable.nature)
-//                ?.also { bitmap ->
-//                    avatarBack.onBitmapReady(bitmap)
-//                    avatarFront.onBitmapReady(bitmap)
-//                }?.reduce()
+//        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.nature, w, h).also { bitmap ->
+//            avatarBack.onBitmapReady(bitmap)
+//            avatarFront.onBitmapReady(bitmap)
+//        }
 //    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-
-        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.nature, w, h).also { bitmap ->
-            avatarBack.onBitmapReady(bitmap)
-            avatarFront.onBitmapReady(bitmap)
-        }
-    }
 
     /**
      * Загрузка большой bitmap'ы с понижением resolution до размеров View, в которой она должна
