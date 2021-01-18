@@ -37,6 +37,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.SwipeAnyWhereActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line.TimeLineAdvancedActivity
 import s.yarlykov.izisandbox.telegram.v1.TelegramActivityV1
 import s.yarlykov.izisandbox.telegram.v2.TelegramActivityV2
 import s.yarlykov.izisandbox.theme.ThemeActivity
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
+        TimeLineAdvancedActivity::class.java to R.string.menu_time_line_2d,
         GridListActivity::class.java to R.string.menu_grid_list,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
