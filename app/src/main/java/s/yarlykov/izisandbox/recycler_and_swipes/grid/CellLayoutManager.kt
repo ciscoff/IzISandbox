@@ -79,7 +79,7 @@ class CellLayoutManager(
     }
 
     /**
-     * Ну нужно пользоваться методами layoutDecorated/layoutDecoratedWithMargins потому что
+     * Не нужно пользоваться методами layoutDecorated/layoutDecoratedWithMargins потому что
      * они используют данные декоратора, хранящиеся в недоступной layoutParams.mDecorInsets.
      * Нужно просто вызывать child.layout(...)
      */

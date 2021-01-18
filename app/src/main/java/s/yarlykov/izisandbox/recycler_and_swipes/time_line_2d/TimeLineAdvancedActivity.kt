@@ -55,10 +55,11 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
     private fun init() {
         recyclerView.apply {
-            layoutManager = LinearLayoutManager(
+            addItemDecoration(decorator)
+            layoutManager = TimeLineLayoutManager(context)/*LinearLayoutManager(
                 this@TimeLineAdvancedActivity,
                 RecyclerView.HORIZONTAL, false
-            )
+            )*/
 
             // это padding'и для служебных панелей
             val leftPadding = context.resources.getDimensionPixelSize(R.dimen.left_bar_width)
@@ -66,7 +67,6 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
             adapter = smartAdapter
             setPadding(leftPadding, topPadding, 0, 0)
-            addItemDecoration(decorator)
         }
 
         SmartList.create().apply {
