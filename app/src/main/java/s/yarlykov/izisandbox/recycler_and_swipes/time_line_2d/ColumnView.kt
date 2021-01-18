@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
 import android.content.Context
 import android.util.AttributeSet

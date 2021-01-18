@@ -1,11 +1,11 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BindableViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BindableItem
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line.model.Ticket
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 
 class ColumnViewController(@LayoutRes val layoutId: Int) :
     BindableItemController<Ticket, ColumnViewController.TicketViewHolder>() {
@@ -22,7 +22,11 @@ class ColumnViewController(@LayoutRes val layoutId: Int) :
      * Пустой viewHolder
      */
     inner class TicketViewHolder(parent: ViewGroup) : BindableViewHolder<Ticket>(parent, layoutId) {
+
+        var ticket : Ticket? = null
+
         override fun bind(data: Ticket) {
+            ticket = data
         }
     }
 }

@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".recycler_and_swipes.time_line.TimeLineAdvancedActivity">
+    tools:context=".recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:overScrollMode="never" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

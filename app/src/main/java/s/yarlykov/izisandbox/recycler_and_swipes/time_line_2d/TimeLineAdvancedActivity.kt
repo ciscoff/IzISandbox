@@ -1,7 +1,8 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_time_line_advanced.*
@@ -9,10 +10,18 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line.model.Ticket
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line.model.TicketItem
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.ColumnOffsetDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.DutyTimeDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.BarsDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
 
 class TimeLineAdvancedActivity : AppCompatActivity() {
+
+    companion object {
+        const val DAY_START = 9
+        const val DAY_END = 21
+    }
 
     private val smartAdapter = SmartAdapterV2()
 
@@ -31,10 +40,11 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
     private val decorator by lazy {
         Decorator.Builder()
+            .overlay(BarsDecor(this))
+            .overlay(columnViewController.viewType() to DutyTimeDecor(this))
             .offset(columnViewController.viewType() to offsetsDecor)
             .build()
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,20 +53,25 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         init()
     }
 
-
     private fun init() {
         recyclerView.apply {
             layoutManager = LinearLayoutManager(
                 this@TimeLineAdvancedActivity,
                 RecyclerView.HORIZONTAL, false
             )
+
+            // это padding'и для служебных панелей
+            val leftPadding = context.resources.getDimensionPixelSize(R.dimen.left_bar_width)
+            val topPadding = context.resources.getDimensionPixelSize(R.dimen.top_bar_height)
+
             adapter = smartAdapter
-            setPadding(0, 0, 0, 0)
+            setPadding(leftPadding, topPadding, 0, 0)
             addItemDecoration(decorator)
         }
 
         SmartList.create().apply {
             addItems(tickets.map { TicketItem(it, columnViewController) })
         }.also(smartAdapter::updateModel)
+
     }
 }

@@ -37,7 +37,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_3.SmartSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.SwipeAnyWhereActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line.TimeLineAdvancedActivity
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity
 import s.yarlykov.izisandbox.telegram.v1.TelegramActivityV1
 import s.yarlykov.izisandbox.telegram.v2.TelegramActivityV2
 import s.yarlykov.izisandbox.theme.ThemeActivity

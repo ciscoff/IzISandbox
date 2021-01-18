@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".recycler_and_swipes.time_line.TimeLineAdvancedActivity"></activity>
+        <activity android:name=".recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity"></activity>
         <activity android:name=".notifier.PopUpActivity" />
         <activity android:name=".notifier.NotificationSenderActivity" />
         <activity
