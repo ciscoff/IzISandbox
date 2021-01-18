@@ -135,6 +135,7 @@ class CellLayoutManager(
 
         resetMargins(child)
 
+        // Принудительно устанавливем размер равным 'spanSize x spanSize'
         val widthSpecUpdated = updateMeasureSpecs(widthSpec, spanSize)
         val heightSpecUpdated = updateMeasureSpecs(heightSpec, spanSize)
         child.measure(widthSpecUpdated, heightSpecUpdated)

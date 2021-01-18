@@ -41,31 +41,16 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         fillRow(recycler)
     }
 
-    var mDecoratedChildWidth : Int = 0
-    var mDecoratedChildHeight : Int = 0
-
     /**
      * Сделать layout элементов одной строки
      */
-    private fun fillRow(recycler: RecyclerView.Recycler): Int {
+    private fun fillRow(recycler: RecyclerView.Recycler) {
 
         var nextItem = 0
         summaryWidth = 0
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
-
-        if(childCount == 0 ){
-            val scrap = recycler.getViewForPosition(0)
-            addView(scrap)
-            measureChildWithMargins(scrap, 0, 0)
-
-            mDecoratedChildWidth = getDecoratedMeasuredWidth(scrap)
-            mDecoratedChildHeight = getDecoratedMeasuredHeight(scrap)
-
-            detachAndScrapView(scrap, recycler)
-        }
-
 
         var viewLeft = paddingLeft
         var viewTop = paddingTop
@@ -75,48 +60,39 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             val child = recycler.getViewForPosition(nextItem)
             addView(child)
 
-            measureChildWithMargins(child, 0, 0)
-
-//            measureChildWithoutInsets(child, widthSpec, heightSpec)
+            measureChildWithoutInsets(child, widthSpec, heightSpec)
 
             val decoratedMeasuredWidth = getDecoratedMeasuredWidth(child)
             val decoratedMeasuredHeight = getDecoratedMeasuredHeight(child)
-            layoutDecorated(child, viewLeft, viewTop, viewLeft + decoratedMeasuredWidth, viewTop + decoratedMeasuredHeight)
+
+            layoutDecorated(
+                child,
+                viewLeft,
+                viewTop,
+                viewLeft + decoratedMeasuredWidth,
+                viewTop + decoratedMeasuredHeight
+            )
             viewLeft = getDecoratedRight(child)
             nextItem++
         }
-
-//        val child = recycler.getViewForPosition(i)
-//
-//        addView(child)
-//        measureChildWithoutInsets(child, widthSpec, heightSpec)
-//        child.layout(leftFrom, topFrom, leftFrom + spanSize, topFrom + spanSize)
-//        leftFrom += (spanSize + spacer)
-//
-//
-//        summaryWidth += spanSize
-//
-//        return positionTo
-        return 0
     }
 
 
     /**
-     * Измерить view с учетом имеющихся insets, а именно:
+     * Установить "чистый" размер view - без inset'ов, а именно:
      * - отступов, которые насчитал декоратор
      * - margins нашей view
      */
     private fun measureChildWithoutInsets(child: View, widthSpec: Int, heightSpec: Int) {
 
+        // Посчитать декор (вызвать обязательно, иначе offset-декоратор не отработает)
         val decorRect = Rect()
-
-        // Получить декор
         calculateItemDecorationsForChild(child, decorRect)
 
         resetMargins(child)
 
         val widthSpecUpdated = updateMeasureSpecs(widthSpec, spanSize)
-        val heightSpecUpdated = updateMeasureSpecs(heightSpec, spanSize)
+        val heightSpecUpdated = updateMeasureSpecs(heightSpec, height - paddingTop)
         child.measure(widthSpecUpdated, heightSpecUpdated)
     }
 
@@ -145,6 +121,13 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         return spec
     }
 
+    override fun scrollHorizontallyBy(
+        dx: Int,
+        recycler: RecyclerView.Recycler?,
+        state: RecyclerView.State?
+    ): Int {
+        return super.scrollHorizontallyBy(dx, recycler, state)
+    }
 
     override fun canScrollHorizontally(): Boolean = true
     override fun canScrollVertically(): Boolean = true
