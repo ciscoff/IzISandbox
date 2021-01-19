@@ -41,7 +41,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val decorator by lazy {
         Decorator.Builder()
             .overlay(BarsDecor(this))
-            .overlay(columnViewController.viewType() to DutyTimeDecor(this))
+//            .overlay(columnViewController.viewType() to DutyTimeDecor(this))
             .offset(columnViewController.viewType() to offsetsDecor)
             .build()
     }

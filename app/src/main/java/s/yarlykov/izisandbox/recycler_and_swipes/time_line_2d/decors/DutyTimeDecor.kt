@@ -93,9 +93,8 @@ class DutyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
             drawBorder(canvas, borderRect)
             drawTouchPoints(canvas, borderRect)
 
-//            canvas.save()
+            // Заголовки столбцов
             canvas.drawText(ticket.title, view.left.toFloat() + 20f, view.top - 50f, paintText)
-//            canvas.restore()
         }
     }
 

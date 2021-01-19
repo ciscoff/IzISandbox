@@ -19,13 +19,18 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
     private var summaryWidth = 0
 
     /**
+     * Масштабирование элементов по высоте
+     */
+    private var scaleHeight = 2
+
+    private var verticalOffset = 0
+
+    /**
      * Ширина отдельного элемента
      */
     private val spanSize: Int by lazy {
         context.resources.getDimensionPixelSize(R.dimen.column_width)
     }
-
-    private var scaleHeight = 2
 
     private val viewCache = SparseArray<View>()
 
@@ -45,6 +50,9 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         fill(recycler)
     }
 
+    /**
+     * Сюда приходим при начальном Layout'е и после каждого scroll'a
+     */
     private fun fill(recycler: RecyclerView.Recycler) {
 
         val anchorView = getAnchorView()
@@ -136,7 +144,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         state: RecyclerView.State?
     ): Int {
 
-        val delta =  when {
+        val delta = when {
             // Палец идет вверх. Контролируем появление View снизу.
             (dY > 0) -> translateUp(dY, recycler)
             // Палец идет вниз. Контролируем появление View сверху.
@@ -146,13 +154,17 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             }
         }
 
-        if(delta != 0) offsetChildrenVertical(-delta)
-
-        logIt("Translate vert $delta")
+        if (delta != 0) {
+            offsetChildrenVertical(-delta)
+            fill(recycler)
+        }
 
         return delta
     }
 
+    /**
+     * dY > 0
+     */
     private fun translateUp(dY: Int, recycler: RecyclerView.Recycler): Int {
 
         return getChildAt(0)?.let { firstChild ->
@@ -165,19 +177,23 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         } ?: 0
     }
 
+    /**
+     * dY < 0
+     */
     private fun translateDown(dY: Int, recycler: RecyclerView.Recycler): Int {
 
         return getChildAt(0)?.let { firstChild ->
 
             val topView = getDecoratedTop(firstChild)
-            if (topView == paddingTop) return 0
-            max(dY, topView - height)
+            if (topView >= paddingTop) return 0
+            max(dY, topView - paddingTop)
 
         } ?: 0
-
     }
 
-
+    /**
+     * Отрисовать элементы левее опорного anchorView
+     */
     private fun fillLeft(anchorView: View?, recycler: RecyclerView.Recycler) {
 
         val (anchorPos, anchorLeft) =
@@ -186,8 +202,10 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             } else 0 to paddingLeft
 
         var viewRight = anchorLeft
-        val viewHeight = (height - paddingTop) * scaleHeight
-        val viewTop = paddingTop
+        val viewHeight = (height - paddingTop - paddingBottom) * scaleHeight
+
+        // Верхняя позиция с поправкой на вертикальный сдвиг
+        val viewTop = paddingTop + verticalOffset
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
@@ -214,6 +232,12 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                     viewRight,
                     viewTop + decoratedMeasuredHeight
                 )
+
+                anchorView?.let {av ->
+                    val d = getDecoratedTop(av) - getDecoratedTop(child)
+                    child.offsetTopAndBottom(d)
+                }
+
             } else {
                 //если вьюшка есть в кэше - просто аттачим её обратно
                 //нет необходимости проводить measure/layout цикл.
@@ -227,7 +251,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
     }
 
     /**
-     * Заполнить экран (RecyclerView) элементами, взятыми у Recycler
+     * Отрисовать опорный anchorView и элементы правее него
      */
     private fun fillRight(anchorView: View?, recycler: RecyclerView.Recycler) {
 
@@ -264,6 +288,12 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                     viewLeft + decoratedMeasuredWidth,
                     viewTop + decoratedMeasuredHeight
                 )
+
+                anchorView?.let {av ->
+                    val d = getDecoratedTop(av) - getDecoratedTop(child)
+                    child.offsetTopAndBottom(d)
+                }
+
             } else {
                 attachView(child)
                 viewCache.remove(pos)
@@ -319,15 +349,6 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             return 0
         }
 
-//        val viewPortWidth = width - paddingLeft
-//        val rightView = getChildAt(childCount - 1)!!
-//        val leftView = getChildAt(0)!!
-//        val viewSpan = getDecoratedRight(rightView) - getDecoratedLeft(leftView)
-//        if (viewSpan <= viewPortWidth && getPosition(rightView) == (itemCount - 1)) {
-//            return 0
-//        }
-//        logIt("scrollHorizontallyInternal childCount=$childCount, viewPortWidth=$viewPortWidth")
-
         var delta = 0
 
         // Палец идет вправо. Контролируем появление элементов слева.
@@ -336,14 +357,9 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             val firstVisibleView = getChildAt(0)!!
             val firstVisibleViewAdapterPos = getPosition(firstVisibleView)
 
-            val d = getDecoratedLeft(firstVisibleView)
-            val d1 = paddingLeft
-
             delta = if (firstVisibleViewAdapterPos > 0) {
-//                logIt("firstVisibleViewAdapterPos =$firstVisibleViewAdapterPos, dX=$dX")
                 dX
             } else {
-//                logIt("firstVisibleViewAdapterPos =$firstVisibleViewAdapterPos, getDecoratedLeft=$d, paddingLeft=$d1, dX=$dX")
                 max(getDecoratedLeft(firstVisibleView) - paddingLeft, dX)
             }
         }
