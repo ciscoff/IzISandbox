@@ -23,13 +23,15 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         context.resources.getDimensionPixelSize(R.dimen.column_width)
     }
 
+    private var scaleHeight = 1
+
     private val viewCache = SparseArray<View>()
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
         super.onLayoutChildren(recycler, state)
 
         // Адаптер пустой или стал пустым после обновления модели
-        if (itemCount <= 0) {
+        if (itemCount == 0) {
             detachAndScrapAttachedViews(recycler)
             return
         }
@@ -162,7 +164,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
         val (anchorPos, anchorLeft) = if (anchorView != null) {
             getPosition(anchorView) to getDecoratedLeft(anchorView)
-        } else 0 to 0
+        } else 0 to paddingLeft
 
         var fillLeft = true
         var pos = anchorPos - 1
@@ -200,7 +202,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                 viewCache.remove(pos)
             }
             viewRight = getDecoratedLeft(child)
-            fillLeft = viewRight > 0
+            fillLeft = viewRight > paddingLeft
             pos--
         }
     }
@@ -261,7 +263,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
     private fun getAnchorView(): View? {
 
         val viewsOnScreen = mutableMapOf<Int, View>()
-        val mainRect = Rect(0, 0, width, height)
+        val mainRect = Rect(paddingLeft, paddingTop, width, height)
 
         for (i in 0 until childCount) {
 
