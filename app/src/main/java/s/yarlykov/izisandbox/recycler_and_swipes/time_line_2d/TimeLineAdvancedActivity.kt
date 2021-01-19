@@ -2,16 +2,13 @@ package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_time_line_advanced.*
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.ColumnOffsetDecor
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.DutyTimeDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.BusyTimeDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.BarsDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
@@ -41,7 +38,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val decorator by lazy {
         Decorator.Builder()
             .overlay(BarsDecor(this))
-            .overlay(columnViewController.viewType() to DutyTimeDecor(this))
+            .overlay(columnViewController.viewType() to BusyTimeDecor(this))
             .offset(columnViewController.viewType() to offsetsDecor)
             .build()
     }

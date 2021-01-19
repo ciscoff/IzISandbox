@@ -84,8 +84,13 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
         // Линейка
         drawGrid(canvas, recyclerView)
 
+        // Часы
+        drawHours(canvas, recyclerView)
     }
 
+    /**
+     * Линии сетки двигаются вертикально повторяя "вертикальную прокрутку" элементов списка.
+     */
     private fun drawGrid(canvas: Canvas, recyclerView: RecyclerView) {
         val hours = (dayRange.last - dayRange.first) / 60
         if (hours == 0) return
@@ -93,15 +98,18 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
         val startX = recyclerView.paddingLeft.toFloat()
         val endX = recyclerView.right.toFloat()
 
+        // Опорная view по которой определим высоту элемента списка. Берем первую видимую.
+        val anchor = recyclerView.getChildAt(0) ?: recyclerView
+
         // Количество горизонтальных линий
-        val lines = hours - 2
+        val lines = hours - 1
         // Один промежуток (gap) - 1 час.
         // Высота промежутка между целыми часами, например между 10:00 и 11:00
         val gap =
-            (recyclerView.bottom - recyclerView.top - recyclerView.paddingTop) / hours.toFloat()
+            (anchor.bottom - anchor.top) / hours.toFloat()
 
         for (i in 1..lines) {
-            val y = floor(i * gap) + recyclerView.paddingTop
+            val y = floor(i * gap) + anchor.top
             canvas.drawLine(startX, y, endX, y, paintGrid)
         }
     }
@@ -109,31 +117,43 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
     /**
      * Рисуем числа. Они центрируются относительно отсечек благодаря настройке текстовой Paint.
      */
-//    private fun drawHours() {
-//        val hours = (dayRange.last - dayRange.first) / 60
-//        if (hours == 0) return
-//
-//        val steps = hours - 1
-//        val gap = width.toFloat() / hours
-//
-//        /**
-//         * Позиционируем канву для отрисовки текста. Позиция канвы станет левым-НИЖНИМ углом
-//         * области текста. Не левым-ВЕРХНИМ, а левым-НИЖНИМ, то есть все через жопу. Поэтому
-//         * ставим канву на нижнюю границу View, а текст отрусуется поверх этой границы.
-//         *
-//         * Полезная заметка тут:
-//         * https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
-//         */
-//        cacheCanvas.save()
-//        cacheCanvas.translate(0f, height.toFloat())
-//
-//        for (i in 1..steps) {
-//            cacheCanvas.translate(gap, 0f)
-//            cacheCanvas.drawText("${(dayRange.first + i * 60) / 60}", 0f, 0f, paintText)
-//        }
-//
-//        cacheCanvas.restore()
-//    }
+    private fun drawHours(canvas: Canvas, recyclerView: RecyclerView) {
+        val hours = (dayRange.last - dayRange.first) / 60
+        if (hours == 0) return
+
+        val startX = recyclerView.paddingLeft / 3f
+
+        // Количество записей
+        val steps = hours + 1
+
+        // Опорная view по которой определим высоту элемента списка. Берем первую видимую.
+        val anchor = recyclerView.getChildAt(0) ?: recyclerView
+
+        // Один промежуток (gap) - 1 час.
+        // Высота промежутка между целыми часами, например между 10:00 и 11:00
+        val gap =
+            (anchor.bottom - anchor.top) / hours.toFloat()
+
+
+        /**
+         * Позиционируем канву для отрисовки текста. Позиция канвы станет левым-НИЖНИМ углом
+         * области текста. Не левым-ВЕРХНИМ, а левым-НИЖНИМ, то есть все через жопу. Поэтому
+         * ставим канву на нижнюю границу View, а текст отрусуется поверх этой границы.
+         *
+         * Полезная заметка тут:
+         * https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
+         */
+
+
+        canvas.save()
+        canvas.translate(startX, anchor.top.toFloat())
+        for (i in 0 until steps) {
+
+            canvas.translate(0f, gap)
+            canvas.drawText("${(dayRange.first + i * 60) / 60}", 0f, 0f, paintText)
+        }
+        canvas.restore()
+    }
 
     /**
      * Функция выполняет расчет высоты для основных компонентов.

@@ -12,7 +12,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ColumnViewControll
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_END
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_START
 
-class DutyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
+class BusyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
 
     private val dayRange = (DAY_START.minutes..DAY_END.minutes)
 
