@@ -7,23 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.max
 import kotlin.math.min
 
 class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager() {
 
     /**
-     * Переменная для layout'а наборов строк.
-     */
-    private var summaryWidth = 0
-
-    /**
-     * Масштабирование элементов по высоте
+     * Масштабирование элементов списка по высоте
      */
     private var scaleHeight = 2
-
-    private var verticalOffset = 0
 
     /**
      * Ширина отдельного элемента
@@ -52,6 +44,16 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
     /**
      * Сюда приходим при начальном Layout'е и после каждого scroll'a
+     *
+     * NOTE: Реальная прокрутка происходит в горизонтальном направлении. В этом случае
+     * нужно контролировать появление новых элементов и утилизацию старых. Сложность
+     * появляется при реализации вертикальной "прокрутки". Например, сначала сдвинули
+     * вверх видимые столбики, а затем проскролили в сторону и вызвали появление нового столбика.
+     * Он ничего не знает о том, что его собраться смещены вертикально и выводится на экран
+     * в дефолтовом положении. Необходимо явным образом установить ему offset ориентируясь
+     * на текущий вертикальный offset якорной anchorView (см в методах fillLeft/fillRight вызовы
+     * child.offsetTopAndBottom). То есть anchorView является не только опорной для горизонтальной
+     * прокрутки, но и для вертикальной.
      */
     private fun fill(recycler: RecyclerView.Recycler) {
 
@@ -74,16 +76,16 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         fillLeft(anchorView, recycler)
         fillRight(anchorView, recycler)
 
-        // Удалить элементы, который вышли из области видимости.
+        // Удалить элементы, которые вышли из области видимости.
         for (i in 0 until viewCache.size()) {
             recycler.recycleView(viewCache.valueAt(i))
         }
     }
 
     /**
-     * Установить "чистый" размер view - без inset'ов, а именно:
-     * - отступов, которые насчитал декоратор
-     * - margins нашей view
+     * Расчитать "чистый" размер child'а, без inset'ов, а именно:
+     * - без отступов, которые насчитал декоратор
+     * - без margins child'а
      */
     private fun measureChildWithoutInsets(child: View, widthSpec: Int, heightSpec: Int) {
 
@@ -110,19 +112,6 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         }
     }
 
-    /**
-     * Установить размер в MeasureSpec
-     */
-    private fun updateMeasureSpecs(spec: Int, size: Int): Int {
-
-        val mode = View.MeasureSpec.getMode(spec)
-
-        if (mode == View.MeasureSpec.AT_MOST || mode == View.MeasureSpec.EXACTLY) {
-            return View.MeasureSpec.makeMeasureSpec(size, mode)
-        }
-        return spec
-    }
-
     override fun scrollHorizontallyBy(
         dX: Int,
         recycler: RecyclerView.Recycler,
@@ -138,17 +127,23 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         return delta
     }
 
+    /**
+     * Вертикальный скролл начинает работать если scaleHeight > 1, то есть при увеличенном
+     * масштабе. В этом случае "столбики" ходят вверх/вниз ограниченные областью видимости
+     * RecyclerView. То есть прокрутки нет, а есть смещения.
+     */
     override fun scrollVerticallyBy(
         dY: Int,
         recycler: RecyclerView.Recycler,
         state: RecyclerView.State?
     ): Int {
 
+
         val delta = when {
             // Палец идет вверх. Контролируем появление View снизу.
-            (dY > 0) -> translateUp(dY, recycler)
+            (dY > 0) -> deltaUp(dY, recycler)
             // Палец идет вниз. Контролируем появление View сверху.
-            (dY < 0) -> translateDown(dY, recycler)
+            (dY < 0) -> deltaDown(dY, recycler)
             else -> {
                 0
             }
@@ -164,30 +159,27 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
     /**
      * dY > 0
+     *
+     * Расчитать смещение вверх.
      */
-    private fun translateUp(dY: Int, recycler: RecyclerView.Recycler): Int {
-
+    private fun deltaUp(dY: Int, recycler: RecyclerView.Recycler): Int {
         return getChildAt(0)?.let { firstChild ->
-
             val bottomView = getDecoratedBottom(firstChild)
             if (bottomView == height) return 0
-
             min(dY, bottomView - height)
-
         } ?: 0
     }
 
     /**
      * dY < 0
+     *
+     * Расчитать смещение вниз.
      */
-    private fun translateDown(dY: Int, recycler: RecyclerView.Recycler): Int {
-
+    private fun deltaDown(dY: Int, recycler: RecyclerView.Recycler): Int {
         return getChildAt(0)?.let { firstChild ->
-
             val topView = getDecoratedTop(firstChild)
             if (topView >= paddingTop) return 0
             max(dY, topView - paddingTop)
-
         } ?: 0
     }
 
@@ -205,7 +197,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         val viewHeight = (height - paddingTop - paddingBottom) * scaleHeight
 
         // Верхняя позиция с поправкой на вертикальный сдвиг
-        val viewTop = paddingTop + verticalOffset
+        val viewTop = paddingTop
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
         val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
@@ -233,7 +225,10 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                     viewTop + decoratedMeasuredHeight
                 )
 
-                anchorView?.let {av ->
+                /**
+                 * см. коммент для fill()
+                 */
+                anchorView?.let { av ->
                     val d = getDecoratedTop(av) - getDecoratedTop(child)
                     child.offsetTopAndBottom(d)
                 }
@@ -289,7 +284,10 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                     viewTop + decoratedMeasuredHeight
                 )
 
-                anchorView?.let {av ->
+                /**
+                 * см. коммент для fill()
+                 */
+                anchorView?.let { av ->
                     val d = getDecoratedTop(av) - getDecoratedTop(child)
                     child.offsetTopAndBottom(d)
                 }
@@ -313,7 +311,12 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
     private fun getAnchorView(): View? {
 
         val viewsOnScreen = mutableMapOf<Int, View>()
-        val mainRect = Rect(paddingLeft, paddingTop, width, height)
+        val mainRect = Rect(
+            paddingLeft,
+            paddingTop,
+            width - paddingRight,
+            height - paddingBottom
+        )
 
         for (i in 0 until childCount) {
 
@@ -343,6 +346,20 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         return viewsOnScreen[maxSquare]
     }
 
+    /**
+     * Установить размер в MeasureSpec.
+     */
+    private fun updateMeasureSpecs(spec: Int, size: Int): Int {
+        val mode = View.MeasureSpec.getMode(spec)
+        if (mode == View.MeasureSpec.AT_MOST || mode == View.MeasureSpec.EXACTLY) {
+            return View.MeasureSpec.makeMeasureSpec(size, mode)
+        }
+        return spec
+    }
+
+    /**
+     * Посчитать горизонтальное смещение.
+     */
     private fun scrollHorizontallyInternal(dX: Int): Int {
 
         if (childCount == 0) {
@@ -387,42 +404,5 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             RecyclerView.LayoutParams.WRAP_CONTENT,
             RecyclerView.LayoutParams.WRAP_CONTENT
         )
-    }
-
-    /**
-     * Сделать layout элементов одной строки
-     */
-    private fun fillRow(recycler: RecyclerView.Recycler) {
-
-        var nextItem = 0
-        summaryWidth = 0
-
-        val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
-        val heightSpec =
-            View.MeasureSpec.makeMeasureSpec(height - paddingTop, View.MeasureSpec.EXACTLY)
-
-        var viewLeft = paddingLeft
-        val viewTop = paddingTop
-
-        while (nextItem != itemCount && viewLeft < width) {
-
-            val child = recycler.getViewForPosition(nextItem)
-            addView(child)
-
-            measureChildWithoutInsets(child, widthSpec, heightSpec)
-
-            val decoratedMeasuredWidth = getDecoratedMeasuredWidth(child)
-            val decoratedMeasuredHeight = getDecoratedMeasuredHeight(child)
-
-            layoutDecorated(
-                child,
-                viewLeft,
-                viewTop,
-                viewLeft + decoratedMeasuredWidth,
-                viewTop + decoratedMeasuredHeight
-            )
-            viewLeft = getDecoratedRight(child)
-            nextItem++
-        }
     }
 }
