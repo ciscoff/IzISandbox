@@ -1,10 +1,7 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
-import android.graphics.Typeface
+import android.graphics.*
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +11,6 @@ import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ColumnViewController
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_END
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_START
-import s.yarlykov.izisandbox.utils.logIt
 
 class DutyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
 
@@ -31,7 +27,7 @@ class DutyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
 
     private val paintTouchPoint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.colorDecor4)
-        strokeWidth = borderStrokeWidth * 5
+        strokeWidth = borderStrokeWidth * 7
         style = Paint.Style.STROKE
         isAntiAlias = true
         strokeCap = Paint.Cap.ROUND
@@ -55,7 +51,7 @@ class DutyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
 
     private val touchPoints = FloatArray(4) { 0f }
 
-    private val frameRect = RectF()
+    private val blueRect = RectF()
     private val borderRect = RectF()
 
     override fun draw(
@@ -69,32 +65,47 @@ class DutyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
 
         viewHolder.ticket?.let { ticket ->
 
-            // Поправка на величину верхнего padding'а у RecyclerView
-            val baseY = recyclerView.paddingTop
-
             // ppm - pixels per minute
             val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
 
-            frameRect.set(
+            blueRect.set(
                 view.left.toFloat(),
-                baseY + (ticket.start.minutes - dayRange.first) * ppm,
+                view.top + (ticket.start.minutes - dayRange.first) * ppm,
                 view.right.toFloat(),
-                baseY + (ticket.end.minutes - dayRange.first) * ppm
+                view.top + (ticket.end.minutes - dayRange.first) * ppm
             )
 
             borderRect.set(
-                frameRect.left + borderStrokeWidth / 2,
-                frameRect.top + borderStrokeWidth / 2,
-                frameRect.right - borderStrokeWidth / 2,
-                frameRect.bottom - borderStrokeWidth / 2
+                blueRect.left + borderStrokeWidth / 2,
+                blueRect.top + borderStrokeWidth / 2,
+                blueRect.right - borderStrokeWidth / 2,
+                blueRect.bottom - borderStrokeWidth / 2
             )
 
-            drawBlueRect(canvas, frameRect)
+            canvas.save()
+
+            // Для того, чтобы не залезать в верхнее padding-поле с заголовками
+            // обрезаем область рисования.
+            canvas.clipRect(
+                recyclerView.left,
+                recyclerView.paddingTop,
+                recyclerView.right,
+                recyclerView.bottom
+            )
+
+            drawBlueRect(canvas, blueRect)
             drawBorder(canvas, borderRect)
             drawTouchPoints(canvas, borderRect)
 
+            canvas.restore()
+
             // Заголовки столбцов
-            canvas.drawText(ticket.title, view.left.toFloat() + 20f, view.top - 50f, paintText)
+            canvas.drawText(
+                ticket.title,
+                view.left.toFloat() + 20f,
+                recyclerView.paddingTop - 50f,
+                paintText
+            )
         }
     }
 
