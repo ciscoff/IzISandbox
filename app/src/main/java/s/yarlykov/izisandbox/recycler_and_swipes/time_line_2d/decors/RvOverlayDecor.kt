@@ -6,10 +6,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.extensions.minutes
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_END
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_START
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ColumnViewController
 import kotlin.math.floor
 
 /**
@@ -18,15 +16,13 @@ import kotlin.math.floor
  * - Левая боковая вертикальная линия, выделяющая боковую панель
  * - Шкала с часами в левой боковой панели
  */
-class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
+class RvOverlayDecor(context: Context) : Decorator.RecyclerViewDecorator {
 
     private val guideLineWidth = context.resources.getDimension(R.dimen.bar_separator_width)
     private val gridStrokeWidth = context.resources.getDimension(R.dimen.grid_stroke_width)
     private val gridStrokeGap = context.resources.getDimension(R.dimen.grid_stroke_gap)
     private val rectLeft = Rect()
     private val rectTextBounds = Rect()
-
-    private val dayRange = (DAY_START.minutes..DAY_END.minutes)
 
     private val paintWhiteRect = Paint().apply {
         color = ContextCompat.getColor(context, android.R.color.white)
@@ -65,6 +61,11 @@ class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
 
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
 
+        val dayRange = recyclerView.getChildAt(0)
+            ?.let { anchor ->
+                (recyclerView.getChildViewHolder(anchor) as? ColumnViewController.TicketViewHolder)?.ticket?.dayRange
+            } ?: return
+
         // Область левой вертикальной панели с часами: 10:00...21:00
         rectLeft.set(
             recyclerView.left,
@@ -95,7 +96,7 @@ class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
         )
 
         // Сетка горизонтальных линий
-        drawGrid(canvas, recyclerView)
+        drawGrid(canvas, recyclerView, dayRange)
 
         // Левая вертикальная панель с часами
         try {
@@ -106,7 +107,7 @@ class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
                 recyclerView.left + recyclerView.paddingStart,
                 recyclerView.bottom
             )
-            drawHours(canvas, recyclerView)
+            drawHours(canvas, recyclerView, dayRange)
         } finally {
             canvas.restore()
         }
@@ -117,7 +118,7 @@ class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
     /**
      * Линии сетки двигаются вертикально повторяя "вертикальную прокрутку" элементов списка.
      */
-    private fun drawGrid(canvas: Canvas, recyclerView: RecyclerView) {
+    private fun drawGrid(canvas: Canvas, recyclerView: RecyclerView, dayRange: IntRange) {
 
         canvas.save()
         canvas.clipRect(
@@ -159,7 +160,7 @@ class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
      * центрирования текста относительно какой-либо точки нужно учитывать высоту прямоугольника
      * текста.
      */
-    private fun drawHours(canvas: Canvas, recyclerView: RecyclerView) {
+    private fun drawHours(canvas: Canvas, recyclerView: RecyclerView, dayRange: IntRange) {
         val hours = (dayRange.last - dayRange.first) / 60
         if (hours == 0) return
 

@@ -23,10 +23,11 @@ class ColumnViewController(@LayoutRes val layoutId: Int) :
      */
     inner class TicketViewHolder(parent: ViewGroup) : BindableViewHolder<Ticket>(parent, layoutId) {
 
-        var ticket : Ticket? = null
+        var ticket: Ticket? = null
 
         override fun bind(data: Ticket) {
             ticket = data
+            itemView.setOnTouchListener(ColumnTouchListener(data))
         }
     }
 }
