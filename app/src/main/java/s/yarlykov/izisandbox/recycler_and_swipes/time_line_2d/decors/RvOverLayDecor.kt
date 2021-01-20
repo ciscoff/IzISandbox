@@ -3,6 +3,7 @@ package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors
 import android.content.Context
 import android.graphics.*
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.minutes
@@ -11,7 +12,13 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedAc
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_START
 import kotlin.math.floor
 
-class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
+/**
+ * Отрисовка
+ * - Горизонтальная линия, выделяющая верхнюю панель
+ * - Левая боковая вертикальная линия, выделяющая боковую панель
+ * - Шкала с часами в левой боковой панели
+ */
+class RvOverLayDecor(context: Context) : Decorator.RecyclerViewDecorator {
 
     private val guideLineWidth = context.resources.getDimension(R.dimen.bar_separator_width)
     private val gridStrokeWidth = context.resources.getDimension(R.dimen.grid_stroke_width)
@@ -51,11 +58,14 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
         isAntiAlias = true
     }
 
-    val metricsTextHeight = paintText.fontMetrics.let { it.descent - it.ascent }
+    private val zoomBitmap =
+        ContextCompat.getDrawable(context, R.drawable.ic_zoom)?.run {
+            toBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        }
 
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
 
-        // Левая панель с часами: 10:00...21:00
+        // Область левой вертикальной панели с часами: 10:00...21:00
         rectLeft.set(
             recyclerView.left,
             recyclerView.top,
@@ -84,17 +94,39 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
             paintGuideLine
         )
 
-        // Линейка
+        // Сетка горизонтальных линий
         drawGrid(canvas, recyclerView)
 
-        // Часы
-        drawHours(canvas, recyclerView)
+        // Левая вертикальная панель с часами
+        try {
+            canvas.save()
+            canvas.clipRect(
+                recyclerView.left,
+                recyclerView.paddingTop,
+                recyclerView.left + recyclerView.paddingStart,
+                recyclerView.bottom
+            )
+            drawHours(canvas, recyclerView)
+        } finally {
+            canvas.restore()
+        }
+
+        drawZoomIcon(canvas, recyclerView)
     }
 
     /**
      * Линии сетки двигаются вертикально повторяя "вертикальную прокрутку" элементов списка.
      */
     private fun drawGrid(canvas: Canvas, recyclerView: RecyclerView) {
+
+        canvas.save()
+        canvas.clipRect(
+            recyclerView.paddingLeft,
+            recyclerView.paddingTop,
+            recyclerView.right - recyclerView.paddingRight,
+            recyclerView.bottom - recyclerView.paddingBottom
+        )
+
         val hours = (dayRange.last - dayRange.first) / 60
         if (hours == 0) return
 
@@ -115,75 +147,58 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
             val y = floor(i * gap) + anchor.top
             canvas.drawLine(startX, y, endX, y, paintGrid)
         }
+
+        canvas.restore()
     }
 
     /**
-     * Рисуем числа. Они центрируются относительно отсечек благодаря настройке текстовой Paint.
+     * Рисуем текст в левой панеле.
+     *
+     * Позиционируем канву для отрисовки текста. Позиция канвы будет определять координаты
+     * base line текста, а не left/top прямоугольника области текста. Поэтому для вертикального
+     * центрирования текста относительно какой-либо точки нужно учитывать высоту прямоугольника
+     * текста.
      */
     private fun drawHours(canvas: Canvas, recyclerView: RecyclerView) {
         val hours = (dayRange.last - dayRange.first) / 60
         if (hours == 0) return
 
-//        val startX = recyclerView.paddingLeft / 3f
-
-        // Количество записей
-        val steps = hours + 1
-
         // Опорная view по которой определим высоту элемента списка. Берем первую видимую.
         val anchor = recyclerView.getChildAt(0) ?: recyclerView
 
         // Один промежуток (gap) - 1 час.
-        // Высота промежутка между целыми часами, например между 10:00 и 11:00
+        // Высота промежутка в px между целыми часами, например между 10:00 и 11:00
         val gap =
             (anchor.bottom - anchor.top) / hours.toFloat()
 
+        // Измерить прямоугольник текста "00:00"
+        val minutes = ":00"
+        val pattern = "00$minutes"
+        paintText.getTextBounds(pattern, 0, pattern.length, rectTextBounds)
 
-        /**
-         * Позиционируем канву для отрисовки текста. Позиция канвы станет левым-НИЖНИМ углом
-         * области текста. Не левым-ВЕРХНИМ, а левым-НИЖНИМ, то есть все через жопу. Поэтому
-         * ставим канву на нижнюю границу View, а текст отрусуется поверх этой границы.
-         *
-         * Полезная заметка тут:
-         * https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
-         */
+        val startX = (recyclerView.paddingLeft - rectTextBounds.width()) / 2
+        val startY = anchor.top + rectTextBounds.height() / 2
 
-        canvas.save()
+        canvas.translate(startX.toFloat(), startY.toFloat())
 
-        var hour = dayRange.first / 60
-        var text = hour.toString().padStart(2, '0')
-        paintText.getTextBounds(text, 0, text.length, rectTextBounds)
+        for (i in 1 until hours) {
+            val hour = (dayRange.first + i * 60) / 60
+            val text = hour.toString().padStart(2, '0') + minutes
 
-        val startX = recyclerView.paddingLeft - rectTextBounds.width()
-
-        canvas.translate(startX.toFloat(), (anchor.top - rectTextBounds.top).toFloat())
-
-        for (i in 0 until steps) {
-            hour = (dayRange.first + i * 60) / 6
-            text = hour.toString().padStart(2, '0')
-
-            canvas.drawText(text, 0f, 0f, paintText)
             canvas.translate(0f, gap)
+            canvas.drawText(text, 0f, 0f, paintText)
         }
-        canvas.restore()
     }
 
     /**
-     * Функция выполняет расчет высоты для основных компонентов.
-     * - высота текста определяется через FontMetrics
-     * - высота цветового фона с помощью ratio
-     * - оставшееся вертикальное пространство остается для высоты шкаликов метрической линейки
+     * Иконка zoom'а в левом верхнем углу
      */
+    private fun drawZoomIcon(canvas: Canvas, recyclerView: RecyclerView) {
 
-    /**
-     * Величины высот основных компонентов
-     */
-//    private var backgroundHeight = 0f
-//    private var metricsLineHeight = 0f
-//    private var metricsTextHeight = 0f
-
-//    private fun calculateDimensions() {
-//        metricsTextHeight = paintText.fontMetrics.let { it.descent - it.ascent }
-//        backgroundHeight = height * TimeSurfaceV4.BACKGROUND_HEIGHT_RATIO
-//        metricsLineHeight = height - backgroundHeight - metricsTextHeight
-//    }
+        zoomBitmap?.let { bitmap ->
+            val left = (recyclerView.paddingLeft - bitmap.width) / 2f
+            val top = (recyclerView.paddingTop - bitmap.height) / 2f
+            canvas.drawBitmap(bitmap, left, top, null)
+        }
+    }
 }

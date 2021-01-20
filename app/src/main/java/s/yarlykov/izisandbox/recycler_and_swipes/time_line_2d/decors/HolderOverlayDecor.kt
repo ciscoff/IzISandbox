@@ -12,7 +12,14 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ColumnViewControll
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_END
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity.Companion.DAY_START
 
-class BusyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
+/**
+ * Отрисовка:
+ * - Голубые прямоугольники выбранного времени
+ * - Рамки вокруг голубых прямоугольников
+ * - Точки тача на рамках
+ */
+
+class HolderOverlayDecor(context: Context) : Decorator.ViewHolderDecorator {
 
     private val dayRange = (DAY_START.minutes..DAY_END.minutes)
 
@@ -45,7 +52,7 @@ class BusyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
         strokeWidth = context.resources.getDimension(R.dimen.title_stroke_width)
         textSize = context.resources.getDimension(R.dimen.title_text_size)
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        style = Paint.Style.STROKE
+        style = Paint.Style.FILL
         isAntiAlias = true
     }
 
@@ -53,6 +60,7 @@ class BusyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
 
     private val blueRect = RectF()
     private val borderRect = RectF()
+    private val rectTextBounds = Rect()
 
     override fun draw(
         canvas: Canvas,
@@ -100,12 +108,7 @@ class BusyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
             canvas.restore()
 
             // Заголовки столбцов
-            canvas.drawText(
-                ticket.title,
-                view.left.toFloat() + 20f,
-                recyclerView.paddingTop - 50f,
-                paintText
-            )
+            drawTitle(ticket.title, canvas, view, recyclerView)
         }
     }
 
@@ -145,5 +148,26 @@ class BusyTimeDecor(context: Context) : Decorator.ViewHolderDecorator {
         touchPoints[3] = rect.bottom
 
         canvas.drawPoints(touchPoints, paintTouchPoint)
+    }
+
+    private fun drawTitle(
+        title: String,
+        canvas: Canvas,
+        view: View,
+        recyclerView: RecyclerView
+    ) {
+        try {
+            canvas.save()
+            paintText.getTextBounds(title, 0, title.length, rectTextBounds)
+
+            val startX = view.left + (view.width - rectTextBounds.width()) / 2
+            val startY = (recyclerView.paddingTop - rectTextBounds.height()) / 2 + rectTextBounds.height()
+
+            canvas.translate(startX.toFloat(), startY.toFloat())
+            canvas.drawText(title, 0f, 0f, paintText)
+
+        } finally {
+            canvas.restore()
+        }
     }
 }

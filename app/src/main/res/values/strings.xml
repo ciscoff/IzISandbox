@@ -233,4 +233,9 @@
         <item>Gray View</item>
         <item>Purple View</item>
     </string-array>
+
+    <!-- Zoom Menu -->
+    <string name="zoom_x1" translatable="false">x1</string>
+    <string name="zoom_x2" translatable="false">x2</string>
+    <string name="zoom_x3" translatable="false">x3</string>
 </resources>

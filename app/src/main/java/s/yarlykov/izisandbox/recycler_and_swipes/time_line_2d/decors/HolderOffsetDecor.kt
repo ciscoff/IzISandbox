@@ -7,7 +7,7 @@ import s.yarlykov.izisandbox.extensions.px
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.utils.logIt
 
-class ColumnOffsetDecor : Decorator.OffsetDecorator {
+class HolderOffsetDecor : Decorator.OffsetDecorator {
 
     override fun getItemOffsets(
         outRect: Rect,

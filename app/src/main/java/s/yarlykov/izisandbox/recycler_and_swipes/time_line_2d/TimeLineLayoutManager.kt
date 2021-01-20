@@ -10,12 +10,12 @@ import s.yarlykov.izisandbox.R
 import kotlin.math.max
 import kotlin.math.min
 
-class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager() {
+class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager(), ZoomConsumer {
 
     /**
      * Масштабирование элементов списка по высоте
      */
-    private var scaleHeight = 2
+    private var scaleHeight = 1
 
     /**
      * Ширина отдельного элемента
@@ -404,5 +404,9 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             RecyclerView.LayoutParams.WRAP_CONTENT,
             RecyclerView.LayoutParams.WRAP_CONTENT
         )
+    }
+
+    override fun onZoomChanged(zoom: Int) {
+        scaleHeight = zoom
     }
 }
