@@ -17,6 +17,7 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
     private val gridStrokeWidth = context.resources.getDimension(R.dimen.grid_stroke_width)
     private val gridStrokeGap = context.resources.getDimension(R.dimen.grid_stroke_gap)
     private val rectLeft = Rect()
+    private val rectTextBounds = Rect()
 
     private val dayRange = (DAY_START.minutes..DAY_END.minutes)
 
@@ -46,9 +47,11 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
         strokeWidth = context.resources.getDimension(R.dimen.title_stroke_width)
         textSize = context.resources.getDimension(R.dimen.title_text_size)
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        style = Paint.Style.STROKE
+        style = Paint.Style.FILL
         isAntiAlias = true
     }
+
+    val metricsTextHeight = paintText.fontMetrics.let { it.descent - it.ascent }
 
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
 
@@ -121,7 +124,7 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
         val hours = (dayRange.last - dayRange.first) / 60
         if (hours == 0) return
 
-        val startX = recyclerView.paddingLeft / 3f
+//        val startX = recyclerView.paddingLeft / 3f
 
         // Количество записей
         val steps = hours + 1
@@ -144,13 +147,22 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
          * https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
          */
 
-
         canvas.save()
-        canvas.translate(startX, anchor.top.toFloat())
-        for (i in 0 until steps) {
 
+        var hour = dayRange.first / 60
+        var text = hour.toString().padStart(2, '0')
+        paintText.getTextBounds(text, 0, text.length, rectTextBounds)
+
+        val startX = recyclerView.paddingLeft - rectTextBounds.width()
+
+        canvas.translate(startX.toFloat(), (anchor.top - rectTextBounds.top).toFloat())
+
+        for (i in 0 until steps) {
+            hour = (dayRange.first + i * 60) / 6
+            text = hour.toString().padStart(2, '0')
+
+            canvas.drawText(text, 0f, 0f, paintText)
             canvas.translate(0f, gap)
-            canvas.drawText("${(dayRange.first + i * 60) / 60}", 0f, 0f, paintText)
         }
         canvas.restore()
     }
@@ -165,9 +177,9 @@ class BarsDecor(context: Context) : Decorator.RecyclerViewDecorator {
     /**
      * Величины высот основных компонентов
      */
-    private var backgroundHeight = 0f
-    private var metricsLineHeight = 0f
-    private var metricsTextHeight = 0f
+//    private var backgroundHeight = 0f
+//    private var metricsLineHeight = 0f
+//    private var metricsTextHeight = 0f
 
 //    private fun calculateDimensions() {
 //        metricsTextHeight = paintText.fontMetrics.let { it.descent - it.ascent }
