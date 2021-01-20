@@ -79,7 +79,7 @@ class CellLayoutManager(
     }
 
     /**
-     * Ну нужно пользоваться методами layoutDecorated/layoutDecoratedWithMargins потому что
+     * Не нужно пользоваться методами layoutDecorated/layoutDecoratedWithMargins потому что
      * они используют данные декоратора, хранящиеся в недоступной layoutParams.mDecorInsets.
      * Нужно просто вызывать child.layout(...)
      */
@@ -135,6 +135,7 @@ class CellLayoutManager(
 
         resetMargins(child)
 
+        // Принудительно устанавливем размер равным 'spanSize x spanSize'
         val widthSpecUpdated = updateMeasureSpecs(widthSpec, spanSize)
         val heightSpecUpdated = updateMeasureSpecs(heightSpec, spanSize)
         child.measure(widthSpecUpdated, heightSpecUpdated)

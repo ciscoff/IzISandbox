@@ -63,6 +63,7 @@
     <string name="menu_grid_list" translatable="false">Grid List</string>
     <string name="menu_send_notification" translatable="false">Send Notification</string>
     <string name="menu_sticky_decor" translatable="false">Sticky Decorator</string>
+    <string name="menu_time_line_2d" translatable="false">Time Line 2D</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
@@ -232,4 +233,9 @@
         <item>Gray View</item>
         <item>Purple View</item>
     </string-array>
+
+    <!-- Zoom Menu -->
+    <string name="zoom_x1" translatable="false">x1</string>
+    <string name="zoom_x2" translatable="false">x2</string>
+    <string name="zoom_x3" translatable="false">x3</string>
 </resources>

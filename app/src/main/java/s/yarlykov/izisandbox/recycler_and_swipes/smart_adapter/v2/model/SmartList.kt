@@ -21,7 +21,7 @@ class SmartList : ArrayList<ListItem>() {
     /**
      * Добавить элемент, который не содержит данных
      */
-    fun addItem(controller : NoDataItemController<*>) {
+    fun addItem(controller: NoDataItemController<*>) {
         insert(size, NoDataItem(controller))
     }
 
@@ -33,7 +33,18 @@ class SmartList : ArrayList<ListItem>() {
         controller: BindableItemController<T, H>
     ) {
         insert(size, BindableItem(data, controller))
-        val a = 1
+    }
+
+//    fun <T : Any, C : BindableItemController<T, BindableViewHolder<T>>> addItems(
+//        items: List<BindableItem<T, BindableViewHolder<T>>>
+//    ) {
+//        items.forEach { item ->
+//            this.insert(size, item)
+//        }
+//    }
+
+    fun <T : Any, H : BindableViewHolder<T>> addItems(items: List<BindableItem<T, H>>) {
+        items.forEach { item -> this.insert(size, item) }
     }
 
     private fun insert(index: Int, item: ListItem): SmartList {

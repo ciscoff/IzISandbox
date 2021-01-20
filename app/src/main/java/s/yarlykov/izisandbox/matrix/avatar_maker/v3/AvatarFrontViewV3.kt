@@ -26,7 +26,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AvatarBaseView(context, attrs, defStyleAttr) {
+) : AvatarBaseViewV3(context, attrs, defStyleAttr) {
 
     private var mode: Mode = Mode.Waiting
 
@@ -112,12 +112,17 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         isAntiAlias = true
     }
 
+    private val rectClipPrev = RectF()
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
                 prevDistance = distanceToViewPortCenter(event.x, event.y)
+
+                // Запомнить перед скалированием чтобы потом посчитать scale
+                rectClipPrev.set(rectClip)
 
                 lastX = event.x
                 lastY = event.y
@@ -170,6 +175,12 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
+                val scaled = rectClip.width() / rectClipPrev.width()
+
+                if(scaled != 1f) {
+                    onScaleChangeListener?.invoke(scaled)
+                }
+
                 true
             }
             else -> false

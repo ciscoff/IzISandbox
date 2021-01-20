@@ -3,6 +3,8 @@ package s.yarlykov.izisandbox.extensions
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.util.TypedValue
+import android.view.View
 import androidx.exifinterface.media.ExifInterface
 
 /**
@@ -17,6 +19,15 @@ val Context.screenWidth: Int
 
 val Context.screenHeight: Int
     get() = resources.displayMetrics.heightPixels
+
+/**
+ * Конвертация dp в px. px возвращается как Float
+ */
+fun Context.dp_f(dp: Float): Float {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics
+    )
+}
 
 /**
  * Создаем Uri для битмапы из ресурсов. Например, имеем R.drawable.batumi и на выходе получим

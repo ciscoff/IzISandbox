@@ -11,7 +11,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AvatarBaseView(context, attrs, defStyleAttr) {
+) : AvatarBaseViewV3(context, attrs, defStyleAttr) {
 
     /**
      * Paint для заливки фона исходной Bitmap'ой с применением цветового фильтра.
@@ -23,13 +23,24 @@ class AvatarBackViewV3 @JvmOverloads constructor(
         invalidate()
     }
 
+    /**
+     * @rectSourceImage - задает исходный прямоугольник в координатах битмапы
+     * @rectDest - целевой прямоугольник в координатах канвы.
+     * То есть берем некую часть из битмапы и переносим в указанную область канвы.
+     */
     override fun onDraw(canvas: Canvas) {
         sourceImageBitmap?.let {
             canvas.drawBitmap(it, rectSourceImage, rectDest, paintBackground)
         }
     }
 
-    fun setDarkPaint() {
-        paintBackground = Paint(Color.GRAY).apply { colorFilter = colorFilterDarken }
+    override fun onScaleChanged(scale : Float) {
+        if(scale > 1f) return
+
+        sourceImageBitmap?.let {bitmap ->
+            rectSourceImage.right = (bitmap.width * scale).toInt()
+            rectSourceImage.bottom = (bitmap.height * scale).toInt()
+            invalidate()
+        }
     }
 }

@@ -22,7 +22,7 @@ class CustomBottomAppBarActivity : AppCompatActivity(), View.OnClickListener {
                 clickListener = this@CustomBottomAppBarActivity
 
                 initChildren {
-                    bottomAppAbr {
+                    bottomAppBar {
                         initState = hidden
                         initElevation = 0f
                     }
@@ -60,7 +60,7 @@ class CustomBottomAppBarActivity : AppCompatActivity(), View.OnClickListener {
             setOnClickListener(value)
         }
 
-    private fun bottomAppAbr(op: BottomAppBar.() -> Unit) = bottomBar.apply(op)
+    private fun bottomAppBar(op: BottomAppBar.() -> Unit) = bottomBar.apply(op)
 
     private interface BarState
     private object hidden : BarState
