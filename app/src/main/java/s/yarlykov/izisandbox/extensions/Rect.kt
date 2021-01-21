@@ -49,6 +49,10 @@ val Rect.min: Int
     get() = listOf(left, top, right, bottom).filter { it != 0 }.map { abs(it) }.min() ?: 0
 
 
+fun RectF.reset() {
+    set(0f, 0f, 0f, 0f)
+}
+
 
 
 
