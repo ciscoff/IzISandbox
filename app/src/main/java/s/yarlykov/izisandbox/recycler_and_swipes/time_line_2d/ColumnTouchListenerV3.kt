@@ -11,7 +11,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.ceil
 
-class ColumnTouchListenerV2(
+class ColumnTouchListenerV3(
     private val context: Context,
     private val ticket: Ticket
 ) : View.OnTouchListener, ScaleGestureDetector.OnScaleGestureListener {
@@ -59,7 +59,7 @@ class ColumnTouchListenerV2(
                         parent.requestDisallowInterceptTouchEvent(true)
                         forceSiblingsToDo { isSelected = false }
                         isSelected = true
-                        state = State.PreTranslate
+                        lastEventY = y
                         (parent as ViewGroup).invalidate()
                     }
                     State.PreTranslate
@@ -70,14 +70,13 @@ class ColumnTouchListenerV2(
                 scaleDetector.onTouchEvent(this)
             }
             MotionEvent.ACTION_MOVE -> {
-
                 state = when (state) {
                     State.Scaling, State.Translating -> {
                         // Ничего не делать. Обработка будет в inProcessing()
                         state
                     }
                     State.PreTranslate -> {
-                        if(this.pointerCount == 1) {
+                        if (this.pointerCount == 1) {
                             // Если один палец, то переходим к перетаскиванию
                             State.Translating
                         } else {
@@ -94,7 +93,31 @@ class ColumnTouchListenerV2(
                 scaleDetector.onTouchEvent(this)
             }
             MotionEvent.ACTION_UP -> {
+                view.parent.requestDisallowInterceptTouchEvent(false)
+                scaleDetector.onTouchEvent(this)
                 state = State.None
+            }
+        }
+
+        return this
+    }
+
+    private fun MotionEvent.inProcessing(): MotionEvent {
+
+        when (state) {
+            State.PreScale, State.Scaling -> {
+                if (actionMasked == MotionEvent.ACTION_MOVE) {
+                    scaleDetector.onTouchEvent(this)
+                }
+            }
+            State.PreTranslate, State.Translating -> {
+                if (actionMasked == MotionEvent.ACTION_MOVE) {
+                    if (pointerCount == 1) {
+                        translateBlueRect(y - lastEventY, view)
+                        lastEventY = y
+                    }
+                    scaleDetector.onTouchEvent(this)
+                }
             }
         }
 
@@ -111,33 +134,42 @@ class ColumnTouchListenerV2(
 
         this.view = view
 
-        return when (evaluateState(view, event)) {
-            // Тапнули за пределами blueRect
-            State.PreScale -> {
-                scaleDetector.onTouchEvent(event)
-                true
-            }
-            // Масштабируем blueRect
-            State.Scaling -> {
-                scaleDetector.onTouchEvent(event)
-                true
-            }
-            // Тапнули внутри blueRect
-            State.PreTranslate -> {
-                true
-            }
-            // Тянем blueRect
-            State.Translating -> {
-                true
-            }
+        event.preProcessing().inProcessing()
+        return true
 
-            State.None -> {
-                handleTouchEvent(view, event)
-            }
-            else -> false
-
-        }
+        /**
+         * 21.01.2020
+         */
+//        return when (evaluateState(view, event)) {
+//            // Тапнули за пределами blueRect
+//            State.PreScale -> {
+//                scaleDetector.onTouchEvent(event)
+//                true
+//            }
+//            // Масштабируем blueRect
+//            State.Scaling -> {
+//                scaleDetector.onTouchEvent(event)
+//                true
+//            }
+//            // Тапнули внутри blueRect
+//            State.PreTranslate -> {
+//                true
+//            }
+//            // Тянем blueRect
+//            State.Translating -> {
+//                true
+//            }
 //
+//            State.None -> {
+//                handleTouchEvent(view, event)
+//            }
+//            else -> false
+//
+//        }
+
+        /***
+         * 21.01.2020
+         */
 //        val result = scaleDetector.onTouchEvent(event)
 //
 //        if (state != State.Scaling) {
@@ -255,6 +287,7 @@ class ColumnTouchListenerV2(
 
     override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
         view.parent.requestDisallowInterceptTouchEvent(true)
+        state = State.Scaling
         return true
     }
 
@@ -264,16 +297,13 @@ class ColumnTouchListenerV2(
         logIt("scaleFactor=$scaleFactor, detector.scaleFactor=${detector.scaleFactor}")
 
         val duration = detector.scaleFactor * (ticket.end - ticket.start)
-
         ticket.end = ticket.start + duration.toInt()
         (view.parent as ViewGroup).invalidate()
-
         return true
-
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector) {
-        state = State.Scaling
+        state = State.PostScale
     }
 
     /**
