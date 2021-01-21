@@ -81,6 +81,23 @@ fun View.findRecyclerViewParent(): RecyclerView? {
 
 
 /**
+ * Пройти по всем "братьям" в родительском RecyclerView и на каждом выполнить операцию op
+ */
+inline fun <reified T : View >T.forceSiblingsToDo(op: T.() -> Unit) {
+    findRecyclerViewParent()?.let { rv ->
+        rv.layoutManager?.apply {
+            for (i in 0 until childCount) {
+                getChildAt(i)?.let { child ->
+                    if (child is T && child != this@forceSiblingsToDo) {
+                        child.op()
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
  * Ищем среди эелементов RecyclerView всех кроме . Затем ищем в каждом из ни
  * дочерний элемент animatedViewId и анимируем его в исходную Х-позицию.
  */

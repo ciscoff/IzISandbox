@@ -8,12 +8,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomappbar.BottomAppBar
 import kotlinx.android.synthetic.main.activity_time_line_advanced.*
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.minutes
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderAnyOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderOffsetDecor
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderOverlayDecor
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverLayDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewTypeOverlayDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
 import kotlin.properties.Delegates
@@ -21,8 +23,8 @@ import kotlin.properties.Delegates
 class TimeLineAdvancedActivity : AppCompatActivity() {
 
     companion object {
-        const val DAY_START = 9
-        const val DAY_END = 21
+        private const val DAY_START = 9
+        private const val DAY_END = 21
     }
 
     private var isBarVisible: Boolean by Delegates.notNull()
@@ -30,11 +32,11 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val smartAdapter = SmartAdapterV2()
 
     private val tickets = listOf(
-        Ticket("Ticket 1", 10, 11),
-        Ticket("Ticket 2", 9, 10),
-        Ticket("Ticket 3", 12, 14),
-        Ticket("Ticket 4", 19, 20),
-        Ticket("Ticket 5", 16, 18)
+        Ticket("Ticket 1", 10.minutes, 11.minutes, DAY_START.minutes, DAY_END.minutes, emptyList()),
+        Ticket("Ticket 2", 9.minutes, 10.minutes, DAY_START.minutes, DAY_END.minutes, emptyList()),
+        Ticket("Ticket 3", 12.minutes, 14.minutes, DAY_START.minutes, DAY_END.minutes, emptyList()),
+        Ticket("Ticket 4", 19.minutes, 20.minutes, DAY_START.minutes, DAY_END.minutes, emptyList()),
+        Ticket("Ticket 5", 16.minutes, 18.minutes, DAY_START.minutes, DAY_END.minutes, emptyList())
     )
 
     // Декоратор отступов
@@ -44,8 +46,9 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
     private val decorator by lazy {
         Decorator.Builder()
-            .overlay(RvOverLayDecor(this))
-            .overlay(columnViewController.viewType() to HolderOverlayDecor(this))
+            .overlay(RvOverlayDecor(this))
+            .overlay(columnViewController.viewType() to HolderViewTypeOverlayDecor(this))
+            .overlay(HolderAnyOverlayDecor(this))
             .offset(columnViewController.viewType() to offsetsDecor)
             .build()
     }
@@ -77,7 +80,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         }.also(smartAdapter::updateModel)
 
         bottomBar.apply {
-            initState = hidden
+            initState = Hidden
             initElevation = 0f
         }
 
@@ -137,17 +140,17 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private var BottomAppBar.initState: BottomBarState
         set(value) {
             when (value) {
-                hidden -> {
+                Hidden -> {
                     isBarVisible = false
                     postDelayed({ performHide() }, 100)
                 }
-                visible -> {
+                Visible -> {
                     isBarVisible = true
                     bottomBar.visibility = View.VISIBLE
                 }
             }
         }
-        get() = hidden
+        get() = Hidden
 
     private var BottomAppBar.initElevation: Float
         set(value) {

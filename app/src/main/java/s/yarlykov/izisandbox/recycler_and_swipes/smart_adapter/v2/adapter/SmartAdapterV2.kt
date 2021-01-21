@@ -63,6 +63,14 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     override fun getItemCount(): Int = model.size
 
     /**
+     * View холдера @holder перешло в состояние detached (например, попало в кэш)
+     */
+    override fun onViewDetachedFromWindow(holder: BaseViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        holder.clear()
+    }
+
+    /**
      * Обновляем модель данных
      */
     fun updateModel(smartList: SmartList) {

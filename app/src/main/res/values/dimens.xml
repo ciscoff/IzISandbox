@@ -67,15 +67,22 @@
 
     <dimen name="cell_spacer">20dp</dimen>
 
-    <!-- TimeLine 2D items top offset-->
+    <!-- TimeLine 2D dimens -->
     <dimen name="column_width">100dp</dimen>
     <dimen name="top_bar_height">56dp</dimen>
+    <dimen name="blue_rect_corner_radius">4dp</dimen>
+    <dimen name="hint_rect_corner_radius">6dp</dimen>
     <dimen name="left_bar_width">56dp</dimen>
     <dimen name="bar_separator_width">0.5dp</dimen>
     <dimen name="grid_stroke_width">0.3dp</dimen>
     <dimen name="grid_stroke_gap">2.3dp</dimen>
     <dimen name="blue_rect_border_stroke_width">1dp</dimen>
     <dimen name="title_text_size">13sp</dimen>
+    <dimen name="hint_text_size">10sp</dimen>
     <dimen name="title_stroke_width">1dp</dimen>
+    <dimen name="hint_stroke_width">0.8dp</dimen>
+    <dimen name="hint_margin">4dp</dimen>
+    <dimen name="hint_padding_h">4.2dp</dimen>
+    <dimen name="hint_padding_v">3.2dp</dimen>
 
 </resources>
