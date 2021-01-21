@@ -75,7 +75,7 @@ class RvOverlayDecor(context: Context) : Decorator.RecyclerViewDecorator {
         )
 
         // Закрасить цветом левую панель
-        canvas.drawRect(rectLeft, paintWhiteRect)
+//        canvas.drawRect(rectLeft, paintWhiteRect)
 
         // Верхняя горизонтальная линия
         canvas.drawLine(
@@ -99,19 +99,20 @@ class RvOverlayDecor(context: Context) : Decorator.RecyclerViewDecorator {
         drawGrid(canvas, recyclerView, dayRange)
 
         // Левая вертикальная панель с часами
-        try {
-            canvas.save()
-            canvas.clipRect(
-                recyclerView.left,
-                recyclerView.paddingTop,
-                recyclerView.left + recyclerView.paddingStart,
-                recyclerView.bottom
-            )
-            drawHours(canvas, recyclerView, dayRange)
-        } finally {
-            canvas.restore()
-        }
+//        try {
+//            canvas.save()
+//            canvas.clipRect(
+//                recyclerView.left,
+//                recyclerView.paddingTop,
+//                recyclerView.left + recyclerView.paddingStart,
+//                recyclerView.bottom
+//            )
+//            drawHours(canvas, recyclerView, dayRange)
+//        } finally {
+//            canvas.restore()
+//        }
 
+        // Иконка zoom'а
         drawZoomIcon(canvas, recyclerView)
     }
 

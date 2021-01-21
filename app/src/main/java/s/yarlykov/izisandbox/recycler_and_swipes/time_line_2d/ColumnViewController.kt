@@ -29,5 +29,10 @@ class ColumnViewController(@LayoutRes val layoutId: Int) :
             ticket = data
             itemView.setOnTouchListener(ColumnTouchListener(data))
         }
+
+        override fun clear() {
+            super.clear()
+            itemView.isSelected = false
+        }
     }
 }

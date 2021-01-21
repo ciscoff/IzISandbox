@@ -18,4 +18,10 @@ abstract class BaseViewHolder : RecyclerView.ViewHolder {
     )
 
     constructor(itemView: View) : super(itemView)
+
+    /**
+     * Когда view инвалидируется, то адаптер вызовет этот метод для очистки ресурсов
+     * из своего onViewDetachedFromWindow
+     */
+    open fun clear() {}
 }

@@ -4,6 +4,7 @@ import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import s.yarlykov.izisandbox.extensions.forceSiblingsToDo
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import kotlin.math.ceil
 
@@ -22,8 +23,13 @@ class ColumnTouchListener(private val ticket: Ticket) : View.OnTouchListener {
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 if (catchTouchEvent(event, view)) {
-                    view.parent.requestDisallowInterceptTouchEvent(true)
                     lastEventY = event.y
+                    view.apply {
+                        parent.requestDisallowInterceptTouchEvent(true)
+                        forceSiblingsToDo { isSelected = false }
+                        isSelected = true
+                        (parent as ViewGroup).invalidate()
+                    }
                     true
                 } else false
             }

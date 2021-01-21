@@ -12,8 +12,9 @@ import s.yarlykov.izisandbox.extensions.minutes
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderAnyOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderOffsetDecor
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderOverlayDecor
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewTypeOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
@@ -46,7 +47,8 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val decorator by lazy {
         Decorator.Builder()
             .overlay(RvOverlayDecor(this))
-            .overlay(columnViewController.viewType() to HolderOverlayDecor(this))
+            .overlay(columnViewController.viewType() to HolderViewTypeOverlayDecor(this))
+            .overlay(HolderAnyOverlayDecor(this))
             .offset(columnViewController.viewType() to offsetsDecor)
             .build()
     }
