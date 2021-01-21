@@ -4,20 +4,27 @@ import android.content.Context
 import android.graphics.*
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.hhMm
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ColumnViewController
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
+import kotlin.math.min
 
 /**
  * Рисуем все что касается декора самих элементов списка:
  * + Голубые прямоугольники выбранного времени.
  * + Рамки вокруг голубых прямоугольников.
  * + Точки тача на рамках.
+ * + Затененные прямоугольники с недоступными интервалами.
  */
 class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorator {
+
+    companion object {
+        const val POOL_SIZE = 20
+    }
 
     private val borderStrokeWidth =
         context.resources.getDimension(R.dimen.blue_rect_border_stroke_width)
@@ -29,6 +36,27 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
 
     private val hintPaddingHor = context.resources.getDimensionPixelOffset(R.dimen.hint_padding_h)
     private val hintPaddingVer = context.resources.getDimensionPixelOffset(R.dimen.hint_padding_v)
+
+    /**
+     * Пул прямоугольников для отрисовки недоступных для выбора областей
+     */
+    private val rectPool = Array(POOL_SIZE) { RectF() }
+
+    /**
+     * Фон для заливки регионов недоступного времени
+     */
+    private val dottedBackground =
+        ContextCompat.getDrawable(context, R.drawable.ic_dots_sparse)?.run {
+            toBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        }
+
+    private val bitmapShader =
+        BitmapShader(dottedBackground!!, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+
+    private val paintShadedRect = Paint().apply {
+        shader = bitmapShader
+        isAntiAlias = true
+    }
 
     private val paintBlueRect = Paint().apply {
         color = ContextCompat.getColor(context, R.color.colorDecor16)
@@ -97,7 +125,6 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
     ) {
         val viewHolder = recyclerView.getChildViewHolder(view)
         (viewHolder as? ColumnViewController.TicketViewHolder)?.ticket?.let { ticket ->
-            val dayRange = ticket.dayRange
 
             // Заголовок столбца
             drawTitle(ticket.title, canvas, view, recyclerView)
@@ -116,6 +143,9 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
 //            if (view.isSelected) {
 //                drawBubbleHints(ticket.start, ticket.end, canvas, view, recyclerView)
 //            }
+
+            // Прямоугольники с недоступными интервалами времени
+            drawShadedRegion(ticket, canvas, view)
         }
     }
 
@@ -202,6 +232,9 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
         canvas.drawPoints(touchPoints, paintTouchPoint)
     }
 
+    /**
+     * Заголовок элемента списка
+     */
     private fun drawTitle(
         title: String,
         canvas: Canvas,
@@ -230,6 +263,56 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
         } finally {
             canvas.restore()
         }
+    }
+
+    /**
+     * Декорируем области с недоступными интервалами времени
+     */
+    private fun drawShadedRegion(
+        ticket: Ticket,
+        canvas: Canvas,
+        view: View
+    ) {
+        val dayRange = ticket.dayRange
+
+        // ppm - pixels per minute
+        val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
+
+        // Чтобы не выйти за пределы массивов выбираем кол-во проходов по минимальному.
+        repeat(min(ticket.busySlots.size, rectPool.size)) { i ->
+            slotToRect(ticket.busySlots[i], ppm, dayRange, view, rectPool[i])
+            drawShadedRect(canvas, rectPool[i])
+        }
+    }
+
+    /**
+     * Отдельный прямоугольник с недоступным интервалам времени
+     */
+    private fun drawShadedRect(
+        canvas: Canvas,
+        rect: RectF
+    ) {
+        canvas.drawRect(rect, paintShadedRect)
+    }
+
+    /**
+     * Транслировать интервал в RectF
+     */
+    private fun slotToRect(
+        slot: Pair<Int, Int>,
+        ppm: Float,
+        dayRange: IntRange,
+        view: View,
+        outRect: RectF
+    ) {
+        val (start, end) = slot
+
+        outRect.set(
+            view.left.toFloat(),
+            view.top + (start - dayRange.first) * ppm,
+            view.right.toFloat(),
+            view.top + (end - dayRange.first) * ppm
+        )
     }
 
     /**

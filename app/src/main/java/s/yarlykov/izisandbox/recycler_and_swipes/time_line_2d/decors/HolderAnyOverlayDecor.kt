@@ -169,12 +169,29 @@ class HolderAnyOverlayDecor(context: Context) : Decorator.ViewHolderDecorator {
 
             paintHintText.getTextBounds(startSz, 0, startSz.length, rectTextBounds)
 
-            // У первого элемента списка подсказки справа, у остальных слева от blueRect
-            val startX = if (recyclerView.getChildAt(0)?.id == view.id) {
+            /**
+             * Положение подсказок выбирается в зависимости от положения x-цетра view
+             * относительно центра viewPort'а (viewPort - это область видимости элементов,
+             * а не вся область родительского RecyclerView).
+             */
+            val viewCenter = view.right - view.width / 2
+            val viewPortCenter = (recyclerView.width + recyclerView.paddingLeft) / 2
+
+            val startX = if (viewCenter < viewPortCenter) {
                 blueRect.right + hintMargin + hintPaddingHor
             } else {
                 blueRect.left - hintMargin - hintPaddingHor - rectTextBounds.width()
             }
+
+            /**
+             * Положение подсказок выбирается в зависимости от положения view в иерархии
+             * родителя: у первого элемента подсказки справа от blueRect, у остальных слева.
+             */
+//            val startX = if (recyclerView.getChildAt(0)?.id == view.id) {
+//                blueRect.right + hintMargin + hintPaddingHor
+//            } else {
+//                blueRect.left - hintMargin - hintPaddingHor - rectTextBounds.width()
+//            }
             val startY = blueRect.top + rectTextBounds.height() + hintPaddingVer
 
             rectHint.set(
