@@ -116,7 +116,6 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                     isEventCaught
                 }
                 MotionEvent.ACTION_UP -> {
-
                     if (isEventCaught) {
                         if (isBarVisible) {
                             bottomBar.performHide()
@@ -128,7 +127,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
                         isEventCaught = false
                     }
-                    v.performClick()
+                    !isEventCaught
                 }
                 else -> {
                     false
