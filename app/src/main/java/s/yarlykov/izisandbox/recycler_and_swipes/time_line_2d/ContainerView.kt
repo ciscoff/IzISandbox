@@ -48,7 +48,8 @@ class ContainerView @JvmOverloads constructor(
      * 2. MotionEvent.ACTION_DOWN нужно и здесь обрабатывать, чтобы поймать начало тача для
      * горизонтального скрола.
      * 3. OnTouchListener должен всегда вызываться, а его результат возвращаться из
-     * dispatchTouchEvent. OnTouchListener живет в активити и выполняет "косметику".
+     * dispatchTouchEvent (в данном случае используется результат, который возвращается самой
+     * dispatchTouchEvent). OnTouchListener живет в активити и выполняет "косметику".
      */
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
 
@@ -70,9 +71,7 @@ class ContainerView @JvmOverloads constructor(
         }
 
         // 2. Вызвать OnTouchListener (косметика в активити)
-        if (touchListener?.onTouch(this, event) == true) {
-            return true
-        }
+        touchListener?.onTouch(this, event)
 
         // 3.1 Если дети разрешают intercept, то пробуем захватить ACTION_MOVE
         // для горизонтального скрола.
@@ -81,7 +80,7 @@ class ContainerView @JvmOverloads constructor(
         }
         // 3.2 Передать событие дочернему элементу.
         else {
-            event.owner?.dispatchTouchEvent(event) ?: false
+            event.owner?.dispatchTouchEvent(event) ?: true
         }
     }
 

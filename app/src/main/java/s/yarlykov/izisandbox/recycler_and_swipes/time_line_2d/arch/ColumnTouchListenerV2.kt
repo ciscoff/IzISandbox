@@ -1,5 +1,8 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.arch
 
+/**
+ * version : V2
+ */
 import android.content.Context
 import android.graphics.RectF
 import android.view.MotionEvent
@@ -50,16 +53,9 @@ class ColumnTouchListenerV2(
      */
     private var lastEventY = 0f
     override fun onTouch(view: View, event: MotionEvent): Boolean {
-
         this.view = view
-
         scaleDetector.onTouchEvent(event)
         handleTouchEvent(view, event)
-
-//        if (state != State.Scaling) {
-//            handleTouchEvent(view, event)
-//        }
-
         return true
     }
 
