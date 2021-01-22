@@ -8,8 +8,10 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
+import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.forceSiblingsToDo
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.ceil
 
 class ColumnTouchListener(
@@ -23,6 +25,13 @@ class ColumnTouchListener(
         None
     }
 
+    enum class Area {
+        LeftTop,
+        BottomRight,
+        Inside,
+        Outside
+    }
+
     /**
      * Палец левый/правый
      */
@@ -32,8 +41,28 @@ class ColumnTouchListener(
     }
 
     var state: State = State.None
-    private val blueRect = RectF()
     private val context = view.context
+    private val widthRatio = context.resources.getInteger(R.integer.touch_area_ratio)
+
+    /**
+     * Область выделения.
+     * Координаты (x/y) в MotionEvent относительно родителя. Поэтому blueRect тоже должен
+     * иметь координаты относительно родителя.
+     */
+    private val blueRect: RectF
+        get() {
+            val dayRange = ticket.dayRange
+
+            // ppm - pixels per minute
+            val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
+
+            return RectF(
+                view.left.toFloat(),
+                view.top + (ticket.start - dayRange.first) * ppm,
+                view.right.toFloat(),
+                view.top + (ticket.end - dayRange.first) * ppm
+            )
+        }
 
     /**
      * Для обработки событий onTouch
@@ -49,6 +78,28 @@ class ColumnTouchListener(
         ScaleGestureDetector(context, ScaleGestureListener(view, ticket, ::state::set))
 
     /**
+     * Зона клика.
+     * Зоны клика над точками LT/BR - это квадраты со сторонами 2*w наполовину выходящие
+     * за пределы blueRect.
+     */
+    private val MotionEvent.touchArea: Area
+        get() {
+
+            val area = blueRect
+            val w = area.width() / widthRatio
+
+            val lt = RectF(area.left, area.top - w, area.left + 2 * w, area.top + w)
+            val br = RectF(area.right - 2 * w, area.bottom - w, area.right, area.bottom + w)
+
+            return when {
+                lt.contains(x, y) -> Area.LeftTop
+                br.contains(x, y) -> Area.BottomRight
+                area.contains(x, y) -> Area.Inside
+                else -> Area.Outside
+            }
+        }
+
+    /**
      * 1. Передать событие ScaleGestureDetector'у
      * 2. Самостоятельно продолжить обработку.
      *
@@ -62,6 +113,7 @@ class ColumnTouchListener(
         return true
     }
 
+
     /**
      * Обработчик событий
      */
@@ -72,6 +124,19 @@ class ColumnTouchListener(
                 pointers.clear()
                 activePointerId = event.getPointerId(0)
                 pointers[activePointerId] = event.getY(0)
+
+                when (event.touchArea) {
+                    Area.BottomRight -> logIt("Area BR")
+                    Area.LeftTop -> logIt("Area LT")
+                    Area.Outside -> logIt("Area Outside")
+                    Area.Inside -> logIt("Area Inside")
+                }
+
+//                findTouchArea {
+//                    leftTopPoint
+//                    bottomRightPoint
+//                    mainArea
+//                }
 
                 if (insideBlueRegion(event, view)) {
                     state = State.Translate
@@ -146,22 +211,6 @@ class ColumnTouchListener(
      * родителя)
      */
     private fun insideBlueRegion(event: MotionEvent, view: View): Boolean {
-        val dayRange = ticket.dayRange
-
-        // ppm - pixels per minute
-        val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
-
-        /**
-         * Координаты в event (x/y) относительно родителя. Поэтому blueRect тоже должен
-         * иметь координаты относительно родителя.
-         */
-        blueRect.set(
-            view.left.toFloat(),
-            view.top + (ticket.start - dayRange.first) * ppm,
-            view.right.toFloat(),
-            view.top + (ticket.end - dayRange.first) * ppm
-        )
-
         return blueRect.contains(event.x, event.y)
     }
 

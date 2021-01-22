@@ -42,6 +42,8 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
      */
     private val rectPool = Array(POOL_SIZE) { RectF() }
 
+    private val widthRatio = context.resources.getInteger(R.integer.touch_area_ratio)
+
     /**
      * Фон для заливки регионов недоступного времени
      */
@@ -222,7 +224,7 @@ class HolderViewTypeOverlayDecor(context: Context) : Decorator.ViewHolderDecorat
         rect: RectF
     ) {
 
-        val offset = rect.width() / 5
+        val offset = rect.width() / widthRatio
 
         touchPoints[0] = rect.left + offset
         touchPoints[1] = rect.top
