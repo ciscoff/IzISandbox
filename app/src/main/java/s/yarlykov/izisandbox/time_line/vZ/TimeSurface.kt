@@ -253,7 +253,7 @@ class TimeSurface @JvmOverloads constructor(
             }
 
             // Уже в процессе. Мы все время ориентируемся на основной pointer, который
-            // отслеживается по activePointerId
+            // отслеживается по activePointerId.
             MotionEvent.ACTION_MOVE -> {
                 val x = event.findPointerIndex(activePointerId)
                     .let { index -> event.getX(index) }
