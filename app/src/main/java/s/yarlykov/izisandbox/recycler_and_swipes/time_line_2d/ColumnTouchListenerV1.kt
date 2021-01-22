@@ -8,7 +8,7 @@ import s.yarlykov.izisandbox.extensions.forceSiblingsToDo
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import kotlin.math.ceil
 
-class ColumnTouchListener(private val ticket: Ticket) : View.OnTouchListener {
+class ColumnTouchListenerV1(private val ticket: Ticket) : View.OnTouchListener {
 
     private var lastEventY = 0f
     private val blueRect = RectF()

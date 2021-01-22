@@ -17,12 +17,8 @@ class ColumnTouchListenerV2(
 ) : View.OnTouchListener, ScaleGestureDetector.OnScaleGestureListener {
 
     enum class State {
-        PreTranslate,
         Translating,
-        PostTranslate,
-        PreScale,
         Scaling,
-        PostScale,
         None
     }
 
@@ -35,9 +31,9 @@ class ColumnTouchListenerV2(
     /**
      * Для обработки событий onTouch
      */
-    private var activePointerId = 0
     private val blueRect = RectF()
 
+    private var activePointerId = 0
     private val pointers = mutableMapOf<Int, Float>()
 
     private val scaleDetector = ScaleGestureDetector(context, this)
@@ -46,60 +42,6 @@ class ColumnTouchListenerV2(
      * Обрабатываем zoom двумя пальцами
      */
     private var lastSpanY: Float = 0f
-
-    /**
-     * Определить текущее состояние и оценить следующее
-     */
-    private fun MotionEvent.preProcessing(): MotionEvent {
-
-        when (actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                state = if (insideBlueRegion(this, view)) {
-                    view.apply {
-                        parent.requestDisallowInterceptTouchEvent(true)
-                        forceSiblingsToDo { isSelected = false }
-                        isSelected = true
-                        state = State.PreTranslate
-                        (parent as ViewGroup).invalidate()
-                    }
-                    State.PreTranslate
-                } else {
-                    State.PreScale
-                }
-                // Сообщить детектору, чтобы зафиксировал у себя начало цикла.
-                scaleDetector.onTouchEvent(this)
-            }
-            MotionEvent.ACTION_MOVE -> {
-
-                state = when (state) {
-                    State.Scaling, State.Translating -> {
-                        // Ничего не делать. Обработка будет в inProcessing()
-                        state
-                    }
-                    State.PreTranslate -> {
-                        if(this.pointerCount == 1) {
-                            // Если один палец, то переходим к перетаскиванию
-                            State.Translating
-                        } else {
-                            // Если два пальца, то передать детектору
-                            scaleDetector.onTouchEvent(this)
-                            state
-                        }
-                    }
-                    else -> state
-                }
-            }
-            MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_POINTER_DOWN -> {
-                // Это все к детектору
-                scaleDetector.onTouchEvent(this)
-            }
-            MotionEvent.ACTION_UP -> {
-                state = State.None
-            }
-        }
-
-        return this
-    }
 
     /**
      * Захват события и блокировка скрола у родителя:
@@ -111,142 +53,55 @@ class ColumnTouchListenerV2(
 
         this.view = view
 
-        return when (evaluateState(view, event)) {
-            // Тапнули за пределами blueRect
-            State.PreScale -> {
-                scaleDetector.onTouchEvent(event)
-                true
-            }
-            // Масштабируем blueRect
-            State.Scaling -> {
-                scaleDetector.onTouchEvent(event)
-                true
-            }
-            // Тапнули внутри blueRect
-            State.PreTranslate -> {
-                true
-            }
-            // Тянем blueRect
-            State.Translating -> {
-                true
-            }
+        scaleDetector.onTouchEvent(event)
+        handleTouchEvent(view, event)
 
-            State.None -> {
-                handleTouchEvent(view, event)
-            }
-            else -> false
-
-        }
-//
-//        val result = scaleDetector.onTouchEvent(event)
-//
 //        if (state != State.Scaling) {
-//            return handleTouchEvent(view, event)
-//        }
-//
-//        return result
-    }
-
-    private var isDragCaught = false
-
-    private fun evaluateState(view: View, event: MotionEvent): State {
-
-        when (event.actionMasked) {
-
-            MotionEvent.ACTION_DOWN -> {
-
-                lastEventY = event.y
-
-                if (insideBlueRegion(event, view)) {
-                    view.apply {
-                        parent.requestDisallowInterceptTouchEvent(true)
-                        forceSiblingsToDo { isSelected = false }
-                        isSelected = true
-                        state = State.PreTranslate
-                        (parent as ViewGroup).invalidate()
-
-                    }
-                } else {
-                    state = State.PreScale
-                }
-                true
-            }
-
-        }
-
-        return State.None
-
-    }
-
-
-//    override fun onTouch(view: View, event: MotionEvent): Boolean {
-//
-//        if(!::columnView.isInitialized) {
-//            columnView = view
-//        }
-//
-//        when (event.actionMasked) {
-//            MotionEvent.ACTION_DOWN -> {
-//                pointers.clear()
-//                activePointerId = event.getPointerId(0)
-//                pointers[activePointerId] = event.getY(0)
-//                lastEventY = event.y
-//
-//                if (insideBlueRegion(event, view)) {
-//                    view.apply {
-//                        parent.requestDisallowInterceptTouchEvent(true)
-//                        forceSiblingsToDo { isSelected = false }
-//                        isSelected = true
-//                        (parent as ViewGroup).invalidate()
-//                        routeToScale = true
-//                    }
-//                } else {
-//                    return false
-//                }
-//            }
-//        }
-//
-//        return if(routeToScale) {
-//            scaleDetector.onTouchEvent(event)
 //            handleTouchEvent(view, event)
-//        } else false
-//
-////        scaleDetector.onTouchEvent(event)
-////        return handleTouchEvent(view, event)
-//    }
+//        }
+
+        return true
+    }
 
     private fun handleTouchEvent(view: View, event: MotionEvent): Boolean {
 
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-
+                logIt("Listener:ACTION_DOWN")
                 lastEventY = event.y
 
                 if (insideBlueRegion(event, view)) {
+                    logIt("Listener:ACTION_DOWN, insideBlueRegion")
+                    state = State.Translating
                     view.apply {
                         parent.requestDisallowInterceptTouchEvent(true)
                         forceSiblingsToDo { isSelected = false }
                         isSelected = true
-                        state = State.PreTranslate
                         (parent as ViewGroup).invalidate()
-
                     }
+                    true
                 } else {
-                    state = State.PreScale
+                    false
                 }
-                true
             }
             MotionEvent.ACTION_MOVE -> {
-                if (event.pointerCount == 1 && view.isSelected /*&& !scaleDetector.isInProgress*/) {
+                logIt("Listener:ACTION_MOVE")
+                if (event.pointerCount == 1 && view.isSelected/* && state == State.Translating*//*&& !scaleDetector.isInProgress*/) {
+                    logIt("Listener:ACTION_MOVE, Translating")
                     translateBlueRect(event.y - lastEventY, view)
                     lastEventY = event.y
-                }
-                true
+                    true
+                } else false
+
             }
             MotionEvent.ACTION_UP -> {
+                logIt("Listener:ACTION_UP")
                 view.parent.requestDisallowInterceptTouchEvent(false)
-//                routeToScale = false
                 state = State.None
+                true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                logIt("Listener:ACTION_CANCEL")
                 true
             }
             else -> false
@@ -254,26 +109,29 @@ class ColumnTouchListenerV2(
     }
 
     override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+        logIt("Scale: Begin")
         view.parent.requestDisallowInterceptTouchEvent(true)
+        state = State.Scaling
         return true
     }
 
-    private var scaleFactor = 1f
-
     override fun onScale(detector: ScaleGestureDetector): Boolean {
-        logIt("scaleFactor=$scaleFactor, detector.scaleFactor=${detector.scaleFactor}")
+        logIt("Scale: in process")
+
 
         val duration = detector.scaleFactor * (ticket.end - ticket.start)
 
         ticket.end = ticket.start + duration.toInt()
         (view.parent as ViewGroup).invalidate()
-
+        state = State.Scaling
         return true
 
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector) {
-        state = State.Scaling
+        view.parent.requestDisallowInterceptTouchEvent(false)
+        logIt("Scale: End")
+        state = State.None
     }
 
     /**
@@ -289,12 +147,18 @@ class ColumnTouchListenerV2(
         // ppm - pixels per minute
         val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
 
+        /**
+         * Координаты в event (x/y) относительно родителя. Поэтому blueRect тоже должен
+         * иметь координаты относительно родителя.
+         */
         blueRect.set(
-            0f,
-            (ticket.start - dayRange.first) * ppm,
-            view.width.toFloat(),
-            (ticket.end - dayRange.first) * ppm
+            view.left.toFloat(),
+            view.top + (ticket.start - dayRange.first) * ppm,
+            view.right.toFloat(),
+            view.top + (ticket.end - dayRange.first) * ppm
         )
+
+        val (eventX, eventY) = event.x to event.y
 
         return blueRect.contains(event.x, event.y)
     }
@@ -329,5 +193,4 @@ class ColumnTouchListenerV2(
         state = State.Translating
         (view.parent as ViewGroup).invalidate()
     }
-
 }

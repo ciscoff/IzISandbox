@@ -27,8 +27,8 @@ class ColumnViewController(@LayoutRes val layoutId: Int) :
 
         override fun bind(data: Ticket) {
             ticket = data
-//            itemView.setOnTouchListener(ColumnTouchListener(data))
-            itemView.setOnTouchListener(ColumnTouchListenerV4(itemView.context, data))
+//            itemView.setOnTouchListener(ColumnTouchListenerV1(data))
+            itemView.setOnTouchListener(ColumnTouchListenerV2(itemView.context, data))
         }
 
         override fun clear() {
