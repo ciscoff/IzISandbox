@@ -6,7 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity">
 
-    <s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ContainerView
+<!--    <s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.ContainerView-->
+<!--        android:id="@+id/recyclerView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:overScrollMode="never" />-->
+
+    <s.yarlykov.izisandbox.recycler_and_swipes.debug_events.RecyclerViewStub
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

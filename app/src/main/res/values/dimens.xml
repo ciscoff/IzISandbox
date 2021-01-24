@@ -85,4 +85,5 @@
     <dimen name="hint_padding_h">4.2dp</dimen>
     <dimen name="hint_padding_v">3.2dp</dimen>
 
+    <dimen name="item_stub_height">56dp</dimen>
 </resources>
