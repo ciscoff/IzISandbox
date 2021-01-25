@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <s.yarlykov.izisandbox.recycler_and_swipes.debug_events.RecyclerViewStub
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -23,7 +23,7 @@
         app:backgroundTint="@android:color/white">
 
         <com.google.android.material.slider.Slider
-            android:id="@+id/numberSlider"
+            android:id="@+id/zoomSlider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

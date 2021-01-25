@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.android.material.slider.Slider
 import kotlinx.android.synthetic.main.activity_time_line_advanced.*
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
@@ -20,6 +20,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewT
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Tickets
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.properties.Delegates
 
 class TimeLineAdvancedActivity : AppCompatActivity() {
@@ -82,11 +83,14 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
             initElevation = 0f
         }
 
-        numberSlider.apply {
+        zoomSlider.apply {
             valueFrom = scaleFrom
             valueTo = scaleTo
 //            stepSize = 1f
             value = scaleFrom
+
+            addOnSliderTouchListener(sliderTouchListener)
+
             addOnChangeListener { _, value, _ ->
                 (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(value)
                 recyclerView.requestLayout()
@@ -94,6 +98,9 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Обработчик клика по "кнопке" ZOOM в левом верхнем углу.
+     */
     private val onTouchListener = object : View.OnTouchListener {
 
         var isEventCaught = false
@@ -104,10 +111,13 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    logIt(".  OnTouchListener:ACTION_DOWN x=${event.x.toInt()}, y=${event.y.toInt()}")
                     isEventCaught = zoomArea.contains(event.x.toInt(), event.y.toInt())
-                    return isEventCaught
+//                    return isEventCaught
+                    return true
                 }
                 MotionEvent.ACTION_UP -> {
+                    logIt(".  OnTouchListener:ACTION_UP x=${event.x.toInt()}, y=${event.y.toInt()}")
                     if (isEventCaught) {
                         if (isBarVisible) {
                             bottomBar.performHide()
@@ -121,8 +131,25 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                         return true
                     }
                 }
+                else -> {
+                    logIt(".  OnTouchListener:UNKNOWN")
+                }
             }
             return false
+        }
+    }
+
+    /**
+     * Фиксатор тача по слайдеру zoom'а
+     */
+    private val sliderTouchListener = object : Slider.OnSliderTouchListener {
+
+        override fun onStartTrackingTouch(slider: Slider) {
+            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomBegin()
+        }
+
+        override fun onStopTrackingTouch(slider: Slider) {
+            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomEnd()
         }
     }
 
@@ -132,16 +159,19 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
      * Анимация зума
      */
     fun animateZoom() {
-        if (numberSlider.value == scaleTo) return
+        if (zoomSlider.value == scaleTo) return
 
-        ValueAnimator.ofFloat(numberSlider.value, scaleTo).apply {
+        ValueAnimator.ofFloat(zoomSlider.value, scaleTo).apply {
             duration = 500L
 
             addUpdateListener { animator ->
-                numberSlider.value = animator.animatedValue as Float
-                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(numberSlider.value)
+                zoomSlider.value = animator.animatedValue as Float
+                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(zoomSlider.value)
                 recyclerView.requestLayout()
             }
+
+            (recyclerView.layoutManager as ZoomConsumer).onZoomBegin()
+
         }.start()
     }
 
