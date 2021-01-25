@@ -1,9 +1,12 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
+import android.animation.ValueAnimator
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomappbar.BottomAppBar
 import kotlinx.android.synthetic.main.activity_time_line_advanced.*
@@ -17,7 +20,6 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewT
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Tickets
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.properties.Delegates
 
 class TimeLineAdvancedActivity : AppCompatActivity() {
@@ -40,14 +42,23 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
             .build()
     }
 
+    private var scaleFrom: Float = 0f
+    private var scaleTo: Float = 0f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_time_line_advanced)
-
         init()
     }
 
     private fun init() {
+        // Значения для zoom'а
+        val typedValue = TypedValue()
+        resources.getValue(R.dimen.scale_min, typedValue, true)
+        scaleFrom = typedValue.float
+        resources.getValue(R.dimen.scale_max, typedValue, true)
+        scaleTo = typedValue.float
+
         recyclerView.apply {
             addItemDecoration(decorator)
             layoutManager = TimeLineLayoutManager(context)
@@ -72,13 +83,13 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         }
 
         numberSlider.apply {
-            valueFrom = 1f
-            valueTo = 3f
+            valueFrom = scaleFrom
+            valueTo = scaleTo
 //            stepSize = 1f
-            value = 1f
+            value = scaleFrom
             addOnChangeListener { _, value, _ ->
                 (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(value)
-                recyclerView.adapter?.notifyDataSetChanged()
+                recyclerView.requestLayout()
             }
         }
     }
@@ -113,6 +124,25 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
             }
             return false
         }
+    }
+
+    /**
+     * Костылёк ))
+     *
+     * Анимация зума
+     */
+    fun animateZoom() {
+        if (numberSlider.value == scaleTo) return
+
+        ValueAnimator.ofFloat(numberSlider.value, scaleTo).apply {
+            duration = 500L
+
+            addUpdateListener { animator ->
+                numberSlider.value = animator.animatedValue as Float
+                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(numberSlider.value)
+                recyclerView.requestLayout()
+            }
+        }.start()
     }
 
     private var BottomAppBar.initState: BottomBarState

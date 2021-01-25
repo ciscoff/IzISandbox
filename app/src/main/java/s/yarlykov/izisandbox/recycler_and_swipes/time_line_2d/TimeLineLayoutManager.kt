@@ -140,9 +140,9 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
         val delta = when {
             // Палец идет вверх. Контролируем появление View снизу.
-            (dY > 0) -> deltaUp(dY, recycler)
+            (dY > 0) -> deltaUp(dY)
             // Палец идет вниз. Контролируем появление View сверху.
-            (dY < 0) -> deltaDown(dY, recycler)
+            (dY < 0) -> deltaDown(dY)
             else -> {
                 0
             }
@@ -161,7 +161,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
      *
      * Расчитать смещение вверх.
      */
-    private fun deltaUp(dY: Int, recycler: RecyclerView.Recycler): Int {
+    private fun deltaUp(dY: Int): Int {
         return getChildAt(0)?.let { firstChild ->
             val bottomView = getDecoratedBottom(firstChild)
             if (bottomView == height) return 0
@@ -174,7 +174,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
      *
      * Расчитать смещение вниз.
      */
-    private fun deltaDown(dY: Int, recycler: RecyclerView.Recycler): Int {
+    private fun deltaDown(dY: Int): Int {
         return getChildAt(0)?.let { firstChild ->
             val topView = getDecoratedTop(firstChild)
             if (topView >= paddingTop) return 0
