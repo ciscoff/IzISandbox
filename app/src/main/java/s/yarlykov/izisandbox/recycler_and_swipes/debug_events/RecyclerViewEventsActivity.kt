@@ -6,6 +6,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_recycler_view_events.*
 import s.yarlykov.izisandbox.R
 
+/**
+ * Эта активити была создана для разработки TimeLine 2D, чтобы увидеть весь
+ * цикл прохождения событий между Parent-Child в RecyclerView.
+ */
 class RecyclerViewEventsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

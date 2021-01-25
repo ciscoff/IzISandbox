@@ -17,6 +17,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewT
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Tickets
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.properties.Delegates
 
 class TimeLineAdvancedActivity : AppCompatActivity() {
@@ -73,10 +74,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         numberSlider.apply {
             valueFrom = 1f
             valueTo = 3f
-            stepSize = 1f
+//            stepSize = 1f
             value = 1f
             addOnChangeListener { _, value, _ ->
-                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(value.toInt())
+                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(value)
                 recyclerView.adapter?.notifyDataSetChanged()
             }
         }
@@ -90,16 +91,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
             val zoomArea = Rect(0, 0, v.paddingLeft, v.paddingTop)
 
-            return when (event.actionMasked) {
+            when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-
-                    if (isBarVisible) {
-                        bottomBar.performHide()
-                        isBarVisible = !isBarVisible
-                    }
-
                     isEventCaught = zoomArea.contains(event.x.toInt(), event.y.toInt())
-                    isEventCaught
+                    return isEventCaught
                 }
                 MotionEvent.ACTION_UP -> {
                     if (isEventCaught) {
@@ -112,11 +107,11 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                         isBarVisible = !isBarVisible
 
                         isEventCaught = false
+                        return true
                     }
-                    false
                 }
-                else -> false
             }
+            return false
         }
     }
 

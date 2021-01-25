@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.arch.v3
 
 import android.content.Context
 import android.graphics.Rect

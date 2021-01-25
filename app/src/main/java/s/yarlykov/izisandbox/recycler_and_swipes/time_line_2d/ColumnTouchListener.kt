@@ -1,7 +1,9 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
 /**
- * version : V3
+ * version : V4
+ *
+ * для работы с ScaleGestureListenerV4 и обычным RecyclerView
  */
 import android.graphics.RectF
 import android.view.MotionEvent
@@ -46,8 +48,8 @@ class ColumnTouchListener(
 
     /**
      * Область выделения.
-     * Координаты (x/y) в MotionEvent относительно родителя. Поэтому blueRect тоже должен
-     * иметь координаты относительно родителя.
+     * Координаты x/y в MotionEvent относительно View, а не родителя. Поэтому blueRect тоже должен
+     * иметь координаты относительно View.
      */
     private val blueRect: RectF
         get() {
@@ -57,10 +59,10 @@ class ColumnTouchListener(
             val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
 
             return RectF(
-                view.left.toFloat(),
-                view.top + (ticket.start - dayRange.first) * ppm,
-                view.right.toFloat(),
-                view.top + (ticket.end - dayRange.first) * ppm
+                0f,
+                (ticket.start - dayRange.first) * ppm,
+                view.width.toFloat(),
+                (ticket.end - dayRange.first) * ppm
             )
         }
 
@@ -146,6 +148,9 @@ class ColumnTouchListener(
 
             // Касание вторым пальцем. Теперь оба пальца на экране.
             MotionEvent.ACTION_POINTER_DOWN -> {
+                // TODO Нужно здесь блокировать Intercept у родителя, а не в onScaleBegin.
+                view.parent.requestDisallowInterceptTouchEvent(true)
+
                 event.actionIndex.also { index ->
                     pointers[event.getPointerId(index)] = event.getY(index)
                 }

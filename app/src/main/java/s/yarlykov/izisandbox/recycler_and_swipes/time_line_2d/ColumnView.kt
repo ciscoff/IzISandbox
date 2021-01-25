@@ -21,18 +21,4 @@ class ColumnView @JvmOverloads constructor(
     init {
         id = generateViewId()
     }
-
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//
-//        when (event.actionMasked) {
-//            MotionEvent.ACTION_DOWN -> {
-//            }
-//            MotionEvent.ACTION_MOVE -> {
-//            }
-//            MotionEvent.ACTION_POINTER_UP -> {
-//            }
-//        }
-//
-//        return false
-//    }
 }

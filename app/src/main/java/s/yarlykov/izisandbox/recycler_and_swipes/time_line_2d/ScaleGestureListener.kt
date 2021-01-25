@@ -5,6 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 
+/**
+ * V4 для работы с ColumnTouchListenerV4
+ *
+ */
 class ScaleGestureListener(
     private val view: View,
     private val ticket: Ticket,
@@ -15,7 +19,6 @@ class ScaleGestureListener(
      * Детектор определил начало zoom'a
      */
     override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-        view.parent.requestDisallowInterceptTouchEvent(true)
         onStateListener(ColumnTouchListener.State.Scale)
         return true
     }

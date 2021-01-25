@@ -1,9 +1,9 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.arch.v3
 
 /**
- * version : V4
+ * version : V3
  *
- * для работы с ScaleGestureListenerV4 и обычным RecyclerView
+ * для работы с ScaleGestureListenerV3 и кастомным ContainerView : RecyclerView
  */
 import android.graphics.RectF
 import android.view.MotionEvent
@@ -16,7 +16,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.ceil
 
-class ColumnTouchListenerV4(
+class ColumnTouchListenerV3(
     private val view: View,
     private val ticket: Ticket
 ) : View.OnTouchListener {
@@ -48,8 +48,8 @@ class ColumnTouchListenerV4(
 
     /**
      * Область выделения.
-     * Координаты (x/y) в MotionEvent относительно View, а не родителя. Поэтому blueRect тоже должен
-     * иметь координаты относительно View.
+     * Координаты (x/y) в MotionEvent относительно родителя. Поэтому blueRect тоже должен
+     * иметь координаты относительно родителя.
      */
     private val blueRect: RectF
         get() {
@@ -59,10 +59,10 @@ class ColumnTouchListenerV4(
             val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
 
             return RectF(
-                0f,
-                (ticket.start - dayRange.first) * ppm,
-                view.width.toFloat(),
-                (ticket.end - dayRange.first) * ppm
+                view.left.toFloat(),
+                view.top + (ticket.start - dayRange.first) * ppm,
+                view.right.toFloat(),
+                view.top + (ticket.end - dayRange.first) * ppm
             )
         }
 
@@ -77,7 +77,7 @@ class ColumnTouchListenerV4(
      * Детектор zoom'а
      */
     private val scaleDetector =
-        ScaleGestureDetector(context, ScaleGestureListenerV4(view, ticket, ::state::set))
+        ScaleGestureDetector(context, ScaleGestureListenerV3(view, ticket, ::state::set))
 
     /**
      * Зона клика.
@@ -148,10 +148,6 @@ class ColumnTouchListenerV4(
 
             // Касание вторым пальцем. Теперь оба пальца на экране.
             MotionEvent.ACTION_POINTER_DOWN -> {
-                // TODO Вот этот момент оказался ключевым !!! Нужно здесь
-                // TODO блокировать Intercept, а не в onScaleBegin.
-                view.parent.requestDisallowInterceptTouchEvent(true)
-
                 event.actionIndex.also { index ->
                     pointers[event.getPointerId(index)] = event.getY(index)
                 }

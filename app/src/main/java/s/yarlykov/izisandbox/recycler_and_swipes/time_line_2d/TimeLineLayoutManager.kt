@@ -15,7 +15,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
     /**
      * Масштабирование элементов списка по высоте
      */
-    private var scaleHeight = 1
+    private var scaleHeight = 1f
 
     /**
      * Ширина отдельного элемента
@@ -95,7 +95,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         resetMargins(child)
 
         val widthSpecUpdated = updateMeasureSpecs(widthSpec, spanSize)
-        val heightSpecUpdated = updateMeasureSpecs(heightSpec, (height - paddingTop) * scaleHeight)
+        val heightSpecUpdated = updateMeasureSpecs(heightSpec, ((height - paddingTop) * scaleHeight).toInt())
         child.measure(widthSpecUpdated, heightSpecUpdated)
     }
 
@@ -199,7 +199,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         val viewTop = paddingTop
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight.toInt(), View.MeasureSpec.EXACTLY)
 
         var pos = anchorPos - 1
         var fillLeft = viewRight > paddingLeft
@@ -258,7 +258,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         val viewHeight = (height - paddingTop) * scaleHeight
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight.toInt(), View.MeasureSpec.EXACTLY)
 
         var pos = anchorPos
         var fillRight = viewLeft < width
@@ -405,7 +405,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         )
     }
 
-    override fun onZoomChanged(zoom: Int) {
+    override fun onZoomChanged(zoom: Float) {
         scaleHeight = zoom
     }
 }

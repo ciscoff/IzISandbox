@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var cardsContainer: LinearLayout
 
     private val stages = mapOf(
-        RecyclerViewEventsActivity::class.java to R.string.menu_rv_events,
+//        RecyclerViewEventsActivity::class.java to R.string.menu_rv_events,
         TimeLineAdvancedActivity::class.java to R.string.menu_time_line_2d,
         GridListActivity::class.java to R.string.menu_grid_list,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
