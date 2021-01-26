@@ -5,6 +5,8 @@ package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
  *
  * для работы с ScaleGestureListener V4 и обычным RecyclerView
  */
+import android.graphics.Point
+import android.graphics.Rect
 import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -13,6 +15,7 @@ import android.view.ViewGroup
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.forceSiblingsToDo
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.ceil
 
 class ColumnTouchListener(
@@ -38,7 +41,8 @@ class ColumnTouchListener(
         LeftTop,
         BottomRight,
         Inside,
-        Outside
+        Outside,
+        OutVisible
     }
 
     var state: State = State.None
@@ -88,9 +92,26 @@ class ColumnTouchListener(
      * Зона клика.
      * Зоны клика над точками LT/BR - это квадраты со сторонами 2*w наполовину выходящие
      * за пределы blueRect.
+     *
+     * NOTE: View продолжает получать события (например ACTION_DOWN) даже если частично
+     * находится под верхним/левым padding'ом RecyclerView и тач пришелся на это место.
+     * В таком случае не нужно захватывать событие и возвращать true из ACTION_DOWN. Необходимо
+     * возвращать false и иконка zoom'а будет работать корректно. Чтобы определить, что тач
+     * пришелся в видимую область view поступаем так:
+     * - getLocalVisibleRect соощит нам координаты видимой части view в координатах самой view
+     * - event x/y тоже получаем в координатах самой view
+     * Остается только проверить попадание event x/y в getLocalVisibleRect
      */
     private val MotionEvent.touchArea: TouchArea
         get() {
+
+            // проверить, что тач в видимой области view
+            val rect = Rect()
+            view.getLocalVisibleRect(rect)
+            logIt("rect $rect contains $x,$y is ${rect.contains(x.toInt(), y.toInt())}")
+            if(!rect.contains(x.toInt(), y.toInt())) {
+                return TouchArea.OutVisible
+            }
 
             val area = blueRect
             val w = area.width() / widthRatio
@@ -116,8 +137,8 @@ class ColumnTouchListener(
      */
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
-        handleTouchEvent(view, event)
-        return true
+        return handleTouchEvent(view, event)
+//        return true
     }
 
     /**
@@ -127,6 +148,16 @@ class ColumnTouchListener(
 
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+
+                val rectG = Rect()
+                val rectL = Rect()
+                val point = Point()
+
+                view.getGlobalVisibleRect(rectG, point)
+                view.getLocalVisibleRect(rectL)
+
+                logIt("glob=$rectG, local=$rectL, offset=$point event x,y=${event.x},${event.y}")
+
                 pointers.clear()
                 activePointerId = event.getPointerId(0)
                 pointers[activePointerId] = event.getY(0)
@@ -136,6 +167,7 @@ class ColumnTouchListener(
                     TouchArea.LeftTop -> State.PullBottom
                     TouchArea.Inside -> State.Translate
                     TouchArea.Outside -> State.None
+                    TouchArea.OutVisible -> return false
                 }
 
                 if (state != State.None) {
