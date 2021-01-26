@@ -5,7 +5,6 @@ package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
  *
  * для работы с ScaleGestureListener V4 и обычным RecyclerView
  */
-import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import android.view.MotionEvent
@@ -20,7 +19,8 @@ import kotlin.math.ceil
 
 class ColumnTouchListener(
     private val view: View,
-    private val ticket: Ticket
+    private val ticket: Ticket,
+    private val thresholdListener: (() -> Unit)? = null
 ) : View.OnTouchListener {
 
     /**
@@ -281,7 +281,7 @@ class ColumnTouchListener(
         val minutes: Float
         val dY: Float
 
-        var animateZoom = false
+        var minThreshold = false
 
         // Это значения в PX относительно View
         val (start, end) = blueRect.let { it.top to it.bottom }
@@ -297,7 +297,7 @@ class ColumnTouchListener(
 
                     // Тянем вниз и "перетягиваем" (offset > 0)
                     (start + offset >= (end - minMinutes)) -> {
-                        animateZoom = true
+                        minThreshold = true
                         end - start - minMinutes
                     }
                     // Тянем вверх и "перетягиваем" (offset < 0)
@@ -326,7 +326,7 @@ class ColumnTouchListener(
                     }
                     // Тянем вверх и "перетягиваем" меньше нижнего значения(offset < 0)
                     (end + offset <= (start + minMinutes)) -> {
-                        animateZoom = true
+                        minThreshold = true
                         start - end + minMinutes
                     }
                     else -> offset
@@ -342,8 +342,8 @@ class ColumnTouchListener(
         }
 
         // Костылек для анимации
-        if (animateZoom) {
-            (context as TimeLineAdvancedActivity).animateZoom()
+        if (minThreshold) {
+                thresholdListener?.invoke()
         }
     }
 }

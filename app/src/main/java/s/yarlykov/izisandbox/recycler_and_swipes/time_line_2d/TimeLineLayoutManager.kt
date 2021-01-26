@@ -526,6 +526,11 @@ class TimeLineLayoutManager(val context: Context) :
 
     /**
      * Состояние на момент начала скрола.
+     *
+     * @param position - позиция в адаптере
+     * @param offsetLeft - view.left
+     * @param offsetTop - view.top - paddingTop
+     * @param initZoom - значение зума на начало нового зума
      */
     data class ViewState(
         val position: Int,

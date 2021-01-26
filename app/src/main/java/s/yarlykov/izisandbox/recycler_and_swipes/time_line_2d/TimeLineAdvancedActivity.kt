@@ -31,7 +31,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     // Декоратор отступов
     private val offsetsDecor = HolderOffsetDecor()
 
-    private val columnViewController = ColumnViewController(R.layout.layout_time_line_column)
+    private val columnViewController = ColumnViewController(
+        R.layout.layout_time_line_column,
+        ::animateZoom
+    )
 
     private val decorator by lazy {
         Decorator.Builder()
@@ -149,11 +152,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     }
 
     /**
-     * Костылёк ))
-     *
-     * Анимация зума
+     * Анимация зума. Включается только если в ручном режиме достигнут минимальный размер
+     * тайм-слота (например 5 минут).
      */
-    fun animateZoom() {
+    private fun animateZoom() {
         if (zoomSlider.value == scaleTo) return
 
         ValueAnimator.ofFloat(zoomSlider.value, scaleTo).apply {
