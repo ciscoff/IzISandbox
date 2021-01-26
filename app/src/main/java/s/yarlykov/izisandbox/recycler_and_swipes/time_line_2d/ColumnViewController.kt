@@ -9,7 +9,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 
 class ColumnViewController(
     @LayoutRes val layoutId: Int,
-    val thresholdListener : (() -> Unit)? = null) :
+    val thresholdListener : ((Float) -> Unit)? = null) :
     BindableItemController<Ticket, ColumnViewController.TicketViewHolder>() {
 
     override fun createViewHolder(parent: ViewGroup): TicketViewHolder = TicketViewHolder(parent)

@@ -143,7 +143,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val sliderTouchListener = object : Slider.OnSliderTouchListener {
 
         override fun onStartTrackingTouch(slider: Slider) {
-            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomBegin(slider.value)
+            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomBegin(0f, slider.value)
         }
 
         override fun onStopTrackingTouch(slider: Slider) {
@@ -152,10 +152,11 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     }
 
     /**
-     * Анимация зума. Включается только если в ручном режиме достигнут минимальный размер
+     * Анимация зума.
+     * Включается только если в ручном режиме достигнут минимальный размер
      * тайм-слота (например 5 минут).
      */
-    private fun animateZoom() {
+    private fun animateZoom(pivotY: Float) {
         if (zoomSlider.value == scaleTo) return
 
         ValueAnimator.ofFloat(zoomSlider.value, scaleTo).apply {
@@ -167,7 +168,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                 recyclerView.requestLayout()
             }
 
-            (recyclerView.layoutManager as ZoomConsumer).onZoomBegin(zoomSlider.value)
+            (recyclerView.layoutManager as ZoomConsumer).onZoomBegin(pivotY, zoomSlider.value)
 
         }.start()
     }

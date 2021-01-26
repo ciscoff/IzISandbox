@@ -20,7 +20,7 @@ import kotlin.math.ceil
 class ColumnTouchListener(
     private val view: View,
     private val ticket: Ticket,
-    private val thresholdListener: (() -> Unit)? = null
+    private val thresholdListener: ((Float) -> Unit)? = null
 ) : View.OnTouchListener {
 
     /**
@@ -341,9 +341,9 @@ class ColumnTouchListener(
             }
         }
 
-        // Костылек для анимации
+        // Сообщить Y-координату minThreshold'а
         if (minThreshold) {
-                thresholdListener?.invoke()
+            thresholdListener?.invoke(start + (end - start) / 2)
         }
     }
 }

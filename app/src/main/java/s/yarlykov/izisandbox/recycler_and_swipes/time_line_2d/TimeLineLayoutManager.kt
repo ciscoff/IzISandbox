@@ -377,7 +377,8 @@ class TimeLineLayoutManager(val context: Context) :
              */
 
             // Изменение высоты
-            val dY = (viewHeight - state.initHeight) / 2
+//            val dY = (viewHeight - state.initHeight) / 2
+            val dY = (viewHeight - state.initHeight) * state.pivotRatio
 
             // Растягиваем
             if (dY > 0) {
@@ -445,6 +446,20 @@ class TimeLineLayoutManager(val context: Context) :
     }
 
     /**
+     * Найти selected View
+     */
+//    private val selectedView: View?
+//        get() {
+//            for (i in 0 until childCount) {
+//                getChildAt(i)?.let {
+//                    if (it.isSelected) return it
+//                }
+//            }
+//
+//            return null
+//        }
+
+    /**
      * Установить размер в MeasureSpec.
      */
     private fun updateMeasureSpecs(spec: Int, size: Int): Int {
@@ -507,18 +522,26 @@ class TimeLineLayoutManager(val context: Context) :
     /**
      * Начался zoom. Нужно зафиксировать положение первого видимого элемента и состояние зума.
      */
-    override fun onZoomBegin(initZoom: Float) {
+    override fun onZoomBegin(pivotY: Float, initZoom: Float) {
+
         val pos = findFirstVisibleItemPosition()
 
         viewState = if (pos != NO_POSITION) {
-            val view = findViewByPosition(pos)
-            ViewState(
-                pos,
-                view?.left ?: 0,
-                view?.top ?: 0,
-                initZoom,
-                view?.height ?: height
-            )
+
+            findViewByPosition(pos)?.let { child ->
+                val rect = Rect()
+                child.getLocalVisibleRect(rect)
+
+                val pivot = if (pivotY == 0f)
+                // Будем скалить относительно центра видимой части child'а
+                    0.5f
+                else {
+                    // Будем скалить относительно pivot'а
+                    (pivotY - rect.top) / rect.height()
+                }
+
+                ViewState(pos, child.left, child.top, initZoom, child.height, pivot)
+            }
         } else null
     }
 
@@ -560,12 +583,31 @@ class TimeLineLayoutManager(val context: Context) :
      * @param offsetLeft - view.left
      * @param offsetTop - view.top - paddingTop
      * @param initZoom - значение зума на начало нового зума
+     * @param initHeight - высота view на начало нового зума
+     * @param pivotRatio - нужно для того, чтобы изменять offsetTop пропорционально
+     * положению pivotY внутри видимой части view. Например, если pivotY в центре, то
+     * offsetTop будет изменяться на пловину изменения высоты (ratio = 0.5).
      */
+    //  Это view.getLocalVisibleRect(..)
+    //  pivotY - точка в координатах view
+    //
+    //    _____________  ___ rect.top
+    //   |             |
+    //   |    pivotY   |
+    //   |      *      | --- pivotRatio = (pivotY - rect.top) / rect.height
+    //   |             |
+    //   |             |
+    //   |             |
+    //   |             |
+    //   |             |
+    //   |_____________| ___ rect.bottom
+    //
     data class ViewState(
         val position: Int,
         val offsetLeft: Int,
         val offsetTop: Int,
         val initZoom: Float,
-        val initHeight: Int
+        val initHeight: Int,
+        val pivotRatio: Float
     )
 }
