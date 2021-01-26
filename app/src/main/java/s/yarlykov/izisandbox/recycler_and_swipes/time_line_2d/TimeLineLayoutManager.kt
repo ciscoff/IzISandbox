@@ -3,12 +3,14 @@ package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 import android.content.Context
 import android.graphics.Rect
 import android.util.SparseArray
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.max
 import kotlin.math.min
 
@@ -220,7 +222,7 @@ class TimeLineLayoutManager(val context: Context) :
             var child = viewCache.get(pos) //проверяем кэш
 
             if (child == null) {
-                //если вьюшки нет в кэше - просим у recycler новую, измеряем и лэйаутим её
+                // Если вьюшки нет в кэше - просим у recycler новую, измеряем и лэйаутим её
                 child = recycler.getViewForPosition(pos)
                 addView(child, 0)
                 measureChildWithoutInsets(child, widthSpec, heightSpec)
@@ -245,8 +247,8 @@ class TimeLineLayoutManager(val context: Context) :
                 }
 
             } else {
-                //если вьюшка есть в кэше - просто аттачим её обратно
-                //нет необходимости проводить measure/layout цикл.
+                // Если вьюшка есть в кэше - просто аттачим её обратно
+                // и нет необходимости проводить measure/layout цикл.
                 attachView(child)
                 viewCache.remove(pos)
             }
@@ -320,7 +322,7 @@ class TimeLineLayoutManager(val context: Context) :
      * anchorView == null.
      */
     private fun fillZoomed(state: ViewState, recycler: RecyclerView.Recycler) {
-        val (anchorPos, anchorRight) = state.position to state.offset
+        val (anchorPos, anchorRight) = state.position to state.offsetLeft
 
         var viewLeft = anchorRight
         val viewTop = paddingTop
@@ -357,6 +359,18 @@ class TimeLineLayoutManager(val context: Context) :
                 attachView(child)
                 viewCache.remove(pos)
             }
+
+            /**
+             * С учетом изменения масштаба изменяем значение верхнего смещения у View.
+             */
+            val scaleOffsetTop =
+                if (state.initZoom <= zoomMin)
+                    0f
+                else
+                    (scaleHeight - zoomMin) / (state.initZoom - zoomMin)
+            val offsetTop = state.offsetTop * scaleOffsetTop
+            child.offsetTopAndBottom(offsetTop.toInt())
+
             viewLeft = getDecoratedRight(child)
             fillRight = viewLeft <= width
             pos++
@@ -468,14 +482,14 @@ class TimeLineLayoutManager(val context: Context) :
     }
 
     /**
-     * Начался zoom. Нужно зафиксировать положение первого видимого элемента.
+     * Начался zoom. Нужно зафиксировать положение первого видимого элемента и состояние зума.
      */
-    override fun onZoomBegin() {
+    override fun onZoomBegin(initZoom: Float) {
         val pos = findFirstVisibleItemPosition()
 
         viewState = if (pos != NO_POSITION) {
             val view = findViewByPosition(pos)
-            ViewState(pos, view?.left ?: 0)
+            ViewState(pos, view?.left ?: 0, (view?.top ?: paddingTop) - paddingTop, initZoom)
         } else null
     }
 
@@ -498,8 +512,25 @@ class TimeLineLayoutManager(val context: Context) :
 //        viewState = null
     }
 
+    override val zoomMin: Float by lazy {
+        val typedValue = TypedValue()
+        context.resources.getValue(R.dimen.scale_min, typedValue, true)
+        typedValue.float
+    }
+
+    override val zoomMax: Float by lazy {
+        val typedValue = TypedValue()
+        context.resources.getValue(R.dimen.scale_max, typedValue, true)
+        typedValue.float
+    }
+
     /**
      * Состояние на момент начала скрола.
      */
-    data class ViewState(val position: Int, val offset: Int)
+    data class ViewState(
+        val position: Int,
+        val offsetLeft: Int,
+        val offsetTop: Int,
+        val initZoom: Float
+    )
 }

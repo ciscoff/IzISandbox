@@ -140,7 +140,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val sliderTouchListener = object : Slider.OnSliderTouchListener {
 
         override fun onStartTrackingTouch(slider: Slider) {
-            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomBegin()
+            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomBegin(slider.value)
         }
 
         override fun onStopTrackingTouch(slider: Slider) {
@@ -165,7 +165,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                 recyclerView.requestLayout()
             }
 
-            (recyclerView.layoutManager as ZoomConsumer).onZoomBegin()
+            (recyclerView.layoutManager as ZoomConsumer).onZoomBegin(zoomSlider.value)
 
         }.start()
     }
