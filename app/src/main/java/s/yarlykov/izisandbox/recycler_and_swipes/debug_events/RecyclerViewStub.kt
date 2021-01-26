@@ -12,6 +12,14 @@ class RecyclerViewStub @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : RecyclerView(context, attrs, defStyleAttr) {
 
+
+    override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
+        val tab = "  "
+        val resultSuper: Boolean = super.onInterceptTouchEvent(e)
+        logIt("${tab}RecyclerView:Intercept exit with $resultSuper")
+        return resultSuper
+    }
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         val resultSuper: Boolean
         when (event.actionMasked) {

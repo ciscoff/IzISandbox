@@ -34,18 +34,19 @@ class ColumnTouchListener(
         Scale,
         PullTop,
         PullBottom,
-        None
+        Wait,
+        Out
     }
 
     enum class TouchArea {
         LeftTop,
         BottomRight,
-        Inside,
-        Outside,
-        OutVisible
+        Blue,
+        Pink,
+        Outside
     }
 
-    var state: State = State.None
+    var state: State = State.Wait
     private val context = view.context
     private val widthRatio = context.resources.getInteger(R.integer.touch_area_ratio)
     private val minInterval = context.resources.getInteger(R.integer.min_interval)
@@ -109,8 +110,8 @@ class ColumnTouchListener(
             val rect = Rect()
             view.getLocalVisibleRect(rect)
             logIt("rect $rect contains $x,$y is ${rect.contains(x.toInt(), y.toInt())}")
-            if(!rect.contains(x.toInt(), y.toInt())) {
-                return TouchArea.OutVisible
+            if (!rect.contains(x.toInt(), y.toInt())) {
+                return TouchArea.Outside
             }
 
             val area = blueRect
@@ -122,8 +123,8 @@ class ColumnTouchListener(
             return when {
                 lt.contains(x, y) -> TouchArea.LeftTop
                 br.contains(x, y) -> TouchArea.BottomRight
-                area.contains(x, y) -> TouchArea.Inside
-                else -> TouchArea.Outside
+                area.contains(x, y) -> TouchArea.Blue
+                else -> TouchArea.Pink
             }
         }
 
@@ -138,7 +139,6 @@ class ColumnTouchListener(
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
         return handleTouchEvent(view, event)
-//        return true
     }
 
     /**
@@ -149,15 +149,6 @@ class ColumnTouchListener(
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
 
-                val rectG = Rect()
-                val rectL = Rect()
-                val point = Point()
-
-                view.getGlobalVisibleRect(rectG, point)
-                view.getLocalVisibleRect(rectL)
-
-                logIt("glob=$rectG, local=$rectL, offset=$point event x,y=${event.x},${event.y}")
-
                 pointers.clear()
                 activePointerId = event.getPointerId(0)
                 pointers[activePointerId] = event.getY(0)
@@ -165,20 +156,24 @@ class ColumnTouchListener(
                 state = when (event.touchArea) {
                     TouchArea.BottomRight -> State.PullTop
                     TouchArea.LeftTop -> State.PullBottom
-                    TouchArea.Inside -> State.Translate
-                    TouchArea.Outside -> State.None
-                    TouchArea.OutVisible -> return false
+                    TouchArea.Blue -> State.Translate
+                    TouchArea.Pink -> State.Wait
+                    TouchArea.Outside -> State.Out
                 }
 
-                if (state != State.None) {
-                    view.apply {
-                        parent.requestDisallowInterceptTouchEvent(true)
-                        forceSiblingsToDo { isSelected = false }
-                        isSelected = true
-                        (parent as ViewGroup).invalidate()
+                when (state) {
+                    State.Translate, State.PullTop, State.PullBottom -> {
+                        view.apply {
+                            parent.requestDisallowInterceptTouchEvent(true)
+                            forceSiblingsToDo { isSelected = false }
+                            isSelected = true
+                            (parent as ViewGroup).invalidate()
+                        }
+                        true
                     }
+                    State.Wait -> true
+                    else -> false
                 }
-                true
             }
 
             // Касание вторым пальцем. Теперь оба пальца на экране.
@@ -238,7 +233,7 @@ class ColumnTouchListener(
 
             MotionEvent.ACTION_UP -> {
                 view.parent.requestDisallowInterceptTouchEvent(false)
-                state = State.None
+                state = State.Wait
                 true
             }
             MotionEvent.ACTION_CANCEL -> {
@@ -347,7 +342,7 @@ class ColumnTouchListener(
         }
 
         // Костылек для анимации
-        if(animateZoom) {
+        if (animateZoom) {
             (context as TimeLineAdvancedActivity).animateZoom()
         }
     }

@@ -20,7 +20,6 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewT
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Tickets
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.properties.Delegates
 
 class TimeLineAdvancedActivity : AppCompatActivity() {
@@ -111,13 +110,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    logIt(".  OnTouchListener:ACTION_DOWN x=${event.x.toInt()}, y=${event.y.toInt()}")
                     isEventCaught = zoomArea.contains(event.x.toInt(), event.y.toInt())
-//                    return isEventCaught
-                    return true
+                    return isEventCaught
                 }
                 MotionEvent.ACTION_UP -> {
-                    logIt(".  OnTouchListener:ACTION_UP x=${event.x.toInt()}, y=${event.y.toInt()}")
                     if (isEventCaught) {
                         if (isBarVisible) {
                             bottomBar.performHide()
@@ -132,7 +128,6 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                     }
                 }
                 else -> {
-                    logIt(".  OnTouchListener:UNKNOWN")
                 }
             }
             return false
@@ -162,7 +157,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         if (zoomSlider.value == scaleTo) return
 
         ValueAnimator.ofFloat(zoomSlider.value, scaleTo).apply {
-            duration = 500L
+            duration = 800L
 
             addUpdateListener { animator ->
                 zoomSlider.value = animator.animatedValue as Float
