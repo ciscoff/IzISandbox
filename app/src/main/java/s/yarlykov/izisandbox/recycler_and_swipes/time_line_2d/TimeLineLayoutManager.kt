@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.max
 import kotlin.math.min
 
@@ -269,7 +268,7 @@ class TimeLineLayoutManager(val context: Context) :
 
         var viewLeft = anchorRight
         val viewTop = paddingTop
-        val viewHeight = (height - paddingTop) * scaleHeight
+        val viewHeight = (height - paddingTop - paddingBottom) * scaleHeight
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
         val heightSpec =
@@ -362,14 +361,38 @@ class TimeLineLayoutManager(val context: Context) :
 
             /**
              * С учетом изменения масштаба изменяем значение верхнего смещения у View.
+             * В данной точке после measure/layout все children выровнены своим view.top по
+             * paddingTop родителя. Теперь их нужно правильно offsetTopAndBottom.
+             *
+             * => Растягиваем: дельту высоты делим пополам, половинку прибавляем к state.offsetTop
+             * и выполняем offsetTopAndBottom
+             *
+             * => Сжимаем: идея такова - при сжатии управлять значением вертикального смещения view
+             * приводя его в соответсвие с меняющимся зумом. Например, если в начале зума offset
+             * был 10, а зум 3, то при зуме 2 offset должет стать 5 (нужно помнить, что зум меняется
+             * от 1 до 3 и 2 - это половинка). Итак, сначала нужно расчитать прогресс самого зума,
+             * то есть как он изменился к данному моменту относительно state.initZoom. С учетом,
+             * что диапазон зума от zoomMin до zoomMax (1..3), делаем соотв вычисления. Далее
+             * нужно зумировать offset и всё
              */
-            val scaleOffsetTop =
-                if (state.initZoom <= zoomMin)
-                    0f
-                else
-                    (scaleHeight - zoomMin) / (state.initZoom - zoomMin)
-            val offsetTop = state.offsetTop * scaleOffsetTop
-            child.offsetTopAndBottom(offsetTop.toInt())
+
+            // Изменение высоты
+            val dY = (viewHeight - state.initHeight) / 2
+
+            // Растягиваем
+            if (dY > 0) {
+                child.offsetTopAndBottom(-dY.toInt() + (state.offsetTop - paddingTop))
+            }
+            // Сжимаем
+            else {
+                val dZoom =
+                    if (state.initZoom <= zoomMin)
+                        0f
+                    else
+                        (scaleHeight - zoomMin) / (state.initZoom - zoomMin)
+                val offsetTop = (state.offsetTop - paddingTop) * dZoom
+                child.offsetTopAndBottom(offsetTop.toInt())
+            }
 
             viewLeft = getDecoratedRight(child)
             fillRight = viewLeft <= width
@@ -489,7 +512,13 @@ class TimeLineLayoutManager(val context: Context) :
 
         viewState = if (pos != NO_POSITION) {
             val view = findViewByPosition(pos)
-            ViewState(pos, view?.left ?: 0, (view?.top ?: paddingTop) - paddingTop, initZoom)
+            ViewState(
+                pos,
+                view?.left ?: 0,
+                view?.top ?: 0,
+                initZoom,
+                view?.height ?: height
+            )
         } else null
     }
 
@@ -536,6 +565,7 @@ class TimeLineLayoutManager(val context: Context) :
         val position: Int,
         val offsetLeft: Int,
         val offsetTop: Int,
-        val initZoom: Float
+        val initZoom: Float,
+        val initHeight: Int
     )
 }
