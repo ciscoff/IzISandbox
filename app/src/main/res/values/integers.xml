@@ -20,4 +20,8 @@
         <item>@android:color/holo_purple</item>
     </integer-array>
 
+    <!--    TimeLine 2D -->
+    <integer name="touch_area_ratio">5</integer>
+    <integer name="min_interval">5</integer>
+
 </resources>

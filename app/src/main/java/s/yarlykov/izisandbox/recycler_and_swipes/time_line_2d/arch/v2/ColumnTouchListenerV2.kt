@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.arch
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.arch.v2
 
 /**
  * version : V2

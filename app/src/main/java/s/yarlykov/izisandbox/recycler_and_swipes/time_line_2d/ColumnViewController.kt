@@ -7,7 +7,9 @@ import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.Bindabl
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BindableItem
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 
-class ColumnViewController(@LayoutRes val layoutId: Int) :
+class ColumnViewController(
+    @LayoutRes val layoutId: Int,
+    val thresholdListener : ((Float) -> Unit)? = null) :
     BindableItemController<Ticket, ColumnViewController.TicketViewHolder>() {
 
     override fun createViewHolder(parent: ViewGroup): TicketViewHolder = TicketViewHolder(parent)
@@ -27,8 +29,7 @@ class ColumnViewController(@LayoutRes val layoutId: Int) :
 
         override fun bind(data: Ticket) {
             ticket = data
-//            itemView.setOnTouchListener(ColumnTouchListenerV1(data))
-            itemView.setOnTouchListener(ColumnTouchListener(itemView, data))
+            itemView.setOnTouchListener(ColumnTouchListener(itemView, data, thresholdListener))
         }
 
         override fun clear() {

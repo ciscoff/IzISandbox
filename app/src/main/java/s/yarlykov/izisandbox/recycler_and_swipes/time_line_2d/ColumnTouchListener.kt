@@ -1,52 +1,132 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
 /**
- * version : V3
+ * version : V4
+ *
+ * для работы с ScaleGestureListener V4 и обычным RecyclerView
  */
+import android.graphics.Rect
 import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
+import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.forceSiblingsToDo
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.ceil
 
 class ColumnTouchListener(
     private val view: View,
-    private val ticket: Ticket
+    private val ticket: Ticket,
+    private val thresholdListener: ((Float) -> Unit)? = null
 ) : View.OnTouchListener {
 
+    /**
+     * Translate - перемещаем прямоугольник
+     * Scale - скалируем прямоугольник
+     * PullTop - тянем (вверх/вниз) за верхнюю границу прямоугольника
+     * PullBottom - тянем (вверх/вниз) за нижнюю границу прямоугольника
+     */
     enum class State {
         Translate,
         Scale,
-        None
+        PullTop,
+        PullBottom,
+        Wait,
+        Out
     }
+
+    enum class TouchArea {
+        LeftTop,
+        BottomRight,
+        Blue,
+        Pink,
+        Outside
+    }
+
+    var state: State = State.Wait
+    private val context = view.context
+    private val widthRatio = context.resources.getInteger(R.integer.touch_area_ratio)
+    private val minInterval = context.resources.getInteger(R.integer.min_interval)
 
     /**
-     * Палец левый/правый
+     * ppm - pixels per minute
      */
-    private enum class Pointer {
-        Left,
-        Right
-    }
+    private val ppm: Float
+        get() {
+            val dayRange = ticket.dayRange
+            return (view.height).toFloat() / (dayRange.last - dayRange.first)
+        }
 
-    var state: State = State.None
-    private val blueRect = RectF()
-    private val context = view.context
+    /**
+     * Область выделения.
+     * Координаты x/y в MotionEvent относительно View, а не родителя. Поэтому blueRect тоже должен
+     * иметь координаты относительно View.
+     */
+    private val blueRect: RectF
+        get() {
+            val dayRange = ticket.dayRange
+
+            return RectF(
+                0f,
+                (ticket.start - dayRange.first) * ppm,
+                view.width.toFloat(),
+                (ticket.end - dayRange.first) * ppm
+            )
+        }
 
     /**
      * Для обработки событий onTouch
      */
     private var activePointerId = 0
     private val pointers = mutableMapOf<Int, Float>()
-    private val points = mutableMapOf(Pointer.Left to 0f, Pointer.Right to 0f) // TODO ??
 
     /**
      * Детектор zoom'а
      */
     private val scaleDetector =
         ScaleGestureDetector(context, ScaleGestureListener(view, ticket, ::state::set))
+
+    /**
+     * Зона клика.
+     * Зоны клика над точками LT/BR - это квадраты со сторонами 2*w наполовину выходящие
+     * за пределы blueRect.
+     *
+     * NOTE: View продолжает получать события (например ACTION_DOWN) даже если частично
+     * находится под верхним/левым padding'ом RecyclerView и тач пришелся на это место.
+     * В таком случае не нужно захватывать событие и возвращать true из ACTION_DOWN. Необходимо
+     * возвращать false и иконка zoom'а будет работать корректно. Чтобы определить, что тач
+     * пришелся в видимую область view поступаем так:
+     * - getLocalVisibleRect соощит нам координаты видимой части view в координатах самой view
+     * - event x/y тоже получаем в координатах самой view
+     * Остается только проверить попадание event x/y в getLocalVisibleRect
+     */
+    private val MotionEvent.touchArea: TouchArea
+        get() {
+
+            // проверить, что тач в видимой области view
+            val rect = Rect()
+            view.getLocalVisibleRect(rect)
+            logIt("rect $rect contains $x,$y is ${rect.contains(x.toInt(), y.toInt())}")
+            if (!rect.contains(x.toInt(), y.toInt())) {
+                return TouchArea.Outside
+            }
+
+            val area = blueRect
+            val w = area.width() / widthRatio
+
+            val lt = RectF(area.left, area.top - w, area.left + 2 * w, area.top + w)
+            val br = RectF(area.right - 2 * w, area.bottom - w, area.right, area.bottom + w)
+
+            return when {
+                lt.contains(x, y) -> TouchArea.LeftTop
+                br.contains(x, y) -> TouchArea.BottomRight
+                area.contains(x, y) -> TouchArea.Blue
+                else -> TouchArea.Pink
+            }
+        }
 
     /**
      * 1. Передать событие ScaleGestureDetector'у
@@ -58,8 +138,7 @@ class ColumnTouchListener(
      */
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
-        handleTouchEvent(view, event)
-        return true
+        return handleTouchEvent(view, event)
     }
 
     /**
@@ -69,41 +148,67 @@ class ColumnTouchListener(
 
         return when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+
                 pointers.clear()
                 activePointerId = event.getPointerId(0)
                 pointers[activePointerId] = event.getY(0)
 
-                if (insideBlueRegion(event, view)) {
-                    state = State.Translate
-                    view.apply {
-                        parent.requestDisallowInterceptTouchEvent(true)
-                        forceSiblingsToDo { isSelected = false }
-                        isSelected = true
-                        (parent as ViewGroup).invalidate()
-                    }
-
+                state = when (event.touchArea) {
+                    TouchArea.BottomRight -> State.PullTop
+                    TouchArea.LeftTop -> State.PullBottom
+                    TouchArea.Blue -> State.Translate
+                    TouchArea.Pink -> State.Wait
+                    TouchArea.Outside -> State.Out
                 }
-                true
+
+                when (state) {
+                    State.Translate, State.PullTop, State.PullBottom -> {
+                        view.apply {
+                            parent.requestDisallowInterceptTouchEvent(true)
+                            forceSiblingsToDo { isSelected = false }
+                            isSelected = true
+                            (parent as ViewGroup).invalidate()
+                        }
+                        true
+                    }
+                    State.Wait -> true
+                    else -> false
+                }
             }
 
             // Касание вторым пальцем. Теперь оба пальца на экране.
             MotionEvent.ACTION_POINTER_DOWN -> {
+                // TODO Нужно здесь блокировать Intercept у родителя, а не в onScaleBegin.
+                view.parent.requestDisallowInterceptTouchEvent(true)
+
                 event.actionIndex.also { index ->
                     pointers[event.getPointerId(index)] = event.getY(index)
                 }
-                savePoints(event)   // TODO ??
                 true
             }
 
-            // NOTE: Двигать blueRect только в состоянии Translating, чтобы измежать
-            // неожиданных прыжков.
+            // NOTE: Двигать blueRect только в состоянии Translating/PullDown/PullUp,
+            // чтобы избежать неожиданных "прыжков".
             MotionEvent.ACTION_MOVE -> {
-                if (state == State.Translate) {
+
+                if (state == State.Translate || state == State.PullTop || state == State.PullBottom) {
                     val y =
                         event.findPointerIndex(activePointerId).let { index -> event.getY(index) }
 
                     if (event.pointerCount == 1 && view.isSelected) {
-                        translateBlueRect(y - pointers[activePointerId]!!, view)
+
+                        when (state) {
+                            State.Translate -> {
+                                translate(y - pointers[activePointerId]!!, view)
+                            }
+                            State.PullTop -> {
+                                pull(y - pointers[activePointerId]!!, view, TouchArea.BottomRight)
+                            }
+                            State.PullBottom -> {
+                                pull(y - pointers[activePointerId]!!, view, TouchArea.LeftTop)
+                            }
+                        }
+
                         pointers[activePointerId] = y
                         return true
                     }
@@ -128,7 +233,7 @@ class ColumnTouchListener(
 
             MotionEvent.ACTION_UP -> {
                 view.parent.requestDisallowInterceptTouchEvent(false)
-                state = State.None
+                state = State.Wait
                 true
             }
             MotionEvent.ACTION_CANCEL -> {
@@ -139,40 +244,10 @@ class ColumnTouchListener(
     }
 
     /**
-     * Попробовать захватить событие одиночного тача. Для этого нужно определить положение
-     * blueRect и проверить, что координаты event'а попадают в него. Значения event.x/y определены
-     * в координатах РОДИТЕЛЯ, поэтому blueRect тоже создается в координатах РОДИТЕЛЯ (в декораторах
-     * тоже используются координаты относительно родителя потому что там отрисовка на канве
-     * родителя)
-     */
-    private fun insideBlueRegion(event: MotionEvent, view: View): Boolean {
-        val dayRange = ticket.dayRange
-
-        // ppm - pixels per minute
-        val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
-
-        /**
-         * Координаты в event (x/y) относительно родителя. Поэтому blueRect тоже должен
-         * иметь координаты относительно родителя.
-         */
-        blueRect.set(
-            view.left.toFloat(),
-            view.top + (ticket.start - dayRange.first) * ppm,
-            view.right.toFloat(),
-            view.top + (ticket.end - dayRange.first) * ppm
-        )
-
-        return blueRect.contains(event.x, event.y)
-    }
-
-    /**
      * Переместить blueRect вертикально. Проверить на границы view.
      */
-    private fun translateBlueRect(offset: Float, view: View) {
+    private fun translate(offset: Float, view: View) {
         val dayRange = ticket.dayRange
-
-        // ppm - pixels per minute
-        val ppm = (view.height).toFloat() / (dayRange.last - dayRange.first)
 
         blueRect.set(
             0f,
@@ -197,51 +272,78 @@ class ColumnTouchListener(
     }
 
     /**
-     * TODO ??
-     * Сохранить координаты левого и правого указателей.
-     *
-     * Функция исползует содержимое структуры pointers, поэтому перед её вызовом необходимо
-     * поместить в pointers последнюю актуальную информацию (savePointers)
+     * Тянем вверх, offset < 0
+     * Тянем вниз, offset > 0
      */
-    private fun savePoints(event: MotionEvent) {
-        val (l, r) = pointsIndices(event)
+    private fun pull(offset: Float, view: View, area: TouchArea) {
 
-        points[Pointer.Left] = event.getX(l)
-        points[Pointer.Right] = event.getX(r)
-    }
+        val minMinutes = minInterval * ppm
+        val minutes: Float
+        val dY: Float
 
-    /**
-     * TODO ??
-     * Сохранить координаты активного и пассивного указателей
-     */
-    private fun savePointers(event: MotionEvent) {
-        val (a, p) = pointersIndices(event)
+        var minThreshold = false
 
-        val passivePointerId = event.getPointerId(p)
-        pointers[activePointerId] = event.getX(a)
-        pointers[passivePointerId] = event.getX(p)
-    }
+        // Это значения в PX относительно View
+        val (start, end) = blueRect.let { it.top to it.bottom }
 
-    /**
-     * Определить индексы активного и пассивного указателей
-     */
-    private fun pointersIndices(event: MotionEvent): Pair<Int, Int> {
-        val indexActive = event.findPointerIndex(activePointerId)
-        val indexPassive = if (indexActive == 0) 1 else 0
+        when (area) {
+            TouchArea.LeftTop -> {
 
-        return indexActive to indexPassive
-    }
+                dY = when {
+                    // Тянем вниз
+                    (offset > 0 && ticket.end - ticket.start <= minInterval) -> return
+                    // Тянем вверх
+                    (offset < 0 && ticket.start == ticket.dayRange.first) -> return
 
-    /**
-     * Определить индексы левого и правого указателей
-     */
-    private fun pointsIndices(event: MotionEvent): Pair<Int, Int> {
-        val lastTouch0 = pointers[event.getPointerId(0)]!!
-        val lastTouch1 = pointers[event.getPointerId(1)]!!
+                    // Тянем вниз и "перетягиваем" (offset > 0)
+                    (start + offset >= (end - minMinutes)) -> {
+                        minThreshold = true
+                        end - start - minMinutes
+                    }
+                    // Тянем вверх и "перетягиваем" (offset < 0)
+                    (start + offset < 0f) -> {
+                        start
+                    }
+                    else -> offset
+                }
 
-        val indexL = if (lastTouch0 < lastTouch1) 0 else 1
-        val indexR = if (lastTouch0 < lastTouch1) 1 else 0
+                minutes = dY / ppm
 
-        return indexL to indexR
+                ticket.start += minutes.toInt()
+                (view.parent as ViewGroup).invalidate()
+            }
+            TouchArea.BottomRight -> {
+
+                dY = when {
+                    // Тянем вниз
+                    (offset > 0 && ticket.end == ticket.dayRange.last) -> return
+                    // Тянем вверх
+                    (offset < 0 && ticket.end - ticket.start <= minInterval) -> return
+
+                    // Тянем вниз и "перетягиваем" (offset > 0)
+                    (end + offset > view.height) -> {
+                        view.height - end
+                    }
+                    // Тянем вверх и "перетягиваем" меньше нижнего значения(offset < 0)
+                    (end + offset <= (start + minMinutes)) -> {
+                        minThreshold = true
+                        start - end + minMinutes
+                    }
+                    else -> offset
+                }
+
+                minutes = dY / ppm
+
+                ticket.end += minutes.toInt()
+                (view.parent as ViewGroup).invalidate()
+            }
+            else -> {
+            }
+        }
+
+        // Сообщить Y-координату minThreshold'а
+        if (minThreshold) {
+            thresholdListener?.invoke(start + (end - start) / 2)
+        }
     }
 }

@@ -84,5 +84,9 @@
     <dimen name="hint_margin">4dp</dimen>
     <dimen name="hint_padding_h">4.2dp</dimen>
     <dimen name="hint_padding_v">3.2dp</dimen>
+    <item name="scale_min" format="float" type="dimen">1.0</item>
+    <item name="scale_max" format="float" type="dimen">3.0</item>
 
+
+    <dimen name="item_stub_height">56dp</dimen>
 </resources>

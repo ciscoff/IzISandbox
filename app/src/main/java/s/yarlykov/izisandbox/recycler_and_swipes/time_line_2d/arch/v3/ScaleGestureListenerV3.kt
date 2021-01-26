@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
+package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.arch.v3
 
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -6,20 +6,22 @@ import android.view.ViewGroup
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 
 /**
- * V4 для работы с ColumnTouchListenerV4
+ * version : V3
  *
+ * для работы с ScaleGestureListenerV3 и кастомным ContainerView : RecyclerView
  */
-class ScaleGestureListener(
+class ScaleGestureListenerV3(
     private val view: View,
     private val ticket: Ticket,
-    private val onStateListener: (ColumnTouchListener.State) -> Unit
+    private val onStateListener: (ColumnTouchListenerV3.State) -> Unit
 ) : ScaleGestureDetector.OnScaleGestureListener {
 
     /**
      * Детектор определил начало zoom'a
      */
     override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-        onStateListener(ColumnTouchListener.State.Scale)
+        view.parent.requestDisallowInterceptTouchEvent(true)
+        onStateListener(ColumnTouchListenerV3.State.Scale)
         return true
     }
 

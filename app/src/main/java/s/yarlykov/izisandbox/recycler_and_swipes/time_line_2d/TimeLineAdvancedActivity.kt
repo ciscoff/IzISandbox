@@ -1,14 +1,16 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 
+import android.animation.ValueAnimator
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.android.material.slider.Slider
 import kotlinx.android.synthetic.main.activity_time_line_advanced.*
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.extensions.minutes
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
@@ -16,72 +18,23 @@ import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderAnyOv
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderOffsetDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderViewTypeOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.RvOverlayDecor
-import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.TicketItem
+import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Tickets
 import kotlin.properties.Delegates
 
 class TimeLineAdvancedActivity : AppCompatActivity() {
-
-    companion object {
-        private const val DAY_START = 9
-        private const val DAY_END = 21
-    }
 
     private var isBarVisible: Boolean by Delegates.notNull()
 
     private val smartAdapter = SmartAdapterV2()
 
-    private val tickets = listOf(
-        Ticket(
-            "Ticket 1",
-            10.minutes,
-            11.minutes,
-            DAY_START.minutes,
-            DAY_END.minutes,
-            listOf((9.minutes to 10.minutes))
-        ),
-        Ticket(
-            "Ticket 2",
-            9.minutes,
-            10.minutes,
-            DAY_START.minutes,
-            DAY_END.minutes,
-            listOf((10.minutes to 11.minutes), (18.minutes to 20.minutes))
-        ),
-        Ticket(
-            "Ticket 3",
-            12.minutes,
-            14.minutes,
-            DAY_START.minutes,
-            DAY_END.minutes,
-            listOf((10.minutes to 11.minutes))
-        ),
-        Ticket(
-            "Ticket 4",
-            19.minutes,
-            20.minutes,
-            DAY_START.minutes,
-            DAY_END.minutes,
-            listOf(
-                (12.minutes to 13.minutes),
-                (17.minutes to 18.minutes),
-                (18.minutes to 20.minutes)
-            )
-        ),
-        Ticket(
-            "Ticket 5",
-            16.minutes,
-            18.minutes,
-            DAY_START.minutes,
-            DAY_END.minutes,
-            listOf((10.minutes to 11.minutes))
-        )
-    )
-
     // Декоратор отступов
     private val offsetsDecor = HolderOffsetDecor()
 
-    private val columnViewController = ColumnViewController(R.layout.layout_time_line_column)
+    private val columnViewController = ColumnViewController(
+        R.layout.layout_time_line_column,
+        ::animateZoom
+    )
 
     private val decorator by lazy {
         Decorator.Builder()
@@ -92,14 +45,23 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
             .build()
     }
 
+    private var scaleFrom: Float = 0f
+    private var scaleTo: Float = 0f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_time_line_advanced)
-
         init()
     }
 
     private fun init() {
+        // Значения для zoom'а
+        val typedValue = TypedValue()
+        resources.getValue(R.dimen.scale_min, typedValue, true)
+        scaleFrom = typedValue.float
+        resources.getValue(R.dimen.scale_max, typedValue, true)
+        scaleTo = typedValue.float
+
         recyclerView.apply {
             addItemDecoration(decorator)
             layoutManager = TimeLineLayoutManager(context)
@@ -115,7 +77,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         }
 
         SmartList.create().apply {
-            addItems(tickets.map { TicketItem(it, columnViewController) })
+            addItems(Tickets.model.map { TicketItem(it, columnViewController) })
         }.also(smartAdapter::updateModel)
 
         bottomBar.apply {
@@ -123,18 +85,24 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
             initElevation = 0f
         }
 
-        numberSlider.apply {
-            valueFrom = 1f
-            valueTo = 3f
-            stepSize = 1f
-            value = 1f
+        zoomSlider.apply {
+            valueFrom = scaleFrom
+            valueTo = scaleTo
+//            stepSize = 1f
+            value = scaleFrom
+
+            addOnSliderTouchListener(sliderTouchListener)
+
             addOnChangeListener { _, value, _ ->
-                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(value.toInt())
-                recyclerView.adapter?.notifyDataSetChanged()
+                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(value)
+                recyclerView.requestLayout()
             }
         }
     }
 
+    /**
+     * Обработчик клика по "кнопке" ZOOM в левом верхнем углу.
+     */
     private val onTouchListener = object : View.OnTouchListener {
 
         var isEventCaught = false
@@ -143,16 +111,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
 
             val zoomArea = Rect(0, 0, v.paddingLeft, v.paddingTop)
 
-            return when (event.actionMasked) {
+            when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-
-                    if (isBarVisible) {
-                        bottomBar.performHide()
-                        isBarVisible = !isBarVisible
-                    }
-
                     isEventCaught = zoomArea.contains(event.x.toInt(), event.y.toInt())
-                    isEventCaught
+                    return isEventCaught
                 }
                 MotionEvent.ACTION_UP -> {
                     if (isEventCaught) {
@@ -165,12 +127,50 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                         isBarVisible = !isBarVisible
 
                         isEventCaught = false
+                        return true
                     }
-                    false
                 }
-                else -> false
+                else -> {
+                }
             }
+            return false
         }
+    }
+
+    /**
+     * Фиксатор тача по слайдеру zoom'а
+     */
+    private val sliderTouchListener = object : Slider.OnSliderTouchListener {
+
+        override fun onStartTrackingTouch(slider: Slider) {
+            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomBegin(0f, slider.value)
+        }
+
+        override fun onStopTrackingTouch(slider: Slider) {
+            (recyclerView.layoutManager as? ZoomConsumer)?.onZoomEnd()
+        }
+    }
+
+    /**
+     * Анимация зума.
+     * Включается только если в ручном режиме достигнут минимальный размер
+     * тайм-слота (например 5 минут).
+     */
+    private fun animateZoom(pivotY: Float) {
+        if (zoomSlider.value == scaleTo) return
+
+        ValueAnimator.ofFloat(zoomSlider.value, scaleTo).apply {
+            duration = 800L
+
+            addUpdateListener { animator ->
+                zoomSlider.value = animator.animatedValue as Float
+                (recyclerView.layoutManager as ZoomConsumer).onZoomChanged(zoomSlider.value)
+                recyclerView.requestLayout()
+            }
+
+            (recyclerView.layoutManager as ZoomConsumer).onZoomBegin(pivotY, zoomSlider.value)
+
+        }.start()
     }
 
     private var BottomAppBar.initState: BottomBarState

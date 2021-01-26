@@ -3,19 +3,24 @@ package s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d
 import android.content.Context
 import android.graphics.Rect
 import android.util.SparseArray
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import s.yarlykov.izisandbox.R
 import kotlin.math.max
 import kotlin.math.min
 
-class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager(), ZoomConsumer {
+class TimeLineLayoutManager(val context: Context) :
+    LinearLayoutManager(context, HORIZONTAL, false),
+    ZoomConsumer {
 
     /**
      * Масштабирование элементов списка по высоте
      */
-    private var scaleHeight = 1
+    private var scaleHeight = 1f
 
     /**
      * Ширина отдельного элемента
@@ -25,6 +30,12 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
     }
 
     private val viewCache = SparseArray<View>()
+
+    /**
+     * Состояние в процессе ZOOM'а. Хранит adapter position и view.left первой видимой view
+     * в момент начала zoom'а.
+     */
+    private var viewState: ViewState? = null
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
 
@@ -38,7 +49,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
         detachAndScrapAttachedViews(recycler)
 
-        fill(recycler)
+        viewState?.let { fillZoomed(it, recycler) } ?: fill(recycler)
     }
 
     /**
@@ -95,7 +106,8 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         resetMargins(child)
 
         val widthSpecUpdated = updateMeasureSpecs(widthSpec, spanSize)
-        val heightSpecUpdated = updateMeasureSpecs(heightSpec, (height - paddingTop) * scaleHeight)
+        val heightSpecUpdated =
+            updateMeasureSpecs(heightSpec, ((height - paddingTop) * scaleHeight).toInt())
         child.measure(widthSpecUpdated, heightSpecUpdated)
     }
 
@@ -140,9 +152,9 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
         val delta = when {
             // Палец идет вверх. Контролируем появление View снизу.
-            (dY > 0) -> deltaUp(dY, recycler)
+            (dY > 0) -> deltaUp(dY)
             // Палец идет вниз. Контролируем появление View сверху.
-            (dY < 0) -> deltaDown(dY, recycler)
+            (dY < 0) -> deltaDown(dY)
             else -> {
                 0
             }
@@ -161,7 +173,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
      *
      * Расчитать смещение вверх.
      */
-    private fun deltaUp(dY: Int, recycler: RecyclerView.Recycler): Int {
+    private fun deltaUp(dY: Int): Int {
         return getChildAt(0)?.let { firstChild ->
             val bottomView = getDecoratedBottom(firstChild)
             if (bottomView == height) return 0
@@ -174,7 +186,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
      *
      * Расчитать смещение вниз.
      */
-    private fun deltaDown(dY: Int, recycler: RecyclerView.Recycler): Int {
+    private fun deltaDown(dY: Int): Int {
         return getChildAt(0)?.let { firstChild ->
             val topView = getDecoratedTop(firstChild)
             if (topView >= paddingTop) return 0
@@ -199,7 +211,8 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         val viewTop = paddingTop
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+        val heightSpec =
+            View.MeasureSpec.makeMeasureSpec(viewHeight.toInt(), View.MeasureSpec.EXACTLY)
 
         var pos = anchorPos - 1
         var fillLeft = viewRight > paddingLeft
@@ -208,7 +221,7 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
             var child = viewCache.get(pos) //проверяем кэш
 
             if (child == null) {
-                //если вьюшки нет в кэше - просим у recycler новую, измеряем и лэйаутим её
+                // Если вьюшки нет в кэше - просим у recycler новую, измеряем и лэйаутим её
                 child = recycler.getViewForPosition(pos)
                 addView(child, 0)
                 measureChildWithoutInsets(child, widthSpec, heightSpec)
@@ -233,8 +246,8 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                 }
 
             } else {
-                //если вьюшка есть в кэше - просто аттачим её обратно
-                //нет необходимости проводить measure/layout цикл.
+                // Если вьюшка есть в кэше - просто аттачим её обратно
+                // и нет необходимости проводить measure/layout цикл.
                 attachView(child)
                 viewCache.remove(pos)
             }
@@ -255,10 +268,11 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
 
         var viewLeft = anchorRight
         val viewTop = paddingTop
-        val viewHeight = (height - paddingTop) * scaleHeight
+        val viewHeight = (height - paddingTop - paddingBottom) * scaleHeight
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(viewHeight, View.MeasureSpec.EXACTLY)
+        val heightSpec =
+            View.MeasureSpec.makeMeasureSpec(viewHeight.toInt(), View.MeasureSpec.EXACTLY)
 
         var pos = anchorPos
         var fillRight = viewLeft < width
@@ -295,6 +309,92 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
                 attachView(child)
                 viewCache.remove(pos)
             }
+            viewLeft = getDecoratedRight(child)
+            fillRight = viewLeft <= width
+            pos++
+        }
+    }
+
+    /**
+     * Вызывается только из onLayoutChildren.
+     * Заполняет список элементами в процессе zoom'а. Работает почти также как fillRight с
+     * anchorView == null.
+     */
+    private fun fillZoomed(state: ViewState, recycler: RecyclerView.Recycler) {
+        val (anchorPos, anchorRight) = state.position to state.offsetLeft
+
+        var viewLeft = anchorRight
+        val viewTop = paddingTop
+        val viewHeight = (height - paddingTop) * scaleHeight
+
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
+        val heightSpec =
+            View.MeasureSpec.makeMeasureSpec(viewHeight.toInt(), View.MeasureSpec.EXACTLY)
+
+        var pos = anchorPos
+        var fillRight = viewLeft < width
+
+        while (fillRight && pos < itemCount) {
+
+            var child = viewCache.get(pos)
+
+            if (child == null) {
+                child = recycler.getViewForPosition(pos)
+                addView(child)
+                measureChildWithoutInsets(child, widthSpec, heightSpec)
+
+                val decoratedMeasuredWidth = getDecoratedMeasuredWidth(child)
+                val decoratedMeasuredHeight = getDecoratedMeasuredHeight(child)
+
+                layoutDecorated(
+                    child,
+                    viewLeft,
+                    viewTop,
+                    viewLeft + decoratedMeasuredWidth,
+                    viewTop + decoratedMeasuredHeight
+                )
+
+            } else {
+                attachView(child)
+                viewCache.remove(pos)
+            }
+
+            /**
+             * С учетом изменения масштаба изменяем значение верхнего смещения у View.
+             * В данной точке после measure/layout все children выровнены своим view.top по
+             * paddingTop родителя. Теперь их нужно правильно offsetTopAndBottom.
+             *
+             * => Растягиваем: дельту высоты делим пополам, половинку прибавляем к state.offsetTop
+             * и выполняем offsetTopAndBottom
+             *
+             * => Сжимаем: идея такова - при сжатии управлять значением вертикального смещения view
+             * приводя его в соответсвие с меняющимся зумом. Например, если в начале зума offset
+             * был 10, а зум 3, то при зуме 2 offset должет стать 5 (нужно помнить, что зум меняется
+             * от 1 до 3 и 2 - это половинка). Итак, сначала нужно расчитать прогресс самого зума,
+             * то есть как он изменился к данному моменту относительно state.initZoom. С учетом,
+             * что диапазон зума от zoomMin до zoomMax (1..3), делаем соотв вычисления. Далее
+             * нужно зумировать offset и всё
+             */
+
+            // Изменение высоты
+//            val dY = (viewHeight - state.initHeight) / 2
+            val dY = (viewHeight - state.initHeight) * state.pivotRatio
+
+            // Растягиваем
+            if (dY > 0) {
+                child.offsetTopAndBottom(-dY.toInt() + (state.offsetTop - paddingTop))
+            }
+            // Сжимаем
+            else {
+                val dZoom =
+                    if (state.initZoom <= zoomMin)
+                        0f
+                    else
+                        (scaleHeight - zoomMin) / (state.initZoom - zoomMin)
+                val offsetTop = (state.offsetTop - paddingTop) * dZoom
+                child.offsetTopAndBottom(offsetTop.toInt())
+            }
+
             viewLeft = getDecoratedRight(child)
             fillRight = viewLeft <= width
             pos++
@@ -344,6 +444,20 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         }
         return viewsOnScreen[maxSquare]
     }
+
+    /**
+     * Найти selected View
+     */
+//    private val selectedView: View?
+//        get() {
+//            for (i in 0 until childCount) {
+//                getChildAt(i)?.let {
+//                    if (it.isSelected) return it
+//                }
+//            }
+//
+//            return null
+//        }
 
     /**
      * Установить размер в MeasureSpec.
@@ -405,7 +519,95 @@ class TimeLineLayoutManager(val context: Context) : RecyclerView.LayoutManager()
         )
     }
 
-    override fun onZoomChanged(zoom: Int) {
+    /**
+     * Начался zoom. Нужно зафиксировать положение первого видимого элемента и состояние зума.
+     */
+    override fun onZoomBegin(pivotY: Float, initZoom: Float) {
+
+        val pos = findFirstVisibleItemPosition()
+
+        viewState = if (pos != NO_POSITION) {
+
+            findViewByPosition(pos)?.let { child ->
+                val rect = Rect()
+                child.getLocalVisibleRect(rect)
+
+                val pivot = if (pivotY == 0f)
+                // Будем скалить относительно центра видимой части child'а
+                    0.5f
+                else {
+                    // Будем скалить относительно pivot'а
+                    (pivotY - rect.top) / rect.height()
+                }
+
+                ViewState(pos, child.left, child.top, initZoom, child.height, pivot)
+            }
+        } else null
+    }
+
+    /**
+     * В процессе zoom'а обновляем значение в scaleHeight. Layout инициирует внешний код.
+     */
+    override fun onZoomChanged(zoom: Float) {
         scaleHeight = zoom
     }
+
+    /**
+     * Окончание zoom'а. Не нужно viewState = null, потому что это приведет к "скачку" при
+     * следующем onLayoutChildren.
+     *
+     * NOTE: onLayoutChildren вызывается только при первом показе списка и при последующих
+     * requestLayout(). Поэтому не возникнет проблем с тем, что после окончания zoom'а
+     * viewState не null. На методы fill/fillLeft/fillRight, вызываемые при скроле, это не влияет.
+     */
+    override fun onZoomEnd() {
+//        viewState = null
+    }
+
+    override val zoomMin: Float by lazy {
+        val typedValue = TypedValue()
+        context.resources.getValue(R.dimen.scale_min, typedValue, true)
+        typedValue.float
+    }
+
+    override val zoomMax: Float by lazy {
+        val typedValue = TypedValue()
+        context.resources.getValue(R.dimen.scale_max, typedValue, true)
+        typedValue.float
+    }
+
+    /**
+     * Состояние на момент начала скрола.
+     *
+     * @param position - позиция в адаптере
+     * @param offsetLeft - view.left
+     * @param offsetTop - view.top - paddingTop
+     * @param initZoom - значение зума на начало нового зума
+     * @param initHeight - высота view на начало нового зума
+     * @param pivotRatio - нужно для того, чтобы изменять offsetTop пропорционально
+     * положению pivotY внутри видимой части view. Например, если pivotY в центре, то
+     * offsetTop будет изменяться на пловину изменения высоты (ratio = 0.5).
+     */
+    //  Это view.getLocalVisibleRect(..)
+    //  pivotY - точка в координатах view
+    //
+    //    _____________  ___ rect.top
+    //   |             |
+    //   |    pivotY   |
+    //   |      *      | --- pivotRatio = (pivotY - rect.top) / rect.height
+    //   |             |
+    //   |             |
+    //   |             |
+    //   |             |
+    //   |             |
+    //   |_____________| ___ rect.bottom
+    //
+    data class ViewState(
+        val position: Int,
+        val offsetLeft: Int,
+        val offsetTop: Int,
+        val initZoom: Float,
+        val initHeight: Int,
+        val pivotRatio: Float
+    )
 }
