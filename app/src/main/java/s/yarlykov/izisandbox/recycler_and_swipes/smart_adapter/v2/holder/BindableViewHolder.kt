@@ -6,9 +6,13 @@ import androidx.annotation.LayoutRes
 
 abstract class BindableViewHolder<in T> : BaseViewHolder {
 
-    constructor(recyclerView: ViewGroup, @LayoutRes layoutId: Int) : super(recyclerView, layoutId)
+    constructor(
+        recyclerView: ViewGroup,
+        @LayoutRes layoutId: Int,
+        callback: SmartCallback<*>? = null
+    ) : super(recyclerView, layoutId, callback)
 
-    constructor(itemView: View) : super(itemView)
+    constructor(itemView: View, callback: SmartCallback<*>? = null) : super(itemView, callback)
 
     abstract fun bind(data: T)
 }

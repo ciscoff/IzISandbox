@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.forceSiblingsToDo
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.SmartCallback
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.model.Ticket
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.ceil
@@ -20,7 +21,7 @@ import kotlin.math.ceil
 class ColumnTouchListener(
     private val view: View,
     private val ticket: Ticket,
-    private val thresholdListener: ((Float) -> Unit)? = null
+    private val thresholdListener: SmartCallback<Float>
 ) : View.OnTouchListener {
 
     /**
@@ -343,7 +344,7 @@ class ColumnTouchListener(
 
         // Сообщить Y-координату minThreshold'а
         if (minThreshold) {
-            thresholdListener?.invoke(start + (end - start) / 2)
+            thresholdListener.call(start + (end - start) / 2)
         }
     }
 }

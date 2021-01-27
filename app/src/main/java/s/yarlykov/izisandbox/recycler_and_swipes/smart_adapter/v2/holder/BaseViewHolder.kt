@@ -8,16 +8,31 @@ import androidx.recyclerview.widget.RecyclerView
 
 abstract class BaseViewHolder : RecyclerView.ViewHolder {
 
-    constructor(parent: ViewGroup, @LayoutRes layoutId: Int) : super(
+    /**
+     * star-projection 'in: Nothing, out : Any?'
+     *
+     * Наследники могут принимать и отдавать что угодно.
+     */
+    var callback: SmartCallback<*>? = null
+
+    constructor(
+        parent: ViewGroup,
+        @LayoutRes layoutId: Int,
+        callback: SmartCallback<*>? = null
+    ) : super(
         LayoutInflater.from(parent.context)
             .inflate(
                 layoutId,
                 parent,
                 false
             )
-    )
+    ) {
+        this.callback = callback
+    }
 
-    constructor(itemView: View) : super(itemView)
+    constructor(itemView: View, callback: SmartCallback<*>? = null) : super(itemView) {
+        this.callback = callback
+    }
 
     /**
      * Когда view инвалидируется, то адаптер вызовет этот метод для очистки ресурсов

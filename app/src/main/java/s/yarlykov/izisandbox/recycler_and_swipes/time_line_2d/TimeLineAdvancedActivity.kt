@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.slider.Slider
@@ -13,6 +14,7 @@ import kotlinx.android.synthetic.main.activity_time_line_advanced.*
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.SmartCallback
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderAnyOverlayDecor
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.decors.HolderOffsetDecor
@@ -31,10 +33,8 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     // Декоратор отступов
     private val offsetsDecor = HolderOffsetDecor()
 
-    private val columnViewController = ColumnViewController(
-        R.layout.layout_time_line_column,
-        ::animateZoom
-    )
+    private val columnViewController =
+        ColumnViewController(R.layout.layout_time_line_column) { it?.also(::animateZoom) }
 
     private val decorator by lazy {
         Decorator.Builder()
@@ -98,6 +98,18 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
                 recyclerView.requestLayout()
             }
         }
+    }
+
+    private fun setScaleThresholds() {
+
+        recyclerView.viewTreeObserver.addOnGlobalLayoutListener(
+
+            object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            }
+        )
     }
 
     /**
