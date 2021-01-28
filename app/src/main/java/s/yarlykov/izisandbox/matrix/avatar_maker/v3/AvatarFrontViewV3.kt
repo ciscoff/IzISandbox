@@ -193,6 +193,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                         offsetV = d * sign(dY)
                         offsetH = d * sign(dX)
                         preScaling()    // Изменить размер и спозиционировать pathClip
+//                        logIt("ACTION_MOVE rectClip.width=${rectClip.width()}, rectMin.width=${rectMin.width()}")
                     }
                     else -> {
                         logIt("unknown mode")
@@ -205,7 +206,14 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 if(rectClip.width() < rectMin.width()) {
-                    onScaleChangeListener?.invoke(rectClip.width()/rectMin.width(), rectClip.center)
+
+                    val a = rectClip.width()
+                    val b = rectMin.width()
+                    val c = a/b
+
+                    logIt("ACTION_UP scale=$c  rectClip.width=${rectClip.width()}, rectMin.width=${rectMin.width()}")
+
+                    onScaleChangeListener?.invoke(rectClip.width() / rectClipPrev.width(), rectClip.center)
                     restoreAnimated()
                 }
 

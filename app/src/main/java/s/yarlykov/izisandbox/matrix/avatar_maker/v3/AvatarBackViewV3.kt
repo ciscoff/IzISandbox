@@ -2,11 +2,9 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Point
-import android.graphics.PointF
+import android.graphics.*
 import android.util.AttributeSet
+import s.yarlykov.izisandbox.utils.logIt
 
 class AvatarBackViewV3 @JvmOverloads constructor(
     context: Context,
@@ -36,7 +34,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     }
 
     override fun onScaleChanged(scale: Float, pivot: PointF) {
-        if (scale > 1f) return
+//        if (scale > 1f) return
 
         scaleAnimated(scale, pivot)
 
@@ -54,16 +52,32 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      *
      * @param pivot - точка в координатах канвы. Её нужно смапить на координаты битмапы.
      */
+    val rectTemp = Rect()
     private fun scaleAnimated(scaleFactor: Float, pivot: PointF) {
+
+        logIt("scaleAnimated scaleFactor=$scaleFactor pivot=$pivot")
 
         sourceImageBitmap?.let { bitmap ->
 
-            val pivotBitmap = Point(pivot.x.toInt(), pivot.y.toInt()).apply {
-                offset(rectBitmapVisible.left, rectBitmapVisible.top)
+            // Нужно сконвертировать pivot из кординат view в координаты rectBitmapVisible.
+            // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
+            // сторон прямоугольников. Затем переносим pivot на координаты rectBitmapVisible.
+            val pivotBitmap = PointF(0f, 0f).apply {
+
+                val ratioX = rectBitmapVisible.width().toFloat() / rectVisible.width()
+                val ratioY = rectBitmapVisible.height().toFloat() / rectVisible.height()
+
+                offset(
+                    rectBitmapVisible.left + pivot.x * ratioX,
+                    rectBitmapVisible.top + pivot.y * ratioY
+                )
             }
 
-            val pivotRatioX = (pivotBitmap.x.toFloat() - rectBitmapVisible.left) / rectBitmapVisible.width()
-            val pivotRatioY = (pivotBitmap.y.toFloat() - rectBitmapVisible.top) / rectBitmapVisible.height()
+            val pivotRatioX = (pivotBitmap.x - rectBitmapVisible.left) / rectBitmapVisible.width()
+            val pivotRatioY = (pivotBitmap.y - rectBitmapVisible.top) / rectBitmapVisible.height()
+
+            logIt("view params: rectVisible=${rectVisible}, pivot=$pivot")
+            logIt("bitmap params: rectBitmapVisible=$rectBitmapVisible, pivotBitmap=$pivotBitmap, pivotRatioX=$pivotRatioX, pivotRatioY=$pivotRatioY")
 
             val startW = rectBitmapVisible.width()
             val startH = rectBitmapVisible.height()
@@ -77,12 +91,29 @@ class AvatarBackViewV3 @JvmOverloads constructor(
                     val w = (startW * scale).toInt()
                     val h = (startH * scale).toInt()
 
-                    rectBitmapVisible.apply {
+                    rectTemp.apply {
                         left = (pivotBitmap.x - w * pivotRatioX).toInt()
                         top = (pivotBitmap.y - h * pivotRatioY).toInt()
                         right = left + w
                         bottom = top + h
                     }
+
+                    val offsetX = when {
+                        rectTemp.left < 0 -> -rectTemp.left
+                        rectTemp.right > bitmap.width -> bitmap.width - rectTemp.right
+                        else -> 0
+                    }
+
+                    val offsetY = when {
+                        rectTemp.top < 0 -> -rectTemp.top
+                        rectTemp.bottom > bitmap.height -> bitmap.height - rectTemp.bottom
+                        else -> 0
+                    }
+
+                    rectTemp.offset(offsetX, offsetY)
+                    rectBitmapVisible.set(rectTemp)
+                    logIt("scaleAnimated rectBitmapVisible=$rectBitmapVisible")
+
                     invalidate()
                 }
             }.start()
