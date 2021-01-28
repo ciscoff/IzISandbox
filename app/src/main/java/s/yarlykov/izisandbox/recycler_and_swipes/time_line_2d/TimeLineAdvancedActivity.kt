@@ -34,7 +34,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val offsetsDecor = HolderOffsetDecor()
 
     private val columnViewController =
-        ColumnViewController(R.layout.layout_time_line_column) { it?.also(::animateZoom) }
+        ColumnViewController(R.layout.layout_time_line_column) { it.also(::animateZoom) }
 
     private val decorator by lazy {
         Decorator.Builder()
