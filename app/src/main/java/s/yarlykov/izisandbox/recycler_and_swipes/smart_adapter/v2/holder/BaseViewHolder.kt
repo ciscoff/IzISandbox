@@ -36,7 +36,7 @@ abstract class BaseViewHolder : RecyclerView.ViewHolder {
 
     /**
      * Когда view инвалидируется, то адаптер вызовет этот метод для очистки ресурсов
-     * из своего onViewDetachedFromWindow
+     * из своего onViewRecycled
      */
     open fun clear() {}
 }

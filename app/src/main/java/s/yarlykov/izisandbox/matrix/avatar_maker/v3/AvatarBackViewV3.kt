@@ -34,10 +34,10 @@ class AvatarBackViewV3 @JvmOverloads constructor(
         }
     }
 
-    override fun onScaleChanged(scale : Float) {
-        if(scale > 1f) return
+    override fun onScaleChanged(scale: Float) {
+        if (scale > 1f) return
 
-        sourceImageBitmap?.let {bitmap ->
+        sourceImageBitmap?.let { bitmap ->
             rectSourceImage.right = (bitmap.width * scale).toInt()
             rectSourceImage.bottom = (bitmap.height * scale).toInt()
             invalidate()

@@ -6,8 +6,8 @@ import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BaseController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BaseViewHolder
-import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BaseItem
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BaseItem
 
 /**
  * Алгоритм работы следующий:
@@ -63,10 +63,10 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     override fun getItemCount(): Int = model.size
 
     /**
-     * View холдера @holder перешло в состояние detached (например, попало в кэш)
+     * View холдера @holder перешло в состояние Recycled
      */
-    override fun onViewDetachedFromWindow(holder: BaseViewHolder) {
-        super.onViewDetachedFromWindow(holder)
+    override fun onViewRecycled(holder: BaseViewHolder) {
+        super.onViewRecycled(holder)
         holder.clear()
     }
 

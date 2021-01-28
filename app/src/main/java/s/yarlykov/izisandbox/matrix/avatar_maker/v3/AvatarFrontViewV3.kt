@@ -1,11 +1,15 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
+import kotlinx.android.synthetic.main.activity_time_line_advanced.*
+import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
+import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import s.yarlykov.izisandbox.utils.logIt
@@ -17,6 +21,20 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
+ * Алгоритм zoom'а такой:
+ * 1. Минимально доступный размер viewPort'а выбирается равным 3/5 от наименьшей стороны view.
+ * 2. Если ПОСЛЕ тача viewPort стал меньше минимума, то:
+ *   - битмапа увеличивается в том же оношении, что и viewPort меньше минимума.
+ *   - viewPort анимированно увеличивается к минимальному размеру.
+ *
+ * Например, пусть минимальный размер viewPort'а равен W90xH90. Мы уменьшили его до W60xH60.
+ * Получилось соотношение сторон начального и нового состояний как 60/90 = 2/3, то есть viewPort
+ * уменьшился на 1/3. Это значит, что мы должны предыдущее состояния битмапы увеличить на 1/3.
+ *
+ * Однако нужно делать проверку, чтобы разрешение видимой части битмапы не превышало разрешения
+ * области экрана, на которой она отображается. То есть битмапа не должна растягиваться больше
+ * своей натуральной величины. Сжиматься может, а растягиваться - нет.
+ *
  * Видимо понадобятся:
  * ScaleGestureDetector.OnScaleGestureListener
  * GestureDetector.OnGestureListener
@@ -29,6 +47,8 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 ) : AvatarBaseViewV3(context, attrs, defStyleAttr) {
 
     private var mode: Mode = Mode.Waiting
+
+    private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
 
     /**
      * Квадратные области для масштабирования рамки видоискателя
@@ -52,9 +72,20 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     private val rectPivot = RectF()
 
     /**
-     * @rectClip область (квадратная) для рисования рамки выбора части изображения под аватарку.
+     * Это viewPort.
+     * @rectClip квадратная область для рисования рамки выбора части изображения под аватарку.
      */
-    private val rectClip: RectF by rectClipDelegate()
+    private var rectClip: RectF by rectClipDelegate()
+
+    /**
+     * Содержит минимально допустимый размер для viewPort'а в пассивном состоянии
+     */
+    private val rectMin: RectF by rectMinDelegate()
+
+    /**
+     * Для временных данных при работе анимации
+     */
+    private val rectTemp = RectF()
 
     /**
      * @rectClipShifted служит для временного копирования rectClip в операциях скалирования
@@ -177,14 +208,61 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             MotionEvent.ACTION_UP -> {
                 val scaled = rectClip.width() / rectClipPrev.width()
 
-                if(scaled != 1f) {
+                if (scaled != 1f) {
                     onScaleChangeListener?.invoke(scaled)
+                    restoreAnimated()
                 }
 
                 true
             }
             else -> false
         }
+    }
+
+    /**
+     * Анимированно восстановить размер viwPort'a
+     */
+    private fun restoreAnimated() {
+
+        if (rectClip.width() >= rectMin.width()) return
+
+        ValueAnimator.ofFloat(rectClip.width(), rectMin.width()).apply {
+            duration = animDuration
+
+            val pivot = rectClip.center
+
+            addUpdateListener { animator ->
+                val rectDim = animator.animatedValue as Float
+
+                // Установить rect по центру относительно pivot'a
+                rectTemp.apply {
+                    left = pivot.x - rectDim / 2f
+                    top = pivot.y - rectDim / 2f
+                    right = left + rectDim
+                    bottom = top + rectDim
+                }
+
+                // Проверить крайние условия по X
+                val offsetX = when {
+                    rectTemp.left < rectVisible.left -> rectVisible.left - rectTemp.left
+                    rectTemp.right > rectVisible.right -> rectVisible.right - rectTemp.right
+                    else -> 0f
+                }
+
+                // Проверить крайние условия по Y
+                val offsetY = when {
+                    rectTemp.top < rectVisible.top -> rectVisible.top - rectTemp.top
+                    rectTemp.bottom > rectVisible.bottom -> rectVisible.bottom - rectTemp.bottom
+                    else -> 0f
+                }
+
+                rectTemp.offset(offsetX, offsetY)
+                rectClip.set(rectTemp)
+                preScaling()
+                preDrawing()
+                invalidate()
+            }
+        }.start()
     }
 
     /**
@@ -381,6 +459,27 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         rectPivot.set(rectTmp)
     }
 
+
+    /**
+     * Минимальный размер для viewPort. Меньше этого размера viewPort не может
+     * быть на эране когда нет касаний.
+     */
+    private fun rectMinDelegate(): ReadWriteProperty<Any?, RectF> =
+        object : ReadWriteProperty<Any?, RectF> {
+
+            var rect = RectF()
+
+            override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
+                val dimension = min(rectVisible.width(), rectVisible.height()) / 5f * 3f
+                rect.set(0f, 0f, dimension, dimension)
+                return rect
+            }
+
+            override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {
+                rect.set(value)
+            }
+        }
+
     /**
      * Делегат зависит от rectPivot.
      *
@@ -411,7 +510,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                             offset(offsetH, offsetV)
                         }
                     }
-                    is Mode.Scaling -> {
+                    is Mode.Scaling, is Mode.Animating -> {
                         // Возвращаем без смещения
                         rect
                     }

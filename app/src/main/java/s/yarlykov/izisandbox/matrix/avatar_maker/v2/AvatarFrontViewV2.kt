@@ -400,7 +400,7 @@ class AvatarFrontViewV2 @JvmOverloads constructor(
                             offset(offsetH, offsetV)
                         }
                     }
-                    is Mode.Scaling -> {
+                    is Mode.Scaling, is Mode.Animating -> {
                         // Возвращаем без смещения
                         rect
                     }

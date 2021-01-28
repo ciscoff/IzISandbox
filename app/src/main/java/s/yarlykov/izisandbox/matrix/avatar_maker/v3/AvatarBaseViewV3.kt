@@ -87,6 +87,10 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
         rectSourceImage = Rect(0, 0, bitmap.width, bitmap.height)
     }
 
+    /**
+     * После события ACTION_UP вызвать этот метод для оповещения внешних слушателей об
+     * изменении размера viewPort'a
+     */
     var onScaleChangeListener: ((Float) -> Unit)? = null
 
     open fun onScaleChanged(scale : Float) {}

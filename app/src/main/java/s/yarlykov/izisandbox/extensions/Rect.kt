@@ -1,5 +1,7 @@
 package s.yarlykov.izisandbox.extensions
 
+import android.graphics.Point
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.annotation.FloatRange
@@ -52,6 +54,13 @@ val Rect.min: Int
 fun RectF.reset() {
     set(0f, 0f, 0f, 0f)
 }
+
+val RectF.center: PointF
+    get() = PointF(left + width() / 2f, top + height() / 2f)
+
+val Rect.center: Point
+    get() = Point(left + width() / 2, top + height() / 2)
+
 
 
 
