@@ -3,16 +3,13 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.PointF
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
-import s.yarlykov.izisandbox.matrix.avatar_maker.v1.AvatarBackViewV1
-import s.yarlykov.izisandbox.matrix.avatar_maker.v1.AvatarFrontViewV1
 
 class AvatarCompoundViewV3 @JvmOverloads constructor(
     context: Context,
@@ -38,8 +35,8 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
         }
     }
 
-    private fun onViewPortScaled(scale: Float) {
-        avatarBack.onScaleChanged(scale)
+    private fun onViewPortScaled(scale: Float, pivot: PointF) {
+        avatarBack.onScaleChanged(scale, pivot)
     }
 
     /**

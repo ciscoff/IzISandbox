@@ -48,8 +48,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
     private var mode: Mode = Mode.Waiting
 
-    private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
-
     /**
      * Квадратные области для масштабирования рамки видоискателя
      */
@@ -206,12 +204,16 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
-                val scaled = rectClip.width() / rectClipPrev.width()
-
-                if (scaled != 1f) {
-                    onScaleChangeListener?.invoke(scaled)
+                if(rectClip.width() < rectMin.width()) {
+                    onScaleChangeListener?.invoke(rectClip.width()/rectMin.width(), rectClip.center)
                     restoreAnimated()
                 }
+
+//                val scaled = rectClip.width() / rectClipPrev.width()
+//                if (scaled != 1f) {
+//                    onScaleChangeListener?.invoke(scaled, rectClip.center)
+//                    restoreAnimated()
+//                }
 
                 true
             }

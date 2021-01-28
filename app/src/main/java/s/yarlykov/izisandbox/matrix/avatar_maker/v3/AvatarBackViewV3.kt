@@ -1,11 +1,12 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Point
+import android.graphics.PointF
 import android.util.AttributeSet
-import s.yarlykov.izisandbox.matrix.avatar_maker.AvatarBaseView
 
 class AvatarBackViewV3 @JvmOverloads constructor(
     context: Context,
@@ -24,23 +25,67 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     }
 
     /**
-     * @rectSourceImage - задает исходный прямоугольник в координатах битмапы
+     * @rectBitmapVisible - задает видимую часть битмапы в координатах битмапы.
      * @rectDest - целевой прямоугольник в координатах канвы.
      * То есть берем некую часть из битмапы и переносим в указанную область канвы.
      */
     override fun onDraw(canvas: Canvas) {
         sourceImageBitmap?.let {
-            canvas.drawBitmap(it, rectSourceImage, rectDest, paintBackground)
+            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
         }
     }
 
-    override fun onScaleChanged(scale: Float) {
+    override fun onScaleChanged(scale: Float, pivot: PointF) {
         if (scale > 1f) return
 
+        scaleAnimated(scale, pivot)
+
+//        sourceImageBitmap?.let { bitmap ->
+//            rectBitmapVisible.right = (bitmap.width * scale).toInt()
+//            rectBitmapVisible.bottom = (bitmap.height * scale).toInt()
+//            invalidate()
+//        }
+    }
+
+    /**
+     *
+     * NOTE: Надо дебажить. По моему при увеличении битмапы больше её собственного
+     * разрешения начинает лагать отрисовка. До превышения этого значения все ОК, ниже линии.
+     *
+     * @param pivot - точка в координатах канвы. Её нужно смапить на координаты битмапы.
+     */
+    private fun scaleAnimated(scaleFactor: Float, pivot: PointF) {
+
         sourceImageBitmap?.let { bitmap ->
-            rectSourceImage.right = (bitmap.width * scale).toInt()
-            rectSourceImage.bottom = (bitmap.height * scale).toInt()
-            invalidate()
+
+            val pivotBitmap = Point(pivot.x.toInt(), pivot.y.toInt()).apply {
+                offset(rectBitmapVisible.left, rectBitmapVisible.top)
+            }
+
+            val pivotRatioX = (pivotBitmap.x.toFloat() - rectBitmapVisible.left) / rectBitmapVisible.width()
+            val pivotRatioY = (pivotBitmap.y.toFloat() - rectBitmapVisible.top) / rectBitmapVisible.height()
+
+            val startW = rectBitmapVisible.width()
+            val startH = rectBitmapVisible.height()
+
+            ValueAnimator.ofFloat(1f, scaleFactor).apply {
+                duration = animDuration
+
+                addUpdateListener { animator ->
+                    val scale = animator.animatedValue as Float
+
+                    val w = (startW * scale).toInt()
+                    val h = (startH * scale).toInt()
+
+                    rectBitmapVisible.apply {
+                        left = (pivotBitmap.x - w * pivotRatioX).toInt()
+                        top = (pivotBitmap.y - h * pivotRatioY).toInt()
+                        right = left + w
+                        bottom = top + h
+                    }
+                    invalidate()
+                }
+            }.start()
         }
     }
 }

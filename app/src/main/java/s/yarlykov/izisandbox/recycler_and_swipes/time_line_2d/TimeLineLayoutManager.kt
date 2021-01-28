@@ -325,7 +325,7 @@ class TimeLineLayoutManager(val context: Context) :
 
         var viewLeft = anchorRight
         val viewTop = paddingTop
-        val viewHeight = (height - paddingTop) * scaleHeight
+        val viewHeight = (height - paddingTop - paddingBottom) * scaleHeight
 
         val widthSpec = View.MeasureSpec.makeMeasureSpec(spanSize, View.MeasureSpec.EXACTLY)
         val heightSpec =

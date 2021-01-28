@@ -3,9 +3,11 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.LightingColorFilter
+import android.graphics.PointF
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
+import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
 
 abstract class AvatarBaseViewV3 @JvmOverloads constructor(
@@ -20,23 +22,29 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     protected val colorFilterLighten = LightingColorFilter(0xFFFFFFFF.toInt(), 0x00222222)
     protected val colorFilterDarken = LightingColorFilter(0xFF7F7F7F.toInt(), 0x00000000)
 
+    protected val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
+
     /**
-     * @rectDest прямоугольник (в координатах канвы) куда будем рисовать исходную Bitmap.
-     * Он может выходить краями за пределы экрана.
+     * @rectDest прямоугольник (в координатах канвы. у канвы left/top = 0/0) куда будем
+     * "проецировать" исходную Bitmap. Он может выходить краями за пределы видимой области канвы
+     * и иметь отрицательные left/top.
      */
     protected val rectDest = Rect()
 
     /**
-     * @rectVisible прямоугольник (в координатах канвы) определяющий видимую часть
-     * картинки. Это как бы смотровая щель - все что не влезло в экран не учитывается.
+     * @rectVisible прямоугольник (в координатах канвы. у канвы left/top = 0/0) определяющий
+     * видимую часть картинки. Это как бы смотровая щель - все что не влезло в экран не учитывается.
      */
     protected val rectVisible = Rect()
 
     /**
      * Исходная Bitmap и её размеры
+     *
+     * sourceImageBitmap - битмапа
+     * rectSourceImage - прямоугольник видимой части битмапы в координатах БИТМАПЫ
      */
     protected var sourceImageBitmap: Bitmap? = null
-    protected var rectSourceImage = Rect()
+    protected var rectBitmapVisible = Rect()
 
     /**
      * Для AvatarBackView достаточно этих операцию + invalidate.
@@ -57,8 +65,8 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
      */
     private fun rectDestUpdate() {
 
-        val ratio = height.toFloat() / rectSourceImage.height()
-        val scaledWidth = (rectSourceImage.width() * ratio).toInt()
+        val ratio = height.toFloat() / rectBitmapVisible.height()
+        val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
 
         rectDest.apply {
             top = 0
@@ -84,14 +92,14 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
 
     override fun onBitmapReady(bitmap: Bitmap) {
         sourceImageBitmap = bitmap
-        rectSourceImage = Rect(0, 0, bitmap.width, bitmap.height)
+        rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
     }
 
     /**
      * После события ACTION_UP вызвать этот метод для оповещения внешних слушателей об
      * изменении размера viewPort'a
      */
-    var onScaleChangeListener: ((Float) -> Unit)? = null
+    var onScaleChangeListener: ((Float, PointF) -> Unit)? = null
 
-    open fun onScaleChanged(scale : Float) {}
+    open fun onScaleChanged(scale: Float, pivot: PointF) {}
 }
