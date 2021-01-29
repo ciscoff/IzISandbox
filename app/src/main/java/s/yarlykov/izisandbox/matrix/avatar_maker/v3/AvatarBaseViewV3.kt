@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 
+import android.animation.FloatEvaluator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.LightingColorFilter
@@ -14,7 +15,7 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr), MediaDataConsumer {
+) : View(context, attrs, defStyleAttr), MediaDataConsumer, ScaleConsumer {
 
     /**
      * Цветовые фильтры поярче/потемнее.
@@ -22,7 +23,8 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     protected val colorFilterLighten = LightingColorFilter(0xFFFFFFFF.toInt(), 0x00222222)
     protected val colorFilterDarken = LightingColorFilter(0xFF7F7F7F.toInt(), 0x00000000)
 
-    protected val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
+    protected val animDuration =
+        context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
 
     /**
      * @rectDest прямоугольник (в координатах канвы. у канвы left/top = 0/0) куда будем
@@ -96,10 +98,16 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     }
 
     /**
-     * После события ACTION_UP вызвать этот метод для оповещения внешних слушателей об
-     * изменении размера viewPort'a
+     * Код для Scale и имплементация ScaleConsumer
      */
-    var onScaleChangeListener: ((Float, PointF) -> Unit)? = null
+    var scaleController: ScaleController? = null
+    protected val evaluator = FloatEvaluator()
+    protected var isScaleAvailable = true
 
-    open fun onScaleChanged(scale: Float, pivot: PointF) {}
+    protected var scaleFrom = 1f
+    protected var scaleTo = 1f
+
+    override fun onScaleAvailable(isAvailable: Boolean) {
+        isScaleAvailable = isAvailable
+    }
 }

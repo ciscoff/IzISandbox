@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -15,28 +16,30 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr) {
+) : FrameLayout(context, attrs, defStyleAttr), ScaleController {
 
     private val avatarBack: AvatarBaseViewV3
     private val avatarFront: AvatarBaseViewV3
 
+    private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
+    private val scaleConsumers = ArrayList<ScaleConsumer>()
+
     /**
-     * Исходная Bitmap и её размеры
+     * Исходная Bitmap
      */
     private var sourceImageBitmap: Bitmap? = null
-    private var rectSourceImage = Rect()
 
     init {
         View.inflate(context, R.layout.layout_avatar_components_v3, this).also { view ->
             avatarBack = view.findViewById(R.id.avatarBack)
             avatarFront = view.findViewById(R.id.avatarFront)
 
-            avatarFront.onScaleChangeListener = ::onViewPortScaled
-        }
-    }
+            scaleConsumers.add(avatarBack)
+            scaleConsumers.add(avatarFront)
 
-    private fun onViewPortScaled(scale: Float, pivot: PointF) {
-        avatarBack.onScaleChanged(scale, pivot)
+            avatarFront.scaleController = this
+            avatarBack.scaleController = this
+        }
     }
 
     /**
@@ -54,14 +57,34 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
                 }
     }
 
-//    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-//        super.onSizeChanged(w, h, oldw, oldh)
-//
-//        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.nature, w, h).also { bitmap ->
-//            avatarBack.onBitmapReady(bitmap)
-//            avatarFront.onBitmapReady(bitmap)
-//        }
-//    }
+    /**
+     * Дочерний элемент просит запустить анимацию
+     * @param factor - scale factor
+     * @param pivot - фокус скалирования в координатах view
+     */
+    override fun onScaleRequired(factor: Float, pivot: PointF) {
+
+        // Подготовиться к началу анимации в дочерних Views
+        scaleConsumers.forEach { it.onPreScale(factor, pivot) }
+
+        // Запустить анимацию
+        ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = animDuration
+
+            addUpdateListener { animator ->
+                val fraction = animator.animatedFraction
+                scaleConsumers.forEach { it.onScale(fraction) }
+                scaleConsumers.forEach { (it as View).invalidate() }
+            }
+        }.start()
+    }
+
+    /**
+     * Дочерний элемент сообщает разрешает/запрещает анимацию.
+     */
+    override fun onScaleAvailable(isAvailable: Boolean) {
+        scaleConsumers.forEach { it.onScaleAvailable(isAvailable) }
+    }
 
     /**
      * Загрузка большой bitmap'ы с понижением resolution до размеров View, в которой она должна

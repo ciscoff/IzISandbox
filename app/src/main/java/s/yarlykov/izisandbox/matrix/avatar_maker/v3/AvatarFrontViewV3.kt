@@ -6,8 +6,6 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
-import kotlinx.android.synthetic.main.activity_time_line_advanced.*
-import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.scale
@@ -205,16 +203,23 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
-                if(rectClip.width() < rectMin.width()) {
+                if (rectClip.width() < rectMin.width()) {
 
                     val a = rectClip.width()
                     val b = rectMin.width()
-                    val c = a/b
+                    val c = a / b
 
                     logIt("ACTION_UP scale=$c  rectClip.width=${rectClip.width()}, rectMin.width=${rectMin.width()}")
 
-                    onScaleChangeListener?.invoke(rectClip.width() / rectClipPrev.width(), rectClip.center)
-                    restoreAnimated()
+                    if (isScaleAvailable) {
+                        scaleController?.onScaleRequired(
+                            rectClip.width() / rectClipPrev.width(),
+                            rectClip.center
+                        )
+                    }
+
+//                    onScaleChangeListener?.invoke(rectClip.width() / rectClipPrev.width(), rectClip.center)
+//                    restoreAnimated()
                 }
 
 //                val scaled = rectClip.width() / rectClipPrev.width()
@@ -229,51 +234,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Анимированно восстановить размер viwPort'a
-     */
-    private fun restoreAnimated() {
-
-        if (rectClip.width() >= rectMin.width()) return
-
-        ValueAnimator.ofFloat(rectClip.width(), rectMin.width()).apply {
-            duration = animDuration
-
-            val pivot = rectClip.center
-
-            addUpdateListener { animator ->
-                val rectDim = animator.animatedValue as Float
-
-                // Установить rect по центру относительно pivot'a
-                rectTemp.apply {
-                    left = pivot.x - rectDim / 2f
-                    top = pivot.y - rectDim / 2f
-                    right = left + rectDim
-                    bottom = top + rectDim
-                }
-
-                // Проверить крайние условия по X
-                val offsetX = when {
-                    rectTemp.left < rectVisible.left -> rectVisible.left - rectTemp.left
-                    rectTemp.right > rectVisible.right -> rectVisible.right - rectTemp.right
-                    else -> 0f
-                }
-
-                // Проверить крайние условия по Y
-                val offsetY = when {
-                    rectTemp.top < rectVisible.top -> rectVisible.top - rectTemp.top
-                    rectTemp.bottom > rectVisible.bottom -> rectVisible.bottom - rectTemp.bottom
-                    else -> 0f
-                }
-
-                rectTemp.offset(offsetX, offsetY)
-                rectClip.set(rectTemp)
-                preScaling()
-                preDrawing()
-                invalidate()
-            }
-        }.start()
-    }
 
     /**
      * К моменту вызова onDraw все вычисления уже выполнены.
@@ -708,5 +668,98 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         color = Color.argb(0xff, 0xff, 0xff, 0xff)
         style = Paint.Style.STROKE
         strokeWidth = 1.2f
+    }
+
+    private var pivot: PointF? = null
+
+    override fun onPreScale(factor: Float, pivot: PointF) {
+        if (!isScaleAvailable) return
+
+        if (rectClip.width() >= rectMin.width()) return
+
+        scaleFrom = rectClip.width()
+        scaleTo = rectMin.width()
+        this.pivot = rectClip.center
+    }
+
+    override fun onScale(fraction: Float) {
+        if (!isScaleAvailable) return
+
+        requireNotNull(pivot)
+
+        val rectDim = evaluator.evaluate(fraction, scaleFrom, scaleTo)
+
+        // Установить rect по центру относительно pivot'a
+        rectTemp.apply {
+            left = pivot!!.x - rectDim / 2f
+            top = pivot!!.y - rectDim / 2f
+            right = left + rectDim
+            bottom = top + rectDim
+        }
+
+        // Проверить крайние условия по X
+        val offsetX = when {
+            rectTemp.left < rectVisible.left -> rectVisible.left - rectTemp.left
+            rectTemp.right > rectVisible.right -> rectVisible.right - rectTemp.right
+            else -> 0f
+        }
+
+        // Проверить крайние условия по Y
+        val offsetY = when {
+            rectTemp.top < rectVisible.top -> rectVisible.top - rectTemp.top
+            rectTemp.bottom > rectVisible.bottom -> rectVisible.bottom - rectTemp.bottom
+            else -> 0f
+        }
+
+        rectTemp.offset(offsetX, offsetY)
+        rectClip.set(rectTemp)
+        preScaling()
+        preDrawing()
+    }
+
+    /**
+     * Анимированно восстановить размер viwPort'a
+     */
+    private fun restoreAnimated() {
+
+        if (rectClip.width() >= rectMin.width()) return
+
+        ValueAnimator.ofFloat(rectClip.width(), rectMin.width()).apply {
+            duration = animDuration
+
+            val pivot = rectClip.center
+
+            addUpdateListener { animator ->
+                val rectDim = animator.animatedValue as Float
+
+                // Установить rect по центру относительно pivot'a
+                rectTemp.apply {
+                    left = pivot.x - rectDim / 2f
+                    top = pivot.y - rectDim / 2f
+                    right = left + rectDim
+                    bottom = top + rectDim
+                }
+
+                // Проверить крайние условия по X
+                val offsetX = when {
+                    rectTemp.left < rectVisible.left -> rectVisible.left - rectTemp.left
+                    rectTemp.right > rectVisible.right -> rectVisible.right - rectTemp.right
+                    else -> 0f
+                }
+
+                // Проверить крайние условия по Y
+                val offsetY = when {
+                    rectTemp.top < rectVisible.top -> rectVisible.top - rectTemp.top
+                    rectTemp.bottom > rectVisible.bottom -> rectVisible.bottom - rectTemp.bottom
+                    else -> 0f
+                }
+
+                rectTemp.offset(offsetX, offsetY)
+                rectClip.set(rectTemp)
+                preScaling()
+                preDrawing()
+                invalidate()
+            }
+        }.start()
     }
 }
