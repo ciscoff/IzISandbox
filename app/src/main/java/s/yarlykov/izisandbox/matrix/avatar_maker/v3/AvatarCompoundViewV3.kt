@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
-import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
@@ -82,8 +81,12 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     /**
      * Дочерний элемент сообщает разрешает/запрещает анимацию.
      */
-    override fun onScaleAvailable(isAvailable: Boolean) {
-        scaleConsumers.forEach { it.onScaleAvailable(isAvailable) }
+    override fun onScaleDownAvailable(isAvailable: Boolean) {
+        scaleConsumers.forEach { it.onScaleDownAvailable(isAvailable) }
+    }
+
+    override fun onScaleUpAvailable(isAvailable: Boolean) {
+        TODO("Not yet implemented")
     }
 
     /**

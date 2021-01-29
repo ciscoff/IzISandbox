@@ -4,7 +4,6 @@ import android.animation.FloatEvaluator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.LightingColorFilter
-import android.graphics.PointF
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
@@ -102,12 +101,17 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
      */
     var scaleController: ScaleController? = null
     protected val evaluator = FloatEvaluator()
-    protected var isScaleAvailable = true
+    protected var isScaleDownAvailable = true
+    protected var isScaleUpAvailable = true
 
     protected var scaleFrom = 1f
     protected var scaleTo = 1f
 
-    override fun onScaleAvailable(isAvailable: Boolean) {
-        isScaleAvailable = isAvailable
+    override fun onScaleDownAvailable(isAvailable: Boolean) {
+        isScaleDownAvailable = isAvailable
+    }
+
+    override fun onScaleUpAvailable(isAvailable: Boolean) {
+        isScaleUpAvailable = isAvailable
     }
 }

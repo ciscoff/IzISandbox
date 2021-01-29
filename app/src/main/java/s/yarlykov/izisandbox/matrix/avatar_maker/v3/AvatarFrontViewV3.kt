@@ -211,7 +211,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
                     logIt("ACTION_UP scale=$c  rectClip.width=${rectClip.width()}, rectMin.width=${rectMin.width()}")
 
-                    if (isScaleAvailable) {
+                    if (isScaleDownAvailable) {
                         scaleController?.onScaleRequired(
                             rectClip.width() / rectClipPrev.width(),
                             rectClip.center
@@ -673,7 +673,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     private var pivot: PointF? = null
 
     override fun onPreScale(factor: Float, pivot: PointF) {
-        if (!isScaleAvailable) return
+        if (!isScaleDownAvailable) return
 
         if (rectClip.width() >= rectMin.width()) return
 
@@ -683,7 +683,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     }
 
     override fun onScale(fraction: Float) {
-        if (!isScaleAvailable) return
+        if (!isScaleDownAvailable) return
 
         requireNotNull(pivot)
 

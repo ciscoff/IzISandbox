@@ -43,7 +43,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     }
 
     override fun onPreScale(factor: Float, pivot: PointF) {
-        if(!isScaleAvailable) return
+        if(!isScaleDownAvailable) return
 
         // Нужно сконвертировать pivot из кординат view в координаты rectBitmapVisible.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
@@ -72,10 +72,10 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     }
 
     /**
-     * Отдельная итерации в цикле ValueAnimator'а
+     * Отдельная итерация в цикле ValueAnimator'а
      */
     override fun onScale(fraction: Float) {
-        if(!isScaleAvailable) return
+        if(!isScaleDownAvailable) return
 
         val bitmap = requireNotNull(sourceImageBitmap)
         val params = requireNotNull(preScaleParams)

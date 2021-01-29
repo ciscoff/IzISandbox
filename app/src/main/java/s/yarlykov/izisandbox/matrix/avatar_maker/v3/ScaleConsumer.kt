@@ -5,9 +5,10 @@ import android.graphics.PointF
 interface ScaleConsumer {
 
     /**
-     * Сообщение разрешающее/запрещающее запускать анимацию
+     * Сообщения разрешающие/запрещающие запускать анимацию
      */
-    fun onScaleAvailable(isAvailable: Boolean)
+    fun onScaleDownAvailable(isAvailable: Boolean)
+    fun onScaleUpAvailable(isAvailable: Boolean)
 
     /**
      * Подготовиться к анимации

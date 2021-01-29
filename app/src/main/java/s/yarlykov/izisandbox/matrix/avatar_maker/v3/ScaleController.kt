@@ -4,5 +4,6 @@ import android.graphics.PointF
 
 interface ScaleController {
     fun onScaleRequired(factor: Float, pivot: PointF)
-    fun onScaleAvailable(isAvailable: Boolean)
+    fun onScaleDownAvailable(isAvailable: Boolean)
+    fun onScaleUpAvailable(isAvailable: Boolean)
 }
