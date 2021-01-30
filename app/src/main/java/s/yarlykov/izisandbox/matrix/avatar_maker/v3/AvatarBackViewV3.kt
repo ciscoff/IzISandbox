@@ -16,7 +16,11 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      * Paint для заливки фона исходной Bitmap'ой с применением цветового фильтра.
      */
     private var paintBackground: Paint? = null
+    private val scaleMatrix = Matrix()
+
     private val rectTemp = Rect()
+    private val rectFrom = RectF()
+    private val rectTo = RectF()
 
     /**
      * Данные, которые нужно собрать перед началом анимации.
@@ -33,29 +37,23 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      * @rectDest - целевой прямоугольник в координатах канвы.
      * То есть берем некую часть из битмапы и переносим в указанную область канвы.
      */
-    val m = Matrix()
-
-    val rectFrom = RectF()
-    val rectTo = RectF()
-
     override fun onDraw(canvas: Canvas) {
         sourceImageBitmap?.let {
-//            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
 
-            // надо так попробовать
-            m.reset()
+            // TODO Вот так делать не надо. Тормозит отрисовка.
+            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
+
+            // TODO Вот так надо.
             rectFrom.set(rectBitmapVisible)
             rectTo.set(rectVisible)
-            m.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
-            canvas.drawBitmap(it, m, paintBackground)
-
+            scaleMatrix.reset()
+            scaleMatrix.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
+            canvas.drawBitmap(it, scaleMatrix, paintBackground)
         }
     }
 
     override fun onPreScale(factor: Float, pivot: PointF) {
-        if(!isScaleDownAvailable) return
-
-
+        if (!isScaleDownAvailable) return
 
         // Нужно сконвертировать pivot из кординат view в координаты rectBitmapVisible.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
@@ -87,7 +85,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      * Отдельная итерация в цикле ValueAnimator'а
      */
     override fun onScale(fraction: Float) {
-        if(!isScaleDownAvailable) return
+        if (!isScaleDownAvailable) return
 
         val bitmap = requireNotNull(sourceImageBitmap)
         val params = requireNotNull(preScaleParams)

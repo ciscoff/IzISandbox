@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.utils.logIt
 
 class AvatarCompoundViewV3 @JvmOverloads constructor(
     context: Context,
@@ -56,7 +57,7 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
 //    }
 
     /**
-     * 
+     *
      */
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -64,7 +65,10 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
         sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h).also { bitmap ->
             avatarBack.onBitmapReady(bitmap)
             avatarFront.onBitmapReady(bitmap)
+            logIt("View W/H=$w,$h, Bitmap W/H=${bitmap.width},${bitmap.height}")
         }
+
+        logIt("View W/H=$w,$h, Bitmap W/H=${sourceImageBitmap!!.width},${sourceImageBitmap!!.height}")
     }
 
 
@@ -104,8 +108,11 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     /**
      * Загрузка большой bitmap'ы с понижением resolution до размеров View, в которой она должна
      * отображаться.
+     * https://stackoverflow.com/questions/32121058/most-memory-efficient-way-to-resize-bitmaps-on-android
+     * https://stackoverflow.com/questions/33714992/how-is-bitmap-options-insamplesize-supposed-to-work
      *
-     * + https://stackoverflow.com/questions/32121058/most-memory-efficient-way-to-resize-bitmaps-on-android
+     * @param reqWidth - требуемая ширина. Это ширина данного View.
+     * @param reqHeight - требуемая высота. Это высота данного View
      */
     private fun loadSampledBitmapFromResource(
         @DrawableRes resourceId: Int,
@@ -118,12 +125,19 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
             BitmapFactory.decodeResource(context.resources, resourceId, this)
 
             inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
+            logIt("inSampleSize=$inSampleSize")
 
             inJustDecodeBounds = false
             BitmapFactory.decodeResource(context.resources, resourceId, this)
         }
     }
 
+    /**
+     * inSampleSize - это количество пикселей исходного изображения, которое соответствует
+     * одному пикселю создаваемого (декодированного) изображения. Например, если
+     * inSampleSize = 2, то декодированная картинка будет иметь размеры W/2 x H/2 и количество
+     * пикселей W/2 * H/2 = (W*H)/4, то есть в 4 раза меньше, чем в исходном.
+     */
     private fun calculateInSampleSize(
         options: BitmapFactory.Options,
         reqWidth: Int,
@@ -131,7 +145,12 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     ): Int {
 
         val (rawHeight: Int, rawWidth: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 2
+
+        // Если картинка достаточно маленькая, то декодируем без изменений.
+        if (rawHeight < reqHeight / 2 && rawWidth < reqWidth / 2) return 1
+
+        // Для остальных случаев сразу уменьшаем размеры в 2 раза.
+        var inSampleSize = 1
 
         if (rawHeight > reqHeight || rawWidth > reqWidth) {
 
