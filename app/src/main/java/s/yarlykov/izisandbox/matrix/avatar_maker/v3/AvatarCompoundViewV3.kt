@@ -45,16 +45,28 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
      * Сразу загружаем полную bitmap без скалирования. Далее она будет использоваться как
      * исходный материал для скалированных картинок.
      */
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+//    override fun onAttachedToWindow() {
+//        super.onAttachedToWindow()
+//        sourceImageBitmap =
+//            BitmapFactory.decodeResource(context.resources, R.drawable.m_4)
+//                ?.also { bitmap ->
+//                    avatarBack.onBitmapReady(bitmap)
+//                    avatarFront.onBitmapReady(bitmap)
+//                }
+//    }
 
-        sourceImageBitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.nature)
-                ?.also { bitmap ->
-                    avatarBack.onBitmapReady(bitmap)
-                    avatarFront.onBitmapReady(bitmap)
-                }
+    /**
+     * 
+     */
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h).also { bitmap ->
+            avatarBack.onBitmapReady(bitmap)
+            avatarFront.onBitmapReady(bitmap)
+        }
     }
+
 
     /**
      * Дочерний элемент просит запустить анимацию
@@ -119,7 +131,7 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     ): Int {
 
         val (rawHeight: Int, rawWidth: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
+        var inSampleSize = 2
 
         if (rawHeight > reqHeight || rawWidth > reqWidth) {
 

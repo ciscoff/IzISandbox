@@ -2,10 +2,7 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.v3
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PointF
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import s.yarlykov.izisandbox.utils.logIt
 
@@ -36,14 +33,29 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      * @rectDest - целевой прямоугольник в координатах канвы.
      * То есть берем некую часть из битмапы и переносим в указанную область канвы.
      */
+    val m = Matrix()
+
+    val rectFrom = RectF()
+    val rectTo = RectF()
+
     override fun onDraw(canvas: Canvas) {
         sourceImageBitmap?.let {
-            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
+//            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
+
+            // надо так попробовать
+            m.reset()
+            rectFrom.set(rectBitmapVisible)
+            rectTo.set(rectVisible)
+            m.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
+            canvas.drawBitmap(it, m, paintBackground)
+
         }
     }
 
     override fun onPreScale(factor: Float, pivot: PointF) {
         if(!isScaleDownAvailable) return
+
+
 
         // Нужно сконвертировать pivot из кординат view в координаты rectBitmapVisible.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
