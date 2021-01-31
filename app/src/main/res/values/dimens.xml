@@ -87,6 +87,7 @@
     <item name="scale_min" format="float" type="dimen">1.0</item>
     <item name="scale_max" format="float" type="dimen">3.0</item>
 
+    <item name="bitmap_scale_max" format="float" type="dimen">4.0</item>
 
     <dimen name="item_stub_height">56dp</dimen>
 </resources>

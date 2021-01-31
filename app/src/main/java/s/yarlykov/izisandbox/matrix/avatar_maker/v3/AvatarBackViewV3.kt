@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import s.yarlykov.izisandbox.utils.logIt
 
 class AvatarBackViewV3 @JvmOverloads constructor(
     context: Context,
@@ -33,31 +32,14 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     }
 
     /**
-     * @rectBitmapVisible - задает видимую часть битмапы в координатах битмапы.
-     * @rectDest - целевой прямоугольник в координатах канвы.
-     * То есть берем некую часть из битмапы и переносим в указанную область канвы.
+     * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      */
-    override fun onDraw(canvas: Canvas) {
-        sourceImageBitmap?.let {
-
-            // TODO Вот так делать не надо. Тормозит отрисовка.
-//            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
-
-            // TODO Вот так надо.
-            rectFrom.set(rectBitmapVisible)
-            rectTo.set(rectVisible)
-            scaleMatrix.reset()
-            scaleMatrix.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
-            canvas.drawBitmap(it, scaleMatrix, paintBackground)
-        }
-    }
-
     override fun onPreScale(factor: Float, pivot: PointF) {
-        if (!isScaleDownAvailable) return
+        if (!isScaleUpAvailable) return
 
-        // Нужно сконвертировать pivot из кординат view в координаты rectBitmapVisible.
+        // Нужно сконвертировать pivot из кординат view в координаты битмапы.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
-        // сторон прямоугольников. Затем переносим pivot на координаты rectBitmapVisible.
+        // сторон прямоугольников. Затем переносим pivot на координаты битмапы.
         val pivotBitmap = PointF(0f, 0f).apply {
 
             val ratioX = rectBitmapVisible.width().toFloat() / rectVisible.width()
@@ -77,15 +59,16 @@ class AvatarBackViewV3 @JvmOverloads constructor(
 
         preScaleParams = BitmapPreScaleParams(pivotBitmap, pivotRatioX, pivotRatioY, startW, startH)
 
-        scaleFrom = 1f
-        scaleTo = factor
+        scaleFrom = 1f      // от текущего состояния
+        scaleTo = factor    // до состояния factor
     }
 
     /**
-     * Отдельная итерация в цикле ValueAnimator'а
+     * 2. Отдельная итерация в цикле ValueAnimator'а. Нужно расчитать очередную порцию
+     *    исходной битмапы (rectBitmapVisible), которая будет отображена в следующем onDraw.
      */
     override fun onScale(fraction: Float) {
-        if (!isScaleDownAvailable) return
+        if (!isScaleUpAvailable) return
 
         val bitmap = requireNotNull(sourceImageBitmap)
         val params = requireNotNull(preScaleParams)
@@ -119,6 +102,26 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     }
 
     /**
+     * @rectBitmapVisible - задает видимую часть битмапы в координатах битмапы.
+     * @rectDest - целевой прямоугольник в координатах канвы.
+     * То есть берем некую часть из битмапы и переносим в указанную область канвы.
+     */
+    override fun onDraw(canvas: Canvas) {
+        sourceImageBitmap?.let {
+
+            // TODO Вот так делать не надо. Тормозит отрисовка.
+//            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
+
+            // TODO Вот так надо.
+            rectFrom.set(rectBitmapVisible)
+            rectTo.set(rectVisible)
+            scaleMatrix.reset()
+            scaleMatrix.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
+            canvas.drawBitmap(it, scaleMatrix, paintBackground)
+        }
+    }
+
+    /**
      * NOTE: Надо дебажить. По моему при увеличении битмапы больше её собственного
      * разрешения начинает лагать отрисовка. До превышения этого значения все ОК, ниже линии.
      *
@@ -126,7 +129,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      */
     private fun scaleAnimated(scaleFactor: Float, pivot: PointF) {
 
-        logIt("scaleAnimated scaleFactor=$scaleFactor pivot=$pivot")
+//        logIt("scaleAnimated scaleFactor=$scaleFactor pivot=$pivot")
 
         sourceImageBitmap?.let { bitmap ->
 
@@ -147,8 +150,8 @@ class AvatarBackViewV3 @JvmOverloads constructor(
             val pivotRatioX = (pivotBitmap.x - rectBitmapVisible.left) / rectBitmapVisible.width()
             val pivotRatioY = (pivotBitmap.y - rectBitmapVisible.top) / rectBitmapVisible.height()
 
-            logIt("view params: rectVisible=${rectVisible}, pivot=$pivot")
-            logIt("bitmap params: rectBitmapVisible=$rectBitmapVisible, pivotBitmap=$pivotBitmap, pivotRatioX=$pivotRatioX, pivotRatioY=$pivotRatioY")
+//            logIt("view params: rectVisible=${rectVisible}, pivot=$pivot")
+//            logIt("bitmap params: rectBitmapVisible=$rectBitmapVisible, pivotBitmap=$pivotBitmap, pivotRatioX=$pivotRatioX, pivotRatioY=$pivotRatioY")
 
             val startW = rectBitmapVisible.width()
             val startH = rectBitmapVisible.height()
@@ -183,7 +186,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
 
                     rectTemp.offset(offsetX, offsetY)
                     rectBitmapVisible.set(rectTemp)
-                    logIt("scaleAnimated rectBitmapVisible=$rectBitmapVisible")
+//                    logIt("scaleAnimated rectBitmapVisible=$rectBitmapVisible")
 
                     invalidate()
                 }

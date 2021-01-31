@@ -142,18 +142,26 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         isAntiAlias = true
     }
 
+    /**
+     * Минимально допустимая высота viewPort'а при текущем scaleRemain
+     */
+    private var minHeight = 0f
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
 
             MotionEvent.ACTION_DOWN -> {
-                prevDistance = distanceToViewPortCenter(event.x, event.y)
-
                 // Запомнить перед скалированием чтобы потом посчитать scale
+                prevDistance = distanceToViewPortCenter(event.x, event.y)
                 rectClipPrev.set(rectClip)
+
+                isScaleDownAvailable = true
+                isScaleUpAvailable = true
 
                 lastX = event.x
                 lastY = event.y
+
                 chooseMode(lastX, lastY)
 
                 // Если собираемся перетаскивать, то нужно установить rectPivot
@@ -162,6 +170,9 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                     rectPivotReplace()
                     offsetV = 0f
                     offsetH = 0f
+                }
+                if (mode == Mode.Scaling.Init) {
+                    minHeight = rectClip.height() / scaleRemain
                 }
 
                 // Вернуть true, если палец внутри рамки.
@@ -186,12 +197,21 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                         // может сменить направление движения на противоположное.
                         chooseScalingSubMode(event.x, event.y)
 
+                        if (mode == Mode.Scaling.Shrink && !isScaleDownAvailable) return true
+                        if (mode == Mode.Scaling.Squeeze && !isScaleUpAvailable) {
+//                            logIt("Squeeze is unavailable")
+                            return true
+                        }
+
+                        preScalingThreshold(dX, dY)
+
                         // Делаем смещения одинаковыми в абс значении.
                         // Этим поддерживаем квадратную форму ViewPort'а.
-                        val d = min(abs(dX), abs(dY))
-                        offsetV = d * sign(dY)
-                        offsetH = d * sign(dX)
-                        preScaling()    // Изменить размер и спозиционировать pathClip
+//                        val d = min(abs(dX), abs(dY))
+//                        offsetV = d * sign(dY)
+//                        offsetH = d * sign(dX)
+
+                        preScalingBounds()    // Изменить размер и спозиционировать pathClip
                     }
                     else -> {
                         logIt("unknown mode")
@@ -203,9 +223,10 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
+                // Если уменьшаем рамку, то значит увеличиваем зум
                 if (rectClip.width() < rectMin.width()) {
 
-                    if (isScaleDownAvailable) {
+                    if (isScaleUpAvailable) {
                         scaleController?.onScaleRequired(
                             rectClip.width() / rectClipPrev.width(),
                             calculatePivot()
@@ -217,7 +238,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             else -> false
         }
     }
-    
+
     /**
      * Вычислить pivot для скалирования. Если rectClip прижат какой-то стороной
      * к стороне rectVisible, то отталкиваемся от этой стороны. Иначе pivot'ом
@@ -312,6 +333,16 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
     }
 
+    private fun checkScale(rect: RectF) {
+
+        val hMin = rect.height() / scaleRemain
+
+        if (rect.top + offsetV < hMin) {
+//            offsetV = hMin -
+        }
+
+    }
+
     /**
      * Проверить, что прямоугольник @rect не выходит за границы rectVisible и если выходит,
      * то поправить offsetH/offsetV.
@@ -334,7 +365,32 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         offsetH = offset * sign(offsetH)
     }
 
-    private fun preScaling() {
+    /**
+     *
+     */
+    private fun preScalingThreshold(dX: Float, dY: Float) {
+//        logIt("scaleCurrent=$scaleCurrent, scaleRemain=$scaleRemain, scaleMax=$scaleMax")
+
+        // Сначала вычисляем смещения без ограничений и делаем их одинаковыми в abs значении.
+        // Этим поддерживаем квадратную форму ViewPort'а.
+        val d = min(abs(dX), abs(dY))
+        offsetV = d * sign(dY)
+        offsetH = d * sign(dX)
+
+        if (mode == Mode.Scaling.Squeeze) {
+
+//            logIt("hCurrent=${rectClip.height()}, hMin=$minHeight")
+
+            if (rectClip.bottom + offsetV < rectClip.top + minHeight) {
+                offsetV = sign(dY) * (rectClip.height() - minHeight)
+                offsetH = offsetV
+                isScaleUpAvailable = false
+                isScaleDownAvailable = false
+            }
+        }
+    }
+
+    private fun preScalingBounds() {
         // Скопировать из rectClip, проверить, что не выходим за границы экрана и сдвинуть
         rectClipShifted.apply {
             set(rectClip)
@@ -343,8 +399,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             offset(offsetH, offsetV)
         }
-
-//        logIt("rectClipShifted=$rectClipShifted, rectVisible=$rectVisible")
 
         when (mode) {
             // Палец идет от центра ViewPort'а (растягиваем)
@@ -423,8 +477,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             right = left + frameDimen
         }
-
-        logIt("rectPivot init = $rectPivot")
     }
 
     /**
@@ -473,7 +525,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             var prevOffsetV = 0f
 
             private fun logAndReturn(): RectF {
-                logIt("rectClip get = $rect")
+//                logIt("rectClip get = $rect")
                 return rect
             }
 
@@ -726,7 +778,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
         rectTemp.offset(offsetX, offsetY)
         rectClip.set(rectTemp)
-        preScaling()
+        preScalingBounds()
         preDrawing()
     }
 
@@ -769,7 +821,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
                 rectTemp.offset(offsetX, offsetY)
                 rectClip.set(rectTemp)
-                preScaling()
+                preScalingBounds()
                 preDrawing()
                 invalidate()
             }

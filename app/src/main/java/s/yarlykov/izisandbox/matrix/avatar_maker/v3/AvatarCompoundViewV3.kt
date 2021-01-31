@@ -65,12 +65,8 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
         sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h).also { bitmap ->
             avatarBack.onBitmapReady(bitmap)
             avatarFront.onBitmapReady(bitmap)
-            logIt("View W/H=$w,$h, Bitmap W/H=${bitmap.width},${bitmap.height}")
         }
-
-        logIt("View W/H=$w,$h, Bitmap W/H=${sourceImageBitmap!!.width},${sourceImageBitmap!!.height}")
     }
-
 
     /**
      * Дочерний элемент просит запустить анимацию
@@ -102,7 +98,7 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     }
 
     override fun onScaleUpAvailable(isAvailable: Boolean) {
-        TODO("Not yet implemented")
+        scaleConsumers.forEach { it.onScaleUpAvailable(isAvailable) }
     }
 
     /**

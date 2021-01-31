@@ -6,9 +6,11 @@ import android.graphics.Bitmap
 import android.graphics.LightingColorFilter
 import android.graphics.Rect
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
+import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     context: Context,
@@ -24,6 +26,16 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
 
     protected val animDuration =
         context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
+
+    /**
+     * Максимальное значение для zoom'а.
+     * Текущий зум и сколько осталось.
+     */
+    protected var scaleMax = 1f
+    protected var scaleCurrent = 1f
+    protected var scaleMin = 1f
+    protected val scaleRemain: Float
+        get() = scaleMax - scaleCurrent
 
     /**
      * View и её Canvas находятся в единой системе координат, то есть у них общая база (0,0).
@@ -74,6 +86,15 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     protected var sourceImageBitmap: Bitmap? = null
     protected var rectBitmapVisible = Rect()
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        // Максимальное значение для zoom'а
+        val typedValue = TypedValue()
+        resources.getValue(R.dimen.bitmap_scale_max, typedValue, true)
+        scaleMax = typedValue.float
+    }
+
     /**
      * Для AvatarBackView достаточно этих операцию + invalidate.
      * Для AvatarFrontView нужны дополнительные вычисления + invalidate.
@@ -116,11 +137,21 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
             right =
                 if (rectDest.right >= this@AvatarBaseViewV3.width) this@AvatarBaseViewV3.width else rectDest.right
         }
+        logIt("${this::class.java.simpleName}::rectVisibleUpdate rectVisible=$rectVisible")
     }
 
+    /**
+     * Когда битмапа готова, то нужно сразу вычислить как она 'отзумилась' внутри rectVisible.
+     * Это будет её начальным зумом. От него будем идти в сторону scaleMax.
+     */
     override fun onBitmapReady(bitmap: Bitmap) {
         sourceImageBitmap = bitmap
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
+
+        scaleCurrent = rectVisible.height().toFloat() / rectBitmapVisible.height()
+        scaleMin = scaleCurrent
+
+        if(scaleCurrent > scaleMax) isScaleUpAvailable = false
     }
 
     /**
