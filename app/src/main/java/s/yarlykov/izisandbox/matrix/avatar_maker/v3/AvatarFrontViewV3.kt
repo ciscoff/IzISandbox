@@ -11,10 +11,7 @@ import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import s.yarlykov.izisandbox.utils.logIt
-import kotlin.math.abs
-import kotlin.math.min
-import kotlin.math.sign
-import kotlin.math.sqrt
+import kotlin.math.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -68,10 +65,21 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     private val rectPivot = RectF()
 
     /**
-     * Это viewPort.
+     * Это viewPort в координатах канвы(view).
      * @rectClip квадратная область для рисования рамки выбора части изображения под аватарку.
      */
     private var rectClip: RectF by rectClipDelegate()
+
+    /**
+     * Копия rectClip в момент ACTION_DOWN. В момент ACTION_UP отношение сторон
+     * rectClip/rectClipPrev дает нам величину scale.
+     */
+    private val rectClipPrev = RectF()
+
+    /**
+     * @rectClipShifted служит для временного копирования rectClip в операциях скалирования
+     */
+    private val rectClipShifted = RectF()
 
     /**
      * Содержит минимально допустимый размер для viewPort'а в пассивном состоянии
@@ -82,11 +90,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
      * Для временных данных при работе анимации
      */
     private val rectTemp = RectF()
-
-    /**
-     * @rectClipShifted служит для временного копирования rectClip в операциях скалирования
-     */
-    private val rectClipShifted = RectF()
 
     /**
      * @rectBorder прямоугольник для рамки
@@ -139,8 +142,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         isAntiAlias = true
     }
 
-    private val rectClipPrev = RectF()
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
@@ -191,7 +192,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                         offsetV = d * sign(dY)
                         offsetH = d * sign(dX)
                         preScaling()    // Изменить размер и спозиционировать pathClip
-//                        logIt("ACTION_MOVE rectClip.width=${rectClip.width()}, rectMin.width=${rectMin.width()}")
                     }
                     else -> {
                         logIt("unknown mode")
@@ -205,35 +205,39 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             MotionEvent.ACTION_UP -> {
                 if (rectClip.width() < rectMin.width()) {
 
-                    val a = rectClip.width()
-                    val b = rectMin.width()
-                    val c = a / b
-
-                    logIt("ACTION_UP scale=$c  rectClip.width=${rectClip.width()}, rectMin.width=${rectMin.width()}")
-
                     if (isScaleDownAvailable) {
                         scaleController?.onScaleRequired(
                             rectClip.width() / rectClipPrev.width(),
-                            rectClip.center
+                            calculatePivot()
                         )
                     }
-
-//                    onScaleChangeListener?.invoke(rectClip.width() / rectClipPrev.width(), rectClip.center)
-//                    restoreAnimated()
                 }
-
-//                val scaled = rectClip.width() / rectClipPrev.width()
-//                if (scaled != 1f) {
-//                    onScaleChangeListener?.invoke(scaled, rectClip.center)
-//                    restoreAnimated()
-//                }
-
                 true
             }
             else -> false
         }
     }
+    
+    /**
+     * Вычислить pivot для скалирования. Если rectClip прижат какой-то стороной
+     * к стороне rectVisible, то отталкиваемся от этой стороны. Иначе pivot'ом
+     * становится центр rectClip.
+     */
+    private fun calculatePivot(): PointF {
+        val xPivot = when {
+            floor(rectClip.left).toInt() == rectVisible.left -> rectClip.left
+            floor(rectClip.right).toInt() == rectVisible.right -> rectClip.right
+            else -> rectClip.centerX()
+        }
 
+        val yPivot = when {
+            floor(rectClip.top).toInt() == rectVisible.top -> rectClip.top
+            floor(rectClip.bottom).toInt() == rectVisible.bottom -> rectClip.bottom
+            else -> rectClip.centerY()
+        }
+
+        return PointF(xPivot, yPivot)
+    }
 
     /**
      * К моменту вызова onDraw все вычисления уже выполнены.
@@ -309,7 +313,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     }
 
     /**
-     * Проверить, что прямоугольник @rect не ходит за границы rectVisible и если выходит,
+     * Проверить, что прямоугольник @rect не выходит за границы rectVisible и если выходит,
      * то поправить offsetH/offsetV.
      */
     private fun checkBounds(rect: RectF) {
@@ -339,6 +343,8 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             offset(offsetH, offsetV)
         }
+
+//        logIt("rectClipShifted=$rectClipShifted, rectVisible=$rectVisible")
 
         when (mode) {
             // Палец идет от центра ViewPort'а (растягиваем)
@@ -417,6 +423,8 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             }
             right = left + frameDimen
         }
+
+        logIt("rectPivot init = $rectPivot")
     }
 
     /**
@@ -428,7 +436,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         val rectTmp = RectF().apply { set(rectClip) }
         rectPivot.set(rectTmp)
     }
-
 
     /**
      * Минимальный размер для viewPort. Меньше этого размера viewPort не может
@@ -465,6 +472,11 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             var prevOffsetH = 0f
             var prevOffsetV = 0f
 
+            private fun logAndReturn(): RectF {
+                logIt("rectClip get = $rect")
+                return rect
+            }
+
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
                 return when (mode) {
@@ -479,6 +491,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                             // 3. Затем смещаем от pivot на вычисленные offsetH, offsetV
                             offset(offsetH, offsetV)
                         }
+                        logAndReturn()
                     }
                     is Mode.Scaling, is Mode.Animating -> {
                         // Возвращаем без смещения

@@ -41,7 +41,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
         sourceImageBitmap?.let {
 
             // TODO Вот так делать не надо. Тормозит отрисовка.
-            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
+//            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
 
             // TODO Вот так надо.
             rectFrom.set(rectBitmapVisible)

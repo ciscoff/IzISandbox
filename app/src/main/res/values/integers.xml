@@ -9,7 +9,7 @@
     <integer name="anim_duration_long">500</integer>
     <integer name="anim_duration_medium">300</integer>
 
-    <integer name="anim_duration_avatar">500</integer>
+    <integer name="anim_duration_avatar">350</integer>
 
     <integer-array name="leftColorsArray">
         <item>@android:color/holo_blue_dark</item>
