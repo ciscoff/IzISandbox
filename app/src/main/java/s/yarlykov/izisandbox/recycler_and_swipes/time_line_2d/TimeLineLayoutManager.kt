@@ -481,6 +481,20 @@ class TimeLineLayoutManager(val context: Context) :
 
         var delta = 0
 
+        // Если все элементы АДАПТЕРА уже на экране и полностью внутри видимой области,
+        // то не скролим.
+        val leftView = getChildAt(0)!!
+        val rightView = getChildAt(childCount - 1)!!
+
+        val leftViewPosition = getPosition(leftView)
+        val rightViewPosition = getPosition(rightView)
+        if (leftViewPosition == 0 && rightViewPosition == itemCount - 1) {
+            val horSpan = rightView.right - leftView.left
+            if (horSpan < (width - paddingLeft - paddingRight)) {
+                return 0
+            }
+        }
+
         // Палец идет вправо. Контролируем появление элементов слева.
         if (dX < 0) {
 

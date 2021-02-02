@@ -33,4 +33,8 @@ class ColumnView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false
     }
+
+    override fun hashCode(): Int = id
+
+    override fun equals(other: Any?): Boolean = (id == (other as? View)?.id)
 }

@@ -110,7 +110,6 @@ class ColumnTouchListener(
             // проверить, что тач в видимой области view
             val rect = Rect()
             view.getLocalVisibleRect(rect)
-            logIt("rect $rect contains $x,$y is ${rect.contains(x.toInt(), y.toInt())}")
             if (!rect.contains(x.toInt(), y.toInt())) {
                 return TouchArea.Outside
             }

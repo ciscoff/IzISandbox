@@ -53,5 +53,58 @@ object Tickets {
             listOf(10.minutes to 11.minutes)
         )
     )
+
+    /**
+     * Если сделать 'return model + model', то будут переиспользованы списки пар
+     * и при изменении голубой зоны в одном элементе точно также будет меняться
+     * голубая зона в 'парном элементе'. Так же не помогает такая конструкция
+     * 'model + model.map { it.copy() }'
+     */
+    val tabletModel: List<Ticket>
+        get() = model + listOf(
+            Ticket(
+                "Ticket 6",
+                10.minutes,
+                11.minutes,
+                DAY_START.minutes,
+                DAY_END.minutes,
+                listOf(11.minutes to 13.minutes)
+            ),
+            Ticket(
+                "Ticket 7",
+                9.minutes,
+                10.minutes,
+                DAY_START.minutes,
+                DAY_END.minutes,
+                listOf(10.minutes to 12.minutes, 18.minutes to 20.minutes)
+            ),
+            Ticket(
+                "Ticket 8",
+                12.minutes,
+                14.minutes,
+                DAY_START.minutes,
+                DAY_END.minutes,
+                listOf(9.minutes to 12.minutes)
+            ),
+            Ticket(
+                "Ticket 8",
+                19.minutes,
+                20.minutes,
+                DAY_START.minutes,
+                DAY_END.minutes,
+                listOf(
+                    12.minutes to 13.minutes,
+                    18.minutes to 20.minutes
+                )
+            ),
+            Ticket(
+                "Ticket 10",
+                16.minutes,
+                18.minutes,
+                DAY_START.minutes,
+                DAY_END.minutes,
+                listOf(10.minutes to 14.minutes)
+            )
+        )
 }
 
