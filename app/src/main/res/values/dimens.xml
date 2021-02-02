@@ -87,7 +87,10 @@
     <item name="scale_min" format="float" type="dimen">1.0</item>
     <item name="scale_max" format="float" type="dimen">3.0</item>
 
+    <!-- Avatar Maker -->
     <item name="bitmap_scale_max" format="float" type="dimen">4.0</item>
+    <dimen name="view_port_border_stroke_width">2dp</dimen>
+    <dimen name="view_port_border_corner_radius">2dp</dimen>
 
     <dimen name="item_stub_height">56dp</dimen>
 </resources>

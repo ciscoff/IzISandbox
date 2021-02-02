@@ -6,7 +6,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarFrontViewV3
+<!--    <s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarFrontViewV3-->
+<!--        android:id="@+id/avatarFront"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
+
+    <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarFrontViewV4
         android:id="@+id/avatarFront"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
