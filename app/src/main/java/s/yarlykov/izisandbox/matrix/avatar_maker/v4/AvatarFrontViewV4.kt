@@ -9,10 +9,7 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBaseViewV3
-import kotlin.math.abs
-import kotlin.math.floor
-import kotlin.math.min
-import kotlin.math.sign
+import kotlin.math.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -115,6 +112,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private var lastX = 0f
     private var lastY = 0f
 
+    private fun distanceToTapCorner(x: Float, y: Float): Float {
+        val cX = rectClip.centerX()
+        val cY = rectClip.centerY()
+
+        return sqrt((x - cX) * (x - cX) + (y - cY) * (y - cY))
+    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
@@ -138,9 +141,24 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     minHeight = rectClip.height() / scaleRemain
                 }
 
-                true
+                // Вернуть true, если палец внутри рамки.
+                mode != Mode.Waiting
             }
             MotionEvent.ACTION_MOVE -> {
+                val dX = event.x - lastX
+                val dY = event.y - lastY
+
+                lastX = event.x
+                lastY = event.y
+
+                when (mode) {
+                    is Mode.Dragging -> {
+                        offsetV += dY
+                        offsetH += dX
+                        preDragging()   // Спозиционировать rectClip/pathClip
+                    }
+                }
+
                 true
             }
             MotionEvent.ACTION_UP -> {
