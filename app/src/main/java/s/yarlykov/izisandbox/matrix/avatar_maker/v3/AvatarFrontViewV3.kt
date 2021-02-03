@@ -162,6 +162,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                 lastX = event.x
                 lastY = event.y
 
+                // Определить зону тача, инициализировать tapCorner
                 chooseMode(lastX, lastY)
 
                 // Если собираемся перетаскивать, то нужно установить rectPivot
@@ -369,7 +370,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
      *
      */
     private fun preScalingThreshold(dX: Float, dY: Float) {
-//        logIt("scaleCurrent=$scaleCurrent, scaleRemain=$scaleRemain, scaleMax=$scaleMax")
 
         // Сначала вычисляем смещения без ограничений и делаем их одинаковыми в abs значении.
         // Этим поддерживаем квадратную форму ViewPort'а.
@@ -430,7 +430,10 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     }
 
     /**
-     * Подготовить новый pathClip для рисования
+     * Подготовить новый pathClip для рисования.
+     *
+     * Здесь выполняется
+     *
      */
     private fun preDragging() {
         pathClip.apply {

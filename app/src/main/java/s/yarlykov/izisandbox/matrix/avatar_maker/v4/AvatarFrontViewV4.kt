@@ -128,17 +128,18 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 lastX = event.x
                 lastY = event.y
 
+                // Определить режим жеста и создать Gesture (для скалинга)
                 chooseMode(lastX, lastY)
 
                 // Если собираемся перетаскивать, то нужно установить rectPivot
                 // на текущую позицию rectClip и сбросить offsetH/offsetV.
+
+                // NOTE: Если собираемся скалировать, то offsetV/offsetH не изменяем,
+                // так как по ним выставлен rectClip.
                 if (mode == Mode.Dragging) {
                     rectPivotMove()
                     offsetV = 0f
                     offsetH = 0f
-                }
-                if (mode == Mode.Scaling.Init) {
-                    minHeight = rectClip.height() / scaleRemain
                 }
 
                 // Вернуть true, если палец внутри рамки.
@@ -156,6 +157,17 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         offsetV += dY
                         offsetH += dX
                         preDragging()   // Спозиционировать rectClip/pathClip
+                    }
+                    is Mode.Scaling -> {
+                        mode = gesture.scalingSubMode(event.x)
+
+                        // Делаем смещения одинаковыми в абс значении.
+                        // Этим поддерживаем квадратную форму ViewPort'а.
+                        val d = min(abs(dX), abs(dY))
+                        offsetV = d * sign(dY)
+                        offsetH = d * sign(dX)
+                    }
+                    else -> {
                     }
                 }
 
@@ -198,8 +210,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * Выбрать режим в зависимости от позиции касания.
      * Если ткнули в квадраты по краям viewport'а, то масштабируем, иначе передвигаем.
      */
-
-    private var tapCorner : TapCorner? = null
+    private lateinit var gesture: Gesture
     private fun chooseMode(x: Float, y: Float) {
 
         tapSquares.entries.forEach { entry ->
@@ -207,18 +218,22 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             val (area, rect) = entry
             if (rect.contains(x, y)) {
 
-                val cornerX = when(area) {
+                val cornerX = when (area) {
                     is lt, is lb -> rectClip.left
                     is rt, is rb -> rectClip.right
                 }
 
-                tapCorner = TapCorner(area, x, cornerX)
+                gesture = Gesture(
+                    TapCorner(area, x, cornerX),
+                    rectClip.width() - rectClip.width() / scaleRemain,
+                    RectF(rectVisible)
+                )
+
                 mode = Mode.Scaling.Init
                 return
             }
         }
 
-        tapCorner = null
         mode = if (rectClip.contains(x, y)) {
             Mode.Dragging
         } else {
