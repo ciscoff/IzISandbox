@@ -1,15 +1,7 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker.v4
+package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
-import android.graphics.PointF
 import android.graphics.RectF
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
-import kotlin.math.abs
-import kotlin.math.sign
-
-enum class Direction {
-    MoreClosure,
-    MoreAway
-}
 
 /**
  * Палец идет от LB угла нижнего квадрата по диагонали вверх. При этом по этой же тректории
@@ -51,81 +43,62 @@ enum class Direction {
 data class Gesture(val tapCorner: TapCorner, val distMax: Float, val bounds: RectF) {
 
     // Это X-дистанция пальца от точки tapCorner.cornerX
-    var distPrev = abs(tapCorner.tapX - tapCorner.cornerX)
-    var distSign = sign(tapCorner.tapX - tapCorner.cornerX)
-    val distSigned: Float
-        get() = distPrev * distSign
+    var distPrev = tapCorner.tapX - tapCorner.cornerX
+    var scalingMode: Mode.Scaling = Mode.Scaling.Init
 
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
      */
     fun scalingSubMode(x: Float): Mode.Scaling {
-        val distCurrent = abs(x - tapCorner.tapX)
+        val distCurrent = x - tapCorner.tapX
 
-        val mode = when (tapCorner.tapArea) {
+        scalingMode = when (tapCorner.tapArea) {
             is lt, is lb -> {
-                // Находимся правее левой границы rectClip
-                if (x > tapCorner.cornerX && distCurrent > distPrev) {
-                    Mode.Scaling.Squeeze
-                }
-                // Находимся правее левой границы rectClip
-                else if (x > tapCorner.cornerX && distCurrent < distPrev) {
-                    Mode.Scaling.Shrink
-                }
-                // Находимся левее левой границы rectClip
-                else /*if(x < tapCorner.cornerX)*/ {
-                    Mode.Scaling.Shrink
-                }
+                if (distCurrent > distPrev) Mode.Scaling.Squeeze else Mode.Scaling.Shrink
             }
             is rt, is rb -> {
-                // Находимся левее правой границы rectClip
-                if (x < tapCorner.cornerX && distCurrent > distPrev) {
-                    Mode.Scaling.Squeeze
-                }
-                // Находимся левее правой границы rectClip
-                else if (x < tapCorner.cornerX && distCurrent > distPrev) {
-                    Mode.Scaling.Shrink
-                }
-                // Находимся правее правой границы rectClip
-                else /*if(x > tapCorner.cornerX)*/ {
-                    Mode.Scaling.Shrink
-                }
+                if (distCurrent < distPrev) Mode.Scaling.Squeeze else Mode.Scaling.Shrink
             }
         }
 
         distPrev = distCurrent
-        return mode
+        return scalingMode
     }
 
+    /**
+     * В этом методе нужно определить:
+     * - если сжимаемся, то не уменьшаемся меньше допустимого.
+     * - если растягиваемся, то не выходим за границу bounds.
+     */
     fun confirmedOffset(proposedOffsetX: Float): Float {
 
-        when (tapCorner.tapArea) {
-            is lt, is lb -> {
-                // Находимся правее левой границы rectClip
-                if (distSigned + proposedOffsetX > distMax) {
-                    distMax - distPrev
-                }
-                // Находимся левее левой границы rectClip
-                else if (distPrev * distSign + proposedOffsetX < bounds.left) {
-                    Mode.Scaling.Shrink
-                } else {
+        return when (scalingMode) {
+            Mode.Scaling.Squeeze -> {
+                // TODO distMax должна иметь знак наверное
+                if (distPrev + proposedOffsetX >= distMax)
+                    (distMax - distPrev)
+                else
                     proposedOffsetX
-                }
             }
-            is rt, is rb -> {
-                // Находимся левее правой границы rectClip
-                if (x < tapCorner.cornerX && distCurrent > distPrev) {
-                    Mode.Scaling.Squeeze
+            Mode.Scaling.Shrink -> {
+                val pointX = tapCorner.cornerX + distPrev + proposedOffsetX
+
+                when {
+                    (pointX < bounds.left) -> {
+                        bounds.left - (tapCorner.cornerX + distPrev)
+                    }
+                    (pointX > bounds.right) -> {
+                        bounds.right - (tapCorner.cornerX + distPrev)
+                    }
+                    else -> proposedOffsetX
                 }
-                // Находимся левее правой границы rectClip
-                else if (x < tapCorner.cornerX && distCurrent > distPrev) {
-                    Mode.Scaling.Shrink
-                }
-                // Находимся правее правой границы rectClip
-                else /*if(x > tapCorner.cornerX)*/ {
-                    Mode.Scaling.Shrink
-                }
+
+
             }
+            else -> proposedOffsetX
+
         }
+
+
     }
 }

@@ -8,6 +8,9 @@ import android.view.MotionEvent
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.Gesture
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.Mode
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.TapCorner
 import s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBaseViewV3
 import kotlin.math.*
 import kotlin.properties.ReadWriteProperty

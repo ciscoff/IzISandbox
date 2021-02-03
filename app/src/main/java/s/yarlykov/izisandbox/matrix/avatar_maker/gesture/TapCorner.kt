@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker.v4
+package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
 import s.yarlykov.izisandbox.matrix.avatar_maker.TapArea
 import kotlin.math.abs
