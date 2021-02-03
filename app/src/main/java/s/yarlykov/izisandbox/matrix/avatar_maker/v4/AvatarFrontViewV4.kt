@@ -198,15 +198,27 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * Выбрать режим в зависимости от позиции касания.
      * Если ткнули в квадраты по краям viewport'а, то масштабируем, иначе передвигаем.
      */
+
+    private var tapCorner : TapCorner? = null
     private fun chooseMode(x: Float, y: Float) {
 
-        tapSquares.values.forEach { rect ->
+        tapSquares.entries.forEach { entry ->
+
+            val (area, rect) = entry
             if (rect.contains(x, y)) {
+
+                val cornerX = when(area) {
+                    is lt, is lb -> rectClip.left
+                    is rt, is rb -> rectClip.right
+                }
+
+                tapCorner = TapCorner(area, x, cornerX)
                 mode = Mode.Scaling.Init
                 return
             }
         }
 
+        tapCorner = null
         mode = if (rectClip.contains(x, y)) {
             Mode.Dragging
         } else {
