@@ -1,7 +1,7 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
 import android.graphics.RectF
-import s.yarlykov.izisandbox.matrix.avatar_maker.*
+import s.yarlykov.izisandbox.utils.logIt
 
 /**
  * Палец идет от LB угла нижнего квадрата по диагонали вверх. При этом по этой же тректории
@@ -43,14 +43,25 @@ import s.yarlykov.izisandbox.matrix.avatar_maker.*
 data class Gesture(val tapCorner: TapCorner, val distMax: Float, val bounds: RectF) {
 
     // Это X-дистанция пальца от точки tapCorner.cornerX
-    var distPrev = tapCorner.tapX - tapCorner.cornerX
-    var scalingMode: Mode.Scaling = Mode.Scaling.Init
+    private var distPrev = tapCorner.tapX - tapCorner.cornerX
+
+    // Направление по оси Х для distMax
+    private val direction = when (tapCorner.tapArea) {
+        is lt, is lb -> 1f
+        is rt, is rb -> -1f
+    }
+    private var scalingMode: Mode.Scaling = Mode.Scaling.Init
+
+
+    init {
+        logIt("tapArea=${tapCorner.tapArea::class.java.simpleName}, distPrev=$distPrev, distMax=$distMax, direction=$direction")
+    }
 
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
      */
     fun scalingSubMode(x: Float): Mode.Scaling {
-        val distCurrent = x - tapCorner.tapX
+        val distCurrent = x - tapCorner.cornerX
 
         scalingMode = when (tapCorner.tapArea) {
             is lt, is lb -> {
@@ -69,36 +80,35 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float, val bounds: Rec
      * В этом методе нужно определить:
      * - если сжимаемся, то не уменьшаемся меньше допустимого.
      * - если растягиваемся, то не выходим за границу bounds.
+     *
+     * @param proposedOffsetX - знаковое смещение. Соотв нужно сравнивать со знаковым distMax
      */
     fun confirmedOffset(proposedOffsetX: Float): Float {
 
         return when (scalingMode) {
             Mode.Scaling.Squeeze -> {
-                // TODO distMax должна иметь знак наверное
-                if (distPrev + proposedOffsetX >= distMax)
-                    (distMax - distPrev)
-                else
-                    proposedOffsetX
+
+                if (direction > 0) {
+                    if (distPrev + proposedOffsetX >= distMax) distMax - distPrev else proposedOffsetX
+                } else {
+                    if (distPrev + proposedOffsetX <= distMax * direction) distMax - distPrev else proposedOffsetX
+                }
             }
             Mode.Scaling.Shrink -> {
-                val pointX = tapCorner.cornerX + distPrev + proposedOffsetX
+
+                val targetX = tapCorner.cornerX + distPrev + proposedOffsetX
 
                 when {
-                    (pointX < bounds.left) -> {
+                    (targetX < bounds.left) -> {
                         bounds.left - (tapCorner.cornerX + distPrev)
                     }
-                    (pointX > bounds.right) -> {
+                    (targetX > bounds.right) -> {
                         bounds.right - (tapCorner.cornerX + distPrev)
                     }
                     else -> proposedOffsetX
                 }
-
-
             }
             else -> proposedOffsetX
-
         }
-
-
     }
 }

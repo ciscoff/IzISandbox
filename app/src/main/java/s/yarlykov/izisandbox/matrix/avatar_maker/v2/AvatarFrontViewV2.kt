@@ -8,7 +8,7 @@ import android.view.MotionEvent
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
-import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.Mode
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.min

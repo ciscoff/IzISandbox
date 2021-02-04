@@ -7,6 +7,10 @@ import android.view.MotionEvent
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.*
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.lb
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.lt
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.rb
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.rt
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign

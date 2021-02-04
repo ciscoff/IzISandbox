@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker
+package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
 sealed class TapArea
 object lt : TapArea()

@@ -7,18 +7,12 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.scale
-import s.yarlykov.izisandbox.matrix.avatar_maker.*
-import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.Gesture
-import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.Mode
-import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.TapCorner
+import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
 import s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBaseViewV3
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-
-/**
-
- */
 
 class AvatarFrontViewV4 @JvmOverloads constructor(
     context: Context,
@@ -41,6 +35,11 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * а потом смещается в новое положение.
      */
     private val rectPivot = RectF()
+
+    /**
+     * @rectClipShifted служит для временного копирования rectClip в операциях скалирования
+     */
+    private val rectClipShifted = RectF()
 
     /**
      * @rectBorder прямоугольник для рамки
@@ -98,11 +97,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private val tapSquares: Map<TapArea, RectF> by rectTapDelegate()
 
     /**
-     * Минимально допустимая высота рамки при текущем scaleRemain
-     */
-    private var minHeight = 0f
-
-    /**
      * @offsetV - это дополнительный вертикальный offset учитывающий жест перетаскивания
      * @offsetH - это дополнительный горизонтальный offset учитывающий жест перетаскивания
      */
@@ -114,13 +108,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      */
     private var lastX = 0f
     private var lastY = 0f
-
-    private fun distanceToTapCorner(x: Float, y: Float): Float {
-        val cX = rectClip.centerX()
-        val cY = rectClip.centerY()
-
-        return sqrt((x - cX) * (x - cX) + (y - cY) * (y - cY))
-    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
@@ -136,7 +123,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
                 // Если собираемся перетаскивать, то нужно установить rectPivot
                 // на текущую позицию rectClip и сбросить offsetH/offsetV.
-
                 // NOTE: Если собираемся скалировать, то offsetV/offsetH не изменяем,
                 // так как по ним выставлен rectClip.
                 if (mode == Mode.Dragging) {
@@ -159,20 +145,35 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     is Mode.Dragging -> {
                         offsetV += dY
                         offsetH += dX
-                        preDragging()   // Спозиционировать rectClip/pathClip
+                        // Спозиционировать rectClip/pathClip. rectClip автоматически
+                        // выравнивается, чтобы не выходить за границы.
+                        preDragging()
                     }
                     is Mode.Scaling -> {
                         mode = gesture.scalingSubMode(event.x)
 
+
                         // Делаем смещения одинаковыми в абс значении.
                         // Этим поддерживаем квадратную форму ViewPort'а.
-                        val d = min(abs(dX), abs(dY))
+//                        val d = min(abs(dX), abs(dY))
+//                        offsetV = d * sign(dY)
+//                        offsetH = d * sign(dX)
+
+                        val d = gesture.confirmedOffset(dX)
                         offsetV = d * sign(dY)
                         offsetH = d * sign(dX)
+
+                        logIt("Scaling subMode = ${mode::class.java.simpleName}, confirmedOffset=$d")
+
+                        preScalingBounds()
                     }
                     else -> {
+                        logIt("unknown mode")
                     }
                 }
+
+                preDrawing() // Настроить pathBorder/paintStroke для рисования рамки
+                invalidate()
 
                 true
             }
@@ -201,6 +202,8 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * --------------------------------------------------------------------------------------
      */
 
+    private lateinit var gesture: Gesture
+
     override fun onPreScale(factor: Float, pivot: PointF) {
         // TODO
     }
@@ -213,7 +216,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * Выбрать режим в зависимости от позиции касания.
      * Если ткнули в квадраты по краям viewport'а, то масштабируем, иначе передвигаем.
      */
-    private lateinit var gesture: Gesture
     private fun chooseMode(x: Float, y: Float) {
 
         tapSquares.entries.forEach { entry ->
@@ -244,14 +246,53 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         }
     }
 
+    private fun preScalingBounds() {
+        // Скопировать из rectClip, проверить, что не выходим за границы экрана и сдвинуть
+        rectClipShifted.apply {
+            set(rectClip)
+//            if (mode == Mode.Scaling.Shrink) {
+//                checkBounds(this)
+//            }
+            offset(offsetH, offsetV)
+        }
+
+        when (mode) {
+            // Палец идет от центра ViewPort'а (растягиваем)
+            Mode.Scaling.Shrink -> {
+                shrinkClipping()
+            }
+            // Палец идет к центру ViewPort'а (уменьшаем)
+            Mode.Scaling.Squeeze -> {
+                squeezeClipping()
+            }
+            else -> {
+                return
+            }
+        }
+    }
+
+    /**
+     * Растягиваем квадрат. Вычислить объединение.
+     */
+    private fun shrinkClipping() {
+        rectClip.union(rectClipShifted)
+    }
+
+    /**
+     * Сжимаем ViewPort. Вычислить перечечение.
+     */
+    private fun squeezeClipping() {
+        rectClip.intersect(rectClipShifted)
+    }
+
     /**
      * Установить размер и положение rectPivot по параметрам rectClip.
      * Главное, чтобы в момент выполнения set(rectClip) в переменных offsetH/offsetV были
      * актуальные значение, потому что rectClip вычисляется делегатом и использует эти поля.
      */
     private fun rectPivotMove() {
-        val rectTmp = RectF().apply { set(rectClip) }
-        rectPivot.set(rectTmp)
+//        val rectTmp = RectF().apply { set(rectClip) }
+        rectPivot.set(rectClip)
     }
 
     /**
@@ -415,7 +456,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
             // DEBUG
             private fun logAndReturn(): RectF {
-//                logIt("rectClip get = $rect")
+//                logIt("rectClip=$rect, rectPivot=$rectPivot, offsetH=$offsetH, offsetV=$offsetV")
                 return rect
             }
 
@@ -429,12 +470,10 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
                             // 2. Проверить крайние условия.
                             if (prevOffsetH != offsetH || prevOffsetV != offsetV) {
-                                checkBounds(rect)
-
+                                checkBounds(this)
                                 prevOffsetH = offsetH
                                 prevOffsetV = offsetV
                             }
-
 
                             // 3. Затем смещаем от pivot на вычисленные offsetH, offsetV
                             offset(offsetH, offsetV)
@@ -561,15 +600,16 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         } else if (rect.right + offsetH > rectVisible.right) {
             offsetH = rectVisible.right - rect.right
         }
+
         if (rect.top + offsetV < rectVisible.top) {
             offsetV = rectVisible.top - rect.top
         } else if (rect.bottom + offsetV > rectVisible.bottom) {
             offsetV = rectVisible.bottom - rect.bottom
         }
 
-        val offset = min(abs(offsetH), abs(offsetV))
-        offsetV = offset * sign(offsetV)
-        offsetH = offset * sign(offsetH)
+//        val offset = min(abs(offsetH), abs(offsetV))
+//        offsetV = offset * sign(offsetV)
+//        offsetH = offset * sign(offsetH)
     }
 
     /**
