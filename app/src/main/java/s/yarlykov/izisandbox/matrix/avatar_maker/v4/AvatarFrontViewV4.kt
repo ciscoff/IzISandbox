@@ -115,11 +115,11 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
             MotionEvent.ACTION_DOWN -> {
 
+                // Определить режим жеста и создать Gesture (для скалинга)
+                detectMode(event.x, event.y)
+
                 lastX = event.x
                 lastY = event.y
-
-                // Определить режим жеста и создать Gesture (для скалинга)
-                chooseMode(lastX, lastY)
 
                 // Если собираемся перетаскивать, то нужно установить rectPivot
                 // на текущую позицию rectClip и сбросить offsetH/offsetV.
@@ -150,8 +150,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         preDragging()
                     }
                     is Mode.Scaling -> {
-                        mode = gesture.scalingSubMode(event.x)
-
+                        mode = gesture.detectScalingSubMode(event.x)
 
                         // Делаем смещения одинаковыми в абс значении.
                         // Этим поддерживаем квадратную форму ViewPort'а.
@@ -216,7 +215,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * Выбрать режим в зависимости от позиции касания.
      * Если ткнули в квадраты по краям viewport'а, то масштабируем, иначе передвигаем.
      */
-    private fun chooseMode(x: Float, y: Float) {
+    private fun detectMode(x: Float, y: Float) {
 
         tapSquares.entries.forEach { entry ->
 

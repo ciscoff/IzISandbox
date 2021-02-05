@@ -9,7 +9,6 @@ import android.view.MotionEvent
 import s.yarlykov.izisandbox.dsl.extenstions.dp_f
 import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.scale
-import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.*
@@ -205,7 +204,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                             return true
                         }
 
-                        preScalingThreshold(dX, dY)
+                        checkMinSIzeThreshold(dX, dY)
 
                         // Делаем смещения одинаковыми в абс значении.
                         // Этим поддерживаем квадратную форму ViewPort'а.
@@ -370,7 +369,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     /**
      *
      */
-    private fun preScalingThreshold(dX: Float, dY: Float) {
+    private fun checkMinSIzeThreshold(dX: Float, dY: Float) {
 
         // Сначала вычисляем смещения без ограничений и делаем их одинаковыми в abs значении.
         // Этим поддерживаем квадратную форму ViewPort'а.
