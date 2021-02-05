@@ -137,7 +137,6 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
             right =
                 if (rectDest.right >= this@AvatarBaseViewV3.width) this@AvatarBaseViewV3.width else rectDest.right
         }
-        logIt("${this::class.java.simpleName}::rectVisibleUpdate rectVisible=$rectVisible")
     }
 
     /**

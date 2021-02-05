@@ -204,7 +204,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                             return true
                         }
 
-                        checkMinSIzeThreshold(dX, dY)
+                        checkMinSizeThreshold(dX, dY)
 
                         // Делаем смещения одинаковыми в абс значении.
                         // Этим поддерживаем квадратную форму ViewPort'а.
@@ -369,7 +369,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     /**
      *
      */
-    private fun checkMinSIzeThreshold(dX: Float, dY: Float) {
+    private fun checkMinSizeThreshold(dX: Float, dY: Float) {
 
         // Сначала вычисляем смещения без ограничений и делаем их одинаковыми в abs значении.
         // Этим поддерживаем квадратную форму ViewPort'а.

@@ -152,17 +152,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     is Mode.Scaling -> {
                         mode = gesture.detectScalingSubMode(event.x)
 
-                        // Делаем смещения одинаковыми в абс значении.
-                        // Этим поддерживаем квадратную форму ViewPort'а.
-//                        val d = min(abs(dX), abs(dY))
-//                        offsetV = d * sign(dY)
-//                        offsetH = d * sign(dX)
-
-                        val d = gesture.confirmedOffset(dX)
-                        offsetV = d * sign(dY)
-                        offsetH = d * sign(dX)
-
-                        logIt("Scaling subMode = ${mode::class.java.simpleName}, confirmedOffset=$d")
+                        if (mode == Mode.Scaling.Squeeze) {
+                            val offset = gesture.confirmSqueezeOffset(dX)
+                            offsetH = offset.x
+                            offsetV = offset.y
+                            logIt("dX=$dX, dY=$dY, offsetH=$offsetH, offsetV=$offsetV")
+                        }
 
                         preScalingBounds()
                     }
@@ -222,15 +217,16 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             val (area, rect) = entry
             if (rect.contains(x, y)) {
 
-                val cornerX = when (area) {
-                    is lt, is lb -> rectClip.left
-                    is rt, is rb -> rectClip.right
+                val (cornerX, cornerY) = when (area) {
+                    is lt -> rectClip.left to rectClip.top
+                    is lb -> rectClip.left to rectClip.bottom
+                    is rt -> rectClip.right to rectClip.top
+                    is rb -> rectClip.right to rectClip.bottom
                 }
 
                 gesture = Gesture(
-                    TapCorner(area, x, cornerX),
-                    rectClip.width() - rectClip.width() / scaleRemain,
-                    RectF(rectVisible)
+                    TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
+                    rectClip.width() - rectClip.width() / scaleRemain
                 )
 
                 mode = Mode.Scaling.Init
@@ -249,9 +245,9 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         // Скопировать из rectClip, проверить, что не выходим за границы экрана и сдвинуть
         rectClipShifted.apply {
             set(rectClip)
-//            if (mode == Mode.Scaling.Shrink) {
-//                checkBounds(this)
-//            }
+            if (mode == Mode.Scaling.Shrink) {
+                checkBounds(this)
+            }
             offset(offsetH, offsetV)
         }
 
@@ -268,6 +264,15 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 return
             }
         }
+
+        pathClip.apply {
+            reset()
+            addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
+        }.close()
+
+        // Также нужно обновить положение и размер rectPivot. В режиме Scaling он перемещается
+        // за rectClip, чтобы потом в режиме dragging сразу иметь правильную опорную точку.
+        rectPivotMove()
     }
 
     /**

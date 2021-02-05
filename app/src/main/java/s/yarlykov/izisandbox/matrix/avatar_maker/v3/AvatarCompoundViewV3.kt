@@ -121,7 +121,6 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
             BitmapFactory.decodeResource(context.resources, resourceId, this)
 
             inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
-            logIt("inSampleSize=$inSampleSize")
 
             inJustDecodeBounds = false
             BitmapFactory.decodeResource(context.resources, resourceId, this)

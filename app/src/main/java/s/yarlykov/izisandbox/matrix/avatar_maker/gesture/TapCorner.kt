@@ -1,5 +1,7 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
+import android.graphics.PointF
+
 //
 //              rectClip
 //           _______________
@@ -7,14 +9,14 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 //          |               |
 //          |    TapArea (LeftBottom квадрат внутри rectClip)
 //          |____
-//          |  * | *-tapX
+//          |  * | *-tap
 //          0____|__________|
-//       0-cornerX
+//       0-pivot
 //
 
 /**
  * @param tapArea - область тача
- * @param tapX - X-координата тача
- * @param cornerX - X-координата угла области
+ * @param tap - X/Y-координата тача
+ * @param pivot - X/Y-координата угла
  */
-data class TapCorner(val tapArea: TapArea, val tapX : Float, val cornerX: Float)
+data class TapCorner(val tapArea: TapArea, val tap : PointF, val pivot: PointF)
