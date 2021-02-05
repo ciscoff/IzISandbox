@@ -151,6 +151,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     }
                     is Mode.Scaling -> {
                         mode = gesture.detectScalingSubMode(event.x)
+                        logIt("ScalingSubMode=${mode::class.java.simpleName}")
 
                         if (mode == Mode.Scaling.Squeeze) {
                             val offset = gesture.confirmSqueezeOffset(dX)

@@ -105,15 +105,22 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
      */
     fun confirmSqueezeOffset(proposedOffsetX: Float): PointF {
 
-        if (scalingMode != Mode.Scaling.Squeeze) return PointF(0f , 0f)
+        if (scalingMode != Mode.Scaling.Squeeze) return PointF(0f, 0f)
 
-        val offsetX = if (direction.x > 0) {
-            if (prevDist + proposedOffsetX >= distMax) distMax - prevDist else proposedOffsetX
+        var offsetX = proposedOffsetX
+
+        if (direction.x > 0) {
+            if (prevDist + proposedOffsetX >= distMax) {
+                offsetX = distMax - prevDist
+                prevDist = distMax
+            } else prevDist = currentDist
         } else {
-            if (prevDist + proposedOffsetX <= distMax * direction.x) distMax - prevDist else proposedOffsetX
+            if (prevDist + proposedOffsetX <= distMax * direction.x) {
+                offsetX = distMax - prevDist
+                prevDist = distMax * direction.x
+            } else prevDist = currentDist
         }
 
-        prevDist = currentDist
         return PointF(offsetX, abs(offsetX) * direction.y)
     }
 }
