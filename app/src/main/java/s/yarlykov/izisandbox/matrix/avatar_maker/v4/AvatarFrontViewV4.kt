@@ -151,14 +151,20 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     }
                     is Mode.Scaling -> {
                         mode = gesture.detectScalingSubMode(event.x)
-                        logIt("ScalingSubMode=${mode::class.java.simpleName}")
+
+                        // TODO Нужно разобраться с checkBounds(). Возможно придется делать
+                        // две как в версии 3
 
                         if (mode == Mode.Scaling.Squeeze) {
                             val offset = gesture.confirmSqueezeOffset(dX)
                             offsetH = offset.x
                             offsetV = offset.y
-                            logIt("dX=$dX, dY=$dY, offsetH=$offsetH, offsetV=$offsetV")
+                        } else {
+                            val d = min(abs(dX), abs(dY))
+                            offsetV = d * sign(dY)
+                            offsetH = d * sign(dX)
                         }
+                        logIt("mode=${mode::class.java.simpleName}, offsetH=$offsetH, offsetV=$offsetV")
 
                         preScalingBounds()
                     }
@@ -612,9 +618,9 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             offsetV = rectVisible.bottom - rect.bottom
         }
 
-//        val offset = min(abs(offsetH), abs(offsetV))
-//        offsetV = offset * sign(offsetV)
-//        offsetH = offset * sign(offsetH)
+        val offset = min(abs(offsetH), abs(offsetV))
+        offsetV = offset * sign(offsetV)
+        offsetH = offset * sign(offsetH)
     }
 
     /**
