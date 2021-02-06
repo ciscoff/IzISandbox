@@ -397,9 +397,9 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         canvas.drawPath(pathBorder, paintStroke)
 
         // DEBUG
-        tapSquares.values.forEach {
-            canvas.drawRect(it, paintTemp)
-        }
+//        tapSquares.values.forEach {
+//            canvas.drawRect(it, paintTemp)
+//        }
         canvas.restore()
     }
 
@@ -480,11 +480,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                             set(rectPivot)
 
                             // 2. Проверить крайние условия.
-                            if (prevOffsetH != offsetH || prevOffsetV != offsetV) {
-                                checkBounds(this)
-                                prevOffsetH = offsetH
-                                prevOffsetV = offsetV
-                            }
+                            checkBounds()
 
                             // 3. Затем смещаем от pivot на вычисленные offsetH, offsetV
                             offset(offsetH, offsetV)
@@ -500,6 +496,24 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
             override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {
                 rect.set(value)
+            }
+
+            private fun checkBounds() {
+                if (prevOffsetH == offsetH && prevOffsetV == offsetV) return
+
+                if (rect.left + offsetH < rectVisible.left) {
+                    offsetH = rectVisible.left - rect.left
+                } else if (rect.right + offsetH > rectVisible.right) {
+                    offsetH = rectVisible.right - rect.right
+                }
+                if (rect.top + offsetV < rectVisible.top) {
+                    offsetV = rectVisible.top - rect.top
+                } else if (rect.bottom + offsetV > rectVisible.bottom) {
+                    offsetV = rectVisible.bottom - rect.bottom
+                }
+
+                prevOffsetH = offsetH
+                prevOffsetV = offsetV
             }
         }
 
