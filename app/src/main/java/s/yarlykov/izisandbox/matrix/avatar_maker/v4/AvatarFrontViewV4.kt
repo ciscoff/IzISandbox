@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.invalid
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
 import s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBaseViewV3
@@ -63,7 +64,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         color = Color.argb(0xff, 0xff, 0xff, 0x0)
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
-        strokeWidth = borderWidth
         isAntiAlias = true
     }
 
@@ -79,11 +79,15 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      */
     private val darkShadeColor = Color.argb(0x88, 0x00, 0x00, 0x00)
 
-
     /**
      * Ширина линии рамки
      */
     private val borderWidth = context.resources.getDimension(R.dimen.view_port_border_stroke_width)
+
+    /**
+     * Небольшой отступ линии рамки от внешних границ viewPort'а
+     */
+    private val borderMargin = context.resources.getDimension(R.dimen.view_port_border_margin)
 
     /**
      * Радиус закругления рамки видоискателя
@@ -150,21 +154,16 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         preDragging()
                     }
                     is Mode.Scaling -> {
-                        mode = gesture.detectScalingSubMode(event.x)
+                        mode = gesture.detectScalingSubMode(dX)
+                        val offset = gesture.onMove(dX, dY)
+
+                        if (!offset.invalid) {
+                            offsetH = offset.x
+                            offsetV = offset.y
+                        } else return true
 
                         // TODO Нужно разобраться с checkBounds(). Возможно придется делать
                         // две как в версии 3
-
-                        if (mode == Mode.Scaling.Squeeze) {
-                            val offset = gesture.confirmSqueezeOffset(dX)
-                            offsetH = offset.x
-                            offsetV = offset.y
-                        } else {
-                            val d = min(abs(dX), abs(dY))
-                            offsetV = d * sign(dY)
-                            offsetH = d * sign(dX)
-                        }
-                        logIt("mode=${mode::class.java.simpleName}, offsetH=$offsetH, offsetV=$offsetV")
 
                         preScalingBounds()
                     }
@@ -179,6 +178,20 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
+                // Если уменьшаем рамку, то значит увеличиваем зум
+//                if (mode == Mode.Scaling.Squeeze) {
+//                    if (gesture.prevDist < gesture.distMax) {
+//
+//                        if (isScaleUpAvailable) {
+//                            scaleController?.onScaleRequired(
+//                                rectClip.width() / rectClipPrev.width(),
+//                                calculatePivot()
+//                            )
+//                        }
+//                    }
+//                }
+
+
                 true
             }
             else -> false
@@ -394,6 +407,9 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
         canvas.save()
         setInnerClipping(canvas)
+
+        // Нужно каждый раз переустаналивать strokeWidth иначе она становится hairline
+        paintStroke.strokeWidth = borderWidth
         canvas.drawPath(pathBorder, paintStroke)
 
         // DEBUG
@@ -431,6 +447,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private fun preDrawing() {
         pathBorder.apply {
             reset()
+            // Начальная позиция ниже rectBorder.left/tor на 1/4 его высоты.
             moveTo(rectBorder.left, rectBorder.top + rectBorder.height() / 4f)
             lineTo(rectBorder.left, rectBorder.top)
             lineTo(rectBorder.left + rectBorder.width(), rectBorder.top)
@@ -596,17 +613,16 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 rectTmp.set(rectClip)
 
                 rect.apply {
-                    left = rectTmp.left + borderWidth / 2f
-                    top = rectTmp.top + borderWidth / 2f
-                    right = rectTmp.right - borderWidth / 2f
-                    bottom = rectTmp.bottom - borderWidth / 2f
+                    left = rectTmp.left + borderWidth / 2f + borderMargin
+                    top = rectTmp.top + borderWidth / 2f + borderMargin
+                    right = rectTmp.right - borderWidth / 2f - borderMargin
+                    bottom = rectTmp.bottom - borderWidth / 2f - borderMargin
                 }
                 return rect
             }
 
             override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {}
         }
-
 
     /**
      * --------------------------------------------------------------------------------------

@@ -334,16 +334,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
             DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
     }
 
-    private fun checkScale(rect: RectF) {
-
-        val hMin = rect.height() / scaleRemain
-
-        if (rect.top + offsetV < hMin) {
-//            offsetV = hMin -
-        }
-
-    }
-
     /**
      * Проверить, что прямоугольник @rect не выходит за границы rectVisible и если выходит,
      * то поправить offsetH/offsetV.
@@ -378,8 +368,6 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         offsetH = d * sign(dX)
 
         if (mode == Mode.Scaling.Squeeze) {
-
-//            logIt("hCurrent=${rectClip.height()}, hMin=$minHeight")
 
             if (rectClip.bottom + offsetV < rectClip.top + minHeight) {
                 offsetV = sign(dY) * (rectClip.height() - minHeight)

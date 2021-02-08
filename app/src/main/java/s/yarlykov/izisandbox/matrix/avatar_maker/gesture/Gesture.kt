@@ -3,6 +3,8 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 import android.graphics.PointF
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
+import kotlin.math.min
+import kotlin.math.sign
 
 /**
  * Палец идет от LB угла нижнего квадрата по диагонали вверх. При этом по этой же тректории
@@ -39,12 +41,15 @@ import kotlin.math.abs
  * задачей является контролировать процесс сжатия, чтобы не перейти через пороговое значение.
  *
  * При сжатии, независимо от того где находится pivot, всё действие направлено внутрь исходного
- * rectClip, поэтому здесь не может произойти выхода за границы родительского View.
+ * rectClip, поэтому здесь не может произойти выхода за границы родительского View (потому что
+ * rectClip полностью внутри родительской View и он не растягивается).
  *
  * Растяжение данный класс отслеживать не может потому что ничего не знает о размерах и
  * положении rectClip внутри родительского View.
  */
 data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
+
+    private val invalidPoint = PointF(Float.MIN_VALUE, Float.MIN_VALUE)
 
     /**
      * X-дистанция от пальца до точки tapCorner.cornerX в предыдущем событии.
@@ -63,9 +68,9 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
      */
     val direction = when (tapCorner.tapArea) {
         is lt -> Direction(1f to 1f)
-        is lb -> Direction(1f to (-1f))
+        is lb -> Direction(1f to -1f)
         is rt -> Direction(-1f to 1f)
-        is rb -> Direction(-1f to (-1f))
+        is rb -> Direction(-1f to -1f)
     }
 
     /**
@@ -80,8 +85,8 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
      */
-    fun detectScalingSubMode(x: Float): Mode.Scaling {
-        currentDist = x - tapCorner.pivot.x
+    fun detectScalingSubMode(dX: Float): Mode.Scaling {
+        currentDist = prevDist + dX
 
         scalingMode = when (tapCorner.tapArea) {
             is lt, is lb -> {
@@ -103,24 +108,44 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
      * @param proposedOffsetX - знаковое смещение от ПРЕДЫДУЩЕГО ПОЛОЖЕНИЯ,
      * а не от tapCorner.cornerX. Соотв нужно сравнивать со знаковым distMax
      */
-    fun confirmSqueezeOffset(proposedOffsetX: Float): PointF {
-
-        if (scalingMode != Mode.Scaling.Squeeze) return PointF(0f, 0f)
+    fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): PointF {
 
         var offsetX = proposedOffsetX
 
-        if (direction.x > 0) {
-            if (prevDist + proposedOffsetX >= distMax) {
-                offsetX = distMax - prevDist
-                prevDist = distMax
-            } else prevDist = currentDist
-        } else {
-            if (prevDist + proposedOffsetX <= distMax * direction.x) {
-                offsetX = distMax - prevDist
-                prevDist = distMax * direction.x
-            } else prevDist = currentDist
-        }
+        return when (scalingMode) {
+            // При сжатии не должны "перелететь" за distMax.
+            Mode.Scaling.Squeeze -> {
+                if (direction.x > 0) {
+                    if (prevDist + proposedOffsetX >= distMax) {
+                        offsetX = distMax - prevDist
+                        prevDist = distMax
+                        isSqueezed = true
+                    } else prevDist = currentDist
+                } else {
+                    if (prevDist + proposedOffsetX <= distMax * direction.x) {
+                        offsetX = distMax - prevDist
+                        prevDist = distMax * direction.x
+                        isSqueezed = true
+                    } else prevDist = currentDist
+                }
+                PointF(offsetX, abs(offsetX) * direction.y)
+            }
+            // При расширении не делаем никаких проверок (например выход за пределы
+            // родительского View). Это выполнит внешний код.
+            Mode.Scaling.Shrink -> {
+                prevDist = currentDist
+                isSqueezed = false
 
-        return PointF(offsetX, abs(offsetX) * direction.y)
+                val d = abs(proposedOffsetX)
+                PointF(d * sign(proposedOffsetX), d * sign(proposedOffsetY))
+            }
+            else -> {
+                isSqueezed = false
+                invalidPoint
+            }
+        }
     }
+
+    var isSqueezed: Boolean = false
+        private set
 }
