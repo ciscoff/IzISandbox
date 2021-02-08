@@ -1,9 +1,7 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
-import android.graphics.PointF
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.sign
 
 /**
@@ -49,7 +47,7 @@ import kotlin.math.sign
  */
 data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
 
-    private val invalidPoint = PointF(Float.MIN_VALUE, Float.MIN_VALUE)
+    private val invalidOffset = Offset(Float.MIN_VALUE to Float.MIN_VALUE)
 
     /**
      * X-дистанция от пальца до точки tapCorner.cornerX в предыдущем событии.
@@ -108,7 +106,7 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
      * @param proposedOffsetX - знаковое смещение от ПРЕДЫДУЩЕГО ПОЛОЖЕНИЯ,
      * а не от tapCorner.cornerX. Соотв нужно сравнивать со знаковым distMax
      */
-    fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): PointF {
+    fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
         var offsetX = proposedOffsetX
 
@@ -120,15 +118,21 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
                         offsetX = distMax - prevDist
                         prevDist = distMax
                         isSqueezed = true
-                    } else prevDist = currentDist
+                    } else {
+                        isSqueezed = false
+                        prevDist = currentDist
+                    }
                 } else {
                     if (prevDist + proposedOffsetX <= distMax * direction.x) {
                         offsetX = distMax - prevDist
                         prevDist = distMax * direction.x
                         isSqueezed = true
-                    } else prevDist = currentDist
+                    } else {
+                        isSqueezed = false
+                        prevDist = currentDist
+                    }
                 }
-                PointF(offsetX, abs(offsetX) * direction.y)
+                Offset(offsetX to abs(offsetX) * direction.y)
             }
             // При расширении не делаем никаких проверок (например выход за пределы
             // родительского View). Это выполнит внешний код.
@@ -137,15 +141,18 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
                 isSqueezed = false
 
                 val d = abs(proposedOffsetX)
-                PointF(d * sign(proposedOffsetX), d * sign(proposedOffsetY))
+                Offset(d * sign(proposedOffsetX) to d * sign(proposedOffsetY))
             }
             else -> {
                 isSqueezed = false
-                invalidPoint
+                invalidOffset
             }
         }
     }
 
     var isSqueezed: Boolean = false
         private set
+
+    val ratio: Float
+        get() = prevDist / distMax
 }

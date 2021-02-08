@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.invalid
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
@@ -179,18 +180,15 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 // Если уменьшаем рамку, то значит увеличиваем зум
-//                if (mode == Mode.Scaling.Squeeze) {
-//                    if (gesture.prevDist < gesture.distMax) {
-//
-//                        if (isScaleUpAvailable) {
-//                            scaleController?.onScaleRequired(
-//                                rectClip.width() / rectClipPrev.width(),
-//                                calculatePivot()
-//                            )
-//                        }
-//                    }
-//                }
 
+                val ratio = gesture.ratio
+
+                if(ratio != 1f) {
+                    scaleController?.onScaleRequired(
+                        ratio,
+                        calculatePivot()
+                    )
+                }
 
                 true
             }
@@ -216,14 +214,79 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * --------------------------------------------------------------------------------------
      */
 
+    /**
+     * Для временных данных при работе анимации
+     */
+    private val rectTemp = RectF()
+    private var pivot: PointF? = null
+
+
     private lateinit var gesture: Gesture
 
     override fun onPreScale(factor: Float, pivot: PointF) {
-        // TODO
+        if (!isScaleDownAvailable) return
+
+        if (rectClip.width() >= rectMin.width()) return
+
+        scaleFrom = rectClip.width()
+        scaleTo = rectMin.width()
+        this.pivot = rectClip.center
     }
 
     override fun onScale(fraction: Float) {
-        // TODO
+        if (!isScaleDownAvailable) return
+
+        requireNotNull(pivot)
+
+        val rectDim = evaluator.evaluate(fraction, scaleFrom, scaleTo)
+
+        // Установить rect по центру относительно pivot'a
+        rectTemp.apply {
+            left = pivot!!.x - rectDim / 2f
+            top = pivot!!.y - rectDim / 2f
+            right = left + rectDim
+            bottom = top + rectDim
+        }
+
+        // Проверить крайние условия по X
+        val offsetX = when {
+            rectTemp.left < rectVisible.left -> rectVisible.left - rectTemp.left
+            rectTemp.right > rectVisible.right -> rectVisible.right - rectTemp.right
+            else -> 0f
+        }
+
+        // Проверить крайние условия по Y
+        val offsetY = when {
+            rectTemp.top < rectVisible.top -> rectVisible.top - rectTemp.top
+            rectTemp.bottom > rectVisible.bottom -> rectVisible.bottom - rectTemp.bottom
+            else -> 0f
+        }
+
+        rectTemp.offset(offsetX, offsetY)
+        rectClip.set(rectTemp)
+        preScalingBounds()
+        preDrawing()
+    }
+
+    /**
+     * Вычислить pivot для скалирования. Если rectClip прижат какой-то стороной
+     * к стороне rectVisible, то отталкиваемся от этой стороны. Иначе pivot'ом
+     * становится центр rectClip.
+     */
+    private fun calculatePivot(): PointF {
+        val xPivot = when {
+            floor(rectClip.left).toInt() == rectVisible.left -> rectClip.left
+            floor(rectClip.right).toInt() == rectVisible.right -> rectClip.right
+            else -> rectClip.centerX()
+        }
+
+        val yPivot = when {
+            floor(rectClip.top).toInt() == rectVisible.top -> rectClip.top
+            floor(rectClip.bottom).toInt() == rectVisible.bottom -> rectClip.bottom
+            else -> rectClip.centerY()
+        }
+
+        return PointF(xPivot, yPivot)
     }
 
     /**
