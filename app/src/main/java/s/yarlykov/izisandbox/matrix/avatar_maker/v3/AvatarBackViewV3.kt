@@ -5,6 +5,9 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 
+/**
+ * Класс управляет масштабом и позиционированием фонового рисунка.
+ */
 class AvatarBackViewV3 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -73,13 +73,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         isAntiAlias = true
     }
 
-    // DEBUG
-    private val paintTemp = Paint().apply {
-        color = Color.argb(0xff, 0xff, 0xff, 0xff)
-        style = Paint.Style.STROKE
-        strokeWidth = 1.2f
-    }
-
     /**
      * Темный полупрозрачный цвет
      */
@@ -229,8 +222,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         preDragging()
         preDrawing()
         invalidate()
-
-
     }
 
     /**
@@ -331,7 +322,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
                 gesture = Gesture(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
-                    rectClip.width() - rectClip.width() / scaleRemain
+                    rectClip.width() - rectClip.width() / scaleCurrent
                 )
 
                 mode = Mode.Scaling.Init

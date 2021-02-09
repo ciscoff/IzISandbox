@@ -173,7 +173,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
                     offsetH = 0f
                 }
                 if (mode == Mode.Scaling.Init) {
-                    minHeight = rectClip.height() / scaleRemain
+                    minHeight = rectClip.height() / scaleCurrent
                 }
 
                 // Вернуть true, если палец внутри рамки.

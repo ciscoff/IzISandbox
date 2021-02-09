@@ -10,7 +10,7 @@ import android.util.TypedValue
 import android.view.View
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
-import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.min
 
 abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     context: Context,
@@ -28,14 +28,22 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
         context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
 
     /**
-     * Максимальное значение для zoom'а.
-     * Текущий зум и сколько осталось.
+     * @scaleMax -  начальный масштаб rectBitmapVisible.height относительно sourceImageBitmap.height
+     * @scaleMin -  это такой зум, при котором rectBitmapVisible.height меньше
+     *              rectVisible.height в 3 раза.
+     * @scaleCurrent - это значение в диапазоне 'scaleMax -> scaleMin -> scaleMax'.
      */
-    protected var scaleMax = 1f
-    protected var scaleCurrent = 1f
+    protected var scaleMax = 1f         // Максимальный масштаб
+    protected var scaleCurrent = 1f     // Текущий масштаб
     protected var scaleMin = 1f
-    protected val scaleRemain: Float
-        get() = scaleMax - scaleCurrent
+
+    // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
+    // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
+    var rectBitmapVisibleHeightMin : Float = 0f
+    // Это показатель того как битмапа отзумилась внутри View при загрузке. Это соотношение
+    // высоты целевой View к высоте битмапы.
+    var viewHeightToBitmapHeightRatio: Float = 0f
+
 
     /**
      * View и её Canvas находятся в единой системе координат, то есть у них общая база (0,0).
@@ -141,16 +149,37 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
 
     /**
      * Когда битмапа готова, то нужно сразу вычислить как она 'отзумилась' внутри rectVisible.
-     * Это будет её начальным зумом. От него будем идти в сторону scaleMax.
+     * Это будет её начальным зумом. От него будем идти в большую/меньшую стороны.
+     *
+     * @scaleBase не должен превышать scaleMax
+     *
+     * @heightMin - минимальная высота для прямоугольника rectBitmapVisible. При этой высоте
+     * битмапа будет в максимальном зуме.
+     *
      */
+
+
     override fun onBitmapReady(bitmap: Bitmap) {
         sourceImageBitmap = bitmap
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
 
-        scaleCurrent = rectVisible.height().toFloat() / rectBitmapVisible.height()
-        scaleMin = scaleCurrent
+        // Это показатель того как битмапа отзумилась внутри View при загрузке. Это соотношение
+        // высоты целевой View к высоте битмапы.
+        viewHeightToBitmapHeightRatio = rectVisible.height().toFloat() / rectBitmapVisible.height()
 
-        if(scaleCurrent > scaleMax) isScaleUpAvailable = false
+        // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
+        // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
+        rectBitmapVisibleHeightMin = rectVisible.height().toFloat() / scaleMax
+
+        // Это минимальный масштаб для rectBitmapVisible внутри битмапы. Поясняю: при первой
+        // загрузке битмапы rectBitmapVisible совпадает по размеру с размером битмапы и
+        // соответственно зум равен 1. Когда высота rectBitmapVisible уменьшится до
+        // rectBitmapVisibleHeightMin, то его масштаб от начального 1 будет равен scaleMin.
+        // А в промежуточных состояниях он будет меняться от 1 до scaleMin и обратно к 1.
+        scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
+
+        // Промежуточное значение между scaleMax и scaleMin. При первой загрузке равно 1 (scaleMax)
+        scaleCurrent = scaleMax
     }
 
     /**

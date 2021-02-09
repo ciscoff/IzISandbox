@@ -57,7 +57,7 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
 //    }
 
     /**
-     *
+     * Исхоную битмапу загружаем с понижением её resolution.
      */
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
