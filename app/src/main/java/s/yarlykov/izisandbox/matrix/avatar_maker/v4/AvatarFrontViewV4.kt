@@ -49,6 +49,11 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private val rectBorder: RectF by rectBorderDelegate()
 
     /**
+     * Содержит минимально допустимый размер для viewPort'а в пассивном состоянии
+     */
+    private val rectMin: RectF by rectMinDelegate()
+
+    /**
      * @pathClip определяется через @rectClip.
      */
     private val pathClip = Path()
@@ -183,7 +188,8 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
                 val ratio = gesture.ratio
 
-                if(ratio != 1f) {
+                // Пока обрабатываем только Squeeze
+                if(ratio < 1f) {
                     scaleController?.onScaleRequired(
                         ratio,
                         calculatePivot()
@@ -224,9 +230,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private lateinit var gesture: Gesture
 
     override fun onPreScale(factor: Float, pivot: PointF) {
-        if (!isScaleDownAvailable) return
-
-        if (rectClip.width() >= rectMin.width()) return
 
         scaleFrom = rectClip.width()
         scaleTo = rectMin.width()
@@ -685,6 +688,26 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             }
 
             override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {}
+        }
+
+    /**
+     * Минимальный размер для viewPort. Меньше этого размера viewPort не может
+     * быть на эране когда нет касаний.
+     */
+    private fun rectMinDelegate(): ReadWriteProperty<Any?, RectF> =
+        object : ReadWriteProperty<Any?, RectF> {
+
+            var rect = RectF()
+
+            override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
+                val dimension = min(rectVisible.width(), rectVisible.height()) / 5f * 3f
+                rect.set(0f, 0f, dimension, dimension)
+                return rect
+            }
+
+            override fun setValue(thisRef: Any?, property: KProperty<*>, value: RectF) {
+                rect.set(value)
+            }
         }
 
     /**

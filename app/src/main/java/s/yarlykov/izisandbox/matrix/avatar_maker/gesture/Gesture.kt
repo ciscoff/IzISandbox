@@ -154,5 +154,5 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
         private set
 
     val ratio: Float
-        get() = prevDist / distMax
+        get() = (distMax - prevDist) / distMax
 }
