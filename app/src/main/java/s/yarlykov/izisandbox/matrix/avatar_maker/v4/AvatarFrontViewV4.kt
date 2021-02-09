@@ -119,6 +119,8 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private var lastX = 0f
     private var lastY = 0f
 
+    private var zoomAvailable = false
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
@@ -184,6 +186,23 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
+
+                if(!zoomAvailable) {
+                    zoomAvailable = rectClip.width() < rectMin.width()
+                }
+
+                if(mode !is Mode.Scaling || !zoomAvailable) return true
+
+                /**
+                 * При первом запуске рамка целиком занимает одну из сторон rectVisible
+                 * (в зависимости от ориентации экрана). Далее мы можем её уменьшить, а затем
+                 * увеличить. Но до тех пор пока не уменьшили меньше rectMin хотя бы один раз -
+                 * никакой зум не работает. После первого прохождения этой границы включается зум
+                 * в обе стороны (и видимо снова должен отключаться, если полностью растянем рамку
+                 * по одной из сторон rectVisible)
+                 */
+
+
                 // Если уменьшаем рамку, то значит увеличиваем зум
 
                 val ratio = gesture.ratio
