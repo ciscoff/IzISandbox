@@ -6,4 +6,7 @@ interface ScaleController {
     fun onScaleRequired(factor: Float, pivot: PointF)
     fun onScaleDownAvailable(isAvailable: Boolean)
     fun onScaleUpAvailable(isAvailable: Boolean)
+
+    val scaleMax : Float
+    var scaleMin : Float
 }

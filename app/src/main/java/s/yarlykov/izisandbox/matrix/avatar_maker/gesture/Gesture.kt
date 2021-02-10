@@ -45,7 +45,7 @@ import kotlin.math.sign
  * Растяжение данный класс отслеживать не может потому что ничего не знает о размерах и
  * положении rectClip внутри родительского View.
  */
-data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
+data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distMax: Float) {
 
     private val invalidOffset = Offset(Float.MIN_VALUE to Float.MIN_VALUE)
 
@@ -77,7 +77,7 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
     private var scalingMode: Mode.Scaling = Mode.Scaling.Init
 
     init {
-        logIt("tapArea=${tapCorner.tapArea::class.java.simpleName}, distPrev=$prevDist, distMax=$distMax, direction=$direction")
+        logIt("tapArea=${tapCorner.tapArea::class.java.simpleName}, distPrev=$prevDist, distMax=$distAvailable, direction=$direction")
     }
 
     /**
@@ -100,7 +100,7 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
 
     /**
      * В этом методе нужно определить:
-     * - если сжимаемся, то не уменьшаемся меньше допустимого.
+     * - если сжимаемся, то не уменьшаемся меньше допустимого distAvailable.
      * - если растягиваемся, то не выходим за границу bounds.
      *
      * @param proposedOffsetX - знаковое смещение от ПРЕДЫДУЩЕГО ПОЛОЖЕНИЯ,
@@ -114,18 +114,18 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
             // При сжатии не должны "перелететь" за distMax.
             Mode.Scaling.Squeeze -> {
                 if (direction.x > 0) {
-                    if (prevDist + proposedOffsetX >= distMax) {
-                        offsetX = distMax - prevDist
-                        prevDist = distMax
+                    if (prevDist + proposedOffsetX >= distAvailable) {
+                        offsetX = distAvailable - prevDist
+                        prevDist = distAvailable
                         isSqueezed = true
                     } else {
                         isSqueezed = false
                         prevDist = currentDist
                     }
                 } else {
-                    if (prevDist + proposedOffsetX <= distMax * direction.x) {
-                        offsetX = distMax - prevDist
-                        prevDist = distMax * direction.x
+                    if (prevDist + proposedOffsetX <= distAvailable * direction.x) {
+                        offsetX = distAvailable - prevDist
+                        prevDist = distAvailable * direction.x
                         isSqueezed = true
                     } else {
                         isSqueezed = false
@@ -153,11 +153,17 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
     var isSqueezed: Boolean = false
         private set
 
+    //
+    //     prevDist(4)  distAvailable (20)
+    //     0--->--------------->/////////|
+    //       ^         ^              distMax(30)
+    //     passed     left
+
     // Это на сколько сдвинули от начального положения
     val ratioPassed: Float
         get() = prevDist / distMax
 
-    // Это сколько осталось до конечного положения (подходит для зума битмапы)
+    // Это сколько осталось (но не превышая distAvailable)
     val ratioLeft: Float
         get() = (distMax - prevDist) / distMax
 }

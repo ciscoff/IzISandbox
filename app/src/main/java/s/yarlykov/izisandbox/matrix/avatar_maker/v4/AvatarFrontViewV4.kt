@@ -157,6 +157,8 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         preDragging()
                     }
                     is Mode.Scaling -> {
+                        if (!isScaleUpAvailable) return true
+
                         mode = gesture.detectScalingSubMode(dX)
                         val offset = gesture.onMove(dX, dY)
 
@@ -244,19 +246,17 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      * Скалируемся от текущего размера до rectMin относительно pivot.
      */
     override fun onPreScale(factor: Float, pivot: PointF) {
+        if (!isScaleUpAvailable) return
 
         scaleFrom = rectClip.width()
         scaleTo = rectMin.width()
         this.pivot = rectClip.center
 
-        // Оставшийся "путь" умножаем на factor и складываем с scaleMin тем самым
-        // получая следующий scaleCurrent.
-        scaleCurrent = (scaleCurrent - scaleMin) * factor + scaleMin
-        logIt("scaleCurrent after anim = $scaleCurrent")
+        lastFactor = factor
     }
 
     override fun onScale(fraction: Float) {
-        if (!isScaleDownAvailable) return
+        if (!isScaleUpAvailable) return
 
         requireNotNull(pivot)
 
@@ -291,6 +291,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     }
 
     override fun onPostScale() {
+        if (!isScaleUpAvailable) return
         // TODO nothing
     }
 
@@ -333,18 +334,34 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     is rb -> rectClip.right to rectClip.bottom
                 }
 
-                val rectClipWidth = rectClip.width()
-
-                logIt("create gesture scaleCurrent=$scaleCurrent, scaleMin=$scaleMin, distMax = ${rectClipWidth - rectClipWidth * (scaleMin + (scaleMax - scaleCurrent))}, rectClip.width()=$rectClipWidth")
-
-
                 /**
-                 * Если последовательно выполнять squeeze, то scaleCurrent постепенно увеличивается
+                 * Длина стороны rectClip разбивается на две части:
+                 * - первая, с изменяемым размером, работает регулятором зума.
+                 * - вторая, с фиксированным размером, показывает тот максимальный зум битмапы,
+                 *   которого можно достич для текущего состояния.
+                 * Например, при первом показе битмапы на экране отношение размеров фиксированной
+                 * и изменяемой частей такое же как отношение
+                 * rectBitmapVisibleHeightMin / (rectBitmapVisible.height - rectBitmapVisibleHeightMin).
                  *
+                 * Если мы выполняем squeeze, то rectBitmapVisible уменьшается, соответственно
+                 * в его height возрастает процентная доля высоты rectMin. Это учитывается
+                 * вот так 'scaleMin + (scaleMax - scaleCurrent)', где 'scaleMax - scaleCurrent' -
+                 * это рабочее пространство регулятора, которое осталось после завершения
+                 * текущего squeeze.
+                 *
+                 * Если последовательно выполнять squeeze, то scaleCurrent постепенно уменьшается
+                 * от 1 к scaleMin и когда scaleCurrent == scaleMin, то получаем:
+                 * scaleMin + (scaleMax - scaleCurrent) = scaleMin + scaleMax - scaleMin =
+                 * scaleMax = 1. То есть fixedSizeSegment станет равным rectClip.width(), distMax 0.
+                 * Это максимальный зум.
                  */
+//                val fixedSizeSegment = rectClip.width() * (scaleMin + (scaleMax - scaleCurrent))
+                val fixedSizeSegment = rectClip.width() * scaleController.scaleMin
+
                 gesture = Gesture(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
-                    rectClip.width() - rectClip.width() * (scaleMin + (scaleMax - scaleCurrent))
+                    rectClip.width() - fixedSizeSegment,
+                    rectClip.width()
                 )
 
                 mode = Mode.Scaling.Init

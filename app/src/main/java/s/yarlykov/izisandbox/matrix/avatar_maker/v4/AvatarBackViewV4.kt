@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
 import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.ceil
 
 /**
  * Класс управляет масштабом и позиционированием фонового рисунка.
@@ -71,10 +72,7 @@ class AvatarBackViewV4 @JvmOverloads constructor(
         scaleFrom = 1f      // от текущего состояния
         scaleTo = factor    // до состояния factor
 
-        // Оставшийся "путь" умножаем на factor и складываем с scaleMin тем самым
-        // получая следующий scaleCurrent.
-        scaleCurrent = (scaleCurrent - scaleMin) * factor + scaleMin
-        logIt("scaleCurrent after anim = $scaleCurrent")
+        lastFactor = factor
     }
 
     /**
@@ -115,10 +113,21 @@ class AvatarBackViewV4 @JvmOverloads constructor(
         rectBitmapVisible.set(rectTemp)
     }
 
-
+    /**
+     * Опять на примере Squeeze: после завершения анимации scaleCurrent уменьшается, а значит
+     * увеличивается процентное соотношение высоты rectBitmapVisibleHeightMin в высоте
+     * rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
+     */
     override fun onPostScale() {
-        // TODO Тут наверное нужно сообщить о своем текущем состоянии скалирования
-        // scaleController....
+        if (!isScaleUpAvailable) return
+
+        scaleController.scaleMin = if (rectBitmapVisible.height() <= ceil(rectBitmapVisibleHeightMin).toInt()) {
+            scaleController.onScaleUpAvailable(false)
+            0f
+        } else {
+            scaleController.onScaleUpAvailable(true)
+            rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
+        }
     }
 
     /**

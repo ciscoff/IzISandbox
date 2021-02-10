@@ -51,10 +51,10 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
      *
      * @scaleLength - это "расстояние" от scaleMax до scaleMin
      */
-    protected val scaleMax = 1f
-    protected var scaleMin = 1f
+//    protected val scaleMax = 1f
+//    protected var scaleMin = 1f
     protected var scaleCurrent = 1f
-    protected var scaleLength = 1f
+    private var scaleLength = 1f
 
     // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
     // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
@@ -112,6 +112,8 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
      */
     protected var sourceImageBitmap: Bitmap? = null
     protected var rectBitmapVisible = Rect()
+
+    protected var lastFactor : Float = 1f
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -180,13 +182,14 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         sourceImageBitmap = bitmap
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
 
+        // TODO (пока не используется)
         // Начальный зум - показатель того как битмапа отзумилась внутри View при загрузке.
         // Это соотношение высоты целевой View к высоте битмапы.
         viewHeightToBitmapHeightRatio = rectVisible.height().toFloat() / rectBitmapVisible.height()
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
-        rectBitmapVisibleHeightMin = rectVisible.height().toFloat() / bitmapScaleMax
+        rectBitmapVisibleHeightMin = rectVisible.height() / bitmapScaleMax
 
         // Это минимальный масштаб для rectBitmapVisible внутри БИТМАПЫ. Поясняю: при первой
         // загрузке битмапы rectBitmapVisible совпадает по размеру с размером битмапы и
@@ -194,25 +197,26 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         // Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то его
         // масштаб от начального 1 будет равен scaleMin. А в промежуточных состояниях он будет
         // меняться от 1 до scaleMin и обратно к 1.
-        scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
+        scaleController?.scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
 
-        scaleLength = scaleMax - scaleMin
+//        scaleLength = scaleMax - scaleMin
 
         // Промежуточное значение между scaleMax и scaleMin. При первой загрузке равно 1 (scaleMax)
-        scaleCurrent = scaleMax
+        scaleCurrent = scaleController?.scaleMax ?: 1f
 
         if (this is AvatarBackViewV4) {
-            logIt("${this::class.simpleName}::onBitmapReady bitmapHeight=${sourceImageBitmap!!.height}, rectBitmapVisibleHeightMin=$rectBitmapVisibleHeightMin, scaleMin=$scaleMin")
+            logIt("${this::class.simpleName}::onBitmapReady bitmapHeight=${sourceImageBitmap!!.height}, rectBitmapVisibleHeightMin=$rectBitmapVisibleHeightMin, scaleMin=${scaleController?.scaleMin}")
         }
     }
 
     /**
      * Код для Scale и имплементация ScaleConsumer
      */
-    var scaleController: ScaleController? = null
+    lateinit var scaleController: ScaleController
+
     protected val evaluator = FloatEvaluator()
-    protected var isScaleDownAvailable = true
-    protected var isScaleUpAvailable = true
+    protected var isScaleDownAvailable = false
+    protected var isScaleUpAvailable = false
 
     protected var scaleFrom = 1f
     protected var scaleTo = 1f

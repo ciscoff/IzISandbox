@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
+import androidx.core.animation.addListener
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleController
@@ -30,6 +31,9 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
      */
     private var sourceImageBitmap: Bitmap? = null
 
+    override val scaleMax: Float = 1f
+    override var scaleMin: Float = 1f
+
     init {
         View.inflate(context, R.layout.layout_avatar_components_v3, this).also { view ->
             avatarBack = view.findViewById(R.id.avatarBack)
@@ -37,6 +41,11 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
 
             scaleConsumers.add(avatarBack)
             scaleConsumers.add(avatarFront)
+
+            scaleConsumers.forEach {
+                it.onScaleUpAvailable(true)
+                it.onScaleDownAvailable( false)
+            }
 
             avatarFront.scaleController = this
             avatarBack.scaleController = this
@@ -88,6 +97,12 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
                 scaleConsumers.forEach { it.onScale(fraction) }
                 scaleConsumers.forEach { (it as View).invalidate() }
             }
+
+            // После завершения анимации вызывать у всех onPostScale()
+            addListener(onEnd = {
+                scaleConsumers.forEach { it.onPostScale() }
+            })
+
         }.start()
     }
 

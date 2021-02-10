@@ -43,19 +43,11 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Сразу загружаем полную bitmap без скалирования. Далее она будет использоваться как
-     * исходный материал для скалированных картинок.
-     */
-//    override fun onAttachedToWindow() {
-//        super.onAttachedToWindow()
-//        sourceImageBitmap =
-//            BitmapFactory.decodeResource(context.resources, R.drawable.m_4)
-//                ?.also { bitmap ->
-//                    avatarBack.onBitmapReady(bitmap)
-//                    avatarFront.onBitmapReady(bitmap)
-//                }
-//    }
+    override val scaleMax: Float
+        get() = TODO("Not yet implemented")
+    override var scaleMin: Float
+        get() = TODO("Not yet implemented")
+        set(value) {}
 
     /**
      * Исхоную битмапу загружаем с понижением её resolution.
