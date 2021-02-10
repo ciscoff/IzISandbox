@@ -1,10 +1,10 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.v4
 
-import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
+import s.yarlykov.izisandbox.utils.logIt
 
 /**
  * Класс управляет масштабом и позиционированием фонового рисунка.
@@ -37,6 +37,11 @@ class AvatarBackViewV4 @JvmOverloads constructor(
 
     /**
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
+     *
+     * @param factor - показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
+     * до наименьшего положения. Допустим что это первый зум: scaleMax = scaleCurrent = 1,
+     * scaleMin = 0.25 и factor = 3/4. Это значит, что после выполнения анимации останется
+     * пройти 3/4 дистанции между scaleMax и scaleMin.
      */
     override fun onPreScale(factor: Float, pivot: PointF) {
         if (!isScaleUpAvailable) return
@@ -65,6 +70,11 @@ class AvatarBackViewV4 @JvmOverloads constructor(
 
         scaleFrom = 1f      // от текущего состояния
         scaleTo = factor    // до состояния factor
+
+        // Оставшийся "путь" умножаем на factor и складываем с scaleMin тем самым
+        // получая следующий scaleCurrent.
+        scaleCurrent = (scaleCurrent - scaleMin) * factor + scaleMin
+        logIt("scaleCurrent after anim = $scaleCurrent")
     }
 
     /**
@@ -105,6 +115,12 @@ class AvatarBackViewV4 @JvmOverloads constructor(
         rectBitmapVisible.set(rectTemp)
     }
 
+
+    override fun onPostScale() {
+        // TODO Тут наверное нужно сообщить о своем текущем состоянии скалирования
+        // scaleController....
+    }
+
     /**
      * @rectBitmapVisible - задает видимую часть битмапы в координатах битмапы.
      * @rectDest - целевой прямоугольник в координатах канвы.
@@ -124,78 +140,4 @@ class AvatarBackViewV4 @JvmOverloads constructor(
             canvas.drawBitmap(it, scaleMatrix, paintBackground)
         }
     }
-
-    /**
-     * NOTE: Надо дебажить. По моему при увеличении битмапы больше её собственного
-     * разрешения начинает лагать отрисовка. До превышения этого значения все ОК, ниже линии.
-     *
-     * @param pivot - точка в координатах канвы. Её нужно смапить на координаты битмапы.
-     */
-    private fun scaleAnimated(scaleFactor: Float, pivot: PointF) {
-
-//        logIt("scaleAnimated scaleFactor=$scaleFactor pivot=$pivot")
-
-        sourceImageBitmap?.let { bitmap ->
-
-            // Нужно сконвертировать pivot из кординат view в координаты rectBitmapVisible.
-            // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
-            // сторон прямоугольников. Затем переносим pivot на координаты rectBitmapVisible.
-            val pivotBitmap = PointF(0f, 0f).apply {
-
-                val ratioX = rectBitmapVisible.width().toFloat() / rectVisible.width()
-                val ratioY = rectBitmapVisible.height().toFloat() / rectVisible.height()
-
-                offset(
-                    rectBitmapVisible.left + pivot.x * ratioX,
-                    rectBitmapVisible.top + pivot.y * ratioY
-                )
-            }
-
-            val pivotRatioX = (pivotBitmap.x - rectBitmapVisible.left) / rectBitmapVisible.width()
-            val pivotRatioY = (pivotBitmap.y - rectBitmapVisible.top) / rectBitmapVisible.height()
-
-//            logIt("view params: rectVisible=${rectVisible}, pivot=$pivot")
-//            logIt("bitmap params: rectBitmapVisible=$rectBitmapVisible, pivotBitmap=$pivotBitmap, pivotRatioX=$pivotRatioX, pivotRatioY=$pivotRatioY")
-
-            val startW = rectBitmapVisible.width()
-            val startH = rectBitmapVisible.height()
-
-            ValueAnimator.ofFloat(1f, scaleFactor).apply {
-                duration = animDuration
-
-                addUpdateListener { animator ->
-                    val scale = animator.animatedValue as Float
-
-                    val w = (startW * scale).toInt()
-                    val h = (startH * scale).toInt()
-
-                    rectTemp.apply {
-                        left = (pivotBitmap.x - w * pivotRatioX).toInt()
-                        top = (pivotBitmap.y - h * pivotRatioY).toInt()
-                        right = left + w
-                        bottom = top + h
-                    }
-
-                    val offsetX = when {
-                        rectTemp.left < 0 -> -rectTemp.left
-                        rectTemp.right > bitmap.width -> bitmap.width - rectTemp.right
-                        else -> 0
-                    }
-
-                    val offsetY = when {
-                        rectTemp.top < 0 -> -rectTemp.top
-                        rectTemp.bottom > bitmap.height -> bitmap.height - rectTemp.bottom
-                        else -> 0
-                    }
-
-                    rectTemp.offset(offsetX, offsetY)
-                    rectBitmapVisible.set(rectTemp)
-//                    logIt("scaleAnimated rectBitmapVisible=$rectBitmapVisible")
-
-                    invalidate()
-                }
-            }.start()
-        }
-    }
-
 }

@@ -200,4 +200,6 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     override fun onScaleUpAvailable(isAvailable: Boolean) {
         isScaleUpAvailable = isAvailable
     }
+
+    override fun onPostScale() {}
 }

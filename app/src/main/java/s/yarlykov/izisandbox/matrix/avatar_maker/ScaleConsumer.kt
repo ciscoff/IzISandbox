@@ -19,4 +19,9 @@ interface ScaleConsumer {
      * Выполнить отдельную итерацию внутри анимационного цикла
      */
     fun onScale(fraction: Float)
+
+    /**
+     * Действия после окончания анимации
+     */
+    fun onPostScale()
 }

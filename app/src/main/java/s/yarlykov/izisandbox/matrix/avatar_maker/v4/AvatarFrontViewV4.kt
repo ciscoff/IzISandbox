@@ -197,12 +197,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  * по одной из сторон rectVisible)
                  */
 
-
                 // Если уменьшаем рамку (Squeeze), то значит увеличиваем зум битмапы.
-                val ratio = gesture.ratio
+                val ratio = gesture.ratioLeft
 
                 // Пока обрабатываем только Squeeze
                 if (ratio < 1f) {
+                    logIt("MotionEvent.ACTION_UP onScaleRequired ratioPassed=${gesture.ratioPassed}, ratioLeft=${gesture.ratioLeft}")
                     scaleController?.onScaleRequired(
                         ratio,
                         calculatePivot()
@@ -240,11 +240,19 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 
     private lateinit var gesture: Gesture
 
+    /**
+     * Скалируемся от текущего размера до rectMin относительно pivot.
+     */
     override fun onPreScale(factor: Float, pivot: PointF) {
 
         scaleFrom = rectClip.width()
         scaleTo = rectMin.width()
         this.pivot = rectClip.center
+
+        // Оставшийся "путь" умножаем на factor и складываем с scaleMin тем самым
+        // получая следующий scaleCurrent.
+        scaleCurrent = (scaleCurrent - scaleMin) * factor + scaleMin
+        logIt("scaleCurrent after anim = $scaleCurrent")
     }
 
     override fun onScale(fraction: Float) {
@@ -280,6 +288,10 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         rectClip.set(rectTemp)
         preScalingBounds()
         preDrawing()
+    }
+
+    override fun onPostScale() {
+        // TODO nothing
     }
 
     /**
@@ -321,9 +333,18 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     is rb -> rectClip.right to rectClip.bottom
                 }
 
+                val rectClipWidth = rectClip.width()
+
+                logIt("create gesture scaleCurrent=$scaleCurrent, scaleMin=$scaleMin, distMax = ${rectClipWidth - rectClipWidth * (scaleMin + (scaleMax - scaleCurrent))}, rectClip.width()=$rectClipWidth")
+
+
+                /**
+                 * Если последовательно выполнять squeeze, то scaleCurrent постепенно увеличивается
+                 *
+                 */
                 gesture = Gesture(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
-                    rectClip.width() - rectClip.width() / scaleCurrent
+                    rectClip.width() - rectClip.width() * (scaleMin + (scaleMax - scaleCurrent))
                 )
 
                 mode = Mode.Scaling.Init

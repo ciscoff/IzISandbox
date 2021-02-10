@@ -153,7 +153,11 @@ data class Gesture(val tapCorner: TapCorner, val distMax: Float) {
     var isSqueezed: Boolean = false
         private set
 
-    val ratio: Float
-        //        get() = (distMax - prevDist) / distMax
+    // Это на сколько сдвинули от начального положения
+    val ratioPassed: Float
         get() = prevDist / distMax
+
+    // Это сколько осталось до конечного положения (подходит для зума битмапы)
+    val ratioLeft: Float
+        get() = (distMax - prevDist) / distMax
 }
