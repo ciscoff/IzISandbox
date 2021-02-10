@@ -10,9 +10,11 @@ import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.invalid
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
-import s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBaseViewV3
 import s.yarlykov.izisandbox.utils.logIt
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.floor
+import kotlin.math.min
+import kotlin.math.sign
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -20,7 +22,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AvatarBaseViewV3(context, attrs, defStyleAttr) {
+) : AvatarBaseViewV4(context, attrs, defStyleAttr) {
 
     private var mode: Mode = Mode.Waiting
 
@@ -180,14 +182,14 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
 
-                if(!zoomAvailable) {
+                if (!zoomAvailable) {
                     zoomAvailable = rectClip.width() < rectMin.width()
                 }
 
-                if(mode !is Mode.Scaling || !zoomAvailable) return true
+                if (mode !is Mode.Scaling || !zoomAvailable) return true
 
                 /**
-                 * При первом запуске рамка целиком занимает одну из сторон rectVisible
+                 * NOTE: При первом запуске рамка целиком занимает одну из сторон rectVisible
                  * (в зависимости от ориентации экрана). Далее мы можем её уменьшить, а затем
                  * увеличить. Но до тех пор пока не уменьшили меньше rectMin хотя бы один раз -
                  * никакой зум не работает. После первого прохождения этой границы включается зум
@@ -196,12 +198,11 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  */
 
 
-                // Если уменьшаем рамку, то значит увеличиваем зум
-
+                // Если уменьшаем рамку (Squeeze), то значит увеличиваем зум битмапы.
                 val ratio = gesture.ratio
 
                 // Пока обрабатываем только Squeeze
-                if(ratio < 1f) {
+                if (ratio < 1f) {
                     scaleController?.onScaleRequired(
                         ratio,
                         calculatePivot()

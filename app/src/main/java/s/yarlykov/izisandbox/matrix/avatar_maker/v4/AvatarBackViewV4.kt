@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker.v3
+package s.yarlykov.izisandbox.matrix.avatar_maker.v4
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -9,11 +9,11 @@ import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
 /**
  * Класс управляет масштабом и позиционированием фонового рисунка.
  */
-class AvatarBackViewV3 @JvmOverloads constructor(
+class AvatarBackViewV4 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AvatarBaseViewV3(context, attrs, defStyleAttr) {
+) : AvatarBaseViewV4(context, attrs, defStyleAttr) {
 
     /**
      * Paint для заливки фона исходной Bitmap'ой с применением цветового фильтра.

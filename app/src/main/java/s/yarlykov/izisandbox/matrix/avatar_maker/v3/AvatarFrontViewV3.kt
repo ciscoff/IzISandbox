@@ -728,9 +728,13 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
     private var pivot: PointF? = null
 
+    /**
+     * Подготовка к анимации
+     */
     override fun onPreScale(factor: Float, pivot: PointF) {
         if (!isScaleDownAvailable) return
 
+        // TODO Это если мы только squeeze делаем, а shrink не умеем
         if (rectClip.width() >= rectMin.width()) return
 
         scaleFrom = rectClip.width()
@@ -738,6 +742,9 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
         this.pivot = rectClip.center
     }
 
+    /**
+     * Отдельная итерация в цикле анимации
+     */
     override fun onScale(fraction: Float) {
         if (!isScaleDownAvailable) return
 
@@ -745,7 +752,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
 
         val rectDim = evaluator.evaluate(fraction, scaleFrom, scaleTo)
 
-        // Установить rect по центру относительно pivot'a
+        // Установить rectTemp по центру относительно pivot'a
         rectTemp.apply {
             left = pivot!!.x - rectDim / 2f
             top = pivot!!.y - rectDim / 2f

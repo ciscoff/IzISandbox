@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker.v3
+package s.yarlykov.izisandbox.matrix.avatar_maker.v4
 
 import android.animation.FloatEvaluator
 import android.content.Context
@@ -13,7 +13,7 @@ import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleController
 
-abstract class AvatarBaseViewV3 @JvmOverloads constructor(
+abstract class AvatarBaseViewV4 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -128,8 +128,8 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
 
         rectDest.apply {
             top = 0
-            bottom = this@AvatarBaseViewV3.height
-            left = ((this@AvatarBaseViewV3.width - scaledWidth) / 2f).toInt()
+            bottom = this@AvatarBaseViewV4.height
+            left = ((this@AvatarBaseViewV4.width - scaledWidth) / 2f).toInt()
             right = left + scaledWidth
         }
     }
@@ -140,11 +140,11 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
     private fun rectVisibleUpdate() {
         rectVisible.apply {
             top = 0
-            bottom = this@AvatarBaseViewV3.height
+            bottom = this@AvatarBaseViewV4.height
             left =
                 if (rectDest.left <= 0) 0 else rectDest.left
             right =
-                if (rectDest.right >= this@AvatarBaseViewV3.width) this@AvatarBaseViewV3.width else rectDest.right
+                if (rectDest.right >= this@AvatarBaseViewV4.width) this@AvatarBaseViewV4.width else rectDest.right
         }
     }
 

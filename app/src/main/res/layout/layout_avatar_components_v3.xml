@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBackViewV3
-        android:id="@+id/avatarBack"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+<!--    <s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarBackViewV3-->
+<!--        android:id="@+id/avatarBack"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
 <!--    <s.yarlykov.izisandbox.matrix.avatar_maker.v3.AvatarFrontViewV3-->
 <!--        android:id="@+id/avatarFront"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent" />-->
+
+    <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarBackViewV4
+        android:id="@+id/avatarBack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarFrontViewV4
         android:id="@+id/avatarFront"

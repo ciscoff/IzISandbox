@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker.v3
+package s.yarlykov.izisandbox.matrix.avatar_maker
 
 import android.graphics.PointF
 

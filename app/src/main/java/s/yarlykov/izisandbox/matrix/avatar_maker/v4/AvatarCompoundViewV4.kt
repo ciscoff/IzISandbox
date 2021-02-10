@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.matrix.avatar_maker.v3
+package s.yarlykov.izisandbox.matrix.avatar_maker.v4
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -13,14 +13,14 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleController
 
-class AvatarCompoundViewV3 @JvmOverloads constructor(
+class AvatarCompoundViewV4 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), ScaleController {
 
-    private val avatarBack: AvatarBaseViewV3
-    private val avatarFront: AvatarBaseViewV3
+    private val avatarBack: AvatarBaseViewV4
+    private val avatarFront: AvatarBaseViewV4
 
     private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
     private val scaleConsumers = ArrayList<ScaleConsumer>()
