@@ -5,19 +5,20 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 /**
- * Палец идет от LB угла нижнего квадрата по диагонали вверх. При этом по этой же тректории
+ * Пример жеста сжатия:
+ * Палец идет от LB угла нижнего квадрата по диагонали вверх. При этом по этой же траектории
  * перемещается "фантом" начального квадрата образуя с ним пересечение, которое показано
  * заштрихованной областью. В какой-то момент сторона квадрата пересечения достигает минимального
- * значения и LB такого квадрата пересечения есть pointOfHeightMin.
+ * значения, а длина проекции на ось Х траектории пальца - величины distAvailable.
  *
  * Когда происходит событие ACTION_DOWN, то мы знаем область тача, размер стороны начального
- * квадрата (rectClip) и hMin. Если мы тапнули LB, то тянуть палец должны в область RT и мы можем
- * сразу вычислить координаты pointOfHeightMin. Теперь при каждом ACTION_MOVE нужно измерять
- * расстояние от начальной LB до pointOfHeightMin. Идея в том, что до тех пор пока не достигнута
- * минимальная высота (или точка pointOfHeightMin), то мы можем как приближаться к ней, так и
- * удаляться. Но после достижения мы можем только ПРИБЛИЖАТЬСЯ к стартовой точке pointDown.
- * Это исключает "перетяг" когда продолжая тянуть палец вправо вверх мы снова начнем растягивать
- * квадрат.
+ * квадрата rectClip (то есть distMax). Если мы тапнули LB, то для сжатия тянем палец в
+ * положительном направлении Х (направление Y любое). Теперь при каждом ACTION_MOVE нужно измерять
+ * расстояние от начальной LB, то есть дистанцию prevDist. Идея в том, что пока не достигнута
+ * distAvailable, мы можем как приближаться к ней, так и удаляться - растягивая и сжимая рамку.
+ * Но после достижения distAvailable и продолжении движения пальца по оси +Х рамка перестает
+ * сжиматься. Это исключает "перетяг" когда продолжая тянуть палец вправо вверх мы снова начнем
+ * растягивать квадрат.
  */
 //                  _____________________
 //                 |                     |
@@ -36,18 +37,23 @@ import kotlin.math.sign
 
 /**
  * Класс Gesture отслеживает все передвижения пальца от ACTION_DOWN до ACTION_UP и его
- * задачей является контролировать процесс сжатия, чтобы не перейти через пороговое значение.
+ * задачей является контролировать процесс СЖАТИЯ, чтобы не перейти через пороговое значение.
  *
  * При сжатии, независимо от того где находится pivot, всё действие направлено внутрь исходного
  * rectClip, поэтому здесь не может произойти выхода за границы родительского View (потому что
  * rectClip полностью внутри родительской View и он не растягивается).
  *
- * Растяжение данный класс отслеживать не может потому что ничего не знает о размерах и
- * положении rectClip внутри родительского View.
+ * Растяжение данный класс отслеживать не может потому что ничего не знает положении rectClip
+ * внутри родительского View.
+ *
+ * @param tapCorner - область тача
+ * @param distAvailable - разрешенная дистанция для squeeze
+ * @param distMax - длина стороны квадрата
  */
 data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distMax: Float) {
 
     private val invalidOffset = Offset(Float.MIN_VALUE to Float.MIN_VALUE)
+    private val emptyOffset = Offset(0f to 0f)
 
     /**
      * X-дистанция от пальца до точки tapCorner.cornerX в предыдущем событии.
@@ -71,14 +77,33 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
         is rb -> Direction(-1f to -1f)
     }
 
+    init {
+        /**
+         * Когда битмапа уже сильно увеличена, то значение distAvailable приближается к 0 и
+         * в новом Gesture может случиться так, что абсолютное значение prevDist превысит
+         * абсолютное значение distAvailable. Этого быть не должно.
+         */
+        if (abs(prevDist) > abs(distAvailable)) prevDist = distAvailable
+    }
+
+    /**
+     * distAvailable и distMax с учетом направления их вектора по оси Х. То есть это
+     * значение со знаком.
+     */
+    private val distMaxSigned: Float
+        get() = distMax * direction.x
+
+    private val distAvailSigned: Float
+        get() = distAvailable * direction.x
+
     /**
      * Режим скалировани
      */
     private var scalingMode: Mode.Scaling = Mode.Scaling.Init
 
-    init {
-        logIt("tapArea=${tapCorner.tapArea::class.java.simpleName}, distPrev=$prevDist, distMax=$distAvailable, direction=$direction")
-    }
+    // TODO ?? Вроде нигде не проверяется, только присваивается
+    var isSqueezed: Boolean = false
+        private set
 
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
@@ -114,25 +139,30 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
             // При сжатии не должны "перелететь" за distMax.
             Mode.Scaling.Squeeze -> {
                 if (direction.x > 0) {
-                    if (prevDist + proposedOffsetX >= distAvailable) {
-                        offsetX = distAvailable - prevDist
-                        prevDist = distAvailable
+                    if (prevDist + proposedOffsetX >= distAvailSigned) {
+                        offsetX = distAvailSigned - prevDist
+                        prevDist = distAvailSigned
                         isSqueezed = true
                     } else {
                         isSqueezed = false
                         prevDist = currentDist
                     }
                 } else {
-                    if (prevDist + proposedOffsetX <= distAvailable * direction.x) {
-                        offsetX = distAvailable - prevDist
-                        prevDist = distAvailable * direction.x
+                    if (prevDist + proposedOffsetX <= distAvailSigned) {
+                        offsetX = distAvailSigned - prevDist
+                        prevDist = distAvailSigned
                         isSqueezed = true
                     } else {
                         isSqueezed = false
                         prevDist = currentDist
                     }
                 }
-                Offset(offsetX to abs(offsetX) * direction.y)
+
+                if (offsetX == -0.0f || offsetX == 0.0f) {
+                    emptyOffset
+                } else {
+                    Offset(offsetX to abs(offsetX) * direction.y)
+                }
             }
             // При расширении не делаем никаких проверок (например выход за пределы
             // родительского View). Это выполнит внешний код.
@@ -140,8 +170,7 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
                 prevDist = currentDist
                 isSqueezed = false
 
-                val d = abs(proposedOffsetX)
-                Offset(d * sign(proposedOffsetX) to d * sign(proposedOffsetY))
+                Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
             }
             else -> {
                 isSqueezed = false
@@ -150,20 +179,17 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
         }
     }
 
-    var isSqueezed: Boolean = false
-        private set
-
     //
     //     prevDist(4)  distAvailable (20)
     //     0--->--------------->/////////|
-    //       ^         ^              distMax(30)
-    //     passed     left
+    //       ^            ^           distMax(30)
+    //     passed        left [= distMax - prevDist]
 
     // Это на сколько сдвинули от начального положения
     val ratioPassed: Float
-        get() = prevDist / distMax
+        get() = prevDist / distMaxSigned
 
     // Это сколько осталось (но не превышая distAvailable)
     val ratioLeft: Float
-        get() = (distMax - prevDist) / distMax
+        get() = (distMaxSigned - prevDist) / distMaxSigned
 }

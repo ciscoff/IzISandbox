@@ -36,8 +36,6 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
     private var bitmapScaleMax = 1f   // Максимальный масштаб для Bitmap'ы
 
     /**
-     * Это для работы внутреннего скалирования.
-     *
      * @scaleMax - состояние когда размеры rectBitmapVisible и БИТМАПЫ совпадают.
      *
      * @scaleMin - минимальный масштаб для rectBitmapVisible внутри БИТМАПЫ.
@@ -46,15 +44,7 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
      * Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то его масштаб
      * от начального 1 будет равен scaleMin. А в промежуточных состояниях он будет
      * меняться от 1 до scaleMin и обратно к 1.
-     *
-     * @scaleCurrent: scaleMin <= scaleCurrent <= scaleMax
-     *
-     * @scaleLength - это "расстояние" от scaleMax до scaleMin
      */
-//    protected val scaleMax = 1f
-//    protected var scaleMin = 1f
-    protected var scaleCurrent = 1f
-    private var scaleLength = 1f
 
     // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
     // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
@@ -197,16 +187,7 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         // Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то его
         // масштаб от начального 1 будет равен scaleMin. А в промежуточных состояниях он будет
         // меняться от 1 до scaleMin и обратно к 1.
-        scaleController?.scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
-
-//        scaleLength = scaleMax - scaleMin
-
-        // Промежуточное значение между scaleMax и scaleMin. При первой загрузке равно 1 (scaleMax)
-        scaleCurrent = scaleController?.scaleMax ?: 1f
-
-        if (this is AvatarBackViewV4) {
-            logIt("${this::class.simpleName}::onBitmapReady bitmapHeight=${sourceImageBitmap!!.height}, rectBitmapVisibleHeightMin=$rectBitmapVisibleHeightMin, scaleMin=${scaleController?.scaleMin}")
-        }
+        scaleController.scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
     }
 
     /**

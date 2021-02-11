@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.center
-import s.yarlykov.izisandbox.extensions.invalid
 import s.yarlykov.izisandbox.extensions.scale
 import s.yarlykov.izisandbox.matrix.avatar_maker.gesture.*
 import s.yarlykov.izisandbox.utils.logIt
@@ -51,7 +50,8 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private val rectBorder: RectF by rectBorderDelegate()
 
     /**
-     * Содержит минимально допустимый размер для viewPort'а в пассивном состоянии
+     * Содержит минимально допустимый размер для viewPort'а в пассивном состоянии.
+     * То есть это квадрат со стороной равной 3/5 от наименьшей стороны rectVisible.
      */
     private val rectMin: RectF by rectMinDelegate()
 
@@ -114,7 +114,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private var lastX = 0f
     private var lastY = 0f
 
-    private var zoomAvailable = false
+    /**
+     * Сейчас этот флаг работает только при скалировании и при ACTION_UP проверяет
+     * стал ли rectClip меньше чем rectMin. Если ДА, то isAnimationAvailable = true и значит
+     * можно запрашивать анимацию зума.
+     */
+    private var isAnimationAvailable = false
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
@@ -162,14 +167,14 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         mode = gesture.detectScalingSubMode(dX)
                         val offset = gesture.onMove(dX, dY)
 
-                        if (!offset.invalid) {
-                            offsetH = offset.x
-                            offsetV = offset.y
-                        } else return true
+                        if (offset.invalid || offset.empty) {
+                            return true
+                        }
 
                         // TODO Нужно разобраться с checkBounds(). Возможно придется делать
-                        // две как в версии 3
-
+                        // TODO две как в версии 3
+                        offsetH = offset.x
+                        offsetV = offset.y
                         preScalingBounds()
                     }
                     else -> {
@@ -183,12 +188,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
+                isAnimationAvailable = rectClip.width() < rectMin.width()
 
-                if (!zoomAvailable) {
-                    zoomAvailable = rectClip.width() < rectMin.width()
-                }
-
-                if (mode !is Mode.Scaling || !zoomAvailable) return true
+                /**
+                 * Анимация используется только в режиме Scaling
+                 */
+                if (mode !is Mode.Scaling || !isAnimationAvailable) return true
 
                 /**
                  * NOTE: При первом запуске рамка целиком занимает одну из сторон rectVisible
@@ -200,15 +205,11 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  */
 
                 // Если уменьшаем рамку (Squeeze), то значит увеличиваем зум битмапы.
-                val ratio = gesture.ratioLeft
+                val ratioLeft = gesture.ratioLeft
 
                 // Пока обрабатываем только Squeeze
-                if (ratio < 1f) {
-                    logIt("MotionEvent.ACTION_UP onScaleRequired ratioPassed=${gesture.ratioPassed}, ratioLeft=${gesture.ratioLeft}")
-                    scaleController?.onScaleRequired(
-                        ratio,
-                        calculatePivot()
-                    )
+                if (ratioLeft < 1f) {
+                    scaleController.onScaleRequired(ratioLeft, calculatePivot())
                 }
 
                 true

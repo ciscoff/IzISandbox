@@ -40,9 +40,9 @@ class AvatarBackViewV4 @JvmOverloads constructor(
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      *
      * @param factor - показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
-     * до наименьшего положения. Допустим что это первый зум: scaleMax = scaleCurrent = 1,
-     * scaleMin = 0.25 и factor = 3/4. Это значит, что после выполнения анимации останется
-     * пройти 3/4 дистанции между scaleMax и scaleMin.
+     * до наименьшего положения. Допустим что это первый зум: scaleMax = 1, scaleMin = 0.25
+     * и factor = 3/4. Это значит, что после выполнения анимации останется
+     * пройти 3/4 "дистанции" между scaleMax и scaleMin.
      */
     override fun onPreScale(factor: Float, pivot: PointF) {
         if (!isScaleUpAvailable) return
@@ -114,7 +114,7 @@ class AvatarBackViewV4 @JvmOverloads constructor(
     }
 
     /**
-     * Опять на примере Squeeze: после завершения анимации scaleCurrent уменьшается, а значит
+     * Опять на примере Squeeze: после завершения анимации rectBitmapVisible уменьшается, а значит
      * увеличивается процентное соотношение высоты rectBitmapVisibleHeightMin в высоте
      * rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
      */

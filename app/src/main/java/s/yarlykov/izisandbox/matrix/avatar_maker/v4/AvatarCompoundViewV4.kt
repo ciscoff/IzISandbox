@@ -31,6 +31,12 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
      */
     private var sourceImageBitmap: Bitmap? = null
 
+    /**
+     * @scaleMin - изменяемая величина. После каждой анимации зума она показывает текущее
+     * отношение rectBitmapVisibleHeightMin / rectBitmapVisible.height(). То есть это значение для
+     * скалирования, при котором будет достугнут нижний предел, то есть rectBitmapVisible.height
+     * станет равна rectBitmapVisibleHeightMin.
+     */
     override val scaleMax: Float = 1f
     override var scaleMin: Float = 1f
 
@@ -51,20 +57,6 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
             avatarBack.scaleController = this
         }
     }
-
-    /**
-     * Сразу загружаем полную bitmap без скалирования. Далее она будет использоваться как
-     * исходный материал для скалированных картинок.
-     */
-//    override fun onAttachedToWindow() {
-//        super.onAttachedToWindow()
-//        sourceImageBitmap =
-//            BitmapFactory.decodeResource(context.resources, R.drawable.m_4)
-//                ?.also { bitmap ->
-//                    avatarBack.onBitmapReady(bitmap)
-//                    avatarFront.onBitmapReady(bitmap)
-//                }
-//    }
 
     /**
      * Исхоную битмапу загружаем с понижением её resolution.
