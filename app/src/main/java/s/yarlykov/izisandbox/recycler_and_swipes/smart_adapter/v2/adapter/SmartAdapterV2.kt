@@ -4,6 +4,7 @@ import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.subjects.PublishSubject
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BaseController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BaseViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
@@ -30,12 +31,23 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     private val model = SmartList()
 
     /**
+     * EventBus в виде Subject'а для сообщений от ViewHolder'ов (альтренатива callback'у)
+     */
+    val eventBus = PublishSubject.create<Any>()
+
+    /**
      * Список контроллеров для текущей модели данных
      */
     private val supportedControllers = SparseArray<BaseController</*H*/*, /*I*/*>>()
 
+    /**
+     * Создаем ViewHolder и привязываем его к шине данных.
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return supportedControllers[viewType].createViewHolder(parent)
+
+        return supportedControllers[viewType].createViewHolder(parent).apply {
+            eventsObservable.subscribe(eventBus)
+        }
     }
 
     /**
@@ -86,7 +98,8 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     }
 
     /**
-     * Обновляем модель контроллеров
+     * Обновляем модель контроллеров.
+     * Модель данных состоит из Item'ов, каждый из которых содержит ссылку на свой контроллер.
      */
     private fun updateControllers() {
         supportedControllers.apply {
