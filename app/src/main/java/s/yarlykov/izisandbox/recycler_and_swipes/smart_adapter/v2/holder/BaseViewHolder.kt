@@ -20,8 +20,8 @@ abstract class BaseViewHolder : RecyclerView.ViewHolder {
     /**
      * Канал отправки сообщений подписчикам (альтернатива callback'у)
      */
-    private val events = PublishSubject.create<Any>()
-    val eventsObservable: Observable<Any> by lazy {
+    private val events = PublishSubject.create<EventWrapper<Any>>()
+    val eventsObservable: Observable<EventWrapper<Any>> by lazy {
         events.hide()
     }
 

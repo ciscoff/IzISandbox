@@ -4,9 +4,11 @@ import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BaseController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BaseViewHolder
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.EventWrapper
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BaseItem
 
@@ -31,9 +33,12 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     private val model = SmartList()
 
     /**
-     * EventBus в виде Subject'а для сообщений от ViewHolder'ов (альтренатива callback'у)
+     * EventBus в виде Subject'а для ретрансляции сообщений от ViewHolder'ов.
      */
-    val eventBus = PublishSubject.create<Any>()
+    private val events = PublishSubject.create<EventWrapper<Any>>()
+    val eventBus: Observable<EventWrapper<Any>> by lazy {
+        events.hide()
+    }
 
     /**
      * Список контроллеров для текущей модели данных
@@ -46,7 +51,7 @@ class SmartAdapterV2 : RecyclerView.Adapter<BaseViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
 
         return supportedControllers[viewType].createViewHolder(parent).apply {
-            eventsObservable.subscribe(eventBus)
+            eventsObservable.subscribe(events)
         }
     }
 
