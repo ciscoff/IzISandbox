@@ -30,10 +30,10 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
 
     /**
-     * Во сколько раз высота показываемой части битмапы может быть меньше высоты View.
-     * Это как бы максимальный зум в пикселях.
+     * Во сколько раз высота показываемой части битмапы (в px) может быть меньше высоты View (в px).
+     * Это как бы максимальный зум в px. Загружается из R.dimen.bitmap_scale_max.
      */
-    private var bitmapScaleMax = 1f   // Максимальный масштаб для Bitmap'ы
+    private var bitmapScaleMax : Float = Float.MIN_VALUE
 
     /**
      * @scaleMax - состояние когда размеры rectBitmapVisible и БИТМАПЫ совпадают.
@@ -177,8 +177,8 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         // Это соотношение высоты целевой View к высоте битмапы.
         viewHeightToBitmapHeightRatio = rectVisible.height().toFloat() / rectBitmapVisible.height()
 
-        // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
-        // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
+        // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
+        // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.
         rectBitmapVisibleHeightMin = rectVisible.height() / bitmapScaleMax
 
         // Это минимальный масштаб для rectBitmapVisible внутри БИТМАПЫ. Поясняю: при первой
@@ -188,6 +188,11 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         // масштаб от начального 1 будет равен scaleMin. А в промежуточных состояниях он будет
         // меняться от 1 до scaleMin и обратно к 1.
         scaleController.scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
+
+        // После очередного squeeze rectBitmapVisible уменьшается относительно высоты битмапы.
+        // Значение scaleMax показывает на сколько нужно увеличить rectBitmapVisible, чтобы снова
+        // получить высоту битмапы. То есть scaleMax работает в диапазоне 1+. Начальное значение 1.
+        scaleController.scaleMax = 1f
     }
 
     /**

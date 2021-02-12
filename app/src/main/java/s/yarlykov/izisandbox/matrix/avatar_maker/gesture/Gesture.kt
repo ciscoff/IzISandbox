@@ -1,6 +1,5 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -108,8 +107,8 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
      */
-    fun detectScalingSubMode(dX: Float): Mode.Scaling {
-        currentDist = prevDist + dX
+    fun detectScalingSubMode(offsetX: Float): Mode.Scaling {
+        currentDist = prevDist + offsetX
 
         scalingMode = when (tapCorner.tapArea) {
             is lt, is lb -> {
@@ -173,7 +172,6 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
                 Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
             }
             else -> {
-                isSqueezed = false
                 invalidOffset
             }
         }
@@ -186,10 +184,13 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
     //     passed        left [= distMax - prevDist]
 
     // Это на сколько сдвинули от начального положения
-    val ratioPassed: Float
+    val squeezeRatioPassed: Float
         get() = prevDist / distMaxSigned
 
     // Это сколько осталось (но не превышая distAvailable)
-    val ratioLeft: Float
+    val squeezeRatioLeft: Float
         get() = (distMaxSigned - prevDist) / distMaxSigned
+
+    val shrinkRatio: Float
+        get() = (abs(prevDist) + abs(distMax)) / abs(distMax)
 }

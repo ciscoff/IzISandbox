@@ -38,7 +38,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
     /**
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      */
-    override fun onPreScale(factor: Float, pivot: PointF) {
+    override fun onPreAnimate(factor: Float, pivot: PointF) {
         if (!isScaleUpAvailable) return
 
         // Нужно сконвертировать pivot из кординат view в координаты битмапы.
@@ -71,7 +71,7 @@ class AvatarBackViewV3 @JvmOverloads constructor(
      * 2. Отдельная итерация в цикле ValueAnimator'а. Нужно расчитать очередную порцию
      *    исходной битмапы (rectBitmapVisible), которая будет отображена в следующем onDraw.
      */
-    override fun onScale(fraction: Float) {
+    override fun onAnimate(fraction: Float) {
         if (!isScaleUpAvailable) return
 
         val bitmap = requireNotNull(sourceImageBitmap)

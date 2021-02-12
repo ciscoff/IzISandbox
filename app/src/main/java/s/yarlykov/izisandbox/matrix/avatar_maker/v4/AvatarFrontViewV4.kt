@@ -114,13 +114,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private var lastX = 0f
     private var lastY = 0f
 
-    /**
-     * Сейчас этот флаг работает только при скалировании и при ACTION_UP проверяет
-     * стал ли rectClip меньше чем rectMin. Если ДА, то isAnimationAvailable = true и значит
-     * можно запрашивать анимацию зума.
-     */
-    private var isAnimationAvailable = false
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
@@ -188,13 +181,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 true
             }
             MotionEvent.ACTION_UP -> {
-                isAnimationAvailable = rectClip.width() < rectMin.width()
-
-                /**
-                 * Анимация используется только в режиме Scaling
-                 */
-                if (mode !is Mode.Scaling || !isAnimationAvailable) return true
-
                 /**
                  * NOTE: При первом запуске рамка целиком занимает одну из сторон rectVisible
                  * (в зависимости от ориентации экрана). Далее мы можем её уменьшить, а затем
@@ -204,12 +190,21 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  * по одной из сторон rectVisible)
                  */
 
-                // Если уменьшаем рамку (Squeeze), то значит увеличиваем зум битмапы.
-                val ratioLeft = gesture.ratioLeft
-
-                // Пока обрабатываем только Squeeze
-                if (ratioLeft < 1f) {
-                    scaleController.onScaleRequired(ratioLeft, calculatePivot())
+                when (mode) {
+                    is Mode.Scaling.Squeeze -> {
+                        val ratioLeft = gesture.squeezeRatioLeft
+                        if (rectClip.width() < rectMin.width() && ratioLeft < 1f) {
+                            scaleController.onScaleRequired(ratioLeft, calculatePivot())
+                        }
+                    }
+                    is Mode.Scaling.Shrink -> {
+                        val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleMax)
+                        if (rectClip.width() > rectMin.width() && rectClip.width() < rectVisible.width()) {
+                            scaleController.onScaleRequired(shrinkRatio, calculatePivot())
+                        }
+                    }
+                    else -> {
+                    }
                 }
 
                 true
@@ -246,7 +241,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     /**
      * Скалируемся от текущего размера до rectMin относительно pivot.
      */
-    override fun onPreScale(factor: Float, pivot: PointF) {
+    override fun onPreAnimate(factor: Float, pivot: PointF) {
         if (!isScaleUpAvailable) return
 
         scaleFrom = rectClip.width()
@@ -256,7 +251,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         lastFactor = factor
     }
 
-    override fun onScale(fraction: Float) {
+    override fun onAnimate(fraction: Float) {
         if (!isScaleUpAvailable) return
 
         requireNotNull(pivot)
@@ -291,7 +286,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         preDrawing()
     }
 
-    override fun onPostScale() {
+    override fun onPostAnimate() {
         if (!isScaleUpAvailable) return
         // TODO nothing
     }
@@ -340,23 +335,14 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  * - первая, с изменяемым размером, работает регулятором зума.
                  * - вторая, с фиксированным размером, показывает тот максимальный зум битмапы,
                  *   которого можно достич для текущего состояния.
-                 * Например, при первом показе битмапы на экране отношение размеров фиксированной
+                 * Например, при первом показе битмапы на экране, отношение размеров фиксированной
                  * и изменяемой частей такое же как отношение
                  * rectBitmapVisibleHeightMin / (rectBitmapVisible.height - rectBitmapVisibleHeightMin).
                  *
                  * Если мы выполняем squeeze, то rectBitmapVisible уменьшается, соответственно
-                 * в его height возрастает процентная доля высоты rectMin. Это учитывается
-                 * вот так 'scaleMin + (scaleMax - scaleCurrent)', где 'scaleMax - scaleCurrent' -
-                 * это рабочее пространство регулятора, которое осталось после завершения
-                 * текущего squeeze.
-                 *
-                 * Если последовательно выполнять squeeze, то scaleCurrent постепенно уменьшается
-                 * от 1 к scaleMin и когда scaleCurrent == scaleMin, то получаем:
-                 * scaleMin + (scaleMax - scaleCurrent) = scaleMin + scaleMax - scaleMin =
-                 * scaleMax = 1. То есть fixedSizeSegment станет равным rectClip.width(), distMax 0.
-                 * Это максимальный зум.
+                 * в его height возрастает процентная доля высоты rectBitmapVisibleHeightMin.
+                 * Когда они сравняются по величине, то зум станет максимальным.
                  */
-//                val fixedSizeSegment = rectClip.width() * (scaleMin + (scaleMax - scaleCurrent))
                 val fixedSizeSegment = rectClip.width() * scaleController.scaleMin
 
                 gesture = Gesture(
@@ -377,6 +363,10 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Здесь нужно отслеживать, чтобы при растяжении результирующий прямоугольник не выходил
+     * за границы rectVisible.
+     */
     private fun preScalingBounds() {
         // Скопировать из rectClip, проверить, что не выходим за границы экрана и сдвинуть
         rectClipShifted.apply {
@@ -387,6 +377,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             offset(offsetH, offsetV)
         }
 
+        // Корректируем размеры rectClip
         when (mode) {
             // Палец идет от центра ViewPort'а (растягиваем)
             Mode.Scaling.Shrink -> {

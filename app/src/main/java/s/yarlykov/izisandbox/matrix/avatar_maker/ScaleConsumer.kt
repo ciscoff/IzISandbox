@@ -13,15 +13,15 @@ interface ScaleConsumer {
     /**
      * Подготовиться к анимации
      */
-    fun onPreScale(factor: Float, pivot: PointF)
+    fun onPreAnimate(factor: Float, pivot: PointF)
 
     /**
      * Выполнить отдельную итерацию внутри анимационного цикла
      */
-    fun onScale(fraction: Float)
+    fun onAnimate(fraction: Float)
 
     /**
      * Действия после окончания анимации
      */
-    fun onPostScale()
+    fun onPostAnimate()
 }

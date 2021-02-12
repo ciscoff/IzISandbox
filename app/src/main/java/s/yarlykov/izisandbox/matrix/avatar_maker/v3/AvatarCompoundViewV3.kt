@@ -43,8 +43,9 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
         }
     }
 
-    override val scaleMax: Float
+    override var scaleMax: Float
         get() = TODO("Not yet implemented")
+        set(value) {}
     override var scaleMin: Float
         get() = TODO("Not yet implemented")
         set(value) {}
@@ -69,7 +70,7 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
     override fun onScaleRequired(factor: Float, pivot: PointF) {
 
         // Подготовиться к началу анимации в дочерних Views
-        scaleConsumers.forEach { it.onPreScale(factor, pivot) }
+        scaleConsumers.forEach { it.onPreAnimate(factor, pivot) }
 
         // Запустить анимацию
         ValueAnimator.ofFloat(0f, 1f).apply {
@@ -77,7 +78,7 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
 
             addUpdateListener { animator ->
                 val fraction = animator.animatedFraction
-                scaleConsumers.forEach { it.onScale(fraction) }
+                scaleConsumers.forEach { it.onAnimate(fraction) }
                 scaleConsumers.forEach { (it as View).invalidate() }
             }
         }.start()

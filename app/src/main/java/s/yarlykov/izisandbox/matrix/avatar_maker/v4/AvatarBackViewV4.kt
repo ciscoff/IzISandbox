@@ -39,12 +39,15 @@ class AvatarBackViewV4 @JvmOverloads constructor(
     /**
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      *
-     * @param factor - показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
+     * @param factor:
+     * - ПРИ СЖАТИИ показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
      * до наименьшего положения. Допустим что это первый зум: scaleMax = 1, scaleMin = 0.25
      * и factor = 3/4. Это значит, что после выполнения анимации останется
      * пройти 3/4 "дистанции" между scaleMax и scaleMin.
+     *
+     * - ПРИ РАСТЯЖЕНИИ показывает на сколько больше станет
      */
-    override fun onPreScale(factor: Float, pivot: PointF) {
+    override fun onPreAnimate(factor: Float, pivot: PointF) {
         if (!isScaleUpAvailable) return
 
         // Нужно сконвертировать pivot из кординат view в координаты битмапы.
@@ -79,7 +82,7 @@ class AvatarBackViewV4 @JvmOverloads constructor(
      * 2. Отдельная итерация в цикле ValueAnimator'а. Нужно расчитать очередную порцию
      *    исходной битмапы (rectBitmapVisible), которая будет отображена в следующем onDraw.
      */
-    override fun onScale(fraction: Float) {
+    override fun onAnimate(fraction: Float) {
         if (!isScaleUpAvailable) return
 
         val bitmap = requireNotNull(sourceImageBitmap)
@@ -118,8 +121,12 @@ class AvatarBackViewV4 @JvmOverloads constructor(
      * увеличивается процентное соотношение высоты rectBitmapVisibleHeightMin в высоте
      * rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
      */
-    override fun onPostScale() {
+    override fun onPostAnimate() {
         if (!isScaleUpAvailable) return
+
+        val bitmapHeight = sourceImageBitmap?.height!!
+
+        scaleController.scaleMax = 1f + (bitmapHeight - rectBitmapVisible.height()).toFloat()/bitmapHeight
 
         scaleController.scaleMin = if (rectBitmapVisible.height() <= ceil(rectBitmapVisibleHeightMin).toInt()) {
             scaleController.onScaleUpAvailable(false)

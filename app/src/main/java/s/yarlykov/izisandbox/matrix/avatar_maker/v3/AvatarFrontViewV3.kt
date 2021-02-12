@@ -731,7 +731,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     /**
      * Подготовка к анимации
      */
-    override fun onPreScale(factor: Float, pivot: PointF) {
+    override fun onPreAnimate(factor: Float, pivot: PointF) {
         if (!isScaleDownAvailable) return
 
         // TODO Это если мы только squeeze делаем, а shrink не умеем
@@ -745,7 +745,7 @@ class AvatarFrontViewV3 @JvmOverloads constructor(
     /**
      * Отдельная итерация в цикле анимации
      */
-    override fun onScale(fraction: Float) {
+    override fun onAnimate(fraction: Float) {
         if (!isScaleDownAvailable) return
 
         requireNotNull(pivot)

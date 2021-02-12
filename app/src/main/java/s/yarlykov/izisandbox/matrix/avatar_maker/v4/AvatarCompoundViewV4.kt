@@ -37,7 +37,7 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
      * скалирования, при котором будет достугнут нижний предел, то есть rectBitmapVisible.height
      * станет равна rectBitmapVisibleHeightMin.
      */
-    override val scaleMax: Float = 1f
+    override var scaleMax: Float = 1f
     override var scaleMin: Float = 1f
 
     init {
@@ -78,7 +78,7 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
     override fun onScaleRequired(factor: Float, pivot: PointF) {
 
         // Подготовиться к началу анимации в дочерних Views
-        scaleConsumers.forEach { it.onPreScale(factor, pivot) }
+        scaleConsumers.forEach { it.onPreAnimate(factor, pivot) }
 
         // Запустить анимацию
         ValueAnimator.ofFloat(0f, 1f).apply {
@@ -86,13 +86,13 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
 
             addUpdateListener { animator ->
                 val fraction = animator.animatedFraction
-                scaleConsumers.forEach { it.onScale(fraction) }
+                scaleConsumers.forEach { it.onAnimate(fraction) }
                 scaleConsumers.forEach { (it as View).invalidate() }
             }
 
             // После завершения анимации вызывать у всех onPostScale()
             addListener(onEnd = {
-                scaleConsumers.forEach { it.onPostScale() }
+                scaleConsumers.forEach { it.onPostAnimate() }
             })
 
         }.start()
