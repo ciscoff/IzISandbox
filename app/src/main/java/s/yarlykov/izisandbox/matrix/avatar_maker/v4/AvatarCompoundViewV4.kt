@@ -13,6 +13,7 @@ import androidx.core.animation.addListener
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleController
+import s.yarlykov.izisandbox.utils.logIt
 
 class AvatarCompoundViewV4 @JvmOverloads constructor(
     context: Context,
@@ -49,7 +50,7 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
             scaleConsumers.add(avatarFront)
 
             scaleConsumers.forEach {
-                it.onScaleUpAvailable(true)
+                it.onScaleUpAvailable(false)
                 it.onScaleDownAvailable( false)
             }
 

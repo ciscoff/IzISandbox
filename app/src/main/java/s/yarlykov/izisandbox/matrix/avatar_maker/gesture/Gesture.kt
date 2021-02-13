@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -100,14 +101,11 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
      */
     private var scalingMode: Mode.Scaling = Mode.Scaling.Init
 
-    // TODO ?? Вроде нигде не проверяется, только присваивается
-    var isSqueezed: Boolean = false
-        private set
-
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
      */
     fun detectScalingSubMode(offsetX: Float): Mode.Scaling {
+
         currentDist = prevDist + offsetX
 
         scalingMode = when (tapCorner.tapArea) {
@@ -137,37 +135,35 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
         return when (scalingMode) {
             // При сжатии не должны "перелететь" за distMax.
             Mode.Scaling.Squeeze -> {
-                if (direction.x > 0) {
-                    if (prevDist + proposedOffsetX >= distAvailSigned) {
-                        offsetX = distAvailSigned - prevDist
-                        prevDist = distAvailSigned
-                        isSqueezed = true
+                if (prevDist != distAvailSigned) {
+                    if (direction.x > 0) {
+                        if (prevDist + proposedOffsetX >= distAvailSigned) {
+                            offsetX = distAvailSigned - prevDist
+                            prevDist = distAvailSigned
+                        } else {
+                            prevDist = currentDist
+                        }
                     } else {
-                        isSqueezed = false
-                        prevDist = currentDist
+                        if (prevDist + proposedOffsetX <= distAvailSigned) {
+                            offsetX = distAvailSigned - prevDist
+                            prevDist = distAvailSigned
+                        } else {
+                            prevDist = currentDist
+                        }
                     }
-                } else {
-                    if (prevDist + proposedOffsetX <= distAvailSigned) {
-                        offsetX = distAvailSigned - prevDist
-                        prevDist = distAvailSigned
-                        isSqueezed = true
-                    } else {
-                        isSqueezed = false
-                        prevDist = currentDist
-                    }
-                }
 
-                if (offsetX == -0.0f || offsetX == 0.0f) {
-                    emptyOffset
-                } else {
-                    Offset(offsetX to abs(offsetX) * direction.y)
-                }
+                    if (offsetX == -0.0f || offsetX == 0.0f) {
+                        emptyOffset
+                    } else {
+                        Offset(offsetX to abs(offsetX) * direction.y)
+                    }
+
+                } else emptyOffset
             }
             // При расширении не делаем никаких проверок (например выход за пределы
             // родительского View). Это выполнит внешний код.
             Mode.Scaling.Shrink -> {
                 prevDist = currentDist
-                isSqueezed = false
 
                 Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
             }

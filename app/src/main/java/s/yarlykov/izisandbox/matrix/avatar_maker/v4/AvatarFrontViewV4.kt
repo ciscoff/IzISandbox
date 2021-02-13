@@ -155,7 +155,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         preDragging()
                     }
                     is Mode.Scaling -> {
-                        if (!isScaleUpAvailable) return true
 
                         mode = gesture.detectScalingSubMode(dX)
                         val offset = gesture.onMove(dX, dY)
@@ -169,6 +168,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         offsetH = offset.x
                         offsetV = offset.y
                         preScalingBounds()
+
+                        // После того как обновили размеры rectClip можно проверить доступность
+                        // анимации скаливарония.
+                        if (mode == Mode.Scaling.Squeeze) {
+                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width())
+                        }
                     }
                     else -> {
                         logIt("unknown mode")
@@ -193,20 +198,23 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 when (mode) {
                     is Mode.Scaling.Squeeze -> {
                         val ratioLeft = gesture.squeezeRatioLeft
-                        if (rectClip.width() < rectMin.width() && ratioLeft < 1f) {
+                        if (animationScaleUpAvailable) {
                             scaleController.onScaleRequired(ratioLeft, calculatePivot())
                         }
                     }
                     is Mode.Scaling.Shrink -> {
+
+//                        val shrinkRatio = if(gesture.shrinkRatio < 1) scaleController.scaleMax
+//                        else min(gesture.shrinkRatio, scaleController.scaleMax)
+
                         val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleMax)
-                        if (rectClip.width() > rectMin.width() && rectClip.width() < rectVisible.width()) {
+                        if (animationScaleDownAvailable) {
                             scaleController.onScaleRequired(shrinkRatio, calculatePivot())
                         }
                     }
                     else -> {
                     }
                 }
-
                 true
             }
             else -> false
@@ -235,14 +243,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     private val rectTemp = RectF()
     private var pivot: PointF? = null
 
-
     private lateinit var gesture: Gesture
 
     /**
      * Скалируемся от текущего размера до rectMin относительно pivot.
      */
     override fun onPreAnimate(factor: Float, pivot: PointF) {
-        if (!isScaleUpAvailable) return
 
         scaleFrom = rectClip.width()
         scaleTo = rectMin.width()
@@ -252,7 +258,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     }
 
     override fun onAnimate(fraction: Float) {
-        if (!isScaleUpAvailable) return
 
         requireNotNull(pivot)
 
@@ -287,7 +292,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     }
 
     override fun onPostAnimate() {
-        if (!isScaleUpAvailable) return
         // TODO nothing
     }
 
@@ -318,16 +322,18 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
      */
     private fun detectMode(x: Float, y: Float) {
 
+        val rectClipCopy = RectF(rectClip)
+
         tapSquares.entries.forEach { entry ->
 
             val (area, rect) = entry
             if (rect.contains(x, y)) {
 
                 val (cornerX, cornerY) = when (area) {
-                    is lt -> rectClip.left to rectClip.top
-                    is lb -> rectClip.left to rectClip.bottom
-                    is rt -> rectClip.right to rectClip.top
-                    is rb -> rectClip.right to rectClip.bottom
+                    is lt -> rectClipCopy.left to rectClipCopy.top
+                    is lb -> rectClipCopy.left to rectClipCopy.bottom
+                    is rt -> rectClipCopy.right to rectClipCopy.top
+                    is rb -> rectClipCopy.right to rectClipCopy.bottom
                 }
 
                 /**
@@ -343,12 +349,12 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  * в его height возрастает процентная доля высоты rectBitmapVisibleHeightMin.
                  * Когда они сравняются по величине, то зум станет максимальным.
                  */
-                val fixedSizeSegment = rectClip.width() * scaleController.scaleMin
+                val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleMin
 
                 gesture = Gesture(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
-                    rectClip.width() - fixedSizeSegment,
-                    rectClip.width()
+                    rectClipCopy.width() - fixedSizeSegment,
+                    rectClipCopy.width()
                 )
 
                 mode = Mode.Scaling.Init
@@ -356,7 +362,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
             }
         }
 
-        mode = if (rectClip.contains(x, y)) {
+        mode = if (rectClipCopy.contains(x, y)) {
             Mode.Dragging
         } else {
             Mode.Waiting
@@ -453,28 +459,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
     }
 
     /**
-     * Pivot для скалирования. Если rectClip прижат какой-то стороной к стороне rectVisible,
-     * то отталкиваемся от этой стороны. Иначе pivot'ом становится центр rectClip.
-     */
-    private val scalePivot: PointF
-        get() {
-            val xPivot = when {
-                floor(rectClip.left).toInt() == rectVisible.left -> rectClip.left
-                floor(rectClip.right).toInt() == rectVisible.right -> rectClip.right
-                else -> rectClip.centerX()
-            }
-
-            val yPivot = when {
-                floor(rectClip.top).toInt() == rectVisible.top -> rectClip.top
-                floor(rectClip.bottom).toInt() == rectVisible.bottom -> rectClip.bottom
-                else -> rectClip.centerY()
-            }
-
-            return PointF(xPivot, yPivot)
-        }
-
-
-    /**
      * --------------------------------------------------------------------------------------
      * Рисование
      * --------------------------------------------------------------------------------------
@@ -519,10 +503,6 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
         paintStroke.strokeWidth = borderWidth
         canvas.drawPath(pathBorder, paintStroke)
 
-        // DEBUG
-//        tapSquares.values.forEach {
-//            canvas.drawRect(it, paintTemp)
-//        }
         canvas.restore()
     }
 

@@ -3,8 +3,9 @@ package s.yarlykov.izisandbox.matrix.avatar_maker.v4
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
-import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.abs
 import kotlin.math.ceil
 
 /**
@@ -27,6 +28,13 @@ class AvatarBackViewV4 @JvmOverloads constructor(
     private val rectTo = RectF()
 
     /**
+     * При максимальном увеличении размера rectBitmapVisible не удается сделать его по высоте
+     * равным bitmapHeight с точностью до пикселя. Поэтому если разница высот в пределах
+     * measurementError, то считается что они равны и scaleController.scaleMax = 1
+     */
+    private val measurementError = context.resources.getInteger(R.integer.measurement_error)
+
+    /**
      * Данные, которые нужно собрать перед началом анимации.
      */
     private var preScaleParams: BitmapPreScaleParams? = null
@@ -41,16 +49,15 @@ class AvatarBackViewV4 @JvmOverloads constructor(
      *
      * @param factor:
      * - ПРИ СЖАТИИ показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
-     * до наименьшего положения. Допустим что это первый зум: scaleMax = 1, scaleMin = 0.25
+     * до наименьшего положения. Допустим что это первый зум: scaleMax = 1, scaleMin = 1/4
      * и factor = 3/4. Это значит, что после выполнения анимации останется
      * пройти 3/4 "дистанции" между scaleMax и scaleMin.
      *
      * - ПРИ РАСТЯЖЕНИИ показывает на сколько больше станет
      */
     override fun onPreAnimate(factor: Float, pivot: PointF) {
-        if (!isScaleUpAvailable) return
 
-        // Нужно сконвертировать pivot из кординат view в координаты битмапы.
+        // Нужно сконвертировать pivot из координат view в координаты битмапы.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
         // сторон прямоугольников. Затем переносим pivot на координаты битмапы.
         val pivotBitmap = PointF(0f, 0f).apply {
@@ -83,7 +90,6 @@ class AvatarBackViewV4 @JvmOverloads constructor(
      *    исходной битмапы (rectBitmapVisible), которая будет отображена в следующем onDraw.
      */
     override fun onAnimate(fraction: Float) {
-        if (!isScaleUpAvailable) return
 
         val bitmap = requireNotNull(sourceImageBitmap)
         val params = requireNotNull(preScaleParams)
@@ -117,24 +123,41 @@ class AvatarBackViewV4 @JvmOverloads constructor(
     }
 
     /**
-     * Опять на примере Squeeze: после завершения анимации rectBitmapVisible уменьшается, а значит
-     * увеличивается процентное соотношение высоты rectBitmapVisibleHeightMin в высоте
-     * rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
+     * После анимации данная view отвечает за перерасчет scaleMin/scaleMax и за определение
+     * значений для animationScaleUpAvailable/animationScaleDownAvailable.
+     *
+     * Напоминаю что:
+     *  ScaleDown - визуально уменьшаем, но при этом УВЕЛИЧИВАЕМ размер rectBitmapVisible
+     *  ScaleUp - визуально увеличиваем, но при этом УМЕНЬШАЕМ размер rectBitmapVisible
+     *
+     * NOTE: scale_min -> на примере Squeeze: после завершения анимации rectBitmapVisible
+     * уменьшается, а значит увеличивается процентное соотношение высоты rectBitmapVisibleHeightMin
+     * в высоте rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
      */
     override fun onPostAnimate() {
-        if (!isScaleUpAvailable) return
 
         val bitmapHeight = sourceImageBitmap?.height!!
+        val heightDifference = bitmapHeight - rectBitmapVisible.height()
 
-        scaleController.scaleMax = 1f + (bitmapHeight - rectBitmapVisible.height()).toFloat()/bitmapHeight
-
-        scaleController.scaleMin = if (rectBitmapVisible.height() <= ceil(rectBitmapVisibleHeightMin).toInt()) {
-            scaleController.onScaleUpAvailable(false)
-            0f
+        scaleController.scaleMax = if (abs(heightDifference) < measurementError) {
+            1f
         } else {
-            scaleController.onScaleUpAvailable(true)
-            rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
+            1f + heightDifference.toFloat() / bitmapHeight
         }
+
+        scaleController.onScaleDownAvailable(scaleController.scaleMax > 1f)
+
+        val scaleUpAvailable =
+            rectBitmapVisible.height() > ceil(rectBitmapVisibleHeightMin + 0.5f).toInt()
+
+        scaleController.onScaleUpAvailable(scaleUpAvailable)
+
+        scaleController.scaleMin =
+            if (scaleUpAvailable) {
+                rectBitmapVisibleHeightMin / rectBitmapVisible.height()
+            } else {
+                0f
+            }
     }
 
     /**

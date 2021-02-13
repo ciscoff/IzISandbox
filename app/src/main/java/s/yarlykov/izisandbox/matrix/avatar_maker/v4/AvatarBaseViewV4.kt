@@ -12,7 +12,6 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleController
-import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV4 @JvmOverloads constructor(
     context: Context,
@@ -201,17 +200,17 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
     lateinit var scaleController: ScaleController
 
     protected val evaluator = FloatEvaluator()
-    protected var isScaleDownAvailable = false
-    protected var isScaleUpAvailable = false
+    protected var animationScaleDownAvailable = false
+    protected var animationScaleUpAvailable = false
 
     protected var scaleFrom = 1f
     protected var scaleTo = 1f
 
     override fun onScaleDownAvailable(isAvailable: Boolean) {
-        isScaleDownAvailable = isAvailable
+        animationScaleDownAvailable = isAvailable
     }
 
     override fun onScaleUpAvailable(isAvailable: Boolean) {
-        isScaleUpAvailable = isAvailable
+        animationScaleUpAvailable = isAvailable
     }
 }
