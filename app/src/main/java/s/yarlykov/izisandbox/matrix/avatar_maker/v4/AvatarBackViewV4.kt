@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -148,7 +149,7 @@ class AvatarBackViewV4 @JvmOverloads constructor(
         scaleController.onScaleDownAvailable(scaleController.scaleMax > 1f)
 
         val scaleUpAvailable =
-            rectBitmapVisible.height() > ceil(rectBitmapVisibleHeightMin + 0.5f).toInt()
+            rectBitmapVisible.height() > (rectBitmapVisibleHeightMin).toInt()
 
         scaleController.onScaleUpAvailable(scaleUpAvailable)
 

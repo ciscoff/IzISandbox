@@ -127,6 +127,9 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
      *
      * @param proposedOffsetX - знаковое смещение от ПРЕДЫДУЩЕГО ПОЛОЖЕНИЯ,
      * а не от tapCorner.cornerX. Соотв нужно сравнивать со знаковым distMax
+     *
+     * NOTE: В состоянии когда зум максимальный (максимальное увеличение), то
+     *  distAvailable == distMax и в этом случае нельзя делать Squeeze (ниже есть проверка)
      */
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
@@ -135,7 +138,7 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
         return when (scalingMode) {
             // При сжатии не должны "перелететь" за distMax.
             Mode.Scaling.Squeeze -> {
-                if (prevDist != distAvailSigned) {
+                if (prevDist != distAvailSigned && distAvailable != distMax) {
                     if (direction.x > 0) {
                         if (prevDist + proposedOffsetX >= distAvailSigned) {
                             offsetX = distAvailSigned - prevDist

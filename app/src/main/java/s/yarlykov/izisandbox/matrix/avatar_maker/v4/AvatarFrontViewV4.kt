@@ -157,6 +157,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                     is Mode.Scaling -> {
 
                         mode = gesture.detectScalingSubMode(dX)
+
                         val offset = gesture.onMove(dX, dY)
 
                         if (offset.invalid || offset.empty) {
@@ -172,7 +173,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         // После того как обновили размеры rectClip можно проверить доступность
                         // анимации скаливарония.
                         if (mode == Mode.Scaling.Squeeze) {
-                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width())
+                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width() && scaleController.scaleMin != 0f)
                         }
                     }
                     else -> {

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
@@ -69,6 +70,13 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
             avatarBack.onBitmapReady(bitmap)
             avatarFront.onBitmapReady(bitmap)
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if(event.action == MotionEvent.ACTION_OUTSIDE) {
+            logIt("ACTION_OUTSIDE in parent")
+        }
+        return super.onTouchEvent(event)
     }
 
     /**
