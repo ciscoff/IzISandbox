@@ -1,7 +1,11 @@
-package s.yarlykov.izisandbox.rx
+package s.yarlykov.izisandbox.rx.test_rx
 
+import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
+import org.reactivestreams.Subscriber
 import java.util.concurrent.TimeUnit
 
 
@@ -42,4 +46,9 @@ fun main(args: Array<String>) {
      */
 
     Thread.sleep(20000)
+
+    val l : Subscriber<Int>
+
+    Observable.range(1, 100).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { item -> println(item) }
+    Flowable.range(1, 100)
 }
