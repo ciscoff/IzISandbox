@@ -159,8 +159,9 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         mode = gesture.detectScalingSubMode(dX)
 
                         val offset = gesture.onMove(dX, dY)
+                        logIt("ACTION_MOVE mode=${mode::class.simpleName} offset=$offset")
 
-                        if (offset.invalid || offset.empty) {
+                        if (offset.invalid || offset.zero) {
                             return true
                         }
 

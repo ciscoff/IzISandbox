@@ -14,5 +14,5 @@ val Offset.invalid: Boolean
             y == Float.MIN_VALUE ||
             y == Float.MAX_VALUE
 
-val Offset.empty: Boolean
+val Offset.zero: Boolean
     get() = (x == 0f || x == -0f) && (y == 0f || y == -0f)

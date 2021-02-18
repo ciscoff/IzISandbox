@@ -103,10 +103,15 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
 
     /**
      * После каждого ACTION_MOVE нужно определить режим скалирования: растягиваем/сжимаем
+     * @param eventOffsetX - это знаковое смещение между предыдущим event.x и текущим event.x
+     *
+     * Есть проблема: если от LB делаем сжатие и выходим за пределы rectVisible, а потом идем
+     * обратно, то в момент разворота prevDist == distAvailSigned, а на самом деле палец далеко
+     * левее. В результате ...
      */
-    fun detectScalingSubMode(offsetX: Float): Mode.Scaling {
+    fun detectScalingSubMode(eventOffsetX: Float): Mode.Scaling {
 
-        currentDist = prevDist + offsetX
+        currentDist = prevDist + eventOffsetX
 
         scalingMode = when (tapCorner.tapArea) {
             is lt, is lb -> {
@@ -131,16 +136,23 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
      * NOTE: В состоянии когда зум максимальный (максимальное увеличение), то
      *  distAvailable == distMax и в этом случае нельзя делать Squeeze (ниже есть проверка)
      */
+
+    private var lessThanMinimum = false
+    private var realDist = 0f
+
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
         var offsetX = proposedOffsetX
 
         return when (scalingMode) {
-            // При сжатии не должны "перелететь" за distMax.
+            // При сжатии не должны "перелететь" за distAvailable.
             Mode.Scaling.Squeeze -> {
                 if (prevDist != distAvailSigned && distAvailable != distMax) {
                     if (direction.x > 0) {
-                        if (prevDist + proposedOffsetX >= distAvailSigned) {
+
+                        lessThanMinimum = prevDist + proposedOffsetX >= distAvailSigned
+
+                        if (lessThanMinimum) {
                             offsetX = distAvailSigned - prevDist
                             prevDist = distAvailSigned
                         } else {
@@ -155,6 +167,8 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
                         }
                     }
 
+                    logIt("Squeeze: prevDist=$prevDist, distAvailSigned=$distAvailSigned")
+
                     if (offsetX == -0.0f || offsetX == 0.0f) {
                         emptyOffset
                     } else {
@@ -167,7 +181,7 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
             // родительского View). Это выполнит внешний код.
             Mode.Scaling.Shrink -> {
                 prevDist = currentDist
-
+                logIt("Shrink: prevDist=$prevDist, distAvailSigned=$distAvailSigned")
                 Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
             }
             else -> {
