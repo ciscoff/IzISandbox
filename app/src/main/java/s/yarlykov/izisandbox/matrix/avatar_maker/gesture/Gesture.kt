@@ -78,6 +78,9 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
     }
 
     init {
+
+        logIt("AAA distAvailable=$distAvailable, distMax=$distMax")
+
         /**
          * Когда битмапа уже сильно увеличена, то значение distAvailable приближается к 0 и
          * в новом Gesture может случиться так, что абсолютное значение prevDist превысит
@@ -134,10 +137,10 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
      * а не от tapCorner.cornerX. Соотв нужно сравнивать со знаковым distMax
      *
      * NOTE: В состоянии когда зум максимальный (максимальное увеличение), то
-     *  distAvailable == distMax и в этом случае нельзя делать Squeeze (ниже есть проверка)
+     *  distAvailable == 0.0 и в этом случае нельзя делать Squeeze (ниже есть проверка)
      */
 
-    private var lessThanMinimum = false
+    private var isOverAvail = false
     private var realDist = 0f
 
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
@@ -147,27 +150,19 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
         return when (scalingMode) {
             // При сжатии не должны "перелететь" за distAvailable.
             Mode.Scaling.Squeeze -> {
-                if (prevDist != distAvailSigned && distAvailable != distMax) {
-                    if (direction.x > 0) {
+                if (prevDist != distAvailSigned && distAvailable != 0f) {
 
-                        lessThanMinimum = prevDist + proposedOffsetX >= distAvailSigned
-
-                        if (lessThanMinimum) {
-                            offsetX = distAvailSigned - prevDist
-                            prevDist = distAvailSigned
-                        } else {
-                            prevDist = currentDist
-                        }
+                    isOverAvail = if (direction.x > 0) {
+                        currentDist >= distAvailSigned
                     } else {
-                        if (prevDist + proposedOffsetX <= distAvailSigned) {
-                            offsetX = distAvailSigned - prevDist
-                            prevDist = distAvailSigned
-                        } else {
-                            prevDist = currentDist
-                        }
+                        currentDist <= distAvailSigned
                     }
 
-                    logIt("Squeeze: prevDist=$prevDist, distAvailSigned=$distAvailSigned")
+                    if (isOverAvail) {
+                        offsetX = if (prevDist < distAvailSigned) distAvailSigned - prevDist else 0f
+                    }
+
+                    prevDist = currentDist
 
                     if (offsetX == -0.0f || offsetX == 0.0f) {
                         emptyOffset
@@ -176,6 +171,31 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
                     }
 
                 } else emptyOffset
+
+//                if (prevDist != distAvailSigned && distAvailable != distMax) {
+//
+//                    isOverAvail = if (direction.x > 0) {
+//                        prevDist + proposedOffsetX >= distAvailSigned
+//                    } else {
+//                        prevDist + proposedOffsetX <= distAvailSigned
+//                    }
+//
+//                    if (isOverAvail) {
+//                        offsetX = distAvailSigned - prevDist
+//                        prevDist = distAvailSigned
+//                    } else {
+//                        prevDist = currentDist
+//                    }
+//
+//                    logIt("Squeeze: prevDist=$prevDist, distAvailSigned=$distAvailSigned")
+//
+//                    if (offsetX == -0.0f || offsetX == 0.0f) {
+//                        emptyOffset
+//                    } else {
+//                        Offset(offsetX to abs(offsetX) * direction.y)
+//                    }
+//
+//                } else emptyOffset
             }
             // При расширении не делаем никаких проверок (например выход за пределы
             // родительского View). Это выполнит внешний код.

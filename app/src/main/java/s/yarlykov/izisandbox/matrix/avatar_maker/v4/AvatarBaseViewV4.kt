@@ -180,18 +180,20 @@ abstract class AvatarBaseViewV4 @JvmOverloads constructor(
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.
         rectBitmapVisibleHeightMin = rectVisible.height() / bitmapScaleMax
 
-        // Это минимальный масштаб для rectBitmapVisible внутри БИТМАПЫ. Поясняю: при первой
-        // загрузке битмапы rectBitmapVisible совпадает по размеру с размером битмапы и
-        // соответственно зум этого прямоугольника относительно битмапы равен 1.
-        // Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то его
-        // масштаб от начального 1 будет равен scaleMin. А в промежуточных состояниях он будет
-        // меняться от 1 до scaleMin и обратно к 1.
-        scaleController.scaleMin = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
+        // Лучше так сказать - это масштаб rectBitmapVisibleHeightMin относительно значения
+        // rectBitmapVisible.height. Поясняю: при первой загрузке битмапы rectBitmapVisible
+        // совпадает по размеру с размером битмапы, он больше чем rectBitmapVisibleHeightMin и
+        // отношение rectBitmapVisibleHeightMin/rectBitmapVisible.height = 0.?
+        // Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то соотношение
+        // станет равным 1. scaleSqueeze работает в диапазоне 0.? - 1
+        scaleController.scaleSqueeze = rectBitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
 
-        // После очередного squeeze rectBitmapVisible уменьшается относительно высоты битмапы.
-        // Значение scaleMax показывает на сколько нужно увеличить rectBitmapVisible, чтобы снова
-        // получить высоту битмапы. То есть scaleMax работает в диапазоне 1+. Начальное значение 1.
-        scaleController.scaleMax = 1f
+        // Это масштаб rectBitmapVisible относительно sourceImageBitmap.height. Поясняю:
+        // после очередного squeeze rectBitmapVisible уменьшается относительно высоты битмапы.
+        // Значение scaleShrink показывает на сколько нужно увеличить rectBitmapVisible, чтобы снова
+        // получить высоту битмапы. То есть scaleShrink работает в диапазоне 1+.
+        // Начальное значение 1.
+        scaleController.scaleShrink = 1f
     }
 
     /**

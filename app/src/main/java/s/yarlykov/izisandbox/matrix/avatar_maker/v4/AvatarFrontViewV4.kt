@@ -174,7 +174,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                         // После того как обновили размеры rectClip можно проверить доступность
                         // анимации скаливарония.
                         if (mode == Mode.Scaling.Squeeze) {
-                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width() && scaleController.scaleMin != 0f)
+                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width() && scaleController.scaleSqueeze != 0f)
                         }
                     }
                     else -> {
@@ -209,7 +209,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
 //                        val shrinkRatio = if(gesture.shrinkRatio < 1) scaleController.scaleMax
 //                        else min(gesture.shrinkRatio, scaleController.scaleMax)
 
-                        val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleMax)
+                        val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleShrink)
                         if (animationScaleDownAvailable) {
                             scaleController.onScaleRequired(shrinkRatio, calculatePivot())
                         }
@@ -351,7 +351,7 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                  * в его height возрастает процентная доля высоты rectBitmapVisibleHeightMin.
                  * Когда они сравняются по величине, то зум станет максимальным.
                  */
-                val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleMin
+                val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleSqueeze
 
                 gesture = Gesture(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),

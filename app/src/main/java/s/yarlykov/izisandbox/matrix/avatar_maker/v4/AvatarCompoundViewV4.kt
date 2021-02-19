@@ -39,8 +39,8 @@ class AvatarCompoundViewV4 @JvmOverloads constructor(
      * скалирования, при котором будет достугнут нижний предел, то есть rectBitmapVisible.height
      * станет равна rectBitmapVisibleHeightMin.
      */
-    override var scaleMax: Float = 1f
-    override var scaleMin: Float = 1f
+    override var scaleShrink: Float = 1f
+    override var scaleSqueeze: Float = 1f
 
     init {
         View.inflate(context, R.layout.layout_avatar_components_v3, this).also { view ->

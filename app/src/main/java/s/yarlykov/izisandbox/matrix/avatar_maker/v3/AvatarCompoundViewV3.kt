@@ -43,10 +43,10 @@ class AvatarCompoundViewV3 @JvmOverloads constructor(
         }
     }
 
-    override var scaleMax: Float
+    override var scaleShrink: Float
         get() = TODO("Not yet implemented")
         set(value) {}
-    override var scaleMin: Float
+    override var scaleSqueeze: Float
         get() = TODO("Not yet implemented")
         set(value) {}
 

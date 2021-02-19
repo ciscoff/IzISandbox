@@ -7,7 +7,6 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
-import kotlin.math.ceil
 
 /**
  * Класс управляет масштабом и позиционированием фонового рисунка.
@@ -49,8 +48,8 @@ class AvatarBackViewV4 @JvmOverloads constructor(
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      *
      * @param factor:
-     * - ПРИ СЖАТИИ показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
-     * до наименьшего положения. Допустим что это первый зум: scaleMax = 1, scaleMin = 1/4
+     * - ПРИ Squeeze показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
+     * до наименьшего положения. Допустим что это первый зум: scaleMin = 1, scaleMax = 1/4
      * и factor = 3/4. Это значит, что после выполнения анимации останется
      * пройти 3/4 "дистанции" между scaleMax и scaleMin.
      *
@@ -124,7 +123,7 @@ class AvatarBackViewV4 @JvmOverloads constructor(
     }
 
     /**
-     * После анимации данная view отвечает за перерасчет scaleMin/scaleMax и за определение
+     * После анимации данная view отвечает за перерасчет scaleMin,scaleMax и за определение
      * значений для animationScaleUpAvailable/animationScaleDownAvailable.
      *
      * Напоминаю что:
@@ -140,25 +139,29 @@ class AvatarBackViewV4 @JvmOverloads constructor(
         val bitmapHeight = sourceImageBitmap?.height!!
         val heightDifference = bitmapHeight - rectBitmapVisible.height()
 
-        scaleController.scaleMax = if (abs(heightDifference) < measurementError) {
+        scaleController.scaleShrink = if (abs(heightDifference) < measurementError) {
             1f
         } else {
             1f + heightDifference.toFloat() / bitmapHeight
         }
 
-        scaleController.onScaleDownAvailable(scaleController.scaleMax > 1f)
+        scaleController.onScaleDownAvailable(scaleController.scaleShrink > 1f)
 
         val scaleUpAvailable =
-            rectBitmapVisible.height() > (rectBitmapVisibleHeightMin).toInt()
+            rectBitmapVisible.height() >= (rectBitmapVisibleHeightMin).toInt()
 
         scaleController.onScaleUpAvailable(scaleUpAvailable)
 
-        scaleController.scaleMin =
+        /**
+         * При максимальном зуме rectBitmapVisibleHeightMin == rectBitmapVisible.height
+         */
+        scaleController.scaleSqueeze =
             if (scaleUpAvailable) {
                 rectBitmapVisibleHeightMin / rectBitmapVisible.height()
             } else {
-                0f
+                1f
             }
+        logIt("AAA scaleSqueeze after animation = ${scaleController.scaleSqueeze}")
     }
 
     /**

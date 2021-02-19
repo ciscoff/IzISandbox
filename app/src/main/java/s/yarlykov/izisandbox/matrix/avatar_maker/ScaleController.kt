@@ -8,14 +8,23 @@ interface ScaleController {
     fun onScaleUpAvailable(isAvailable: Boolean)
 
     /**
+     * NOTE: scaleShrink используется при визуальном уменьшении картинки, а это Shrink.
+     *
      * Применяется при увеличении rectBitmapVisible.height в сторону sourceImageBitmap.height.
-     * scaleMax имеет значение >= 1. Если обе высоты равны, то scaleMax = 1
+     * scaleShrink имеет значение '1 + delta', где delta характеризует разницу между высотами
+     * sourceImageBitmap и rectBitmapVisible.
      */
-    var scaleMax: Float
+    var scaleShrink: Float
 
     /**
+     * NOTE: scaleSqueeze используется при визуальном увеличении картинки, а это Squeeze.
+     *
      * Применяется при уменьшении rectBitmapVisible.height в сторону rectBitmapVisibleHeightMin.
-     * scaleMin имеет значение <= 1.
+     * scaleSqueeze имеет значение <= 1.
+     *
+     * При максимальном увеличении битмапы её видимый размер равен rectBitmapVisibleHeightMin.
+     * А так как scaleSqueeze - это отношение rectBitmapVisibleHeightMin к rectBitmapVisible.height,
+     * то при максимальном зуме scaleSqueeze = 1
      */
-    var scaleMin: Float
+    var scaleSqueeze: Float
 }
