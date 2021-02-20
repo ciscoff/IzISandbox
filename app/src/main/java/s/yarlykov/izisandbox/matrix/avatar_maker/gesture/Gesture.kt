@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
+import android.graphics.RectF
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
@@ -50,7 +51,12 @@ import kotlin.math.sign
  * @param distAvailable - разрешенная дистанция для squeeze
  * @param distMax - длина стороны квадрата
  */
-data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distMax: Float) {
+data class Gesture(
+    val tapCorner: TapCorner,
+    val distAvailable: Float,
+    val distMax: Float,
+    val bounds: RectF
+) {
 
     private val invalidOffset = Offset(Float.MIN_VALUE to Float.MIN_VALUE)
     private val emptyOffset = Offset(0f to 0f)
@@ -78,8 +84,6 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
     }
 
     init {
-
-        logIt("AAA distAvailable=$distAvailable, distMax=$distMax")
 
         /**
          * Когда битмапа уже сильно увеличена, то значение distAvailable приближается к 0 и
@@ -141,7 +145,7 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
      */
 
     private var isOverAvail = false
-    private var realDist = 0f
+    private var squeezeDist = 0f
 
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
@@ -150,7 +154,11 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
         return when (scalingMode) {
             // При сжатии не должны "перелететь" за distAvailable.
             Mode.Scaling.Squeeze -> {
-                if (prevDist != distAvailSigned && distAvailable != 0f) {
+
+
+                if (/*prevDist != distAvailSigned && */distAvailable != 0f) {
+
+                    logIt("WWWW Squeeze: prevDist=$prevDist, currentDist=$currentDist, squeezeDist=$squeezeDist, distAvailSigned=$distAvailSigned")
 
                     isOverAvail = if (direction.x > 0) {
                         currentDist >= distAvailSigned
@@ -159,7 +167,11 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
                     }
 
                     if (isOverAvail) {
-                        offsetX = if (prevDist < distAvailSigned) distAvailSigned - prevDist else 0f
+                        offsetX =
+                            if (squeezeDist < distAvailSigned) distAvailSigned - squeezeDist else 0f
+                        squeezeDist = distAvailSigned
+                    } else {
+                        squeezeDist = currentDist
                     }
 
                     prevDist = currentDist
@@ -200,8 +212,13 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
             // При расширении не делаем никаких проверок (например выход за пределы
             // родительского View). Это выполнит внешний код.
             Mode.Scaling.Shrink -> {
+
+                if (currentDist < squeezeDist) {
+                    squeezeDist = currentDist
+                }
+
                 prevDist = currentDist
-                logIt("Shrink: prevDist=$prevDist, distAvailSigned=$distAvailSigned")
+                logIt("WWWW Shrink: prevDist=$prevDist, currentDist=$currentDist, squeezeDist=$squeezeDist, distAvailSigned=$distAvailSigned")
                 Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
             }
             else -> {
@@ -222,7 +239,7 @@ data class Gesture(val tapCorner: TapCorner, val distAvailable: Float, val distM
 
     // Это сколько осталось (но не превышая distAvailable)
     val squeezeRatioLeft: Float
-        get() = (distMaxSigned - prevDist) / distMaxSigned
+        get() = (distMaxSigned - squeezeDist) / distMaxSigned
 
     val shrinkRatio: Float
         get() = (abs(prevDist) + abs(distMax)) / abs(distMax)

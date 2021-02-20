@@ -356,7 +356,8 @@ class AvatarFrontViewV4 @JvmOverloads constructor(
                 gesture = Gesture(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
                     rectClipCopy.width() - fixedSizeSegment,
-                    rectClipCopy.width()
+                    rectClipCopy.width(),
+                    RectF(rectVisible)
                 )
 
                 mode = Mode.Scaling.Init
