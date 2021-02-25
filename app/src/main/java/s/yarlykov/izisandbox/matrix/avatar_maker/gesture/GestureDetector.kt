@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -9,7 +10,7 @@ import kotlin.math.sign
  * @param frameRatio - величина от 1 до 0.X, где 0.X - размер минимального квадрата
  * @param size - размер рамки
  */
-data class ScaleDetector(
+data class GestureDetector(
     val tapCorner: TapCorner,
     val bitmapRatio: Ratio,
     val frameRatio: Ratio,
@@ -47,9 +48,15 @@ data class ScaleDetector(
     private var currentDist = 0f
 
 
-    private val distAvailable: Float = sign(direction.x) * size * (1f - frameRatio.min) + dX
+    private var distAvailable: Float = sign(direction.x) * size * (1f - frameRatio.min) + dX
 
     init {
+
+//        if(size * (1f - frameRatio.min) < dX) {
+//            distAvailable = 0f
+//        }
+
+        logIt("offset=${size * (1f - frameRatio.min)}, dX=$dX, distAvailable=$distAvailable, size=$size")
 
         /**
          * TODO !!!
@@ -112,13 +119,15 @@ data class ScaleDetector(
             // При сжатии не должны "перелететь" за distAvailable.
             Mode.Scaling.Squeeze -> {
 
-                if (distAvailable != 0f) {
+//                if (distAvailable != 0f) {
 
                     isOverAvail = if (direction.x > 0) {
                         currentDist >= distAvailable
                     } else {
                         currentDist <= distAvailable
                     }
+
+                    logIt("offset=${size * (1f - frameRatio.min)}, dX=$dX, distAvailable=$distAvailable, size=$size, currentDist=$currentDist, isOverAvail=$isOverAvail")
 
                     if (isOverAvail) {
                         offsetX =
@@ -136,7 +145,7 @@ data class ScaleDetector(
                         Offset(offsetX to abs(offsetX) * direction.y)
                     }
 
-                } else emptyOffset
+//                } else emptyOffset
 
             }
             // При расширении не делаем никаких проверок (например выход за пределы
@@ -161,7 +170,7 @@ data class ScaleDetector(
         get() {
             val realOffsetX = squeezeDist - dX
             val frameScaleRatio = (size - realOffsetX)/size
-            return bitmapRatio.max + frameScaleRatio
+            return bitmapRatio.max * frameScaleRatio
         }
 
     val shrinkRatio: Float

@@ -48,12 +48,10 @@ class AvatarBackViewV5 @JvmOverloads constructor(
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      *
      * @param factor:
-     * - ПРИ Squeeze показывает сколько ОСТАНЕТСЯ пройти от положения после анимации
-     * до наименьшего положения. Допустим что это первый зум: scaleMin = 1, scaleMax = 1/4
-     * и factor = 3/4. Это значит, что после выполнения анимации останется
-     * пройти 3/4 "дистанции" между scaleMax и scaleMin.
+     * - ПРИ Squeeze показывает реальный scale для видимой части битмапы, то есть после анимации
+     * отношение rectBitmapVisible.height() /  sourceImageBitmap.height будет равно factor.
      *
-     * - ПРИ РАСТЯЖЕНИИ показывает на сколько больше станет
+     * - ПРИ РАСТЯЖЕНИИ ......
      */
     override fun onPreAnimate(factor: Float, pivot: PointF) {
 
@@ -79,10 +77,22 @@ class AvatarBackViewV5 @JvmOverloads constructor(
 
         preScaleParams = BitmapPreScaleParams(pivotBitmap, pivotRatioX, pivotRatioY, startW, startH)
 
-        scaleFrom = 1f      // от текущего состояния
-        scaleTo = factor    // до состояния factor
+        /**
+         * Теперь нужно factor (который показывает абсолютное значение scale) сконвертировать
+         * в относительное значение scale. Под относительным отношением scale понимается
+         * следующее: как нужно отскалировать rectBitmapVisible.height от её текущего значения,
+         * до её нового значения. Текущее значение rectBitmapVisible.height принимается за 1.
+         */
+        val postScaleVisibleHeight = sourceImageBitmap!!.height * factor
 
-        lastFactor = factor
+        // от текущего состояния rectBitmapVisible
+        scaleFrom = 1f
+        // до нового состояния
+        scaleTo = postScaleVisibleHeight / rectBitmapVisible.height()
+
+        logIt("onPreAnimate abs_factor=$factor, relative_factor=${postScaleVisibleHeight / rectBitmapVisible.height()}")
+
+        lastFactor = factor // TODO ??
     }
 
     /**

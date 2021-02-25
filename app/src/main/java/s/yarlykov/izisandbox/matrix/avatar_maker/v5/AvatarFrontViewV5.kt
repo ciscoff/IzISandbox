@@ -156,10 +156,12 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                     }
                     is Mode.Scaling -> {
 
-                        mode = gesture.detectScalingSubMode(dX)
+                        mode = gestureDetector.detectScalingSubMode(dX)
+//                        mode = gesture.detectScalingSubMode(dX)
 
-                        val offset = gesture.onMove(dX, dY)
-                        logIt("ACTION_MOVE mode=${mode::class.simpleName} offset=$offset")
+                        val offset = gestureDetector.onMove(dX, dY)
+//                        val offset = gesture.onMove(dX, dY)
+//                        logIt("ACTION_MOVE mode=${mode::class.simpleName} offset=$offset")
 
                         if (offset.invalid || offset.zero) {
                             return true
@@ -199,7 +201,8 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 
                 when (mode) {
                     is Mode.Scaling.Squeeze -> {
-                        val ratioLeft = gesture.squeezeRatioLeft
+//                        val ratioLeft = gesture.squeezeRatioLeft
+                        val ratioLeft = gestureDetector.squeezeRatioLeft
                         if (animationScaleUpAvailable) {
                             scaleController.onScaleRequired(ratioLeft, calculatePivot())
                         }
@@ -209,7 +212,8 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 //                        val shrinkRatio = if(gesture.shrinkRatio < 1) scaleController.scaleMax
 //                        else min(gesture.shrinkRatio, scaleController.scaleMax)
 
-                        val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleShrink)
+//                        val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleShrink)
+                        val shrinkRatio = min(gestureDetector.shrinkRatio, scaleController.scaleShrink)
                         if (animationScaleDownAvailable) {
                             scaleController.onScaleRequired(shrinkRatio, calculatePivot())
                         }
@@ -245,8 +249,7 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
     private val rectTemp = RectF()
     private var pivot: PointF? = null
 
-    private lateinit var gesture: Gesture
-    private lateinit var scaleDetector: ScaleDetector
+    private lateinit var gestureDetector: GestureDetector
 
     /**
      * Скалируемся от текущего размера до rectMin относительно pivot.
@@ -354,21 +357,21 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                  */
                 val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleSqueeze
 
-                scaleDetector = ScaleDetector(
+                gestureDetector = GestureDetector(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
                     Ratio(scaleController.bitmapScaleCurrent, scaleController.bitmapScaleMin),
                     Ratio(1f, min(1f, scaleController.bitmapScaleMin / scaleController.bitmapScaleCurrent)),
                     rectClipCopy.width()
                 )
 
-                logIt("scaleDetector=$scaleDetector")
+                logIt("gestureDetector=$gestureDetector")
 
-                gesture = Gesture(
-                    TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
-                    rectClipCopy.width() - fixedSizeSegment,
-                    rectClipCopy.width(),
-                    RectF(rectVisible)
-                )
+//                gesture = Gesture(
+//                    TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
+//                    rectClipCopy.width() - fixedSizeSegment,
+//                    rectClipCopy.width(),
+//                    RectF(rectVisible)
+//                )
 
                 mode = Mode.Scaling.Init
                 return
