@@ -104,7 +104,7 @@ data class Gesture(
         get() = distAvailable * direction.x
 
     /**
-     * Режим скалировани
+     * Режим скалирования
      */
     private var scalingMode: Mode.Scaling = Mode.Scaling.Init
 

@@ -10,12 +10,24 @@
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent" />-->
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarBackViewV4
+
+
+<!--    <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarBackViewV4-->
+<!--        android:id="@+id/avatarBack"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
+
+<!--    <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarFrontViewV4-->
+<!--        android:id="@+id/avatarFront"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
+
+    <s.yarlykov.izisandbox.matrix.avatar_maker.v5.AvatarBackViewV5
         android:id="@+id/avatarBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v4.AvatarFrontViewV4
+    <s.yarlykov.izisandbox.matrix.avatar_maker.v5.AvatarFrontViewV5
         android:id="@+id/avatarFront"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
