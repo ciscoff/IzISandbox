@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.rx.test_rx
+package s.yarlykov.izisandbox.threads.rx.test_rx
 
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers

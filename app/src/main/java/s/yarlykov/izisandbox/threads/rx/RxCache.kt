@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.rx
+package s.yarlykov.izisandbox.threads.rx
 
 import io.reactivex.Observable
 import io.reactivex.Single
