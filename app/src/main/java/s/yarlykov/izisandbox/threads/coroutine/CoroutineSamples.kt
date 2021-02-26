@@ -8,6 +8,56 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
+fun Flow<String>.toUpperCase(): Flow<String> = flow {
+
+    this@toUpperCase.collect {  sz -> // лямда, которая будет телом emit финального коллектора
+        emit(sz.toUpperCase())
+    }
+}
+
+/**
+
+ flow {
+    здесь генерим data и вызываем emit(data) на предоставленном коллекторе
+
+    val data = ....
+    emit(data)
+ }
+
+ Подробнее:
+ ----------
+ flow {lamda_1} =>
+    val safeFlow = new SafeFlow(lamda_1)
+    return safeFlow
+
+ Теперь имеем SafeFlow заряженный лямдой, которая сгенерит данные, если её
+ запустить на FlowCollector'е. Осталось создать коллектор и предоставить его.
+ Это и есть подписка на SafeFlow.
+
+ Затем:
+ ----------
+
+ safeFlow.collect { что делать внутри emit с данными (т.е. с аргументом), т.е. тело для emit }
+
+ Подробнее:
+ ----------
+ srcFlow.collect{lamda_2} =>
+   val col = object : FlowCollector() {
+                fun emit(data) {
+                    call lamda_2(data)
+                }
+            }
+   this.collect(col), где this - это srcFlow
+
+   Теперь srcFlow внутри своей collect возьмет col и запустит на нем lamda_1
+
+   col.lamda_1()
+
+   и lamda_1 будет генерить данные и отправлять их в col.emit(data), которая отправит
+   их дальше в lamda_2(data).
+
+ */
+
 fun main() {
     /**
      * Здесь создается некий SafeFlow (он же Flow), который в конструкторе получает нашу лямду
@@ -30,6 +80,12 @@ fun main() {
 
     scope.launch {
         flowStrings.collect { println(it) }
+
+        flowStrings.toUpperCase().collect {
+
+        }
+
+
 
 //        f.collect { println(it.toString()) }
 
