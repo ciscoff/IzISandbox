@@ -35,37 +35,33 @@ data class GestureDetector(
     /**
      * Дельта - начальное знаковое смещение точки касания от ближайшей вертикальной стороны рамки
      */
-    private var dX = tapCorner.tap.x - tapCorner.pivot.x
+    private var touchDist = tapCorner.tap.x - tapCorner.pivot.x
 
     /**
      * Знаковая X-дистанция от пальца до точки tapCorner.cornerX в предыдущем событии.
      */
-    private var prevDist = dX
+    private var prevDist = touchDist
 
     /**
      * Знаковая X-дистанция от пальца до точки tapCorner.cornerX в текущем событии.
      */
     private var currentDist = 0f
 
+    /**
+     * Максимально доступная дистанция для Squeeze. Если frameRatio.min == 1, то у нас
+     * полный зум и увеличивать битмапу (а значит уменьшать рамку) больше нельзя.
+     */
+    private var distAvailable: Float = sign(direction.x) * size * (1f - frameRatio.min) + touchDist
 
-    private var distAvailable: Float = sign(direction.x) * size * (1f - frameRatio.min) + dX
+    /**
+     * Дистанция , которая не превышает distAvailable в направлении direction
+     */
+    private var squeezeDist = 0f
 
-    init {
 
-//        if(size * (1f - frameRatio.min) < dX) {
-//            distAvailable = 0f
-//        }
-
-        logIt("offset=${size * (1f - frameRatio.min)}, dX=$dX, distAvailable=$distAvailable, size=$size")
-
-        /**
-         * TODO !!!
-         * Когда битмапа уже сильно увеличена, то значение distAvailable приближается к 0 и
-         * в новом Gesture может случиться так, что абсолютное значение prevDist превысит
-         * абсолютное значение distAvailable. Этого быть не должно.
-         */
-//        if (abs(prevDist) > abs(distAvailable)) prevDist = distAvailable
-    }
+    private var offsetAcc = 0f
+    private var offsetAvail: Float = sign(direction.x) * size * (1f - frameRatio.min)
+    private var isOffsetOver = false
 
     /**
      * Режим скалирования
@@ -108,44 +104,32 @@ data class GestureDetector(
      *  distAvailable == 0.0 и в этом случае нельзя делать Squeeze (ниже есть проверка)
      */
 
-    private var isOverAvail = false
-    private var squeezeDist = 0f
-
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
         var offsetX = proposedOffsetX
 
         return when (scalingMode) {
-            // При сжатии не должны "перелететь" за distAvailable.
+            // При сжатии не должны "перелететь" за offsetAvail
             Mode.Scaling.Squeeze -> {
 
-//                if (distAvailable != 0f) {
+                isOffsetOver = if (direction.x > 0) {
+                    (offsetAcc + offsetX) >= offsetAvail
+                } else {
+                    (offsetAcc + offsetX) <= offsetAvail
+                }
 
-                    isOverAvail = if (direction.x > 0) {
-                        currentDist >= distAvailable
-                    } else {
-                        currentDist <= distAvailable
-                    }
+                if (isOffsetOver) {
+                    offsetX = if (offsetAcc < offsetAvail) offsetAvail - offsetAcc else 0f
+                }
 
-                    logIt("offset=${size * (1f - frameRatio.min)}, dX=$dX, distAvailable=$distAvailable, size=$size, currentDist=$currentDist, isOverAvail=$isOverAvail")
+                offsetAcc += offsetX
+                prevDist = currentDist
 
-                    if (isOverAvail) {
-                        offsetX =
-                            if (squeezeDist < distAvailable) distAvailable - squeezeDist else 0f
-                        squeezeDist = distAvailable
-                    } else {
-                        squeezeDist = currentDist
-                    }
-
-                    prevDist = currentDist
-
-                    if (offsetX == -0.0f || offsetX == 0.0f) {
-                        emptyOffset
-                    } else {
-                        Offset(offsetX to abs(offsetX) * direction.y)
-                    }
-
-//                } else emptyOffset
+                if (offsetX == -0.0f || offsetX == 0.0f) {
+                    emptyOffset
+                } else {
+                    Offset(offsetX to abs(offsetX) * direction.y)
+                }
 
             }
             // При расширении не делаем никаких проверок (например выход за пределы
@@ -166,10 +150,9 @@ data class GestureDetector(
     }
 
     // Это Bitmap Scale Ratio
-    val squeezeRatioLeft: Float
+    val squeezeRatio: Float
         get() {
-            val realOffsetX = squeezeDist - dX
-            val frameScaleRatio = (size - realOffsetX)/size
+            val frameScaleRatio = (size - offsetAcc) / size
             return bitmapRatio.max * frameScaleRatio
         }
 

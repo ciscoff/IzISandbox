@@ -23,10 +23,10 @@ interface ScaleControllerV5 {
      * scaleSqueeze имеет значение <= 1.
      *
      * При максимальном увеличении битмапы её видимый размер равен rectBitmapVisibleHeightMin.
-     * А так как scaleSqueeze - это отношение rectBitmapVisibleHeightMin к rectBitmapVisible.height,
+     * А так как scaleSqueeze - это отношение bitmapVisibleHeightMin / rectBitmapVisible.height,
      * то при максимальном зуме scaleSqueeze = 1
      */
-    var scaleSqueeze: Float
+//    var scaleSqueeze: Float
 
     var bitmapScaleCurrent : Float
     var bitmapScaleMin : Float

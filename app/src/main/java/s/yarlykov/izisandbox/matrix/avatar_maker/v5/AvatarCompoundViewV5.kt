@@ -38,7 +38,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * станет равна rectBitmapVisibleHeightMin.
      */
     override var scaleShrink: Float = 1f
-    override var scaleSqueeze: Float = 1f
+//    override var scaleSqueeze: Float = 1f
 
     override var bitmapScaleCurrent: Float = 1f
     override var bitmapScaleMin: Float = 0f
@@ -62,7 +62,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     }
 
     /**
-     * Исхоную битмапу загружаем с понижением её resolution.
+     * Исходную битмапу загружаем с понижением её resolution.
      */
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)

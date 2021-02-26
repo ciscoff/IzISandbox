@@ -13,7 +13,7 @@ interface ScaleConsumerV5 {
     /**
      * Подготовиться к анимации
      */
-    fun onPreAnimate(factor: Float, pivot: PointF)
+    fun onPreAnimate(scaleFactor: Float, pivot: PointF)
 
     /**
      * Выполнить отдельную итерацию внутри анимационного цикла

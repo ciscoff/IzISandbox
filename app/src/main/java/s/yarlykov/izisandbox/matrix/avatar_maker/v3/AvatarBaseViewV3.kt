@@ -100,7 +100,7 @@ abstract class AvatarBaseViewV3 @JvmOverloads constructor(
 
         // Максимальное значение для zoom'а
         val typedValue = TypedValue()
-        resources.getValue(R.dimen.bitmap_scale_max, typedValue, true)
+        resources.getValue(R.dimen.bitmap_zoom_max, typedValue, true)
         scaleMax = typedValue.float
     }
 

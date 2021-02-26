@@ -157,11 +157,7 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                     is Mode.Scaling -> {
 
                         mode = gestureDetector.detectScalingSubMode(dX)
-//                        mode = gesture.detectScalingSubMode(dX)
-
                         val offset = gestureDetector.onMove(dX, dY)
-//                        val offset = gesture.onMove(dX, dY)
-//                        logIt("ACTION_MOVE mode=${mode::class.simpleName} offset=$offset")
 
                         if (offset.invalid || offset.zero) {
                             return true
@@ -174,10 +170,10 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                         preScalingBounds()
 
                         // После того как обновили размеры rectClip можно проверить доступность
-                        // анимации скаливарония.
-                        if (mode == Mode.Scaling.Squeeze) {
-                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width() && scaleController.scaleSqueeze != 0f)
-                        }
+                        // анимации скалирования.
+//                        if (mode == Mode.Scaling.Squeeze) {
+//                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width() && scaleController.scaleSqueeze != 0f)
+//                        }
                     }
                     else -> {
                         logIt("unknown mode")
@@ -201,10 +197,10 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 
                 when (mode) {
                     is Mode.Scaling.Squeeze -> {
-//                        val ratioLeft = gesture.squeezeRatioLeft
-                        val ratioLeft = gestureDetector.squeezeRatioLeft
+                        val bitmapScaleFactor = gestureDetector.squeezeRatio
+
                         if (animationScaleUpAvailable) {
-                            scaleController.onScaleRequired(ratioLeft, calculatePivot())
+                            scaleController.onScaleRequired(bitmapScaleFactor, calculatePivot())
                         }
                     }
                     is Mode.Scaling.Shrink -> {
@@ -254,13 +250,11 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
     /**
      * Скалируемся от текущего размера до rectMin относительно pivot.
      */
-    override fun onPreAnimate(factor: Float, pivot: PointF) {
+    override fun onPreAnimate(scaleFactor: Float, pivot: PointF) {
 
         scaleFrom = rectClip.width()
         scaleTo = rectMin.width()
         this.pivot = rectClip.center
-
-        lastFactor = factor
     }
 
     override fun onAnimate(fraction: Float) {
@@ -355,7 +349,7 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                  * в его height возрастает процентная доля высоты rectBitmapVisibleHeightMin.
                  * Когда они сравняются по величине, то зум станет максимальным.
                  */
-                val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleSqueeze
+//                val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleSqueeze
 
                 gestureDetector = GestureDetector(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),

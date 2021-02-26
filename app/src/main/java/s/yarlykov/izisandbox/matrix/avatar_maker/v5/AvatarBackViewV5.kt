@@ -7,6 +7,7 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
+import kotlin.math.ceil
 
 /**
  * Класс управляет масштабом и позиционированием фонового рисунка.
@@ -44,16 +45,23 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         invalidate()
     }
 
+    override fun onBitmapReady(bitmap: Bitmap) {
+        super.onBitmapReady(bitmap)
+
+        scaleController.onScaleDownAvailable(rectBitmapVisible.height() < bitmap.height)
+        scaleController.onScaleUpAvailable(rectBitmapVisible.height() > bitmapVisibleHeightMin)
+    }
+
     /**
      * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
      *
-     * @param factor:
+     * @param scaleFactor:
      * - ПРИ Squeeze показывает реальный scale для видимой части битмапы, то есть после анимации
      * отношение rectBitmapVisible.height() /  sourceImageBitmap.height будет равно factor.
      *
      * - ПРИ РАСТЯЖЕНИИ ......
      */
-    override fun onPreAnimate(factor: Float, pivot: PointF) {
+    override fun onPreAnimate(scaleFactor: Float, pivot: PointF) {
 
         // Нужно сконвертировать pivot из координат view в координаты битмапы.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
@@ -78,21 +86,19 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         preScaleParams = BitmapPreScaleParams(pivotBitmap, pivotRatioX, pivotRatioY, startW, startH)
 
         /**
-         * Теперь нужно factor (который показывает абсолютное значение scale) сконвертировать
+         * Теперь нужно scaleFactor (который показывает абсолютное значение scale) сконвертировать
          * в относительное значение scale. Под относительным отношением scale понимается
          * следующее: как нужно отскалировать rectBitmapVisible.height от её текущего значения,
          * до её нового значения. Текущее значение rectBitmapVisible.height принимается за 1.
          */
-        val postScaleVisibleHeight = sourceImageBitmap!!.height * factor
+        val postScaleVisibleHeight = sourceImageBitmap!!.height * scaleFactor
 
         // от текущего состояния rectBitmapVisible
         scaleFrom = 1f
         // до нового состояния
         scaleTo = postScaleVisibleHeight / rectBitmapVisible.height()
 
-        logIt("onPreAnimate abs_factor=$factor, relative_factor=${postScaleVisibleHeight / rectBitmapVisible.height()}")
-
-        lastFactor = factor // TODO ??
+        logIt("onPreAnimate abs_factor=$scaleFactor, relative_factor=$scaleTo}")
     }
 
     /**
@@ -133,7 +139,7 @@ class AvatarBackViewV5 @JvmOverloads constructor(
     }
 
     /**
-     * После анимации данная view отвечает за перерасчет scaleMin,scaleMax и за определение
+     * После анимации данная view отвечает за перерасчет scaleMin, scaleMax и за определение
      * значений для animationScaleUpAvailable/animationScaleDownAvailable.
      *
      * Напоминаю что:
@@ -141,7 +147,7 @@ class AvatarBackViewV5 @JvmOverloads constructor(
      *  ScaleUp - визуально увеличиваем, но при этом УМЕНЬШАЕМ размер rectBitmapVisible
      *
      * NOTE: scale_min -> на примере Squeeze: после завершения анимации rectBitmapVisible
-     * уменьшается, а значит увеличивается процентное соотношение высоты rectBitmapVisibleHeightMin
+     * уменьшается, а значит увеличивается процентное соотношение высоты bitmapVisibleHeightMin
      * в высоте rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
      */
     override fun onPostAnimate() {
@@ -149,30 +155,11 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         val bitmapHeight = sourceImageBitmap?.height!!
         val heightDifference = bitmapHeight - rectBitmapVisible.height()
 
-        scaleController.scaleShrink = if (abs(heightDifference) < measurementError) {
-            1f
-        } else {
-            1f + heightDifference.toFloat() / bitmapHeight
+        scaleController.apply {
+            onScaleDownAvailable(abs(heightDifference) > measurementError)
+            onScaleUpAvailable(rectBitmapVisible.height() > ceil(bitmapVisibleHeightMin))
+            bitmapScaleCurrent = rectBitmapVisible.height().toFloat() / bitmapHeight
         }
-
-        scaleController.onScaleDownAvailable(scaleController.scaleShrink > 1f)
-
-        val scaleUpAvailable =
-            rectBitmapVisible.height() >= (bitmapVisibleHeightMin).toInt()
-
-        scaleController.onScaleUpAvailable(scaleUpAvailable)
-
-        /**
-         * При максимальном зуме rectBitmapVisibleHeightMin == rectBitmapVisible.height
-         */
-        scaleController.scaleSqueeze =
-            if (scaleUpAvailable) {
-                bitmapVisibleHeightMin / rectBitmapVisible.height()
-            } else {
-                1f
-            }
-
-        scaleController.bitmapScaleCurrent = rectBitmapVisible.height().toFloat() / bitmapHeight
     }
 
     /**
