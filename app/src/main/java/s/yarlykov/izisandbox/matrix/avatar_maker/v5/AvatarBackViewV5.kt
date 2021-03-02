@@ -42,6 +42,7 @@ class AvatarBackViewV5 @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        scaleController.onBackSizeChanged(w to h)
         invalidate()
     }
 

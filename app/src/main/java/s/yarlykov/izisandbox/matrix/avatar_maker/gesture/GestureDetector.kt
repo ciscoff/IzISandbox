@@ -33,14 +33,14 @@ data class GestureDetector(
     }
 
     /**
-     * Дельта - начальное знаковое смещение точки касания от ближайшей вертикальной стороны рамки
+     * Начальное знаковое смещение точки касания от ближайшей вертикальной стороны рамки
      */
-    private var touchDist = tapCorner.tap.x - tapCorner.pivot.x
+    private val touchOffset = tapCorner.tap.x - tapCorner.pivot.x
 
     /**
      * Знаковая X-дистанция от пальца до точки tapCorner.cornerX в предыдущем событии.
      */
-    private var prevDist = touchDist
+    private var prevDist = touchOffset
 
     /**
      * Знаковая X-дистанция от пальца до точки tapCorner.cornerX в текущем событии.
@@ -48,20 +48,13 @@ data class GestureDetector(
     private var currentDist = 0f
 
     /**
-     * Максимально доступная дистанция для Squeeze. Если frameRatio.min == 1, то у нас
-     * полный зум и увеличивать битмапу (а значит уменьшать рамку) больше нельзя.
-     */
-    private var distAvailable: Float = sign(direction.x) * size * (1f - frameRatio.min) + touchDist
-
-    /**
-     * Дистанция , которая не превышает distAvailable в направлении direction
+     * Дистанция , которая не превышает offsetAvail в направлении direction
      */
     private var squeezeDist = 0f
 
-
     private var offsetAcc = 0f
     private var offsetAvail: Float = sign(direction.x) * size * (1f - frameRatio.min)
-    private var isOffsetOver = false
+    private var isOverSqueeze = false
 
     /**
      * Режим скалирования
@@ -112,13 +105,15 @@ data class GestureDetector(
             // При сжатии не должны "перелететь" за offsetAvail
             Mode.Scaling.Squeeze -> {
 
-                isOffsetOver = if (direction.x > 0) {
+                isOverSqueeze = if (direction.x > 0) {
                     (offsetAcc + offsetX) >= offsetAvail
                 } else {
                     (offsetAcc + offsetX) <= offsetAvail
                 }
 
-                if (isOffsetOver) {
+                logIt("ABBA isOverSqueeze=$isOverSqueeze, proposedOffsetX=$proposedOffsetX, offsetAcc=$offsetAcc, offsetAvail=$offsetAvail, size=$size" )
+
+                if (isOverSqueeze) {
                     offsetX = if (offsetAcc < offsetAvail) offsetAvail - offsetAcc else 0f
                 }
 

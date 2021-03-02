@@ -230,6 +230,8 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
         rectPivotInit()
         preDragging()
         preDrawing()
+
+        scaleController.onFrontSizeChanged(w to h)
         invalidate()
     }
 

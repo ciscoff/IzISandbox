@@ -7,6 +7,9 @@ interface ScaleControllerV5 {
     fun onScaleDownAvailable(isAvailable: Boolean)
     fun onScaleUpAvailable(isAvailable: Boolean)
 
+    fun onBackSizeChanged(size : Pair<Int, Int>)
+    fun onFrontSizeChanged(size : Pair<Int, Int>)
+
     /**
      * NOTE: scaleShrink используется при визуальном уменьшении картинки, а это Shrink.
      *

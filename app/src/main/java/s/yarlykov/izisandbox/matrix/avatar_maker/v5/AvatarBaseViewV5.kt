@@ -12,6 +12,7 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumerV5
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleControllerV5
+import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     context: Context,

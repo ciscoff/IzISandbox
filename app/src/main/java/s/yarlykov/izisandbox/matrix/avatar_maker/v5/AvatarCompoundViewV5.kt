@@ -9,8 +9,17 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.addListener
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.notZero
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumerV5
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleControllerV5
 
@@ -25,6 +34,9 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
 
     private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
     private val scaleConsumers = ArrayList<ScaleConsumerV5>()
+
+    private val onSizeAvatarBack = MutableStateFlow(0 to 0)
+    private val onSizeAvatarFront = MutableStateFlow(0 to 0)
 
     /**
      * Исходная Bitmap
@@ -61,18 +73,40 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         }
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        (context as AppCompatActivity).lifecycleScope.launch {
+            combine(onSizeAvatarBack, onSizeAvatarFront) { backSize, frontSize ->
+                listOf(backSize, frontSize)
+            }.filter { list ->
+                list.all { it.notZero }
+            }.collect {
+                sourceImageBitmap?.let { bitmap ->
+                    avatarBack.onBitmapReady(bitmap)
+                    avatarFront.onBitmapReady(bitmap)
+                    bitmapScaleMin = avatarBack.bitmapVisibleHeightMin / bitmap.height
+                }
+            }
+        }
+    }
+
     /**
      * Исходную битмапу загружаем с понижением её resolution.
      */
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h)
+    }
 
-        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h).also { bitmap ->
-            avatarBack.onBitmapReady(bitmap)
-            avatarFront.onBitmapReady(bitmap)
+    @ExperimentalCoroutinesApi
+    override fun onFrontSizeChanged(size: Pair<Int, Int>) {
+        onSizeAvatarFront.value = size
+    }
 
-            bitmapScaleMin = avatarBack.bitmapVisibleHeightMin/bitmap.height
-        }
+    @ExperimentalCoroutinesApi
+    override fun onBackSizeChanged(size: Pair<Int, Int>) {
+        onSizeAvatarBack.value = size
     }
 
     /**
