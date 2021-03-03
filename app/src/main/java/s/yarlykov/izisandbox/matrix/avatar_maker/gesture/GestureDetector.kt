@@ -90,22 +90,20 @@ data class GestureDetector(
 
     /**
      * В этом методе нужно определить:
-     * - если сжимаемся, то не уменьшаемся меньше допустимого distAvailable.
-     * - если растягиваемся, то не выходим за границу bounds.
+     * - если сжимаемся, то не уменьшаемся меньше допустимого offsetSqueezeAvail.
+     * - если растягиваемся, то не выходим за пределы offsetShrinkAvail.
      *
-     * @param proposedOffsetX - знаковое смещение от ПРЕДЫДУЩЕГО ПОЛОЖЕНИЯ,
-     * а не от tapCorner.cornerX. Соотв нужно сравнивать со знаковым distMax
-     *
-     * NOTE: В состоянии когда зум максимальный (максимальное увеличение), то
-     *  distAvailable == 0.0 и в этом случае нельзя делать Squeeze (ниже есть проверка)
+     * @param proposedOffsetX - знаковое смещение от ПРЕДЫДУЩЕГО ПОЛОЖЕНИЯ.
      */
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
         var offsetX = proposedOffsetX.normalize()
-        if(offsetX == 0.0f) return emptyOffset
+        if (offsetX == 0.0f) return emptyOffset
 
         return when (scalingMode) {
-            // При сжатии не должны "перелететь" за offsetAvail
+            // При сжатии не должны "перелететь" за offsetSqueezeAvail.
+            //
+            // NOTE: При сжатии важно чтобы смещение по Y соответствовало "знаку" direction.y
             Mode.Scaling.Squeeze -> {
 
                 isOverSqueeze = if (direction.x > 0) {
@@ -132,10 +130,13 @@ data class GestureDetector(
                 } else {
                     Offset(offsetX to abs(offsetX) * direction.y)
                 }
-
             }
-            // При расширении не делаем никаких проверок (например выход за пределы
-            // родительского View). Это выполнит внешний код.
+            // При расширении нужно возвращать proposedOffsetX, НО все равно вычислять
+            // offsetX и вместе с ним offsetAcc. Благодаря этому мы можем растягивать рамку пальцем
+            // без ограничений, но при отпускании пальца реальное скалирование будет расчитано
+            // по значению offsetAcc.
+            //
+            // NOTE: При растягивании важно чтобы смещение по Y сохраняло свой исходный "знак"
             Mode.Scaling.Shrink -> {
 
                 isOverShrink = if (direction.x > 0) {
@@ -157,11 +158,7 @@ data class GestureDetector(
                 offsetAcc += offsetX
                 prevDist = currentDist
 
-                if (offsetX == 0.0f) {
-                    emptyOffset
-                } else {
-                    Offset(offsetX to abs(offsetX) * direction.y)
-                }
+                Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
             }
             else -> {
                 invalidOffset
@@ -170,13 +167,7 @@ data class GestureDetector(
     }
 
     // Это Bitmap Scale Ratio
-    val squeezeRatio: Float
-        get() {
-            val frameScaleRatio = (size - offsetAcc * sign(direction.x)) / size
-            return bitmapRatio.max * frameScaleRatio
-        }
-
-    val shrinkRatio: Float
+    val scaleRatio: Float
         get() {
             val frameScaleRatio = (size - offsetAcc * sign(direction.x)) / size
             return bitmapRatio.max * frameScaleRatio

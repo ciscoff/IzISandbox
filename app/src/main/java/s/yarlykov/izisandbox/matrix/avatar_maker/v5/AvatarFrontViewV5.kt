@@ -191,14 +191,14 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 
                 when (mode) {
                     is Mode.Scaling.Squeeze -> {
-                        val bitmapScaleFactor = gestureDetector.squeezeRatio
+                        val bitmapScaleFactor = gestureDetector.scaleRatio
 
                         if (animationScaleUpAvailable) {
                             scaleController.onScaleRequired(bitmapScaleFactor, calculatePivot())
                         }
                     }
                     is Mode.Scaling.Shrink -> {
-                        val bitmapScaleFactor = gestureDetector.shrinkRatio
+                        val bitmapScaleFactor = gestureDetector.scaleRatio
 
                         if (animationScaleDownAvailable) {
                             scaleController.onScaleRequired(bitmapScaleFactor, calculatePivot())
