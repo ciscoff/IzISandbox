@@ -1,8 +1,10 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
+import s.yarlykov.izisandbox.extensions.normalize
 import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
+import kotlin.math.withSign
 
 /**
  * @param tapCorner - угол и координата первого касания
@@ -47,14 +49,15 @@ data class GestureDetector(
      */
     private var currentDist = 0f
 
-    /**
-     * Дистанция , которая не превышает offsetAvail в направлении direction
-     */
-    private var squeezeDist = 0f
-
     private var offsetAcc = 0f
-    private var offsetAvail: Float = sign(direction.x) * size * (1f - frameRatio.min)
+    private var offsetSqueezeAvail: Float =
+        (sign(direction.x) * size * (1f - frameRatio.min)).normalize()
+
+    private var offsetShrinkAvail: Float =
+        ((-1f) * sign(direction.x) * size * (1f - bitmapRatio.max) / bitmapRatio.max).normalize()
+
     private var isOverSqueeze = false
+    private var isOverShrink = false
 
     /**
      * Режим скалирования
@@ -96,31 +99,35 @@ data class GestureDetector(
      * NOTE: В состоянии когда зум максимальный (максимальное увеличение), то
      *  distAvailable == 0.0 и в этом случае нельзя делать Squeeze (ниже есть проверка)
      */
-
     fun onMove(proposedOffsetX: Float, proposedOffsetY: Float): Offset {
 
-        var offsetX = proposedOffsetX
+        var offsetX = proposedOffsetX.normalize()
+        if(offsetX == 0.0f) return emptyOffset
 
         return when (scalingMode) {
             // При сжатии не должны "перелететь" за offsetAvail
             Mode.Scaling.Squeeze -> {
 
                 isOverSqueeze = if (direction.x > 0) {
-                    (offsetAcc + offsetX) >= offsetAvail
+                    (offsetAcc + offsetX) >= offsetSqueezeAvail
                 } else {
-                    (offsetAcc + offsetX) <= offsetAvail
+                    (offsetAcc + offsetX) <= offsetSqueezeAvail
                 }
-
-                logIt("ABBA isOverSqueeze=$isOverSqueeze, proposedOffsetX=$proposedOffsetX, offsetAcc=$offsetAcc, offsetAvail=$offsetAvail, size=$size" )
 
                 if (isOverSqueeze) {
-                    offsetX = if (offsetAcc < offsetAvail) offsetAvail - offsetAcc else 0f
+                    offsetX =
+                        if (offsetAcc < offsetSqueezeAvail)
+                            (offsetSqueezeAvail - offsetAcc).normalize()
+                        else
+                            0f
                 }
+
+                logIt("isOverSqueeze=$isOverSqueeze, proposedOffsetX=$proposedOffsetX, offsetX=$offsetX, offsetAcc=$offsetAcc, offsetSqueezeAvail=$offsetSqueezeAvail, size=$size")
 
                 offsetAcc += offsetX
                 prevDist = currentDist
 
-                if (offsetX == -0.0f || offsetX == 0.0f) {
+                if (offsetX == 0.0f) {
                     emptyOffset
                 } else {
                     Offset(offsetX to abs(offsetX) * direction.y)
@@ -131,12 +138,30 @@ data class GestureDetector(
             // родительского View). Это выполнит внешний код.
             Mode.Scaling.Shrink -> {
 
-                if (currentDist < squeezeDist) {
-                    squeezeDist = currentDist
+                isOverShrink = if (direction.x > 0) {
+                    (offsetAcc + offsetX) < offsetShrinkAvail
+                } else {
+                    (offsetAcc + offsetX) > offsetShrinkAvail
                 }
 
+                if (isOverShrink) {
+                    offsetX =
+                        if (offsetAcc > offsetShrinkAvail)
+                            (offsetShrinkAvail - offsetAcc).normalize()
+                        else
+                            0f
+                }
+
+                logIt("isOverShrink=$isOverShrink, proposedOffsetX=$proposedOffsetX, offsetX=$offsetX, offsetAcc=$offsetAcc, offsetShrinkAvail=$offsetShrinkAvail, size=$size")
+
+                offsetAcc += offsetX
                 prevDist = currentDist
-                Offset(proposedOffsetX to abs(proposedOffsetX) * sign(proposedOffsetY))
+
+                if (offsetX == 0.0f) {
+                    emptyOffset
+                } else {
+                    Offset(offsetX to abs(offsetX) * direction.y)
+                }
             }
             else -> {
                 invalidOffset
@@ -147,11 +172,14 @@ data class GestureDetector(
     // Это Bitmap Scale Ratio
     val squeezeRatio: Float
         get() {
-            val frameScaleRatio = (size - offsetAcc) / size
+            val frameScaleRatio = (size - offsetAcc * sign(direction.x)) / size
             return bitmapRatio.max * frameScaleRatio
         }
 
     val shrinkRatio: Float
-        get() = 1f // TODO
+        get() {
+            val frameScaleRatio = (size - offsetAcc * sign(direction.x)) / size
+            return bitmapRatio.max * frameScaleRatio
+        }
 
 }

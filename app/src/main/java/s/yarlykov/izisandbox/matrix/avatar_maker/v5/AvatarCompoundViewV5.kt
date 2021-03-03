@@ -76,6 +76,10 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
+        /**
+         * Подписка на извещения от дочерних элементов об окончании обработки onSizeChanged.
+         * После этого им можно отдать bitmap'у.
+         */
         (context as AppCompatActivity).lifecycleScope.launch {
             combine(onSizeAvatarBack, onSizeAvatarFront) { backSize, frontSize ->
                 listOf(backSize, frontSize)

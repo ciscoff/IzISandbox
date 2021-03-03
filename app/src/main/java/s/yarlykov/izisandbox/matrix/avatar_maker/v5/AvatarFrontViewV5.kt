@@ -168,12 +168,6 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                         offsetH = offset.x
                         offsetV = offset.y
                         preScalingBounds()
-
-                        // После того как обновили размеры rectClip можно проверить доступность
-                        // анимации скалирования.
-//                        if (mode == Mode.Scaling.Squeeze) {
-//                            scaleController.onScaleUpAvailable(rectClip.width() < rectMin.width() && scaleController.scaleSqueeze != 0f)
-//                        }
                     }
                     else -> {
                         logIt("unknown mode")
@@ -204,14 +198,10 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                         }
                     }
                     is Mode.Scaling.Shrink -> {
+                        val bitmapScaleFactor = gestureDetector.shrinkRatio
 
-//                        val shrinkRatio = if(gesture.shrinkRatio < 1) scaleController.scaleMax
-//                        else min(gesture.shrinkRatio, scaleController.scaleMax)
-
-//                        val shrinkRatio = min(gesture.shrinkRatio, scaleController.scaleShrink)
-                        val shrinkRatio = min(gestureDetector.shrinkRatio, scaleController.scaleShrink)
                         if (animationScaleDownAvailable) {
-                            scaleController.onScaleRequired(shrinkRatio, calculatePivot())
+                            scaleController.onScaleRequired(bitmapScaleFactor, calculatePivot())
                         }
                     }
                     else -> {
@@ -360,14 +350,7 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                     rectClipCopy.width()
                 )
 
-                logIt("gestureDetector=$gestureDetector")
-
-//                gesture = Gesture(
-//                    TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
-//                    rectClipCopy.width() - fixedSizeSegment,
-//                    rectClipCopy.width(),
-//                    RectF(rectVisible)
-//                )
+                logIt("Gesture: tapArea=${gestureDetector.tapCorner.tapArea::class.simpleName}, bitmapRatio=${gestureDetector.bitmapRatio}, frameRatio=${gestureDetector.frameRatio}, size=${gestureDetector.size}")
 
                 mode = Mode.Scaling.Init
                 return
