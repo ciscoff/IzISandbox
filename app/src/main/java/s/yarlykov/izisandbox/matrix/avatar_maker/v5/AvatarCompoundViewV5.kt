@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.v5
 
+import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Bitmap
@@ -19,9 +20,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.extensions.awaitEnd
 import s.yarlykov.izisandbox.extensions.notZero
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumerV5
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleControllerV5
+import s.yarlykov.izisandbox.utils.logIt
 
 class AvatarCompoundViewV5 @JvmOverloads constructor(
     context: Context,
@@ -42,15 +45,6 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Исходная Bitmap
      */
     private var sourceImageBitmap: Bitmap? = null
-
-    /**
-     * @scaleMin - изменяемая величина. После каждой анимации зума она показывает текущее
-     * отношение rectBitmapVisibleHeightMin / rectBitmapVisible.height(). То есть это значение для
-     * скалирования, при котором будет достугнут нижний предел, то есть rectBitmapVisible.height
-     * станет равна rectBitmapVisibleHeightMin.
-     */
-    override var scaleShrink: Float = 1f
-//    override var scaleSqueeze: Float = 1f
 
     override var bitmapScaleCurrent: Float = 1f
     override var bitmapScaleMin: Float = 0f
@@ -73,13 +67,13 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Подписка на извещения от дочерних элементов об окончании обработки onSizeChanged.
+     * После этого им можно отдать bitmap'у.
+     */
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        /**
-         * Подписка на извещения от дочерних элементов об окончании обработки onSizeChanged.
-         * После этого им можно отдать bitmap'у.
-         */
         (context as AppCompatActivity).lifecycleScope.launch {
             combine(onSizeAvatarBack, onSizeAvatarFront) { backSize, frontSize ->
                 listOf(backSize, frontSize)
@@ -118,7 +112,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * @param factor - scale factor
      * @param pivot - фокус скалирования в координатах view
      */
-    override fun onScaleRequired(factor: Float, pivot: PointF) {
+    fun onScaleRequiredOld(factor: Float, pivot: PointF) {
 
         // Подготовиться к началу анимации в дочерних Views
         scaleConsumers.forEach { it.onPreAnimate(factor, pivot) }
@@ -139,6 +133,35 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
             })
 
         }.start()
+    }
+
+    @ExperimentalCoroutinesApi
+    override fun onScaleRequired(factor: Float, pivot: PointF) {
+
+        // Действия во время каждой итерации
+        val onUpdate: ValueAnimator.() -> Unit = {
+            val fraction = this.animatedFraction
+            scaleConsumers.forEach { it.onAnimate(fraction) }
+            scaleConsumers.forEach { (it as View).invalidate() }
+        }
+
+        (context as AppCompatActivity).lifecycleScope.launch {
+
+            // Подготовиться к началу анимации в дочерних Views
+            scaleConsumers.forEach { it.onPreAnimate(factor, pivot) }
+
+            // Запустить анимацию
+            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = animDuration
+            }
+            animator.start()
+
+            // Ждать завершения suspend анимации, а потом...
+            animator.awaitEnd(onUpdate)
+
+            // ... вызвать у всех onPostScale()
+            scaleConsumers.forEach { it.onPostAnimate() }
+        }
     }
 
     /**

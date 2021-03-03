@@ -1,10 +1,8 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker.gesture
 
 import s.yarlykov.izisandbox.extensions.normalize
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.sign
-import kotlin.math.withSign
 
 /**
  * @param tapCorner - угол и координата первого касания
@@ -120,8 +118,6 @@ data class GestureDetector(
                             0f
                 }
 
-                logIt("isOverSqueeze=$isOverSqueeze, proposedOffsetX=$proposedOffsetX, offsetX=$offsetX, offsetAcc=$offsetAcc, offsetSqueezeAvail=$offsetSqueezeAvail, size=$size")
-
                 offsetAcc += offsetX
                 prevDist = currentDist
 
@@ -153,8 +149,6 @@ data class GestureDetector(
                             0f
                 }
 
-                logIt("isOverShrink=$isOverShrink, proposedOffsetX=$proposedOffsetX, offsetX=$offsetX, offsetAcc=$offsetAcc, offsetShrinkAvail=$offsetShrinkAvail, size=$size")
-
                 offsetAcc += offsetX
                 prevDist = currentDist
 
@@ -172,5 +166,4 @@ data class GestureDetector(
             val frameScaleRatio = (size - offsetAcc * sign(direction.x)) / size
             return bitmapRatio.max * frameScaleRatio
         }
-
 }

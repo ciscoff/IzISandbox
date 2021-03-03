@@ -46,23 +46,15 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         invalidate()
     }
 
-    override fun onBitmapReady(bitmap: Bitmap) {
-        super.onBitmapReady(bitmap)
-
-        scaleController.onScaleDownAvailable(rectBitmapVisible.height() < bitmap.height)
-        scaleController.onScaleUpAvailable(rectBitmapVisible.height() > bitmapVisibleHeightMin)
-    }
-
     /**
-     * 1. Первый шаг в цикле анимации скалирования. Подготовить данные.
+     * 1. Первый этап в цикле анимации скалирования: подготовить данные.
      *
      * @param scaleFactor:
-     * - ПРИ Squeeze показывает реальный scale для видимой части битмапы, то есть после анимации
-     * отношение rectBitmapVisible.height() /  sourceImageBitmap.height будет равно factor.
-     *
-     * - ПРИ РАСТЯЖЕНИИ ......
+     * - Показывает реальный scale для видимой части битмапы, то есть после анимации
+     * отношение rectBitmapVisible.height() /  sourceImageBitmap.height будет равно scaleFactor.
      */
     override fun onPreAnimate(scaleFactor: Float, pivot: PointF) {
+        val bitmap = requireNotNull(sourceImageBitmap)
 
         // Нужно сконвертировать pivot из координат view в координаты битмапы.
         // Сначала определяем отношение между двумя pivot'ами с точки зрения соотношения
@@ -92,14 +84,12 @@ class AvatarBackViewV5 @JvmOverloads constructor(
          * следующее: как нужно отскалировать rectBitmapVisible.height от её текущего значения,
          * до её нового значения. Текущее значение rectBitmapVisible.height принимается за 1.
          */
-        val postScaleVisibleHeight = sourceImageBitmap!!.height * scaleFactor
+        val postScaleVisibleHeight = bitmap.height * scaleFactor
 
         // от текущего состояния rectBitmapVisible
         scaleFrom = 1f
         // до нового состояния
         scaleTo = postScaleVisibleHeight / rectBitmapVisible.height()
-
-        logIt("onPreAnimate abs_factor=$scaleFactor, relative_factor=$scaleTo}")
     }
 
     /**
@@ -140,8 +130,9 @@ class AvatarBackViewV5 @JvmOverloads constructor(
     }
 
     /**
-     * После анимации данная view отвечает за перерасчет scaleMin, scaleMax и за определение
-     * значений для animationScaleUpAvailable/animationScaleDownAvailable.
+     * После анимации данная view отвечает за определение состояний для animationScaleUpAvailable и
+     * animationScaleDownAvailable. Однако AvatarFrontView в событии ACTION_UP делает свою проверку
+     * и запрещает анимацию ScaleUp, если в режиме squeeze размер рамки больше указанного порога.
      *
      * Напоминаю что:
      *  ScaleDown - визуально уменьшаем, но при этом УВЕЛИЧИВАЕМ размер rectBitmapVisible
@@ -152,8 +143,9 @@ class AvatarBackViewV5 @JvmOverloads constructor(
      * в высоте rectBitmapVisible. Это нужно учесть и пересчитать scaleMin.
      */
     override fun onPostAnimate() {
+        val bitmap = requireNotNull(sourceImageBitmap)
 
-        val bitmapHeight = sourceImageBitmap?.height!!
+        val bitmapHeight = bitmap.height
         val heightDifference = bitmapHeight - rectBitmapVisible.height()
 
         scaleController.apply {
@@ -161,6 +153,8 @@ class AvatarBackViewV5 @JvmOverloads constructor(
             onScaleUpAvailable(rectBitmapVisible.height() > ceil(bitmapVisibleHeightMin))
             bitmapScaleCurrent = rectBitmapVisible.height().toFloat() / bitmapHeight
         }
+
+        logIt("onPostAnimate: abs_factor=${scaleController.bitmapScaleCurrent}")
     }
 
     /**

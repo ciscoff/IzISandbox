@@ -12,7 +12,6 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumerV5
 import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleControllerV5
-import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     context: Context,
@@ -33,32 +32,19 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
      * Во сколько раз высота показываемой части битмапы (в px) может быть меньше высоты View (в px).
      * Это как бы максимальный зум в px. Загружается из R.dimen.bitmap_scale_max.
      */
-    private var bitmapZoomMax : Float = Float.MIN_VALUE
+    private var bitmapZoomMax: Float = Float.MIN_VALUE
 
     /**
      * Это как бы противоположная bitmapZoomMax'у величина. Она показывает минимальное
      * значение scale, то есть значение bitmapVisibleHeightMin / sourceImageBitmap.height
      */
-    private var bitmapScaleMin : Float = 0f
+    private var bitmapScaleMin: Float = 0f
 
     /**
-     * @scaleMax - состояние когда размеры rectBitmapVisible и БИТМАПЫ совпадают.
-     *
-     * @scaleMin - минимальный масштаб для rectBitmapVisible внутри БИТМАПЫ.
-     * Поясняю: при первой  загрузке битмапы rectBitmapVisible совпадает по размеру с размером
-     * битмапы и соответственно зум этого прямоугольника относительно БИТМАПЫ равен 1.
-     * Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то его масштаб
-     * от начального 1 будет равен scaleMin. А в промежуточных состояниях он будет
-     * меняться от 1 до scaleMin и обратно к 1.
+     * Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
+     * меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
      */
-
-    // Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
-    // меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
     var bitmapVisibleHeightMin: Float = 0f
-
-    // Это показатель того как битмапа отзумилась внутри View при загрузке. Это соотношение
-    // высоты целевой View к высоте битмапы. (??? пока никак не используется)
-    var viewHeightToBitmapHeightRatio: Float = 0f
 
     /**
      * View и её Canvas находятся в единой системе координат, то есть у них общая база (0,0).
@@ -176,29 +162,9 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
         sourceImageBitmap = bitmap
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
 
-        // TODO (пока не используется)
-        // Начальный зум - показатель того как битмапа отзумилась внутри View при загрузке.
-        // Это соотношение высоты целевой View к высоте битмапы.
-        viewHeightToBitmapHeightRatio = rectVisible.height().toFloat() / rectBitmapVisible.height()
-
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.
         bitmapVisibleHeightMin = rectVisible.height() / bitmapZoomMax
-
-        // Лучше так сказать - это масштаб rectBitmapVisibleHeightMin относительно значения
-        // rectBitmapVisible.height. Поясняю: при первой загрузке битмапы rectBitmapVisible
-        // совпадает по размеру с размером битмапы, он больше чем rectBitmapVisibleHeightMin и
-        // отношение rectBitmapVisibleHeightMin/rectBitmapVisible.height = 0.?
-        // Когда высота rectBitmapVisible уменьшится до rectBitmapVisibleHeightMin, то соотношение
-        // станет равным 1. scaleSqueeze работает в диапазоне 0.? - 1
-//        scaleController.scaleSqueeze = bitmapVisibleHeightMin / rectBitmapVisible.height().toFloat()
-
-        // Это масштаб rectBitmapVisible относительно sourceImageBitmap.height. Поясняю:
-        // после очередного squeeze rectBitmapVisible уменьшается относительно высоты битмапы.
-        // Значение scaleShrink показывает на сколько нужно увеличить rectBitmapVisible, чтобы снова
-        // получить высоту битмапы. То есть scaleShrink работает в диапазоне 1+.
-        // Начальное значение 1.
-        scaleController.scaleShrink = 1f // TODO ??
 
         // Минимальное значение для скалирования размера видимой части битмапы.
         bitmapScaleMin = bitmapVisibleHeightMin / bitmap.height

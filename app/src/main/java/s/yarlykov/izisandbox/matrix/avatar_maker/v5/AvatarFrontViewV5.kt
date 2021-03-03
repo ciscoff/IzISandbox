@@ -191,6 +191,10 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 
                 when (mode) {
                     is Mode.Scaling.Squeeze -> {
+
+                        // NOTE: Для анимации нужно чтобы 'rectClip.width <= rectMin.width'
+                        scaleController.onScaleUpAvailable(rectClip.width() <= rectMin.width())
+
                         val bitmapScaleFactor = gestureDetector.scaleRatio
 
                         if (animationScaleUpAvailable) {
@@ -331,8 +335,8 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                 /**
                  * Длина стороны rectClip разбивается на две части:
                  * - первая, с изменяемым размером, работает регулятором зума.
-                 * - вторая, с фиксированным размером, показывает тот максимальный зум битмапы,
-                 *   которого можно достич для текущего состояния.
+                 * - вторая, с фиксированным размером, показывает тот миниммальный размер видимой
+                 *   части битмапы, которого нужно достич для максимального зума.
                  * Например, при первом показе битмапы на экране, отношение размеров фиксированной
                  * и изменяемой частей такое же как отношение
                  * rectBitmapVisibleHeightMin / (rectBitmapVisible.height - rectBitmapVisibleHeightMin).
@@ -341,8 +345,6 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                  * в его height возрастает процентная доля высоты rectBitmapVisibleHeightMin.
                  * Когда они сравняются по величине, то зум станет максимальным.
                  */
-//                val fixedSizeSegment = rectClipCopy.width() * scaleController.scaleSqueeze
-
                 gestureDetector = GestureDetector(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
                     Ratio(scaleController.bitmapScaleCurrent, scaleController.bitmapScaleMin),
@@ -564,12 +566,6 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
             var prevOffsetH = 0f
             var prevOffsetV = 0f
 
-            // DEBUG
-            private fun logAndReturn(): RectF {
-//                logIt("rectClip=$rect, rectPivot=$rectPivot, offsetH=$offsetH, offsetV=$offsetV")
-                return rect
-            }
-
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
 
                 return when (mode) {
@@ -584,7 +580,6 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                             // 3. Затем смещаем от pivot на вычисленные offsetH, offsetV
                             offset(offsetH, offsetV)
                         }
-                        logAndReturn()
                     }
                     is Mode.Scaling, is Mode.Animating -> {
                         // Возвращаем без смещения
