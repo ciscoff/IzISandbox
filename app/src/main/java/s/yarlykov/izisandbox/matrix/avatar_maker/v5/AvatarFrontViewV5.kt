@@ -219,13 +219,20 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        resetState()
+        scaleController.onFrontSizeChanged(w to h)
+    }
 
+    /**
+     * Размер View известен, битмапа загружена.
+     * Инициализировать все вспомогательные структуры.
+     */
+    override fun onBitmapReady(bitmap: Bitmap) {
+        super.onBitmapReady(bitmap)
+
+        resetState()
         rectPivotInit()
         preDragging()
         preDrawing()
-
-        scaleController.onFrontSizeChanged(w to h)
         invalidate()
     }
 
@@ -348,11 +355,12 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
                 gestureDetector = GestureDetector(
                     TapCorner(area, PointF(x, y), PointF(cornerX, cornerY)),
                     Ratio(scaleController.bitmapScaleCurrent, scaleController.bitmapScaleMin),
-                    Ratio(1f, min(1f, scaleController.bitmapScaleMin / scaleController.bitmapScaleCurrent)),
+                    Ratio(
+                        1f,
+                        min(1f, scaleController.bitmapScaleMin / scaleController.bitmapScaleCurrent)
+                    ),
                     rectClipCopy.width()
                 )
-
-                logIt("Gesture: tapArea=${gestureDetector.tapCorner.tapArea::class.simpleName}, bitmapRatio=${gestureDetector.bitmapRatio}, frameRatio=${gestureDetector.frameRatio}, size=${gestureDetector.size}")
 
                 mode = Mode.Scaling.Init
                 return

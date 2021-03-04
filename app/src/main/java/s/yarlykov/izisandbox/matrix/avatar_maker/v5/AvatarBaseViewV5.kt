@@ -105,16 +105,6 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     }
 
     /**
-     * Для AvatarBackView достаточно этих операцию + invalidate.
-     * Для AvatarFrontView нужны дополнительные вычисления + invalidate.
-     */
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        rectDestUpdate()
-        rectVisibleUpdate()
-    }
-
-    /**
      * Растянуть по высоте с ratio.
      *
      * При любой ориентации "натягиваем" видимую часть битмапы по высоте view. При этом,
@@ -149,6 +139,15 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     }
 
     /**
+     * После того как известен размер View и загружена битмапа необходимо обновить
+     * данные в rectDest и rectVisible.
+     */
+    private fun updateCoreRectangles() {
+        rectDestUpdate()
+        rectVisibleUpdate()
+    }
+
+    /**
      * Когда битмапа готова, то нужно сразу вычислить как она 'отзумилась' внутри rectVisible.
      * Это будет её начальным зумом. От него будем идти в большую/меньшую стороны.
      *
@@ -159,8 +158,11 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
      *
      */
     override fun onBitmapReady(bitmap: Bitmap) {
+
         sourceImageBitmap = bitmap
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
+
+        updateCoreRectangles()
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.

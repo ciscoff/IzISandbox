@@ -43,6 +43,10 @@ class AvatarBackViewV5 @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         scaleController.onBackSizeChanged(w to h)
+    }
+
+    override fun onBitmapReady(bitmap: Bitmap) {
+        super.onBitmapReady(bitmap)
         invalidate()
     }
 
@@ -153,8 +157,6 @@ class AvatarBackViewV5 @JvmOverloads constructor(
             onScaleUpAvailable(rectBitmapVisible.height() > ceil(bitmapVisibleHeightMin))
             bitmapScaleCurrent = rectBitmapVisible.height().toFloat() / bitmapHeight
         }
-
-        logIt("onPostAnimate: abs_factor=${scaleController.bitmapScaleCurrent}")
     }
 
     /**
