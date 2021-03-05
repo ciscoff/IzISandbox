@@ -8,7 +8,6 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.matrix.avatar_maker.*
 import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV5 @JvmOverloads constructor(

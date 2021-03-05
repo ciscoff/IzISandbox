@@ -23,8 +23,6 @@ import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.awaitEnd
 import s.yarlykov.izisandbox.extensions.notZero
-import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumerV5
-import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleControllerV5
 import s.yarlykov.izisandbox.utils.logIt
 
 class AvatarCompoundViewV5 @JvmOverloads constructor(
@@ -39,16 +37,39 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
     private val scaleConsumers = ArrayList<ScaleConsumerV5>()
 
+    @ExperimentalCoroutinesApi
     private val onSizeAvatarBack = MutableStateFlow(0 to 0)
+    @ExperimentalCoroutinesApi
     private val onSizeAvatarFront = MutableStateFlow(0 to 0)
 
-    //      NOTE: Видимая часть битмапы - это тот её Rect, который мы отправляем в канву.
+    /**
+     * Размеры области на экране внутри которой будем показывать bitmap.
+     * Нужно учитывать padding'и, которые влияют на размеры и положение
+     * дочерних элементов, составляющих viewPort.
+     */
+    private val viewPortSize: Pair<Int, Int>
+        get() = (width - paddingStart - paddingLeft) to (height - paddingTop - paddingBottom)
+
+    //      rectDest и rectVisible:
+    //      --------------------------
+    //      NOTE: 'Видимая часть битмапы' - это тот её Rect, который мы отправляем в канву.
     //
-    //      Здесь прямоугольник из точек - это 'видимая часть битмапы' внутри rectDest.
+    //      rectDest:
+    //      При первой отрисовке битмапа "распечатывается" целиком, но скалируется привязываясь
+    //      к высоте viewPort'a. А это значит, что например её ширина может оказаться
+    //      шире viewPort'a, что и показано на Рис.1. То есть rectDest - это есть область
+    //      начально отрисованной битмапы.
+    //
+    //      rectVisible:
+    //      Это область на экране внутри которой мы ввидим изображение. Она может совпадать с
+    //      viewPort'ом или быть уже (например если битмапа сама по себе узкая и отскалировалась
+    //      уже viewPort'а)
+    //
+    //      Здесь прямоугольник из точек - это ВСЯ битмапа, то есть rectDest.
     //      Прямоуольник из линий - это rectVisible, то что видит пользователь.
     //                                    Рис 2.
     //          Рис 1.                    Ширина rectVisible меньше
-    //          rectVisible равен         ширины View. Зазор между
+    //          rectVisible равен         ширины View (viewPort'а). Зазор между
     //          размеру View              view и rect показан линиями.
     //          ________________           ____________
     //     ....|................|....     |............|
@@ -88,18 +109,13 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Это минимальное значение высоты для rectBitmapVisible. Оно в scaleMax-раз
      * меньше высоты View. То есть это высота rectBitmapVisible при максимальном зуме.
      */
-    var bitmapVisibleHeightMin: Float = 0f
+    private var bitmapVisibleHeightMin: Float = 0f
 
     /**
      * Во сколько раз высота показываемой части битмапы (в px) может быть меньше высоты View (в px).
      * Это как бы максимальный зум в px. Загружается из R.dimen.bitmap_scale_max.
      */
     private var bitmapZoomMax: Float = Float.MIN_VALUE
-
-    /**
-     * Исходная Bitmap
-     */
-    private var sourceImageBitmap: Bitmap? = null
 
     /**
      * Видимая часть Bitmap (в координатах bitmap)
@@ -131,6 +147,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Подписка на извещения от дочерних элементов об окончании обработки onSizeChanged.
      * После этого им можно отдать bitmap'у.
      */
+    @ExperimentalCoroutinesApi
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
@@ -151,14 +168,6 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Исходную битмапу загружаем с понижением её resolution.
-     */
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        sourceImageBitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h)
-    }
-
     @ExperimentalCoroutinesApi
     override fun onFrontSizeChanged(size: Pair<Int, Int>) {
         onSizeAvatarFront.value = size
@@ -171,15 +180,13 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
 
     private fun onChildrenReady() {
 
-        val bitmap = loadSampledBitmapFromResource(R.drawable.m_4, width, height)
+        val (w, h) = viewPortSize
+        val bitmap = loadSampledBitmapFromResource(R.drawable.m_4, w, h)
 
-        sourceImageBitmap = bitmap
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
 
         rectDestUpdate()
         rectVisibleUpdate()
-        logIt("${this::class.simpleName}, rectDest=$rectDest, width=$width")
-        logIt("${this::class.simpleName}, rectVisible=$rectVisible, width=$width")
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.
@@ -203,14 +210,13 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     /**
      * Растянуть по высоте с ratio.
      *
-     * При любой ориентации "натягиваем" видимую часть битмапы по высоте view. При этом,
+     * При любой ориентации "натягиваем" видимую часть битмапы по высоте viewPort'a. При этом,
      * часть битмапы может оказаться за пределами боковых границ view. Но это фигня.
      * Главное, что нет искажений от растяжки/сжатия.
      */
     private fun rectDestUpdate() {
 
-        val h = height - paddingTop - paddingBottom
-        val w = width - paddingStart - paddingLeft
+        val (w, h) = viewPortSize
 
         val ratio = h.toFloat() / rectBitmapVisible.height()
         val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
@@ -227,8 +233,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Зависит от rectDest
      */
     private fun rectVisibleUpdate() {
-        val h = height - paddingTop - paddingBottom
-        val w = width - paddingStart - paddingLeft
+        val (w, h) = viewPortSize
 
         rectVisible.apply {
             top = 0
