@@ -5,7 +5,6 @@ import android.graphics.*
 import android.util.AttributeSet
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapPreScaleParams
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -45,8 +44,8 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         scaleController.onBackSizeChanged(w to h)
     }
 
-    override fun onBitmapReady(bitmap: Bitmap) {
-        super.onBitmapReady(bitmap)
+    override fun onBitmapReady(mediaData: MediaData) {
+        super.onBitmapReady(mediaData)
         invalidate()
     }
 

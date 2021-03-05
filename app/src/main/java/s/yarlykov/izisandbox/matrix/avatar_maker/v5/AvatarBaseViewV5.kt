@@ -6,18 +6,16 @@ import android.graphics.Bitmap
 import android.graphics.LightingColorFilter
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.View
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.matrix.avatar_maker.MediaDataConsumer
-import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleConsumerV5
-import s.yarlykov.izisandbox.matrix.avatar_maker.ScaleControllerV5
+import s.yarlykov.izisandbox.matrix.avatar_maker.*
+import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr), MediaDataConsumer, ScaleConsumerV5 {
+) : View(context, attrs, defStyleAttr), MediaDataConsumerV5, ScaleConsumerV5 {
 
     /**
      * Цветовые фильтры поярче/потемнее.
@@ -32,7 +30,7 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
      * Во сколько раз высота показываемой части битмапы (в px) может быть меньше высоты View (в px).
      * Это как бы максимальный зум в px. Загружается из R.dimen.bitmap_scale_max.
      */
-    private var bitmapZoomMax: Float = Float.MIN_VALUE
+//    private var bitmapZoomMax: Float = Float.MIN_VALUE
 
     /**
      * Это как бы противоположная bitmapZoomMax'у величина. Она показывает минимальное
@@ -95,58 +93,6 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     protected var sourceImageBitmap: Bitmap? = null
     protected var rectBitmapVisible = Rect()
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-        // Максимальное значение для zoom'а
-        val typedValue = TypedValue()
-        resources.getValue(R.dimen.bitmap_zoom_max, typedValue, true)
-        bitmapZoomMax = typedValue.float
-    }
-
-    /**
-     * Растянуть по высоте с ratio.
-     *
-     * При любой ориентации "натягиваем" видимую часть битмапы по высоте view. При этом,
-     * часть битмапы может оказаться за пределами боковых границ view. Но это фигня.
-     * Главное, что нет искажений от растяжки/сжатия.
-     */
-    private fun rectDestUpdate() {
-
-        val ratio = height.toFloat() / rectBitmapVisible.height()
-        val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
-
-        rectDest.apply {
-            top = 0
-            bottom = this@AvatarBaseViewV5.height
-            left = ((this@AvatarBaseViewV5.width - scaledWidth) / 2f).toInt()
-            right = left + scaledWidth
-        }
-    }
-
-    /**
-     * Зависит от rectDest
-     */
-    private fun rectVisibleUpdate() {
-        rectVisible.apply {
-            top = 0
-            bottom = this@AvatarBaseViewV5.height
-            left =
-                if (rectDest.left <= 0) 0 else rectDest.left
-            right =
-                if (rectDest.right >= this@AvatarBaseViewV5.width) this@AvatarBaseViewV5.width else rectDest.right
-        }
-    }
-
-    /**
-     * После того как известен размер View и загружена битмапа необходимо обновить
-     * данные в rectDest и rectVisible.
-     */
-    private fun updateCoreRectangles() {
-        rectDestUpdate()
-        rectVisibleUpdate()
-    }
-
     /**
      * Когда битмапа готова, то нужно сразу вычислить как она 'отзумилась' внутри rectVisible.
      * Это будет её начальным зумом. От него будем идти в большую/меньшую стороны.
@@ -157,19 +103,22 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
      * битмапа будет в максимальном зуме.
      *
      */
-    override fun onBitmapReady(bitmap: Bitmap) {
+    override fun onBitmapReady(mediaData: MediaData) {
+        sourceImageBitmap = mediaData.bitmap
+        rectBitmapVisible = Rect(0, 0, mediaData.bitmap.width, mediaData.bitmap.height)
 
-        sourceImageBitmap = bitmap
-        rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
+        rectDest.set(mediaData.rectDest)
+        rectVisible.set(mediaData.rectVisible)
 
-        updateCoreRectangles()
+        logIt("${this::class.simpleName}, rectDest=$rectDest, width=$width")
+        logIt("${this::class.simpleName}, rectVisible=$rectVisible, width=$width")
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.
-        bitmapVisibleHeightMin = rectVisible.height() / bitmapZoomMax
+        bitmapVisibleHeightMin = mediaData.bitmapVisibleHeightMin
 
         // Минимальное значение для скалирования размера видимой части битмапы.
-        bitmapScaleMin = bitmapVisibleHeightMin / bitmap.height
+        bitmapScaleMin = mediaData.bitmapScaleMin
     }
 
     /**

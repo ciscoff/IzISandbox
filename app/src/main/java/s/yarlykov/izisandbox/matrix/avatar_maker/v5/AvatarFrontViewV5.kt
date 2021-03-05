@@ -226,8 +226,8 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
      * Размер View известен, битмапа загружена.
      * Инициализировать все вспомогательные структуры.
      */
-    override fun onBitmapReady(bitmap: Bitmap) {
-        super.onBitmapReady(bitmap)
+    override fun onBitmapReady(mediaData: MediaData) {
+        super.onBitmapReady(mediaData)
 
         resetState()
         rectPivotInit()
