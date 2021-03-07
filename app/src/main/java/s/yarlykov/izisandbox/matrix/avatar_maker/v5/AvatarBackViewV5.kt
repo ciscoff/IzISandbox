@@ -159,12 +159,18 @@ class AvatarBackViewV5 @JvmOverloads constructor(
     }
 
     /**
-     * @rectBitmapVisible - задает видимую часть битмапы в координатах битмапы.
-     * @rectDest - целевой прямоугольник в координатах канвы.
-     * То есть берем некую часть из битмапы и переносим в указанную область канвы.
+     * Берем некую часть из битмапы (rectBitmapVisible) и переносим в указанную
+     * область канвы rectVisible.
+     *
+     * NOTE: Нужно ограничивать область рисования (clip), чтобы в горизонтальной ориентации
+     * и на планшете битмапа не вылезала по бокам.
      */
     override fun onDraw(canvas: Canvas) {
+
         sourceImageBitmap?.let {
+
+            canvas.save()
+            canvas.clipRect(rectVisible)
 
             // TODO Вот так делать не надо. Тормозит отрисовка.
 //            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
@@ -175,6 +181,7 @@ class AvatarBackViewV5 @JvmOverloads constructor(
             scaleMatrix.reset()
             scaleMatrix.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
             canvas.drawBitmap(it, scaleMatrix, paintBackground)
+            canvas.restore()
         }
     }
 }
