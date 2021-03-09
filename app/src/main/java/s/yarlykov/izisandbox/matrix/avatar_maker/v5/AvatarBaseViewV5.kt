@@ -109,8 +109,8 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
         rectDest.set(mediaData.rectDest)
         rectVisible.set(mediaData.rectVisible)
 
-        logIt("${this::class.simpleName}, rectDest=$rectDest, width=$width")
-        logIt("${this::class.simpleName}, rectVisible=$rectVisible, width=$width")
+//        logIt("${this::class.simpleName}, rectDest=$rectDest, width=$width")
+//        logIt("${this::class.simpleName}, rectVisible=$rectVisible, width=$width")
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.

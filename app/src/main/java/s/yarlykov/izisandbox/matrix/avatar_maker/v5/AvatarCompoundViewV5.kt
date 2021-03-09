@@ -23,9 +23,11 @@ import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.awaitEnd
 import s.yarlykov.izisandbox.extensions.notZero
-import s.yarlykov.izisandbox.matrix.BitmapParams
+import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapParams
 import s.yarlykov.izisandbox.matrix.avatar_maker.BitmapViewRelation.*
 import s.yarlykov.izisandbox.matrix.avatar_maker.EditorAvatarActivity.Companion.IMAGE_ID
+import s.yarlykov.izisandbox.utils.logIt
+import kotlin.math.max
 
 class AvatarCompoundViewV5 @JvmOverloads constructor(
     context: Context,
@@ -46,13 +48,9 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     private val onSizeAvatarFront = MutableStateFlow(0 to 0)
 
     /**
-     * Размеры области на экране внутри которой будем показывать bitmap.
-     * Нужно учитывать padding'и, которые влияют на размеры и положение
-     * дочерних элементов, составляющих viewPort.
+     * Размер дочерних Views
      */
-//    private var viewPortSize: Pair<Int, Int> = 0 to 0
-
-    private var viewSize: Pair<Int, Int> = 0 to 0
+    private lateinit var viewSize: Pair<Int, Int>
 
     /**
      * Ориентация битмапы относительно текущей ориентации экрана
@@ -188,6 +186,11 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         onSizeAvatarBack.value = size
     }
 
+    /**
+     * Определить оригинальный размер битмапы и её ориентацию относительно положения экрана.
+     * В этом положении выделить для её показа область на экране (viewPortWidth/viewPortHeight).
+     * Загрузить битмапу, расчитать rectDest и rectVisible.
+     */
     private fun measureComponents() {
 
         bitmapParams = measureBitmap(IMAGE_ID)
@@ -271,6 +274,38 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         }
     }
 
+
+    /**
+     * Сжать
+     */
+    private fun squeezeBitmap(ratio : Float, inHeight : Boolean) {
+        val (viewPortWidth, viewPortHeight) = bitmapParams.viewPortWidth to bitmapParams.viewPortHeight
+        val (viewWidth, viewHeight) = viewSize
+
+        if(inHeight) {
+            val scaledHeight = (rectBitmapVisible.height() * ratio).toInt()
+
+            rectDest.apply {
+                left = 0
+                right = viewPortWidth
+                top = ((viewHeight - scaledHeight) / 2f).toInt()
+                bottom = top + scaledHeight
+            }
+        }
+        else {
+            val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
+
+            rectDest.apply {
+                top = 0
+                bottom = viewPortHeight
+                left = ((viewWidth - scaledWidth) / 2f).toInt()
+                right = left + scaledWidth
+            }
+        }
+
+        logIt("rectDest=$rectDest, w=${rectDest.width()}, h=${rectDest.height()}")
+    }
+
     /**
      * Растянуть по высоте с ratio.
      *
@@ -290,15 +325,82 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         val (viewWidth, viewHeight) = viewSize
 
         when (bitmapParams.relation) {
-            Same, Higher -> {
+            Same -> {
+
+                val ratioW = viewPortWidth.toFloat() / rectBitmapVisible.width()
+                val ratioH = viewPortHeight.toFloat() / rectBitmapVisible.height()
+                logIt("view w/h = $viewWidth,$viewHeight; viewPort w/h = $viewPortWidth, $viewPortHeight; ratioW=$ratioW, ratioH=$ratioH; bitmap w/h = ${rectBitmapVisible.width()}, ${rectBitmapVisible.height()}")
+
+                when {
+                    /**
+                     * viewPort внутри битмапы, т.е. битмапу нужно сжать. Сжатие делаем
+                     * по меньшей ratio
+                     */
+                    ratioW < 1f && ratioH < 1f -> {
+                        if(ratioW > ratioH) {
+                            squeezeBitmap(ratioH, false)
+                        } else {
+                            squeezeBitmap(ratioW, true)
+                        }
+                    }
+                    /**
+                     * viewPort вокруг битмапы, т.е. битмапу нужно растянуть. Растяжение делаем
+                     * по меньшей ratio.
+                     */
+                    ratioW > 1f && ratioH > 1f -> {
+
+                    }
+
+                    /**
+                     * Битмапа по высоте выше viewPort'a. Нужно сжать битмапу по высоте.
+                     */
+                    ratioW > 1f && ratioH < 1f -> {
+
+                    }
+
+                    /**
+                     * Битмапа по ширине шире viewPort'a. Нужно сжать битмапу по ширине.
+                     */
+                    ratioW < 1f && ratioH > 1f -> {
+
+                    }
+                }
+
+
+                // Ближе по высоте (нормализуем по высоте)
+                if (ratioH <= ratioW) {
+                    val scaledWidth = (rectBitmapVisible.width() * ratioH).toInt()
+
+                    rectDest.apply {
+                        top = 0
+                        bottom = viewPortHeight
+                        left = ((viewPortWidth - scaledWidth) / 2f).toInt()
+                        right = left + scaledWidth
+                    }
+                }
+                // Ближе по ширине (нормализуем по ширине)
+                else /*(ratioW > ratioH)*/ {
+                    val scaledHeight = (rectBitmapVisible.height() * ratioW).toInt()
+
+
+                    rectDest.apply {
+                        left = 0
+                        right = viewPortWidth
+                        top = ((viewHeight - scaledHeight) / 2f).toInt()
+                        bottom = top + scaledHeight
+                    }
+                }
+            }
+            // Нормализуем по высоте viewPort'a
+            Higher -> {
                 val ratio = viewPortHeight.toFloat() / rectBitmapVisible.height()
                 val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
 
                 rectDest.apply {
+                    left = ((viewWidth - scaledWidth) / 2f).toInt()
+                    right = left + scaledWidth
                     top = 0
                     bottom = viewPortHeight
-                    left = ((viewPortWidth - scaledWidth) / 2f).toInt()
-                    right = left + scaledWidth
                 }
             }
             // Нормализуем по ширине viewPort'a
@@ -314,7 +416,6 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
                 }
             }
         }
-
     }
 
     /**
