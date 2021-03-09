@@ -50,7 +50,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Нужно учитывать padding'и, которые влияют на размеры и положение
      * дочерних элементов, составляющих viewPort.
      */
-    private var viewPortSize: Pair<Int, Int> = 0 to 0
+//    private var viewPortSize: Pair<Int, Int> = 0 to 0
 
     private var viewSize: Pair<Int, Int> = 0 to 0
 
@@ -188,95 +188,15 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         onSizeAvatarBack.value = size
     }
 
-    /**
-     * Определить размеры оригинальной битмапы и её положение относительно ориентации View
-     */
-    private fun measureBitmap(@DrawableRes resourceId: Int = IMAGE_ID): BitmapParams {
-
-        val (viewWidth, viewHeight) = viewSize
-
-        val bitmapOptions = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-            BitmapFactory.decodeResource(context.resources, resourceId, this)
-        }
-
-        return when {
-            // Горизонтальная фотка в вертикальной View
-            (viewHeight > viewWidth && bitmapOptions.outHeight <= bitmapOptions.outWidth) -> {
-                BitmapParams(bitmapOptions.outWidth, bitmapOptions.outHeight, Wider)
-            }
-            // Вертикальная фотка в горизонтальной View
-            (viewWidth > viewHeight && bitmapOptions.outHeight >= bitmapOptions.outWidth) -> {
-                BitmapParams(bitmapOptions.outWidth, bitmapOptions.outHeight, Higher)
-            }
-            // Ориентации фотки и View совпадают. Обе горизонтальные или обе вертикальные.
-            else -> {
-                BitmapParams(bitmapOptions.outWidth, bitmapOptions.outHeight, Same)
-            }
-        }
-    }
-
-    /**
-     * Нормализуем размер битмапы по одной из сторон View (если ориентации разные)
-     */
-    private fun measureBitmapRequiredSize(): Pair<Int, Int> {
-        val (viewWidth, viewHeight) = viewSize
-
-        return when (bitmapParams.relation) {
-            Wider -> {
-                val ratio = viewWidth.toFloat() / bitmapParams.width
-                viewWidth to (bitmapParams.height * ratio).toInt()
-            }
-            Higher -> {
-                val ratio = viewHeight.toFloat() / bitmapParams.height
-                (bitmapParams.width * ratio).toInt() to viewHeight
-            }
-            Same -> {
-                viewSize
-            }
-        }
-    }
-
-    /**
-     * Прочитать оригинальный размер битмапы. Сравнить ориентации экрана и битмапы и определить
-     * размер  Далее сравнить ориентацию битмапы и viewPort'а.
-     */
-    private fun measureViewPort() {
-
-        val (viewWidth, viewHeight) = viewSize
-
-        bitmapParams
-
-        viewPortSize = when {
-            // Горизонтальная фотка в вертикальной View
-            (viewHeight > viewWidth && bitmapOptions.outHeight <= bitmapOptions.outWidth) -> {
-                bitmapParams = Wider
-                val ratio = viewWidth.toFloat() / bitmapOptions.outWidth
-                viewWidth to (bitmapOptions.outHeight * ratio).toInt()
-            }
-            // Вертикальная фотка в горизонтальной View
-            (viewWidth > viewHeight && bitmapOptions.outHeight >= bitmapOptions.outWidth) -> {
-                bitmapParams = Higher
-                val ratio = viewHeight.toFloat() / bitmapOptions.outHeight
-                (bitmapOptions.outWidth * ratio).toInt() to viewHeight
-            }
-            // Ориентации фотки и View совпадают. Обе горизонтальные или обе вертикальные.
-            else -> {
-                bitmapParams = Same
-                viewWidth to viewHeight
-            }
-        }
-    }
-
     private fun measureComponents() {
 
         bitmapParams = measureBitmap(IMAGE_ID)
 
-        // Область, внутри которой будет видна картинка
-        measureViewPort(IMAGE_ID)
-
-        val (w, h) = viewPortSize
-        val bitmap = loadSampledBitmapFromResource(IMAGE_ID, w, h)
+        val bitmap = loadSampledBitmapFromResource(
+            IMAGE_ID,
+            bitmapParams.viewPortWidth,
+            bitmapParams.viewPortHeight
+        )
 
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
 
@@ -303,6 +223,55 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     }
 
     /**
+     * Определить размеры оригинальной битмапы и её положение относительно ориентации View.
+     * Нормализовать размер битмапы по одной из сторон View (если ориентации разные).
+     */
+    private fun measureBitmap(@DrawableRes resourceId: Int = IMAGE_ID): BitmapParams {
+
+        val (viewWidth, viewHeight) = viewSize
+
+        val bitmapOptions = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+            BitmapFactory.decodeResource(context.resources, resourceId, this)
+        }
+
+        return when {
+            // Wider: Горизонтальная фотка в вертикальной View
+            (viewHeight > viewWidth && bitmapOptions.outHeight <= bitmapOptions.outWidth) -> {
+                val ratio = viewWidth.toFloat() / bitmapOptions.outWidth
+                BitmapParams(
+                    Wider,
+                    bitmapOptions.outWidth,
+                    bitmapOptions.outHeight,
+                    viewWidth,
+                    (bitmapOptions.outHeight * ratio).toInt()
+                )
+            }
+            // Higher: Вертикальная фотка в горизонтальной View
+            (viewWidth > viewHeight && bitmapOptions.outHeight >= bitmapOptions.outWidth) -> {
+                val ratio = viewHeight.toFloat() / bitmapOptions.outHeight
+                BitmapParams(
+                    Higher,
+                    bitmapOptions.outWidth,
+                    bitmapOptions.outHeight,
+                    (bitmapOptions.outWidth * ratio).toInt(),
+                    viewHeight
+                )
+            }
+            // Same: Ориентации фотки и View совпадают. Обе горизонтальные или обе вертикальные.
+            else -> {
+                BitmapParams(
+                    Same,
+                    bitmapOptions.outWidth,
+                    bitmapOptions.outHeight,
+                    viewWidth,
+                    viewHeight
+                )
+            }
+        }
+    }
+
+    /**
      * Растянуть по высоте с ratio.
      *
      * При любой ориентации "натягиваем" видимую часть битмапы по высоте viewPort'a. При этом,
@@ -314,13 +283,13 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         /**
          * В этом месте viewPort и битмапа одинаково сориентированы, поэтому
          * не нужно делать дополнительных проверок, а нужно просто битмапу
-         * притынуть к высоте viewPort'a.
+         * притянуть к высоте viewPort'a.
          */
 
-        val (viewPortWidth, viewPortHeight) = viewPortSize
+        val (viewPortWidth, viewPortHeight) = bitmapParams.viewPortWidth to bitmapParams.viewPortHeight
         val (viewWidth, viewHeight) = viewSize
 
-        when (bitmapParams) {
+        when (bitmapParams.relation) {
             Same, Higher -> {
                 val ratio = viewPortHeight.toFloat() / rectBitmapVisible.height()
                 val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
@@ -352,29 +321,33 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Зависит от rectDest
      */
     private fun measureRectVisible() {
-        val (w, h) = viewPortSize
 
-        when (bitmapParams) {
+        val (viewPortWidth, viewPortHeight) = bitmapParams.viewPortWidth to bitmapParams.viewPortHeight
+        val (viewWidth, viewHeight) = viewSize
+
+        when (bitmapParams.relation) {
             Same, Higher -> {
                 rectVisible.apply {
                     top = 0
-                    bottom = h
+                    bottom = viewPortHeight
                     left =
                         if (rectDest.left <= 0) 0 else rectDest.left
                     right =
-                        if (rectDest.right >= w) w else rectDest.right
+                        if (rectDest.right >= viewPortWidth) viewPortWidth else rectDest.right
                 }
             }
             Wider -> {
 
+                (viewHeight - viewPortHeight) / 2
+
                 rectVisible.apply {
                     left = 0
-                    right = w
-                    top = if (rectDest.top <= 0) 0 else rectDest.top
-                    bottom = if (rectDest.bottom >= h) h else rectDest.bottom
+                    right = viewPortWidth
+                    top = (viewHeight - viewPortHeight) / 2
+                    bottom = top + viewPortHeight
                 }
 
-                val r = rectVisible
+                rectVisible.intersect(rectDest)
             }
         }
     }
