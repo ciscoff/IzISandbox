@@ -227,7 +227,12 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
 
     /**
      * Определить размеры оригинальной битмапы и её положение относительно ориентации View.
-     * Нормализовать размер битмапы по одной из сторон View (если ориентации разные).
+     * Вычислить размер viewPort'а - области внутри которой будет отображаться картинка.
+     * Если ориентации View и битмапы разные, то нормализовать размер битмапы по наименьшей
+     * стороне View.
+     *
+     * Здесь только учитывается взаимное расположение View и битмапы. Соотношения их
+     * размеров не учитывается.
      */
     private fun measureBitmap(@DrawableRes resourceId: Int = IMAGE_ID): BitmapParams {
 
@@ -275,36 +280,51 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     }
 
 
-    /**
-     * Сжать
-     */
-    private fun squeezeBitmap(ratio : Float, inHeight : Boolean) {
-        val (viewPortWidth, viewPortHeight) = bitmapParams.viewPortWidth to bitmapParams.viewPortHeight
-        val (viewWidth, viewHeight) = viewSize
+    private fun squeezeBitmapHor(ratio : Float, viewPortHeight : Int, viewWidth : Int) {
+        val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
 
-        if(inHeight) {
-            val scaledHeight = (rectBitmapVisible.height() * ratio).toInt()
-
-            rectDest.apply {
-                left = 0
-                right = viewPortWidth
-                top = ((viewHeight - scaledHeight) / 2f).toInt()
-                bottom = top + scaledHeight
-            }
+        rectDest.apply {
+            left = ((viewWidth - scaledWidth) / 2f).toInt()
+            top = 0
+            right = left + scaledWidth
+            bottom = viewPortHeight
         }
-        else {
-            val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
-
-            rectDest.apply {
-                top = 0
-                bottom = viewPortHeight
-                left = ((viewWidth - scaledWidth) / 2f).toInt()
-                right = left + scaledWidth
-            }
-        }
-
-        logIt("rectDest=$rectDest, w=${rectDest.width()}, h=${rectDest.height()}")
     }
+
+    private fun squeezeBitmapVer(ratio : Float, viewPortWidth : Int, viewHeight : Int) {
+        val scaledHeight = (rectBitmapVisible.height() * ratio).toInt()
+
+        rectDest.apply {
+            left = 0
+            top = ((viewHeight - scaledHeight) / 2f).toInt()
+            right = viewPortWidth
+            bottom = top + scaledHeight
+        }
+    }
+
+    private fun shrinkBitmapHor(ratio : Float, viewPortHeight : Int, viewWidth : Int) {
+        val scaledWidth = (rectBitmapVisible.width() * ratio).toInt()
+
+        rectDest.apply {
+            left = ((viewWidth - scaledWidth) / 2f).toInt()
+            top = 0
+            right = left + scaledWidth
+            bottom = viewPortHeight
+        }
+    }
+
+    private fun shrinkBitmapVer(ratio : Float, viewPortWidth : Int, viewHeight : Int) {
+        val scaledHeight = (rectBitmapVisible.height() * ratio).toInt()
+
+        rectDest.apply {
+            left = 0
+            top = ((viewHeight - scaledHeight) / 2f).toInt()
+            right = viewPortWidth
+            bottom = top + scaledHeight
+        }
+    }
+
+
 
     /**
      * Растянуть по высоте с ratio.
@@ -333,36 +353,41 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
 
                 when {
                     /**
-                     * viewPort внутри битмапы, т.е. битмапу нужно сжать. Сжатие делаем
-                     * по меньшей ratio
+                     * viewPort внутри битмапы, т.е. битмапу нужно сжать.
+                     * Для МАКСИМАЛЬНОГО сжатия нужно использовать меньшую ratio.
                      */
-                    ratioW < 1f && ratioH < 1f -> {
-                        if(ratioW > ratioH) {
-                            squeezeBitmap(ratioH, false)
+                    ratioW <= 1f && ratioH <= 1f -> {
+                        if(ratioH <= ratioW) {
+                            squeezeBitmapHor(ratioW, viewPortHeight, viewWidth)
                         } else {
-                            squeezeBitmap(ratioW, true)
+                            squeezeBitmapVer(ratioH, viewPortWidth, viewHeight)
                         }
                     }
                     /**
-                     * viewPort вокруг битмапы, т.е. битмапу нужно растянуть. Растяжение делаем
-                     * по меньшей ratio.
+                     * viewPort вокруг битмапы, т.е. битмапу нужно растянуть.
+                     * Для МИНИМАЛЬНОГО растяжения нужно использовать меньшую ratio.
                      */
                     ratioW > 1f && ratioH > 1f -> {
-
+                        if(ratioH <= ratioW) {
+                            shrinkBitmapHor(ratioH, viewPortHeight, viewWidth)
+                        } else {
+                            shrinkBitmapVer(ratioW, viewPortWidth, viewHeight)
+                        }
                     }
 
                     /**
-                     * Битмапа по высоте выше viewPort'a. Нужно сжать битмапу по высоте.
+                     * Битмапа по высоте выше viewPort'a.
+                     *
                      */
-                    ratioW > 1f && ratioH < 1f -> {
-
+                    ratioW >= 1f && ratioH < 1f -> {
+                        squeezeBitmapHor(ratioH, viewPortHeight, viewWidth)
                     }
 
                     /**
                      * Битмапа по ширине шире viewPort'a. Нужно сжать битмапу по ширине.
                      */
-                    ratioW < 1f && ratioH > 1f -> {
-
+                    ratioW < 1f && ratioH >= 1f -> {
+                        squeezeBitmapVer(ratioH, viewPortWidth, viewHeight)
                     }
                 }
 
@@ -420,6 +445,8 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
 
     /**
      * Зависит от rectDest
+     *
+     * ??? Почему зависит ?
      */
     private fun measureRectVisible() {
 
