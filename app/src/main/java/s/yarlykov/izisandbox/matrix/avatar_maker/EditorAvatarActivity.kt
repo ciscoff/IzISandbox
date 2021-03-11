@@ -7,7 +7,7 @@ import s.yarlykov.izisandbox.R
 class EditorAvatarActivity : AppCompatActivity() {
 
     companion object {
-        const val IMAGE_ID = R.drawable.m_4_hor
+        const val IMAGE_ID = R.drawable.m_4
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

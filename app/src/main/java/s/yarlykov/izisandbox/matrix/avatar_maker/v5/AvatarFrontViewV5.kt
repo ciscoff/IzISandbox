@@ -276,15 +276,15 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
 
         // Проверить крайние условия по X
         val offsetX = when {
-            rectTemp.left < rectVisible.left -> rectVisible.left - rectTemp.left
-            rectTemp.right > rectVisible.right -> rectVisible.right - rectTemp.right
+            rectTemp.left < rectViewPort.left -> rectViewPort.left - rectTemp.left
+            rectTemp.right > rectViewPort.right -> rectViewPort.right - rectTemp.right
             else -> 0f
         }
 
         // Проверить крайние условия по Y
         val offsetY = when {
-            rectTemp.top < rectVisible.top -> rectVisible.top - rectTemp.top
-            rectTemp.bottom > rectVisible.bottom -> rectVisible.bottom - rectTemp.bottom
+            rectTemp.top < rectViewPort.top -> rectViewPort.top - rectTemp.top
+            rectTemp.bottom > rectViewPort.bottom -> rectViewPort.bottom - rectTemp.bottom
             else -> 0f
         }
 
@@ -305,14 +305,14 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
      */
     private fun calculatePivot(): PointF {
         val xPivot = when {
-            floor(rectClip.left).toInt() == rectVisible.left -> rectClip.left
-            floor(rectClip.right).toInt() == rectVisible.right -> rectClip.right
+            floor(rectClip.left).toInt() == rectViewPort.left -> rectClip.left
+            floor(rectClip.right).toInt() == rectViewPort.right -> rectClip.right
             else -> rectClip.centerX()
         }
 
         val yPivot = when {
-            floor(rectClip.top).toInt() == rectVisible.top -> rectClip.top
-            floor(rectClip.bottom).toInt() == rectVisible.bottom -> rectClip.bottom
+            floor(rectClip.top).toInt() == rectViewPort.top -> rectClip.top
+            floor(rectClip.bottom).toInt() == rectViewPort.bottom -> rectClip.bottom
             else -> rectClip.centerY()
         }
 
@@ -442,22 +442,22 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
      */
     private fun rectPivotInit() {
 
-        val isVertical = rectVisible.height() >= rectVisible.width()
-        val frameDimen = min(rectVisible.height(), rectVisible.width())
+        val isVertical = rectViewPort.height() >= rectViewPort.width()
+        val frameDimen = min(rectViewPort.height(), rectViewPort.width())
 
         rectPivot.apply {
             top = if (isVertical) {
-                (rectVisible.height() - frameDimen) / 2f
+                (rectViewPort.height() - frameDimen) / 2f
             } else {
-                rectVisible.top.toFloat()
+                rectViewPort.top.toFloat()
             }
 
             bottom = top + frameDimen
 
             left = if (isVertical) {
-                rectVisible.left.toFloat()
+                rectViewPort.left.toFloat()
             } else {
-                (rectVisible.width() - frameDimen) / 2f
+                (rectViewPort.width() - frameDimen) / 2f
             }
             right = left + frameDimen
         }
@@ -603,15 +603,15 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
             private fun checkBounds() {
                 if (prevOffsetH == offsetH && prevOffsetV == offsetV) return
 
-                if (rect.left + offsetH < rectVisible.left) {
-                    offsetH = rectVisible.left - rect.left
-                } else if (rect.right + offsetH > rectVisible.right) {
-                    offsetH = rectVisible.right - rect.right
+                if (rect.left + offsetH < rectViewPort.left) {
+                    offsetH = rectViewPort.left - rect.left
+                } else if (rect.right + offsetH > rectViewPort.right) {
+                    offsetH = rectViewPort.right - rect.right
                 }
-                if (rect.top + offsetV < rectVisible.top) {
-                    offsetV = rectVisible.top - rect.top
-                } else if (rect.bottom + offsetV > rectVisible.bottom) {
-                    offsetV = rectVisible.bottom - rect.bottom
+                if (rect.top + offsetV < rectViewPort.top) {
+                    offsetV = rectViewPort.top - rect.top
+                } else if (rect.bottom + offsetV > rectViewPort.bottom) {
+                    offsetV = rectViewPort.bottom - rect.bottom
                 }
 
                 prevOffsetH = offsetH
@@ -719,7 +719,7 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
             var rect = RectF()
 
             override fun getValue(thisRef: Any?, property: KProperty<*>): RectF {
-                val dimension = min(rectVisible.width(), rectVisible.height()) / 5f * 3f
+                val dimension = min(rectViewPort.width(), rectViewPort.height()) / 5f * 3f
                 rect.set(0f, 0f, dimension, dimension)
                 return rect
             }
@@ -741,16 +741,16 @@ class AvatarFrontViewV5 @JvmOverloads constructor(
      */
     private fun checkBounds(rect: RectF) {
 
-        if (rect.left + offsetH < rectVisible.left) {
-            offsetH = rectVisible.left - rect.left
-        } else if (rect.right + offsetH > rectVisible.right) {
-            offsetH = rectVisible.right - rect.right
+        if (rect.left + offsetH < rectViewPort.left) {
+            offsetH = rectViewPort.left - rect.left
+        } else if (rect.right + offsetH > rectViewPort.right) {
+            offsetH = rectViewPort.right - rect.right
         }
 
-        if (rect.top + offsetV < rectVisible.top) {
-            offsetV = rectVisible.top - rect.top
-        } else if (rect.bottom + offsetV > rectVisible.bottom) {
-            offsetV = rectVisible.bottom - rect.bottom
+        if (rect.top + offsetV < rectViewPort.top) {
+            offsetV = rectViewPort.top - rect.top
+        } else if (rect.bottom + offsetV > rectViewPort.bottom) {
+            offsetV = rectViewPort.bottom - rect.bottom
         }
 
         val offset = min(abs(offsetH), abs(offsetV))

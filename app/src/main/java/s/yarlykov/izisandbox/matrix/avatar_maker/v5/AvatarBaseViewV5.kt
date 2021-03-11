@@ -8,7 +8,6 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     context: Context,
@@ -26,12 +25,6 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
         context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
 
     /**
-     * Во сколько раз высота показываемой части битмапы (в px) может быть меньше высоты View (в px).
-     * Это как бы максимальный зум в px. Загружается из R.dimen.bitmap_scale_max.
-     */
-//    private var bitmapZoomMax: Float = Float.MIN_VALUE
-
-    /**
      * Это как бы противоположная bitmapZoomMax'у величина. Она показывает минимальное
      * значение scale, то есть значение bitmapVisibleHeightMin / sourceImageBitmap.height
      */
@@ -44,44 +37,9 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
     var bitmapVisibleHeightMin: Float = 0f
 
     /**
-     * View и её Canvas находятся в единой системе координат, то есть у них общая база (0,0).
-     * Канва игнорирует padding'и и работает по всей поверхности View. У кастомной View
-     * нужно самостоятельно учитывать padding'и при рисовании. Например с помощью clipRect.
-     *
-     * @rectDest прямоугольник (в координатах канвы) куда будем заливать видимую часть Bitmap'ы.
-     *
-     * Для того чтобы не искажать картинку
-     * Он может выходить краями за пределы видимой области канвы и иметь отрицательные left/top.
+     * Область для показа картинки на поверхности View.
      */
-    private val rectDest = Rect()
-
-    /**
-     * @rectVisible это как бы clipping для области rectDest. То есть rectVisible говорит нам
-     * какая часть rectDest отображается на View. rectVisible также задается в координатах канвы.
-     *
-     * NOTE: rectDest и rectVisible устанавливаются только один раз - при onSizeChanged и больше
-     * не меняются, но rectVisible используется во всех последующих операциях как база и
-     * ограничитель перемещаемой рамки.
-     */
-    protected val rectVisible = Rect()
-
-    //      Здесь прямоугольник из точек - это видимая часть битмапы внутри rectDest.
-    //      Прямойгольник из линий - это rectVisible, то что видит пользователь.
-    //                                    Рис 2.
-    //          Рис 1.                    Ширина rectVisible меньше
-    //          rectVisible равен         ширины View. Зазор между
-    //          размеру View              view и rect показан линиями.
-    //          ________________           ____________
-    //     ....|................|....     |............|
-    //     ....|................|....     |............|
-    //     ....|................|....   __|............|__
-    //     ....|................|....     |............|
-    //     ....|................|....     |............|
-    //     ....|................|....     |............|
-    //     ....|................|....   __|............|__
-    //     ....|................|....     |............|
-    //     ....|................|....     |............|
-    //         ------------------         --------------
+    protected val rectViewPort = Rect()
 
     /**
      * Исходная Bitmap и её размеры
@@ -106,11 +64,7 @@ abstract class AvatarBaseViewV5 @JvmOverloads constructor(
         sourceImageBitmap = mediaData.bitmap
         rectBitmapVisible = Rect(0, 0, mediaData.bitmap.width, mediaData.bitmap.height)
 
-        rectDest.set(mediaData.rectDest)
-        rectVisible.set(mediaData.rectVisible)
-
-//        logIt("${this::class.simpleName}, rectDest=$rectDest, width=$width")
-//        logIt("${this::class.simpleName}, rectVisible=$rectVisible, width=$width")
+        rectViewPort.set(mediaData.viewPort)
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.

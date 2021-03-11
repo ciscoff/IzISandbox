@@ -5,8 +5,7 @@ import android.graphics.Rect
 
 data class MediaData(
     val bitmap: Bitmap,
-    val rectDest: Rect,
-    val rectVisible: Rect,
+    val viewPort: Rect,
     val bitmapVisibleHeightMin: Float,
     val bitmapScaleMin: Float
 )

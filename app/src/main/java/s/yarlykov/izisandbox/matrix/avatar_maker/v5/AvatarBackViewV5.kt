@@ -64,8 +64,8 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         // сторон прямоугольников. Затем переносим pivot на координаты битмапы.
         val pivotBitmap = PointF(0f, 0f).apply {
 
-            val ratioX = rectBitmapVisible.width().toFloat() / rectVisible.width()
-            val ratioY = rectBitmapVisible.height().toFloat() / rectVisible.height()
+            val ratioX = rectBitmapVisible.width().toFloat() / rectViewPort.width()
+            val ratioY = rectBitmapVisible.height().toFloat() / rectViewPort.height()
 
             offset(
                 rectBitmapVisible.left + pivot.x * ratioX,
@@ -170,14 +170,14 @@ class AvatarBackViewV5 @JvmOverloads constructor(
         sourceImageBitmap?.let {
 
             canvas.save()
-            canvas.clipRect(rectVisible)
+            canvas.clipRect(rectViewPort)
 
             // TODO Вот так делать не надо. Тормозит отрисовка.
 //            canvas.drawBitmap(it, rectBitmapVisible, rectDest, paintBackground)
 
             // TODO Вот так надо.
             rectFrom.set(rectBitmapVisible)
-            rectTo.set(rectVisible)
+            rectTo.set(rectViewPort)
             scaleMatrix.reset()
             scaleMatrix.setRectToRect(rectFrom, rectTo, Matrix.ScaleToFit.FILL)
             canvas.drawBitmap(it, scaleMatrix, paintBackground)
