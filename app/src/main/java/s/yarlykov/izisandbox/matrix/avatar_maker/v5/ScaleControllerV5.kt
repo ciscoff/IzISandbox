@@ -10,6 +10,8 @@ interface ScaleControllerV5 {
     fun onBackSizeChanged(size: Pair<Int, Int>)
     fun onFrontSizeChanged(size: Pair<Int, Int>)
 
+    fun rotateCcw()
+
     var bitmapScaleCurrent: Float
     var bitmapScaleMin: Float
 }

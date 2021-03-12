@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
+import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -24,6 +25,7 @@ import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.awaitEnd
 import s.yarlykov.izisandbox.extensions.notZero
 import s.yarlykov.izisandbox.matrix.avatar_maker.EditorAvatarActivity.Companion.IMAGE_ID
+import kotlin.math.abs
 
 class AvatarCompoundViewV5 @JvmOverloads constructor(
     context: Context,
@@ -33,6 +35,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
 
     private val avatarBack: AvatarBaseViewV5
     private val avatarFront: AvatarBaseViewV5
+    private val buttonRotate: Button
 
     private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
     private val scaleConsumers = ArrayList<ScaleConsumerV5>()
@@ -78,6 +81,8 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
             avatarBack = view.findViewById(R.id.avatarBack)
             avatarFront = view.findViewById(R.id.avatarFront)
 
+            buttonRotate = view.findViewById(R.id.buttonRotate)
+
             scaleConsumers.add(avatarBack)
             scaleConsumers.add(avatarFront)
 
@@ -115,7 +120,14 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
                 measureComponents()
             }
         }
+
+        buttonRotate.setOnClickListener {
+//            TransitionManager.beginDelayedTransition(this)
+            rotateCcw()
+        }
     }
+
+    private lateinit var bitmap: Bitmap
 
     /**
      * Определить оригинальный размер битмапы и её ориентацию относительно положения экрана.
@@ -127,7 +139,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
         measureAndLayoutViewPort(IMAGE_ID)
 
         // Битмапа загруженная как Sampled сохранит свои пропорции
-        val bitmap = loadSampledBitmapFromResource(
+        bitmap = loadSampledBitmapFromResource(
             IMAGE_ID,
             rectViewPort.width(),
             rectViewPort.height()
@@ -374,5 +386,36 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     @ExperimentalCoroutinesApi
     override fun onBackSizeChanged(size: Pair<Int, Int>) {
         onSizeAvatarBack.value = size
+    }
+
+    /**
+     * Выполнить поворот бэка и фронта со скалированием.
+     *
+     * Когда устанавливаем значение view.rotation кратным 180, то это значит, что view окажется
+     * в оригинальной ориентации или вверх ногами, то есть её размеры будут оригинальными и нужно
+     * указать scale = 1. При другом значение rotation view "ляжет на бок" и её размеры нужно
+     * отскалить по отношению view.width / view.height.
+     */
+    override fun rotateCcw() {
+        val degreeCcw = -90f
+
+        val pivotX = avatarBack.width.toFloat() / 2f
+        val pivotY = avatarBack.height.toFloat() / 2f
+        val rotation = avatarBack.rotation + degreeCcw
+
+        val scale = if (abs(rotation).toInt() % 180 == 0)
+            1f
+        else
+            avatarBack.width.toFloat() / avatarBack.height.toFloat()
+
+        avatarBack.pivotX = pivotX
+        avatarBack.pivotY = pivotY
+        avatarFront.pivotX = pivotX
+        avatarFront.pivotY = pivotY
+
+        avatarBack
+            .animate().rotation(rotation).scaleX(scale).scaleY(scale).setDuration(150).start()
+        avatarFront
+            .animate().rotation(rotation).scaleX(scale).scaleY(scale).setDuration(150).start()
     }
 }
