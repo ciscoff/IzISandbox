@@ -9,9 +9,9 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
-import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.addListener
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +29,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), ScaleControllerV5 {
+) : ConstraintLayout(context, attrs, defStyleAttr), ScaleControllerV5 {
 
     private val avatarBack: AvatarBaseViewV5
     private val avatarFront: AvatarBaseViewV5
@@ -74,7 +74,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     override var bitmapScaleMin: Float = 0f
 
     init {
-        View.inflate(context, R.layout.layout_avatar_components_v3, this).also { view ->
+        View.inflate(context, R.layout.layout_avatar_components_v5, this).also { view ->
             avatarBack = view.findViewById(R.id.avatarBack)
             avatarFront = view.findViewById(R.id.avatarFront)
 
@@ -187,7 +187,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
             // Same: Ориентации фотки и View совпадают. Обе горизонтальные или обе вертикальные.
             else -> {
 
-                if(ratioW <= ratioH) {
+                if (ratioW <= ratioH) {
                     scaleHeightByHorizontalRatio(ratioW, bitmapOptions.outHeight)
                 } else {
                     scaleWidthByVerticalRatio(ratioH, bitmapOptions.outWidth)
@@ -198,13 +198,12 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
     }
 
 
-
     /**
      * На входе ratio для скалирования высоты битмапы при котором она займет всю высоту View.
      * Нужно изменить ширину битмапы (сжать/растянуть) в соответствии с ratio. Полученное значение
      * не будет больше viewWidth.
      */
-    private fun scaleWidthByVerticalRatio(ratio : Float, widthToScale : Int) {
+    private fun scaleWidthByVerticalRatio(ratio: Float, widthToScale: Int) {
         val (viewWidth, viewHeight) = viewSize
 
         val scaledWidth = (widthToScale * ratio).toInt()
@@ -222,7 +221,7 @@ class AvatarCompoundViewV5 @JvmOverloads constructor(
      * Нужно изменить высоту битмапы (сжать/растянуть) в соответствии с ratio. Полученное значение
      * не будет больше viewHeight.
      */
-    private fun scaleHeightByHorizontalRatio(ratio : Float, heightToScale : Int) {
+    private fun scaleHeightByHorizontalRatio(ratio: Float, heightToScale: Int) {
 
         val (viewWidth, viewHeight) = viewSize
 
