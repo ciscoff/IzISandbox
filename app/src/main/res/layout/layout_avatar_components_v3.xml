@@ -22,12 +22,12 @@
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent" />-->
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v5.AvatarBackViewV5
+    <s.yarlykov.izisandbox.matrix.avatar_maker_dev.v5.AvatarBackViewV5
         android:id="@+id/avatarBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v5.AvatarFrontViewV5
+    <s.yarlykov.izisandbox.matrix.avatar_maker_dev.v5.AvatarFrontViewV5
         android:id="@+id/avatarFront"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_avatar_graph"
+    app:startDestination="@+id/nav_avatar_viewer">
+
+    <fragment
+        android:id="@+id/nav_avatar_viewer"
+        android:name="s.yarlykov.izisandbox.matrix.avatar_maker_prod.FragmentAvatar"
+        android:label="@string/menu_avatar_viewer"
+        tools:layout="@layout/fragment_funny_avatar" />
+
+    <fragment
+        android:id="@+id/nav_avatar_maker"
+        android:name="s.yarlykov.izisandbox.matrix.avatar_maker_prod.FragmentMaker"
+        android:label="@string/menu_avatar_maker"
+        tools:layout="@layout/fragment_editor_avatar" />
+
+    <!-- Переключение между фрагментами (slide) -->
+    <action
+        android:id="@+id/action_from_viewer_to_maker"
+        app:destination="@id/nav_avatar_maker"
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_right" />
+
+</navigation>

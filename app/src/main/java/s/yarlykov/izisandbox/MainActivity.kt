@@ -15,8 +15,8 @@ import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
-import s.yarlykov.izisandbox.matrix.avatar_maker.EditorAvatarActivity
-import s.yarlykov.izisandbox.matrix.avatar_maker.FunnyAvatarActivity
+import s.yarlykov.izisandbox.matrix.avatar_maker_dev.EditorAvatarActivity
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.FunnyAvatarActivity
 import s.yarlykov.izisandbox.matrix.scale_animated.ScaleAnimatedActivity
 import s.yarlykov.izisandbox.matrix.surface.v02.SmoothDraggingActivity
 import s.yarlykov.izisandbox.matrix.v1.MatrixActivityV1
@@ -24,7 +24,6 @@ import s.yarlykov.izisandbox.matrix.v2.MatrixActivityV2
 import s.yarlykov.izisandbox.navgraph.ActivityGraph1
 import s.yarlykov.izisandbox.notifier.NotificationSenderActivity
 import s.yarlykov.izisandbox.places.PlacesAutoCompleteActivity
-import s.yarlykov.izisandbox.recycler_and_swipes.debug_events.RecyclerViewEventsActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.DecoratedListActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.grid.GridListActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.infinite_loop.infinite_01.InfiniteRecyclerActivity
@@ -63,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         GridListActivity::class.java to R.string.menu_grid_list,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
-        EditorAvatarActivity::class.java to R.string.menu_funny_avatar,
+        EditorAvatarActivity::class.java to R.string.menu_create_avatar,
         ScaleAnimatedActivity::class.java to R.string.menu_scale_big_bitmap,
         IziLoginActivity::class.java to R.string.menu_izi_login,
         TimeLineActivityEdu::class.java to R.string.menu_time_line_edu,

@@ -9,7 +9,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_end="?attr/actionBarSize" />
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker_dev.v5.AvatarBackViewV5
+    <s.yarlykov.izisandbox.matrix.avatar_maker_prod.ui.AvatarBackView
         android:id="@+id/avatarBack"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="1" />
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker_dev.v5.AvatarFrontViewV5
+    <s.yarlykov.izisandbox.matrix.avatar_maker_prod.ui.AvatarFrontView
         android:id="@+id/avatarFront"
         android:layout_width="match_parent"
         android:layout_height="0dp"
