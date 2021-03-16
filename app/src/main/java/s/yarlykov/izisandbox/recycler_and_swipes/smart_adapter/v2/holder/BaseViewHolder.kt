@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 abstract class BaseViewHolder : RecyclerView.ViewHolder {
 
@@ -14,6 +16,14 @@ abstract class BaseViewHolder : RecyclerView.ViewHolder {
      * Наследники могут принимать и отдавать что угодно.
      */
     var callback: SmartCallback<*>? = null
+
+    /**
+     * Канал отправки сообщений подписчикам (альтернатива callback'у)
+     */
+    private val events = PublishSubject.create<EventWrapper<Any>>()
+    val eventsObservable: Observable<EventWrapper<Any>> by lazy {
+        events.hide()
+    }
 
     constructor(
         parent: ViewGroup,
