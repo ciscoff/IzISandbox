@@ -1,25 +1,43 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker_prod
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
-import androidx.navigation.fragment.findNavController
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.databinding.FragmentFunnyAvatarBinding
 import s.yarlykov.izisandbox.extensions.showResultNotification
+import s.yarlykov.izisandbox.utils.LiveDataT
 import s.yarlykov.izisandbox.utils.PermissionCatcher
 import s.yarlykov.izisandbox.utils.PhotoHelper
+import java.io.File
 
+/**
+ * NOTE: На сраном планшете HUAWEI я столкнулся с такой проблемой:
+ * http://android-gex.blogspot.com/2013/03/the-problem-with-external-camera-in.html
+ *
+ * В общем после возврата из активити камеры пересоздавалась моя FunnyAvatarActivity
+ * и этот фрагмент. Соответственно обнулялись photoPath и photoURI и получался крэш
+ * в onActivityResult.
+ *
+ * Решение: Сохранять photoPath и photoURI в бандле в методе onSaveInstanceState.
+ *
+ * NOTE: И кстати этот хуявей перезапускает целиком приложение при смене ориентации
+ * экрана. При этом onSaveInstanceState отрабатывает правильно. Пришлось в манифесте
+ * в разделе активити приколотить android:screenOrientation="portrait".
+ */
 class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
 
     private var _binding: FragmentFunnyAvatarBinding? = null
@@ -28,6 +46,9 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
     companion object {
         const val REQUEST_IMAGE_CAPTURE = 1
         const val REQUEST_IMAGE_GALLERY = 2
+
+        const val KEY_URI = "KEY_URI"
+        const val KEY_PATH = "KEY_PATH"
     }
 
     /**
@@ -48,12 +69,19 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFunnyAvatarBinding.inflate(inflater, container, false)
+
+        savedInstanceState?.let { bundle ->
+            photoURI = bundle.getString(KEY_URI)?.let { Uri.parse(it) }
+            photoPath = bundle.getString(KEY_PATH)
+        }
+
         return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        /** Запросить разрешения на работу с камерой и файлами */
         PermissionCatcher.apply {
             camera(requireContext(), model.permissionCamera)
             gallery(requireContext(), model.permissionStorage)
@@ -64,7 +92,7 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         }
 
         model.permissionStorage.observe(viewLifecycleOwner) {
-            isGalleryPermitted
+            isGalleryPermitted = it
         }
 
         binding.avatarView.liveURI = model.avatarLiveUri
@@ -74,10 +102,53 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         }
 
         binding.avatarView.setOnClickListener {
-            findNavController().navigate(R.id.action_from_viewer_to_maker)
+            /*findNavController().navigate(R.id.action_from_viewer_to_maker)*/
+            takeGalleryImage()
         }
 
         binding.avatarView.setImageResource(R.drawable.shape_oval_gray)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        photoURI?.let { outState.putString(KEY_URI, it.toString()) }
+        photoPath?.let { outState.putString(KEY_PATH, it) }
+    }
+
+    /**
+     * Обработка фотографий.
+     *
+     * NOTE: Когда возвращаемся из активити камеры, то data == null.
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if (resultCode != Activity.RESULT_OK) return
+
+        when (requestCode) {
+            REQUEST_IMAGE_CAPTURE -> {
+                photoURI?.let { uri ->
+                    photoPath?.let { path ->
+                        if (PhotoHelper.reduceImageFile(requireContext(), uri, path)) {
+                            binding.avatarView.liveURI = LiveDataT(uri)
+                        }
+                    }
+                }
+            }
+            REQUEST_IMAGE_GALLERY -> {
+                data?.let { intent ->
+                    val context = requireContext()
+                    val imgPath = PhotoHelper.createImageFile(context).path
+
+                    (intent.data)?.let { uri ->
+                        if (PhotoHelper.reduceImageFile(context, uri, imgPath)) {
+                            binding.avatarView.liveURI = LiveDataT(Uri.fromFile(File(imgPath)))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -104,12 +175,29 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     startActivityForResult(
                         takePictureIntent,
-                        FunnyAvatarActivity.REQUEST_IMAGE_CAPTURE
+                        REQUEST_IMAGE_CAPTURE
                     )
                 }
             } catch (e: Exception) {
                 binding.fabCamera.showResultNotification(R.string.camera_access_issue, false)
             }
+        }
+    }
+
+    private fun takeGalleryImage() {
+
+        if (isGalleryPermitted) {
+            val intent =
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
+            startActivityForResult(
+                Intent.createChooser(
+                    intent,
+                    requireContext().getString(R.string.fragment_avatar_select_image)
+                ), REQUEST_IMAGE_GALLERY
+            )
+        } else {
+            // TODO Диалог с сообщением о недостатке permissions
         }
     }
 

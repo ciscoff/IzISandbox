@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".recycler_and_swipes.debug_events.RecyclerViewEventsActivity"/>
+        <activity android:name=".recycler_and_swipes.debug_events.RecyclerViewEventsActivity" />
         <activity android:name=".recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity" />
         <activity android:name=".notifier.PopUpActivity" />
         <activity android:name=".notifier.NotificationSenderActivity" />
@@ -45,7 +45,10 @@
                 android:resource="@xml/avatar_path" />
         </provider>
 
-        <activity android:name=".matrix.avatar_maker_prod.FunnyAvatarActivity" />
+        <activity
+            android:name=".matrix.avatar_maker_prod.FunnyAvatarActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name=".recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity" />
         <activity android:name=".recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity" />
         <activity android:name=".recycler_and_swipes.infinite_loop.infinite_01.InfiniteRecyclerActivity" />

@@ -73,7 +73,7 @@
 
     <string name="menu_avatar_viewer" translatable="false">Avatar Viewer</string>
     <string name="menu_avatar_maker" translatable="false">Avatar Maker</string>
-    
+
     <string name="text_graph_2" translatable="false">Graph 2</string>
 
     <!-- Options Menu-->
@@ -246,4 +246,7 @@
     <string name="zoom_x1" translatable="false">x1</string>
     <string name="zoom_x2" translatable="false">x2</string>
     <string name="zoom_x3" translatable="false">x3</string>
+
+    <!-- Avatar -->
+    <string name="fragment_avatar_select_image" translatable="false">Select image</string>
 </resources>

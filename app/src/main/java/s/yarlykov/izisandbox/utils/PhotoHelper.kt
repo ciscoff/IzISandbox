@@ -17,7 +17,7 @@ import java.util.*
 object PhotoHelper {
 
     /**
-     * Создать JPG-файл с уникальным именем и префиксом "izi_<time_stamp>"
+     * Создать JPG-файл с уникальным именем и префиксом "avatar_<time_stamp>"
      */
     @Throws(IOException::class)
     fun createImageFile(context: Context): File {
@@ -26,7 +26,7 @@ object PhotoHelper {
         val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         return File.createTempFile(
-            "izi_${timeStamp}", /* prefix */
+            "avatar_${timeStamp}", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         )
@@ -37,13 +37,13 @@ object PhotoHelper {
      * @src - Uri исходного файла
      * @dest - Path целевого файла
      *
-     * При работе с фотограффией с камеры @src/@dest ссылаются на один и тотжже файл.
+     * При работе с фотографией с камеры @src/@dest ссылаются на один и тот же файл.
      * При работе с картинкой из галлереи - это разные файлы.
-     * @dest всегда располагается внутри каталоги приложения.
+     * @dest всегда располагается внутри каталога приложения.
      *
-     * NOTE: Есть косяк: аватарки передаются на сервер повернутые на -90 (против часовой), если
-     * фотка тыльной камерой и +90 (по часовой), если фронтальной. Это при вертикальном положении
-     * телефона. Перед отправкой на сервер аватарку нужно развернуть правильно.
+     * NOTE: Есть нюанс: аватарки приходят повернутые на -90 (против часовой), если
+     * фотка тыльной камерой и на +90 (по часовой), если фронтальной. Это при вертикальном положении
+     * телефона. Перед показом аватарку нужно развернуть правильно.
      * https://stackoverflow.com/questions/3647993/android-bitmaps-loaded-from-gallery-are-rotated-in-imageview
      * http://sylvana.net/jpegcrop/exif_orientation.html
      * https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media#rotating-the-picture
@@ -74,7 +74,7 @@ object PhotoHelper {
     /**
      * Bitmap уменьшенная в ratio раз.
      */
-    fun Bitmap.reduce(ratio: Int = 2): Bitmap =
+    private fun Bitmap.reduce(ratio: Int = 2): Bitmap =
         if (height > width) {
             scaleToFitHeight(height / ratio)
         } else {

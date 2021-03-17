@@ -12,6 +12,9 @@ object PermissionCatcher {
     const val REQUEST_PERM_CAMERA = 102
     const val REQUEST_PERM_READ_STORAGE = 103
 
+    /**
+     * Запрос разрешений на работу с координатами устройства
+     */
     fun location(context: Context, observer: LiveDataT<Boolean>) {
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -42,7 +45,9 @@ object PermissionCatcher {
     }
 
     /**
-     * Запрос разрешений на работу с координатами устройства
+     * Запрос разрешений на работу с камерой. Это касается непосредственного
+     * использования камеры как физического устройства. А если требуется сделать фотку,
+     * то достаточно через Intent вызывать активити приложения для фотосъемки.
      */
     fun camera(context: Context, observer: LiveDataT<Boolean>) {
 
