@@ -13,7 +13,6 @@ import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.animation.addListener
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +41,8 @@ class AvatarCompoundView @JvmOverloads constructor(
 
     private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
     private val scaleConsumers = ArrayList<ScaleConsumer>()
+
+    lateinit var bitmapPath: String
 
     @ExperimentalCoroutinesApi
     private val onSizeAvatarBack = MutableStateFlow(0 to 0)
@@ -125,12 +126,9 @@ class AvatarCompoundView @JvmOverloads constructor(
         }
 
         buttonRotate.setOnClickListener {
-//            TransitionManager.beginDelayedTransition(this)
             rotateCcw()
         }
     }
-
-    private lateinit var bitmap: Bitmap
 
     /**
      * Определить оригинальный размер битмапы и её ориентацию относительно положения экрана.
@@ -138,12 +136,20 @@ class AvatarCompoundView @JvmOverloads constructor(
      * Загрузить битмапу, расчитать rectDest и rectVisible.
      */
     private fun measureComponents() {
+        if (!::bitmapPath.isInitialized) throw Throwable("${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} Illegal 'bitmapPath' value")
 
         measureAndLayoutViewPort(IMAGE_ID)
 
         // Битмапа загруженная как Sampled сохранит свои пропорции
-        bitmap = loadSampledBitmapFromResource(
-            IMAGE_ID,
+//        val bitmap = loadSampledBitmapFromResource(
+//            IMAGE_ID,
+//            rectViewPort.width(),
+//            rectViewPort.height()
+//        )
+
+        // Битмапа загруженная как Sampled сохранит свои пропорции
+        val bitmap = loadSampledBitmapFromFile(
+            bitmapPath,
             rectViewPort.width(),
             rectViewPort.height()
         )
@@ -174,13 +180,18 @@ class AvatarCompoundView @JvmOverloads constructor(
      * 3. Отскалировать размеры битмапы, чтобы она без искажений помещалась внутри View.
      * 4. В процессе скалирования инициализировать ViewPort (rectViewPort)
      */
-    private fun measureAndLayoutViewPort(@DrawableRes resourceId: Int = IMAGE_ID) {
+    private inline fun <reified T : Any> measureAndLayoutViewPort(source: T) {
 
         val (viewWidth, viewHeight) = viewSize
 
         val bitmapOptions = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
-            BitmapFactory.decodeResource(context.resources, resourceId, this)
+
+            when (source) {
+                is String -> BitmapFactory.decodeFile(source, this)
+                is Int -> BitmapFactory.decodeResource(context.resources, source, this)
+                else -> throw Throwable("${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} Illegal argument 'source'")
+            }
         }
 
         val ratioW = viewWidth.toFloat() / bitmapOptions.outWidth
@@ -189,15 +200,11 @@ class AvatarCompoundView @JvmOverloads constructor(
         when {
             // Wider: Горизонтальная фотка в вертикальной View
             (viewHeight > viewWidth && bitmapOptions.outHeight <= bitmapOptions.outWidth) -> {
-
                 scaleHeightByHorizontalRatio(ratioW, bitmapOptions.outHeight)
-
-
             }
             // Higher: Вертикальная фотка в горизонтальной View
             (viewWidth > viewHeight && bitmapOptions.outHeight >= bitmapOptions.outWidth) -> {
                 scaleWidthByVerticalRatio(ratioH, bitmapOptions.outWidth)
-
             }
             // Same: Ориентации фотки и View совпадают. Обе горизонтальные или обе вертикальные.
             else -> {
@@ -207,7 +214,6 @@ class AvatarCompoundView @JvmOverloads constructor(
                 } else {
                     scaleWidthByVerticalRatio(ratioH, bitmapOptions.outWidth)
                 }
-
             }
         }
     }
@@ -248,34 +254,6 @@ class AvatarCompoundView @JvmOverloads constructor(
             top = ((viewHeight - scaledHeight) / 2f).toInt()
             bottom = top + scaledHeight
         }
-    }
-
-    /**
-     * Дочерний элемент просит запустить анимацию
-     * @param factor - scale factor
-     * @param pivot - фокус скалирования в координатах view
-     */
-    fun onScaleRequiredOld(factor: Float, pivot: PointF) {
-
-        // Подготовиться к началу анимации в дочерних Views
-        scaleConsumers.forEach { it.onPreAnimate(factor, pivot) }
-
-        // Запустить анимацию
-        ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = animDuration
-
-            addUpdateListener { animator ->
-                val fraction = animator.animatedFraction
-                scaleConsumers.forEach { it.onAnimate(fraction) }
-                scaleConsumers.forEach { (it as View).invalidate() }
-            }
-
-            // После завершения анимации вызывать у всех onPostScale()
-            addListener(onEnd = {
-                scaleConsumers.forEach { it.onPostAnimate() }
-            })
-
-        }.start()
     }
 
     @ExperimentalCoroutinesApi
@@ -341,6 +319,23 @@ class AvatarCompoundView @JvmOverloads constructor(
 
             inJustDecodeBounds = false
             BitmapFactory.decodeResource(context.resources, resourceId, this)
+        }
+    }
+
+    private fun loadSampledBitmapFromFile(
+        path: String,
+        reqWidth: Int,
+        reqHeight: Int
+    ): Bitmap {
+
+        return BitmapFactory.Options().run {
+            inJustDecodeBounds = true
+            BitmapFactory.decodeFile(path, this)
+
+            inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
+
+            inJustDecodeBounds = false
+            BitmapFactory.decodeFile(path, this)
         }
     }
 

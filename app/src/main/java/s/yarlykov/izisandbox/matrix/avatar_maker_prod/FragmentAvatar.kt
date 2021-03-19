@@ -15,6 +15,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.databinding.FragmentFunnyAvatarBinding
@@ -132,6 +133,7 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
                     photoPath?.let { path ->
                         if (PhotoHelper.reduceImageFile(requireContext(), uri, path)) {
                             binding.avatarView.liveURI = LiveDataT(uri)
+                            startEditor(path)
                         }
                     }
                 }
@@ -139,16 +141,24 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
             REQUEST_IMAGE_GALLERY -> {
                 data?.let { intent ->
                     val context = requireContext()
-                    val imgPath = PhotoHelper.createImageFile(context).path
+                    val path = PhotoHelper.createImageFile(context).path
 
                     (intent.data)?.let { uri ->
-                        if (PhotoHelper.reduceImageFile(context, uri, imgPath)) {
-                            binding.avatarView.liveURI = LiveDataT(Uri.fromFile(File(imgPath)))
+                        if (PhotoHelper.reduceImageFile(context, uri, path)) {
+                            binding.avatarView.liveURI = LiveDataT(Uri.fromFile(File(path)))
+                            startEditor(path)
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Запуск фрагмента для создания аватара
+     */
+    private fun startEditor(path: String) {
+        findNavController().navigate(R.id.action_from_viewer_to_maker, FragmentMaker.bundle(path))
     }
 
     /**
