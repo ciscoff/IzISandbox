@@ -48,22 +48,22 @@ object PhotoHelper {
      * http://sylvana.net/jpegcrop/exif_orientation.html
      * https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media#rotating-the-picture
      */
-    fun reduceImageFile(context: Context, photoUri: Uri, dest: String): Boolean {
+    fun reduceImageFile(context: Context, sourceUri: Uri, destPath: String): Boolean {
 
         var originalBitmap: Bitmap? = null
 
         return try {
 
             originalBitmap =
-                context.contentResolver.openInputStream(photoUri)?.use {
+                context.contentResolver.openInputStream(sourceUri)?.use {
                     BitmapFactory.decodeStream(it)
                 }
 
             originalBitmap
                 ?.reduce()
                 ?.cropCenter()
-                ?.rotate(context.cameraOrientation(photoUri))
-                ?.writeToStorage(dest) ?: false
+                ?.rotate(context.cameraOrientation(sourceUri))
+                ?.writeToStorage(destPath) ?: false
         } catch (e: IOException) {
             false
         } finally {

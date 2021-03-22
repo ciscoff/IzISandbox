@@ -131,10 +131,11 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
             REQUEST_IMAGE_CAPTURE -> {
                 photoURI?.let { uri ->
                     photoPath?.let { path ->
-                        if (PhotoHelper.reduceImageFile(requireContext(), uri, path)) {
-                            binding.avatarView.liveURI = LiveDataT(uri)
-                            startEditor(path)
-                        }
+                        startEditor(path)
+//                        if (PhotoHelper.reduceImageFile(requireContext(), uri, path)) {
+//                            binding.avatarView.liveURI = LiveDataT(uri)
+//                            startEditor(path)
+//                        }
                     }
                 }
             }
@@ -144,10 +145,11 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
                     val path = PhotoHelper.createImageFile(context).path
 
                     (intent.data)?.let { uri ->
-                        if (PhotoHelper.reduceImageFile(context, uri, path)) {
-                            binding.avatarView.liveURI = LiveDataT(Uri.fromFile(File(path)))
-                            startEditor(path)
-                        }
+                        startEditor(path)
+//                        if (PhotoHelper.reduceImageFile(context, uri, path)) {
+//                            binding.avatarView.liveURI = LiveDataT(Uri.fromFile(File(path)))
+//                            startEditor(path)
+//                        }
                     }
                 }
             }

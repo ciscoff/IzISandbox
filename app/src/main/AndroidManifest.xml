@@ -47,7 +47,6 @@
 
         <activity
             android:name=".matrix.avatar_maker_prod.FunnyAvatarActivity"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name=".recycler_and_swipes.infinite_loop.infinite_calendar.InfiniteCalendarActivity" />
         <activity android:name=".recycler_and_swipes.infinite_loop.infinite_02.InfiniteDatePickerActivity" />

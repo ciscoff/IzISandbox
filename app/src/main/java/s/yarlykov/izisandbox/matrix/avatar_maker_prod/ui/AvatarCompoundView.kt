@@ -13,6 +13,7 @@ import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,12 +22,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.extensions.awaitEnd
-import s.yarlykov.izisandbox.extensions.notZero
+import s.yarlykov.izisandbox.extensions.*
 import s.yarlykov.izisandbox.matrix.avatar_maker_dev.EditorAvatarActivity.Companion.IMAGE_ID
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleController
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 
 class AvatarCompoundView @JvmOverloads constructor(
@@ -138,7 +139,7 @@ class AvatarCompoundView @JvmOverloads constructor(
     private fun measureComponents() {
         if (!::bitmapPath.isInitialized) throw Throwable("${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} Illegal 'bitmapPath' value")
 
-        measureAndLayoutViewPort(IMAGE_ID)
+        val orientation = measureAndLayoutViewPort(bitmapPath)
 
         // Битмапа загруженная как Sampled сохранит свои пропорции
 //        val bitmap = loadSampledBitmapFromResource(
@@ -151,7 +152,8 @@ class AvatarCompoundView @JvmOverloads constructor(
         val bitmap = loadSampledBitmapFromFile(
             bitmapPath,
             rectViewPort.width(),
-            rectViewPort.height()
+            rectViewPort.height(),
+            orientation
         )
 
         rectBitmapVisible = Rect(0, 0, bitmap.width, bitmap.height)
@@ -179,43 +181,60 @@ class AvatarCompoundView @JvmOverloads constructor(
      * 2. Определить положение битмапы относительно ориентации View (Wider/Higher/Same).
      * 3. Отскалировать размеры битмапы, чтобы она без искажений помещалась внутри View.
      * 4. В процессе скалирования инициализировать ViewPort (rectViewPort)
+     *
+     * Return: Ориентация камеры как значение ExifInterface.TAG_ORIENTATION
      */
-    private inline fun <reified T : Any> measureAndLayoutViewPort(source: T) {
+    private inline fun <reified T : Any> measureAndLayoutViewPort(source: T): Int {
 
         val (viewWidth, viewHeight) = viewSize
+
+        var orientation = ExifInterface.ORIENTATION_UNDEFINED
 
         val bitmapOptions = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
 
             when (source) {
-                is String -> BitmapFactory.decodeFile(source, this)
+                is String -> {
+                    BitmapFactory.decodeFile(source, this)
+                    orientation = context.cameraOrientation(source)
+                }
                 is Int -> BitmapFactory.decodeResource(context.resources, source, this)
                 else -> throw Throwable("${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} Illegal argument 'source'")
             }
         }
 
-        val ratioW = viewWidth.toFloat() / bitmapOptions.outWidth
-        val ratioH = viewHeight.toFloat() / bitmapOptions.outHeight
+        /**
+         * Определить реальные w/h битмапы с учетом поворота камеры.
+         * Это требуется чтобы правильно назначить w/h для viewPort'a.
+         */
+        val (outWidth, outHeight) = bitmapOptions.out(orientation)
+
+        logIt("bitmap width/height/orientation: $outWidth/$outHeight/$orientation")
+
+        val ratioW = viewWidth.toFloat() / outWidth
+        val ratioH = viewHeight.toFloat() / outHeight
 
         when {
             // Wider: Горизонтальная фотка в вертикальной View
-            (viewHeight > viewWidth && bitmapOptions.outHeight <= bitmapOptions.outWidth) -> {
-                scaleHeightByHorizontalRatio(ratioW, bitmapOptions.outHeight)
+            (viewHeight > viewWidth && outHeight <= outWidth) -> {
+                scaleHeightByHorizontalRatio(ratioW, outHeight)
             }
             // Higher: Вертикальная фотка в горизонтальной View
-            (viewWidth > viewHeight && bitmapOptions.outHeight >= bitmapOptions.outWidth) -> {
-                scaleWidthByVerticalRatio(ratioH, bitmapOptions.outWidth)
+            (viewWidth > viewHeight && outHeight >= outWidth) -> {
+                scaleWidthByVerticalRatio(ratioH, outWidth)
             }
             // Same: Ориентации фотки и View совпадают. Обе горизонтальные или обе вертикальные.
             else -> {
 
                 if (ratioW <= ratioH) {
-                    scaleHeightByHorizontalRatio(ratioW, bitmapOptions.outHeight)
+                    scaleHeightByHorizontalRatio(ratioW, outHeight)
                 } else {
-                    scaleWidthByVerticalRatio(ratioH, bitmapOptions.outWidth)
+                    scaleWidthByVerticalRatio(ratioH, outWidth)
                 }
             }
         }
+
+        return orientation
     }
 
 
@@ -315,7 +334,7 @@ class AvatarCompoundView @JvmOverloads constructor(
             inJustDecodeBounds = true
             BitmapFactory.decodeResource(context.resources, resourceId, this)
 
-            inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
+            inSampleSize = calculateInSampleSize(outWidth, outHeight, reqWidth, reqHeight)
 
             inJustDecodeBounds = false
             BitmapFactory.decodeResource(context.resources, resourceId, this)
@@ -325,17 +344,20 @@ class AvatarCompoundView @JvmOverloads constructor(
     private fun loadSampledBitmapFromFile(
         path: String,
         reqWidth: Int,
-        reqHeight: Int
+        reqHeight: Int,
+        orientation: Int
     ): Bitmap {
 
         return BitmapFactory.Options().run {
             inJustDecodeBounds = true
             BitmapFactory.decodeFile(path, this)
 
-            inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
+            val (rawWidth, rawHeight) = out(orientation)
+
+            inSampleSize = calculateInSampleSize(rawWidth, rawHeight, reqWidth, reqHeight)
 
             inJustDecodeBounds = false
-            BitmapFactory.decodeFile(path, this)
+            BitmapFactory.decodeFile(path, this).rotate(orientation)
         }
     }
 
@@ -346,12 +368,13 @@ class AvatarCompoundView @JvmOverloads constructor(
      * пикселей W/2 * H/2 = (W*H)/4, то есть в 4 раза меньше, чем в исходном.
      */
     private fun calculateInSampleSize(
-        options: BitmapFactory.Options,
+        rawWidth: Int,
+        rawHeight: Int,
         reqWidth: Int,
         reqHeight: Int
     ): Int {
 
-        val (rawHeight: Int, rawWidth: Int) = options.run { outHeight to outWidth }
+//        val (rawHeight: Int, rawWidth: Int) = options.run { outHeight to outWidth }
 
         // Если картинка достаточно маленькая, то декодируем без изменений.
         if (rawHeight < reqHeight / 2 && rawWidth < reqWidth / 2) return 1
