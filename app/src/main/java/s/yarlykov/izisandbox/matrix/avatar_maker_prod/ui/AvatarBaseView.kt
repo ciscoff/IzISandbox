@@ -12,6 +12,7 @@ import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleController
+import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseView @JvmOverloads constructor(
     context: Context,
@@ -69,6 +70,7 @@ abstract class AvatarBaseView @JvmOverloads constructor(
         rectBitmapVisible = Rect(0, 0, mediaData.bitmap.width, mediaData.bitmap.height)
 
         rectViewPort.set(mediaData.viewPort)
+        logIt("onBitmapReady: bitmap w/h=${mediaData.bitmap.width}/${mediaData.bitmap.height}, view w/h=${width}/${height}, rectViewPort=$rectViewPort")
 
         // Это минимальное значение высоты для rectBitmapVisible. Оно в bitmapScaleMax-раз
         // меньше высоты View. То есть это высота rectBitmapVisible при максимальном увеличении.

@@ -41,7 +41,7 @@ fun Bitmap.rotate(orientation: Int): Bitmap {
  * Получить "конечные" размеры битмапы для состояния когда она уже правильно
  * повернута на экране с учетом
  */
-fun BitmapFactory.Options.out(orientation: Int): Pair<Int, Int> {
+fun BitmapFactory.Options.oriented(orientation: Int): Pair<Int, Int> {
     return if (orientationToAngle(orientation) % 180 == 0)
         outWidth to outHeight
     else

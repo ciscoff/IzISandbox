@@ -229,6 +229,7 @@ class AvatarFrontView @JvmOverloads constructor(
      * Инициализировать все вспомогательные структуры.
      */
     override fun onBitmapReady(mediaData: MediaData) {
+        // Расчет
         super.onBitmapReady(mediaData)
 
         resetState()
@@ -435,7 +436,6 @@ class AvatarFrontView @JvmOverloads constructor(
      * актуальные значение, потому что rectClip вычисляется делегатом и использует эти поля.
      */
     private fun rectPivotMove() {
-//        val rectTmp = RectF().apply { set(rectClip) }
         rectPivot.set(rectClip)
     }
 
@@ -449,7 +449,7 @@ class AvatarFrontView @JvmOverloads constructor(
 
         rectPivot.apply {
             top = if (isVertical) {
-                (rectViewPort.height() - frameDimen) / 2f
+                rectViewPort.top + (rectViewPort.height() - frameDimen) / 2f
             } else {
                 rectViewPort.top.toFloat()
             }
@@ -459,7 +459,7 @@ class AvatarFrontView @JvmOverloads constructor(
             left = if (isVertical) {
                 rectViewPort.left.toFloat()
             } else {
-                (rectViewPort.width() - frameDimen) / 2f
+                rectViewPort.left + (rectViewPort.width() - frameDimen) / 2f
             }
             right = left + frameDimen
         }

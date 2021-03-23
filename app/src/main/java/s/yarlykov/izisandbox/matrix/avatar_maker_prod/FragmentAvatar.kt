@@ -103,7 +103,6 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         }
 
         binding.avatarView.setOnClickListener {
-            /*findNavController().navigate(R.id.action_from_viewer_to_maker)*/
             takeGalleryImage()
         }
 
@@ -130,13 +129,7 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         when (requestCode) {
             REQUEST_IMAGE_CAPTURE -> {
                 photoURI?.let { uri ->
-                    photoPath?.let { path ->
-                        startEditor(path)
-//                        if (PhotoHelper.reduceImageFile(requireContext(), uri, path)) {
-//                            binding.avatarView.liveURI = LiveDataT(uri)
-//                            startEditor(path)
-//                        }
-                    }
+                    photoPath?.let { path -> startEditor(path) }
                 }
             }
             REQUEST_IMAGE_GALLERY -> {
@@ -145,11 +138,9 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
                     val path = PhotoHelper.createImageFile(context).path
 
                     (intent.data)?.let { uri ->
-                        startEditor(path)
-//                        if (PhotoHelper.reduceImageFile(context, uri, path)) {
-//                            binding.avatarView.liveURI = LiveDataT(Uri.fromFile(File(path)))
-//                            startEditor(path)
-//                        }
+                        if (PhotoHelper.copyTo(context, uri, path)) {
+                            startEditor(path)
+                        }
                     }
                 }
             }

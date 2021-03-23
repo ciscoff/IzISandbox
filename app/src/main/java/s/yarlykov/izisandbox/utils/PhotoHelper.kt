@@ -3,8 +3,10 @@ package s.yarlykov.izisandbox.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Environment
+import androidx.core.net.toFile
 import s.yarlykov.izisandbox.extensions.cameraOrientation
 import s.yarlykov.izisandbox.extensions.rotate
 import java.io.ByteArrayOutputStream
@@ -64,6 +66,38 @@ object PhotoHelper {
                 ?.cropCenter()
                 ?.rotate(context.cameraOrientation(sourceUri))
                 ?.writeToStorage(destPath) ?: false
+        } catch (e: IOException) {
+            false
+        } finally {
+            originalBitmap?.recycle()
+        }
+    }
+
+    /**
+     * Функция используется для копирования файла из файлового Uri галереи в локальную папку
+     * приложения. Требуется для того, что AvatarCompoundView рабоает с битмапами из file path
+     * а не из file uri
+     *
+     * TODO Нужно добавить в AvatarCompoundView функционал работы с uri, чтобы не создавать
+     * TODO копии файлов.
+     * TODO Сделал функцию loadSampledBitmapFromUri, но не тестировал.
+     */
+    fun copyTo(context: Context, sourceUri: Uri, destPath: String): Boolean {
+        var originalBitmap: Bitmap? = null
+
+        return try {
+
+            logIt("sourceUri=${sourceUri.toString()}")
+
+            originalBitmap =
+                context.contentResolver.openInputStream(sourceUri)?.use {
+                    BitmapFactory.decodeStream(it)
+                }
+
+            originalBitmap
+                ?.rotate(context.cameraOrientation(sourceUri))
+                ?.writeToStorage(destPath) ?: false
+
         } catch (e: IOException) {
             false
         } finally {
