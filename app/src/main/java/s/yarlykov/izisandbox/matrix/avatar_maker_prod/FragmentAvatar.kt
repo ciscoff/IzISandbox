@@ -129,19 +129,12 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         when (requestCode) {
             REQUEST_IMAGE_CAPTURE -> {
                 photoURI?.let { uri ->
-                    photoPath?.let { path -> startEditor(path) }
+                    photoPath?.let { path -> startEditor(path, uri) }
                 }
             }
             REQUEST_IMAGE_GALLERY -> {
                 data?.let { intent ->
-                    val context = requireContext()
-                    val path = PhotoHelper.createImageFile(context).path
-
-                    (intent.data)?.let { uri ->
-                        if (PhotoHelper.copyTo(context, uri, path)) {
-                            startEditor(path)
-                        }
-                    }
+                    (intent.data)?.let { uri -> startEditor(null, uri) }
                 }
             }
         }
@@ -150,8 +143,11 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
     /**
      * Запуск фрагмента для создания аватара
      */
-    private fun startEditor(path: String) {
-        findNavController().navigate(R.id.action_from_viewer_to_maker, FragmentMaker.bundle(path))
+    private fun startEditor(path: String?, uri: Uri? = null) {
+        findNavController().navigate(
+            R.id.action_from_viewer_to_maker,
+            FragmentMaker.bundle(path, uri)
+        )
     }
 
     /**

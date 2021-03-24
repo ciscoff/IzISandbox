@@ -1,5 +1,6 @@
 package s.yarlykov.izisandbox.matrix.avatar_maker_prod
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ class FragmentMaker : Fragment(R.layout.fragment_editor_avatar) {
     private val binding get() = _binding!!
 
     private val bitmapPath: String by args()
+    private val bitmapUri: String by args()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,10 +26,15 @@ class FragmentMaker : Fragment(R.layout.fragment_editor_avatar) {
     ): View {
         _binding = FragmentEditorAvatarBinding.inflate(inflater, container, false)
         binding.root.bitmapPath = bitmapPath
+        binding.root.bitmapUri = Uri.parse(bitmapUri)
         return binding.root
     }
 
     companion object {
-        fun bundle(bitmapPath: String) = bundleOf("bitmapPath" to bitmapPath)
+        fun bundle(bitmapPath: String?, bitmapUri: Uri? = null) =
+            bundleOf(
+                "bitmapPath" to (bitmapPath ?: ""),
+                "bitmapUri" to (bitmapUri?.toString() ?: Uri.EMPTY.toString())
+            )
     }
 }
