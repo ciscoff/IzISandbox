@@ -60,5 +60,9 @@ fun main() {
 
         suspendFun3()
         println("after coroutineScope block")
+
+        coroutineScope {
+
+        }
     }
 }
