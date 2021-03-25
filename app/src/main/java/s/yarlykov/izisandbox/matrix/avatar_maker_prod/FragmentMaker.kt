@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.navGraphViewModels
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.databinding.FragmentEditorAvatarBinding
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
 import s.yarlykov.izisandbox.utils.args
 
 class FragmentMaker : Fragment(R.layout.fragment_editor_avatar) {
@@ -18,6 +20,8 @@ class FragmentMaker : Fragment(R.layout.fragment_editor_avatar) {
 
     private val bitmapPath: String by args()
     private val bitmapUri: String by args()
+
+    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
 
     override fun onCreateView(
         inflater: LayoutInflater,

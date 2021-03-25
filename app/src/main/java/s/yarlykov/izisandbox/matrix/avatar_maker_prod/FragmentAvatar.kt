@@ -13,17 +13,16 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.databinding.FragmentFunnyAvatarBinding
 import s.yarlykov.izisandbox.extensions.showResultNotification
-import s.yarlykov.izisandbox.utils.LiveDataT
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
 import s.yarlykov.izisandbox.utils.PermissionCatcher
 import s.yarlykov.izisandbox.utils.PhotoHelper
-import java.io.File
 
 /**
  * NOTE: На сраном планшете HUAWEI я столкнулся с такой проблемой:
@@ -60,9 +59,7 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
 
     private var isCameraPermitted = false
     private var isGalleryPermitted = false
-    private val model: FunnyAvatarActivity.LocalModel by lazy {
-        ViewModelProvider(this).get(FunnyAvatarActivity.LocalModel::class.java)
-    }
+    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,7 +72,6 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
             photoURI = bundle.getString(KEY_URI)?.let { Uri.parse(it) }
             photoPath = bundle.getString(KEY_PATH)
         }
-
         return binding.root
     }
 
@@ -84,19 +80,23 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
 
         /** Запросить разрешения на работу с камерой и файлами */
         PermissionCatcher.apply {
-            camera(requireContext(), model.permissionCamera)
-            gallery(requireContext(), model.permissionStorage)
+            camera(requireContext(), viewModel.permissionCamera)
+            gallery(requireContext(), viewModel.permissionStorage)
         }
 
-        model.permissionCamera.observe(viewLifecycleOwner) {
+        viewModel.permissionCamera.observe(viewLifecycleOwner) {
             isCameraPermitted = it
         }
 
-        model.permissionStorage.observe(viewLifecycleOwner) {
+        viewModel.permissionStorage.observe(viewLifecycleOwner) {
             isGalleryPermitted = it
         }
 
-        binding.avatarView.liveURI = model.avatarLiveUri
+        viewModel.bitmapLive.observe(viewLifecycleOwner) {
+            binding.avatarView.setImageBitmap(it)
+        }
+
+        binding.avatarView.liveURI = viewModel.avatarLiveUri
 
         binding.fabCamera.setOnClickListener {
             takePhoto(requireContext())

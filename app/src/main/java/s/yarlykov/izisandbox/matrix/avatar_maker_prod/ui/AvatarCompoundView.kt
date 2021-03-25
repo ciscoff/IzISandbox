@@ -28,17 +28,23 @@ import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.BitmapOptions
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleController
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModelAccessor
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViwModelInjector
 import kotlin.math.abs
 
 class AvatarCompoundView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), ScaleController {
+) : ConstraintLayout(context, attrs, defStyleAttr),
+    ScaleController,
+    AvatarViewModelAccessor by AvatarViwModelInjector(context) {
 
     private val avatarBack: AvatarBaseView
     private val avatarFront: AvatarBaseView
     private val buttonRotate: Button
+    private val buttonCancel: Button
+    private val buttonReady: Button
 
     private val animDuration = context.resources.getInteger(R.integer.anim_duration_avatar).toLong()
     private val scaleConsumers = ArrayList<ScaleConsumer>()
@@ -94,6 +100,8 @@ class AvatarCompoundView @JvmOverloads constructor(
             avatarFront = view.findViewById(R.id.avatarFront)
 
             buttonRotate = view.findViewById(R.id.buttonRotate)
+            buttonCancel = view.findViewById(R.id.buttonCancel)
+            buttonReady = view.findViewById(R.id.buttonReady)
 
             scaleConsumers.add(avatarBack)
             scaleConsumers.add(avatarFront)
@@ -135,6 +143,14 @@ class AvatarCompoundView @JvmOverloads constructor(
 
         buttonRotate.setOnClickListener {
             rotateCcw()
+        }
+
+        buttonReady.setOnClickListener {
+            onReady()
+        }
+
+        buttonCancel.setOnClickListener {
+            onCancel()
         }
     }
 
@@ -484,6 +500,14 @@ class AvatarCompoundView @JvmOverloads constructor(
     @ExperimentalCoroutinesApi
     override fun onBackSizeChanged(size: Pair<Int, Int>) {
         onSizeAvatarBack.value = size
+    }
+
+    private fun onReady() {
+
+    }
+
+    private fun onCancel() {
+
     }
 
     /**

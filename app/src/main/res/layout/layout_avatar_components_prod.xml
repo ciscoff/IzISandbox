@@ -54,7 +54,7 @@
     <!--        app:layout_constraintTop_toBottomOf="@id/bottomGuideline" />-->
 
     <Button
-        android:id="@+id/buttonAttach"
+        android:id="@+id/buttonCancel"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,12 +73,12 @@
         app:icon="@drawable/ic_rotate_ccw"
         app:iconTint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/buttonCamera"
-        app:layout_constraintStart_toEndOf="@id/buttonAttach"
+        app:layout_constraintEnd_toStartOf="@id/buttonReady"
+        app:layout_constraintStart_toEndOf="@id/buttonCancel"
         app:layout_constraintTop_toBottomOf="@id/bottomGuideline" />
 
     <Button
-        android:id="@+id/buttonCamera"
+        android:id="@+id/buttonReady"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
