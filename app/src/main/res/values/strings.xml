@@ -249,4 +249,8 @@
 
     <!-- Avatar -->
     <string name="fragment_avatar_select_image" translatable="false">Select image</string>
+
+    <string name="avatar_ready">ready</string>
+    <string name="avatar_cancel">cancel</string>
+
 </resources>

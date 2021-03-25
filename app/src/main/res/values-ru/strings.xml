@@ -3,4 +3,8 @@
     <string name="ui_day_today">Сегодня</string>
     <string name="ui_day_tomorrow">Завтра</string>
     <string name="ui_day_yesterday">Вчера</string>
+
+    <string name="avatar_ready">готово</string>
+    <string name="avatar_cancel">отмена</string>
+
 </resources>
