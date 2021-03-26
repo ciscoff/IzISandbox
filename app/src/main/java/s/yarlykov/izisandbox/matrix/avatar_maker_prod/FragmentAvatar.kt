@@ -13,9 +13,13 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.databinding.FragmentFunnyAvatarBinding
@@ -75,25 +79,39 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         return binding.root
     }
 
+    @InternalCoroutinesApi
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        /** Запросить разрешения на работу с камерой и файлами */
-        PermissionCatcher.apply {
-            camera(requireContext(), viewModel.permissionCamera)
-            gallery(requireContext(), viewModel.permissionStorage)
+        /**
+         * Работу с Flow пришлось вынести в отдельные корутины потому что методы
+         * Flow.collect не возвращают управление.
+         */
+        viewModel.viewModelScope.launch {
+            viewModel.permissionCamera.asSharedFlow().collect { status ->
+                isCameraPermitted = status
+            }
         }
 
-        viewModel.permissionCamera.observe(viewLifecycleOwner) {
-            isCameraPermitted = it
+        viewModel.viewModelScope.launch {
+            viewModel.permissionStorage.asSharedFlow().collect { status ->
+                isGalleryPermitted = status
+            }
         }
 
-        viewModel.permissionStorage.observe(viewLifecycleOwner) {
-            isGalleryPermitted = it
+        viewModel.viewModelScope.launch {
+            viewModel.bitmapFlow.asSharedFlow().collect { bitmap ->
+                binding.avatarView.setImageBitmap(bitmap)
+            }
         }
 
-        viewModel.bitmapLive.observe(viewLifecycleOwner) {
-            binding.avatarView.setImageBitmap(it)
+        viewModel.viewModelScope.launch {
+
+            /** Запросить разрешения на работу с камерой и файлами */
+            PermissionCatcher.apply {
+                camera(requireContext(), viewModel.permissionCamera)
+                gallery(requireContext(), viewModel.permissionStorage)
+            }
         }
 
         binding.avatarView.liveURI = viewModel.avatarLiveUri

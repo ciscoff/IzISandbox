@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 object PermissionCatcher {
 
@@ -15,7 +16,10 @@ object PermissionCatcher {
     /**
      * Запрос разрешений на работу с координатами устройства
      */
-    fun location(context: Context, observer: LiveDataT<Boolean>) {
+    suspend fun location(context: Context, flow: MutableSharedFlow<Boolean>) {
+
+        flow.emit(false)
+
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -40,7 +44,7 @@ object PermissionCatcher {
                 )
             }
         } else {
-            observer.valueOrDefault = true
+            flow.emit(true)
         }
     }
 
@@ -49,7 +53,9 @@ object PermissionCatcher {
      * использования камеры как физического устройства. А если требуется сделать фотку,
      * то достаточно через Intent вызывать активити приложения для фотосъемки.
      */
-    fun camera(context: Context, observer: LiveDataT<Boolean>) {
+    suspend fun camera(context: Context, flow: MutableSharedFlow<Boolean>) {
+
+        flow.emit(false)
 
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -70,11 +76,13 @@ object PermissionCatcher {
                 )
             }
         } else {
-            observer.valueOrDefault = true
+            flow.emit(true)
         }
     }
 
-    fun gallery(context: Context, observer: LiveDataT<Boolean>) {
+    suspend fun gallery(context: Context, flow: MutableSharedFlow<Boolean>) {
+
+        flow.emit(false)
 
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -95,7 +103,7 @@ object PermissionCatcher {
                 )
             }
         } else {
-            observer.valueOrDefault = true
+            flow.emit(true)
         }
     }
 }

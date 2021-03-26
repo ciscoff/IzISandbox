@@ -15,6 +15,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -130,7 +131,7 @@ class AvatarCompoundView @JvmOverloads constructor(
         bitmapZoomMax = typedValue.float
 
         // Ожидать готовности дочерних элементов
-        (context as AppCompatActivity).lifecycleScope.launch {
+        viewModel.viewModelScope.launch {
             combine(onSizeAvatarBack, onSizeAvatarFront) { backSize, frontSize ->
                 listOf(backSize, frontSize)
             }.filter { list ->
@@ -160,17 +161,15 @@ class AvatarCompoundView @JvmOverloads constructor(
      * Загрузить битмапу, расчитать rectDest и rectVisible.
      */
     private fun measureComponents() {
+        require(::bitmapPath.isInitialized) {
+            "${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} " +
+                    "Illegal '${::bitmapPath.name}' value"
+        }
 
-        if (!::bitmapPath.isInitialized)
-            throw Throwable(
-                "${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} " +
-                        "Illegal '${::bitmapPath.name}' value"
-            )
-        if (!::bitmapUri.isInitialized)
-            throw Throwable(
-                "${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} " +
-                        "Illegal '${::bitmapUri.name}' value"
-            )
+        require(::bitmapUri.isInitialized) {
+            "${this::class.simpleName}:${object {}.javaClass.enclosingMethod?.name} " +
+                    "Illegal '${::bitmapUri.name}' value"
+        }
 
         // Измерить исходную битмапу и ориентацию камеры
         val bitmapOptions = when {
