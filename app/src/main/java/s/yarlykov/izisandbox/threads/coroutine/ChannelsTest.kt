@@ -2,27 +2,38 @@ package s.yarlykov.izisandbox.threads.coroutine
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import java.util.concurrent.Executors
+
+/**
+ *
+ */
 
 fun main() {
 
-    CoroutineScope(Job()).launch {
+    /**
+     * Для чистоты эксперимента создаем свой пул
+     */
+    val pool = Executors.newFixedThreadPool(5).asCoroutineDispatcher()
+
+    val data = 5
+
+
+    runBlocking {
 
         val channel = Channel<Int>()
 
-        launch(Dispatchers.Unconfined) {
+        launch(pool) {
             delay(300)
-            println("send 5. thread:${Thread.currentThread().name}")
-            channel.send(5)
-            println("send, done. thread:${Thread.currentThread().name}\"")
+            println("send $data '${Thread.currentThread().name}'")
+            channel.send(data)
+            println("send done '${Thread.currentThread().name}'")
         }
 
-        launch(Dispatchers.Default) {
+        launch(Dispatchers.IO) {
             delay(1000)
-            println("receive. thread:${Thread.currentThread().name}\"")
+            println("receive is starting '${Thread.currentThread().name}'")
             val i = channel.receive()
-            println("receive $i, done. thread:${Thread.currentThread().name}\"")
+            println("receive done with $i '${Thread.currentThread().name}'")
         }
     }
-
-    Thread.sleep(3000)
 }
