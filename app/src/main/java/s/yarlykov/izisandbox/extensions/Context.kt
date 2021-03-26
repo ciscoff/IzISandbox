@@ -32,6 +32,13 @@ fun Context.dp_f(dp: Float): Float {
 }
 
 /**
+ * Конвертация dp в px. px возвращается как Int
+ */
+fun Context.dp_i(dp: Float): Int {
+    return dp_f(dp).toInt()
+}
+
+/**
  * Создаем Uri для битмапы из ресурсов. Например, имеем R.drawable.batumi и на выходе получим
  * "android.resource://s.yarlykov.izisandbox/drawable/batumi"
  */
