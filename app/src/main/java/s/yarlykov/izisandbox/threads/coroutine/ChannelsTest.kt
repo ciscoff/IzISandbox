@@ -3,12 +3,38 @@ package s.yarlykov.izisandbox.threads.coroutine
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import java.util.concurrent.Executors
+import kotlin.coroutines.suspendCoroutine
+
+suspend fun testBuilder(scope: CoroutineScope) {
+
+//    scope.launch {
+//        println("scope=$scope")
+//    }
+//
+//    suspendCoroutine<Unit> {
+//        println("continuation=$it, context=${it.context}")
+//    }
+
+//    suspendCoroutine<Unit> {
+//        (it as CoroutineScope).launch {
+//            println("Yo Yo")
+//        }
+//    }
+
+    suspendCoroutine<Unit> {
+        (it.context[Job] as CoroutineScope).launch {
+            println("Yo Yo")
+        }
+    }
+}
 
 /**
  *
  */
 
 fun main() {
+
+
 
     /**
      * Для чистоты эксперимента создаем свой пул
@@ -19,6 +45,8 @@ fun main() {
 
 
     runBlocking {
+
+        testBuilder(this)
 
         val channel = Channel<Int>()
 
