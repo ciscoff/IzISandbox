@@ -11,12 +11,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
@@ -66,7 +69,8 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
 
     private var isCameraPermitted = false
     private var isGalleryPermitted = false
-    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
+//    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
+    private lateinit var viewModel: AvatarViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -86,6 +90,11 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        viewModel =
+            ViewModelProvider(requireContext() as AppCompatActivity).get(
+                AvatarViewModel::class.java
+            )
+
         /**
          * Работу с Flow пришлось вынести в отдельные корутины потому что методы
          * Flow.collect не возвращают управление.
@@ -104,19 +113,19 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
 
         viewModel.viewModelScope.launch {
 
-            logIt("Ready to collect from bitmapFlow")
-            logIt("FragmentAvatar viewModel=$viewModel")
+            logIt("FragmentAvatar ready to collect from bitmapFlow. viewModel=${viewModel.toString().substringAfterLast("@")}")
 
             viewModel.bitmapFlow.onStart {
-                logIt("bitmapFlow.onStart")
+                logIt("FragmentAvatar bitmapFlow.onStart")
             }
 
             viewModel.bitmapFlow.onSubscription {
-                logIt("bitmapFlow.onSubscription")
+                logIt("FragmentAvatar bitmapFlow.onSubscription")
             }
 
             viewModel.bitmapFlow.collect { bitmap ->
-                logIt("${this::class.simpleName} got bitmap from bitmapFlow. w/h ${bitmap.width}/${bitmap.height}")
+                logIt("FragmentAvatar got bitmap from bitmapFlow. w/h ${bitmap.width}/${bitmap.height}")
+                delay(5000L)
                 binding.avatarView.setImageBitmap(bitmap)
             }
         }

@@ -76,7 +76,7 @@ class AvatarBackView @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        logIt("AvatarBackView viewModel=$viewModel")
+        logIt("AvatarBackView viewModel=${viewModel.toString().substringAfterLast("@")}")
 
         viewModel.viewModelScope.launch {
 

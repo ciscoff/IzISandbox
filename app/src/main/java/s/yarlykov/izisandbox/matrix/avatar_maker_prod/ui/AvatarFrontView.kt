@@ -357,7 +357,7 @@ class AvatarFrontView @JvmOverloads constructor(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        logIt("AvatarFrontView viewModel=$viewModel")
+        logIt("AvatarFrontView viewModel=${viewModel.toString().substringAfterLast("@")}")
 
 //        viewModel.viewModelScope.launch {
 //            awaitOnTouchEvent()

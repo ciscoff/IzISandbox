@@ -21,7 +21,7 @@ class FragmentMaker : Fragment(R.layout.fragment_editor_avatar) {
     private val bitmapPath: String by args()
     private val bitmapUri: String by args()
 
-    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
+//    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
 
     override fun onCreateView(
         inflater: LayoutInflater,
