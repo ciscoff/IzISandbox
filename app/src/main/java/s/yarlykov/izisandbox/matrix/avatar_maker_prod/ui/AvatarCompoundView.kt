@@ -503,6 +503,7 @@ class AvatarCompoundView @JvmOverloads constructor(
 
     private fun onReady() {
 
+
     }
 
     private fun onCancel() {

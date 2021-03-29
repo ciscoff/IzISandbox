@@ -3,9 +3,14 @@ package s.yarlykov.izisandbox.matrix.avatar_maker_prod.ui
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import androidx.core.view.drawToBitmap
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.BitmapPreScaleParams
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.BitmapPreScaleParams
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -40,9 +45,49 @@ class AvatarBackView @JvmOverloads constructor(
      */
     private var preScaleParams: BitmapPreScaleParams? = null
 
+    private fun Bitmap.cropTo(crop: RectF): Bitmap {
+
+        val rect = Rect()
+        crop.round(rect)
+
+        return Bitmap.createBitmap(
+            this,
+            rect.left,
+            rect.top,
+            rect.width(),
+            rect.height()
+        )
+    }
+
+    private fun extractBitmap(clip: RectF): Bitmap? {
+        return try {
+            drawToBitmap().cropTo(clip)
+        } catch (e: Exception) {
+            logIt("${this::class.simpleName}::extractBitmap null")
+            null
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         scaleController.onBackSizeChanged(w to h)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        logIt("AvatarBackView viewModel=$viewModel")
+
+        viewModel.viewModelScope.launch {
+
+            viewModel.avatarClipFlow.collect { clip ->
+                logIt("AvatarBackView collect clip from avatarClipFlow: $clip")
+                extractBitmap(clip)?.let {
+                    logIt("AvatarBackView got bitmap from extractBitmap: w/h ${it.width}/${it.height} and push it into bitmapFlow")
+                    viewModel.bitmapFlow.emit(it)
+                }
+            }
+        }
     }
 
     override fun onBitmapReady(mediaData: MediaData) {

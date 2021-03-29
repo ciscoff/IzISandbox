@@ -19,6 +19,8 @@ import androidx.navigation.navGraphViewModels
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
@@ -27,6 +29,7 @@ import s.yarlykov.izisandbox.extensions.showResultNotification
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
 import s.yarlykov.izisandbox.utils.PermissionCatcher
 import s.yarlykov.izisandbox.utils.PhotoHelper
+import s.yarlykov.izisandbox.utils.logIt
 
 /**
  * NOTE: На сраном планшете HUAWEI я столкнулся с такой проблемой:
@@ -100,7 +103,20 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         }
 
         viewModel.viewModelScope.launch {
-            viewModel.bitmapFlow.asSharedFlow().collect { bitmap ->
+
+            logIt("Ready to collect from bitmapFlow")
+            logIt("FragmentAvatar viewModel=$viewModel")
+
+            viewModel.bitmapFlow.onStart {
+                logIt("bitmapFlow.onStart")
+            }
+
+            viewModel.bitmapFlow.onSubscription {
+                logIt("bitmapFlow.onSubscription")
+            }
+
+            viewModel.bitmapFlow.collect { bitmap ->
+                logIt("${this::class.simpleName} got bitmap from bitmapFlow. w/h ${bitmap.width}/${bitmap.height}")
                 binding.avatarView.setImageBitmap(bitmap)
             }
         }
