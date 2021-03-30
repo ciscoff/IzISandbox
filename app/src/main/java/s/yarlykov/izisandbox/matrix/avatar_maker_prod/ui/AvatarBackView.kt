@@ -80,7 +80,7 @@ class AvatarBackView @JvmOverloads constructor(
 
         viewModel.viewModelScope.launch {
 
-            viewModel.avatarClipFlow.collect { clip ->
+            viewModel.rectClipFlow.collect { clip ->
                 logIt("AvatarBackView collect clip from avatarClipFlow: $clip")
                 extractBitmap(clip)?.let {
                     logIt("AvatarBackView got bitmap from extractBitmap: w/h ${it.width}/${it.height} and push it into bitmapFlow")

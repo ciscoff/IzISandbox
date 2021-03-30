@@ -2,6 +2,7 @@ package s.yarlykov.izisandbox.threads.coroutine
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.produce
 import java.util.concurrent.Executors
 import kotlin.coroutines.suspendCoroutine
 

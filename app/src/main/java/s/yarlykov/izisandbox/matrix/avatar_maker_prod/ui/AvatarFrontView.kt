@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import s.yarlykov.izisandbox.R
@@ -345,7 +344,7 @@ class AvatarFrontView @JvmOverloads constructor(
                 // После поднятия пальца анонсим размеры rectClip
                 viewModel.viewModelScope.launch {
                     logIt("AvatarFrontView emit rectClip to avatarClipFlow")
-                    viewModel.avatarClipFlow.emit(rectClip)
+                    viewModel.rectClipFlow.emit(rectClip)
                 }
 
                 true
@@ -443,7 +442,10 @@ class AvatarFrontView @JvmOverloads constructor(
     }
 
     override fun onPostAnimate() {
-        // TODO nothing
+        viewModel.viewModelScope.launch {
+            logIt("AvatarFrontView::onPostAnimate emit rectClip to avatarClipFlow")
+            viewModel.rectClipFlow.emit(rectClip)
+        }
     }
 
     /**

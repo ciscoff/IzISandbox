@@ -20,7 +20,5 @@ class AvatarViewModel : ViewModel() {
     val avatarLiveUri = LiveDataT<Uri>(Uri.EMPTY)
 
     val bitmapFlow = MutableSharedFlow<Bitmap>()
-
-    val avatarClipFlow = MutableSharedFlow<RectF>()
-
+    val rectClipFlow = MutableSharedFlow<RectF>()
 }
