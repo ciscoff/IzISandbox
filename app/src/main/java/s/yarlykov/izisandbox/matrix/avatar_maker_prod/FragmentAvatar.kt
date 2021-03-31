@@ -17,22 +17,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.BuildConfig
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.databinding.FragmentFunnyAvatarBinding
+import s.yarlykov.izisandbox.extensions.setRoundedDrawable
 import s.yarlykov.izisandbox.extensions.showResultNotification
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
 import s.yarlykov.izisandbox.utils.PermissionCatcher
 import s.yarlykov.izisandbox.utils.PhotoHelper
-import s.yarlykov.izisandbox.utils.logIt
 
 /**
  * NOTE: На сраном планшете HUAWEI я столкнулся с такой проблемой:
@@ -69,8 +65,8 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
 
     private var isCameraPermitted = false
     private var isGalleryPermitted = false
-//    private val viewModel: AvatarViewModel by navGraphViewModels(R.id.nav_avatar_graph)
     private lateinit var viewModel: AvatarViewModel
+    private lateinit var job: Job
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -86,9 +82,8 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         return binding.root
     }
 
-    @InternalCoroutinesApi
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel =
             ViewModelProvider(requireContext() as AppCompatActivity).get(
@@ -96,49 +91,45 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
             )
 
         /**
+         * Это нужно поместить ВЫШЕ подписки на bitmapFlow.
+         * Сначала закрашиваем серым и если потом окажется, что в bitmapFlow пусто, то
+         * серый цвет сохранится. Если bitmapFlow содержит данные, то они будут показаны
+         * вместо серого.
+         */
+        binding.avatarView.setImageResource(R.drawable.shape_oval_gray)
+
+        /**
          * Работу с Flow пришлось вынести в отдельные корутины потому что методы
          * Flow.collect не возвращают управление.
          */
-        viewModel.viewModelScope.launch {
-            viewModel.permissionCamera.asSharedFlow().collect { status ->
-                isCameraPermitted = status
-            }
-        }
+        job = viewModel.viewModelScope.launch {
 
-        viewModel.viewModelScope.launch {
-            viewModel.permissionStorage.asSharedFlow().collect { status ->
-                isGalleryPermitted = status
-            }
-        }
-
-        viewModel.viewModelScope.launch {
-
-            logIt("FragmentAvatar ready to collect from bitmapFlow. viewModel=${viewModel.toString().substringAfterLast("@")}")
-
-            viewModel.bitmapFlow.onStart {
-                logIt("FragmentAvatar bitmapFlow.onStart")
+            launch {
+                viewModel.bitmapFlow.collect { bitmap ->
+                    binding.avatarView.setRoundedDrawable(bitmap)
+                }
             }
 
-            viewModel.bitmapFlow.onSubscription {
-                logIt("FragmentAvatar bitmapFlow.onSubscription")
+            launch {
+                viewModel.permissionCamera.asSharedFlow().collect { status ->
+                    isCameraPermitted = status
+                }
             }
 
-            viewModel.bitmapFlow.collect { bitmap ->
-                logIt("FragmentAvatar got bitmap from bitmapFlow. w/h ${bitmap.width}/${bitmap.height}")
-                delay(5000L)
-                binding.avatarView.setImageBitmap(bitmap)
+            launch {
+                viewModel.permissionStorage.asSharedFlow().collect { status ->
+                    isGalleryPermitted = status
+                }
             }
-        }
-
-        viewModel.viewModelScope.launch {
 
             /** Запросить разрешения на работу с камерой и файлами */
-            PermissionCatcher.apply {
-                camera(requireContext(), viewModel.permissionCamera)
-                gallery(requireContext(), viewModel.permissionStorage)
+            launch {
+                PermissionCatcher.apply {
+                    camera(requireContext(), viewModel.permissionCamera)
+                    gallery(requireContext(), viewModel.permissionStorage)
+                }
             }
         }
-
         binding.avatarView.liveURI = viewModel.avatarLiveUri
 
         binding.fabCamera.setOnClickListener {
@@ -148,8 +139,11 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
         binding.avatarView.setOnClickListener {
             takeGalleryImage()
         }
+    }
 
-        binding.avatarView.setImageResource(R.drawable.shape_oval_gray)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        job.cancel()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -242,5 +236,4 @@ class FragmentAvatar : Fragment(R.layout.fragment_funny_avatar) {
             // TODO Диалог с сообщением о недостатке permissions
         }
     }
-
 }

@@ -21,6 +21,15 @@ fun ImageView.setRoundedDrawable(drawableId: Int) {
     )
 }
 
+fun ImageView.setRoundedDrawable(bitmap: Bitmap) {
+
+    setImageDrawable(
+        RoundedBitmapDrawableFactory.create(resources, bitmap).apply {
+            cornerRadius = max(bitmap.width, bitmap.height) / 2.0f
+        }
+    )
+}
+
 fun ImageView.setRoundedDrawable(uri: Uri) {
     if (uri == Uri.EMPTY) return
 

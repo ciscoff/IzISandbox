@@ -5,12 +5,13 @@ import android.graphics.*
 import android.util.AttributeSet
 import androidx.core.view.drawToBitmap
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.BitmapPreScaleParams
-import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -28,6 +29,8 @@ class AvatarBackView @JvmOverloads constructor(
      */
     private var paintBackground: Paint? = null
     private val scaleMatrix = Matrix()
+
+    private lateinit var job: Job
 
     private val rectTemp = Rect()
     private val rectFrom = RectF()
@@ -59,11 +62,13 @@ class AvatarBackView @JvmOverloads constructor(
         )
     }
 
+    /**
+     * Сделать скриншот view и вырезать из него фрагмент, определенный в clip
+     */
     private fun extractBitmap(clip: RectF): Bitmap? {
         return try {
             drawToBitmap().cropTo(clip)
         } catch (e: Exception) {
-            logIt("${this::class.simpleName}::extractBitmap null")
             null
         }
     }
@@ -73,21 +78,23 @@ class AvatarBackView @JvmOverloads constructor(
         scaleController.onBackSizeChanged(w to h)
     }
 
+    @ExperimentalCoroutinesApi
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        logIt("AvatarBackView viewModel=${viewModel.toString().substringAfterLast("@")}")
-
-        viewModel.viewModelScope.launch {
-
-            viewModel.rectClipFlow.collect { clip ->
-                logIt("AvatarBackView collect clip from avatarClipFlow: $clip")
-                extractBitmap(clip)?.let {
-                    logIt("AvatarBackView got bitmap from extractBitmap: w/h ${it.width}/${it.height} and push it into bitmapFlow")
-                    viewModel.bitmapFlow.emit(it)
-                }
+        job = viewModel.viewModelScope.launch {
+            viewModel.readyState.collect { rectClip ->
+                extractBitmap(rectClip)?.let { viewModel.onBitmap(it) }
             }
         }
+    }
+
+    /**
+     * Отменить корутину
+     */
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        job.cancel()
     }
 
     override fun onBitmapReady(mediaData: MediaData) {

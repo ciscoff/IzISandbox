@@ -6,13 +6,10 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.scale
-import s.yarlykov.izisandbox.matrix.avatar_maker_prod.gesture.TapCorner
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.gesture.*
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.utils.logIt
@@ -340,27 +337,12 @@ class AvatarFrontView @JvmOverloads constructor(
                     else -> {
                     }
                 }
-
                 // После поднятия пальца анонсим размеры rectClip
-                viewModel.viewModelScope.launch {
-                    logIt("AvatarFrontView emit rectClip to avatarClipFlow")
-                    viewModel.rectClipFlow.emit(rectClip)
-                }
-
+                viewModel.onRectClip(rectClip)
                 true
             }
             else -> false
         }
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-        logIt("AvatarFrontView viewModel=${viewModel.toString().substringAfterLast("@")}")
-
-//        viewModel.viewModelScope.launch {
-//            awaitOnTouchEvent()
-//        }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -442,10 +424,7 @@ class AvatarFrontView @JvmOverloads constructor(
     }
 
     override fun onPostAnimate() {
-        viewModel.viewModelScope.launch {
-            logIt("AvatarFrontView::onPostAnimate emit rectClip to avatarClipFlow")
-            viewModel.rectClipFlow.emit(rectClip)
-        }
+        viewModel.onRectClip(rectClip)
     }
 
     /**

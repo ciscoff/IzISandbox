@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.navGraphViewModels
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
 
@@ -16,6 +15,7 @@ class FunnyAvatarActivity : AppCompatActivity() {
      * вернуть инстанс контроллера этого графа в виде NavController.
      */
     private val navController by lazy { findNavController(R.id.nav_avatar) }
+
     private lateinit var viewModel: AvatarViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,9 +26,5 @@ class FunnyAvatarActivity : AppCompatActivity() {
             ViewModelProvider(this).get(
                 AvatarViewModel::class.java
             )
-
-//        viewModel = ViewModelProvider(
-//            navController.getViewModelStoreOwner(R.id.nav_avatar_graph)
-//        ).get(AvatarViewModel::class.java)
     }
 }
