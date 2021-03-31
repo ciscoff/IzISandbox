@@ -7,18 +7,23 @@ import android.graphics.LightingColorFilter
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
+import androidx.navigation.navGraphViewModels
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleController
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModelAccessor
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViwModelInjector
 import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr), MediaDataConsumer, ScaleConsumer {
+) : View(context, attrs, defStyleAttr), MediaDataConsumer, ScaleConsumer,
+    AvatarViewModelAccessor by AvatarViwModelInjector(context) {
 
     /**
      * Цветовые фильтры поярче/потемнее.

@@ -88,7 +88,6 @@ suspend fun testBuilder(scope: CoroutineScope) {
 
 fun main() {
 
-
     /**
      * Для чистоты эксперимента создаем свой пул
      */

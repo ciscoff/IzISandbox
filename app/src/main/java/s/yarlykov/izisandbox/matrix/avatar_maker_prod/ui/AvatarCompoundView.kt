@@ -33,6 +33,7 @@ import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModelAccessor
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViwModelInjector
 import kotlin.math.abs
 
+@ExperimentalCoroutinesApi
 class AvatarCompoundView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -56,10 +57,8 @@ class AvatarCompoundView @JvmOverloads constructor(
     lateinit var bitmapPath: String
     lateinit var bitmapUri: Uri
 
-    @ExperimentalCoroutinesApi
     private val onSizeAvatarBack = MutableStateFlow(0 to 0)
 
-    @ExperimentalCoroutinesApi
     private val onSizeAvatarFront = MutableStateFlow(0 to 0)
 
     /**
@@ -147,11 +146,11 @@ class AvatarCompoundView @JvmOverloads constructor(
         }
 
         buttonReady.setOnClickListener {
-            onReady()
+            viewModel.onReady()
         }
 
         buttonCancel.setOnClickListener {
-            onCancel()
+            viewModel.onCancel()
         }
     }
 
@@ -499,14 +498,6 @@ class AvatarCompoundView @JvmOverloads constructor(
     @ExperimentalCoroutinesApi
     override fun onBackSizeChanged(size: Pair<Int, Int>) {
         onSizeAvatarBack.value = size
-    }
-
-    private fun onReady() {
-
-    }
-
-    private fun onCancel() {
-
     }
 
     /**

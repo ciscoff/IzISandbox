@@ -15,15 +15,16 @@ class FunnyAvatarActivity : AppCompatActivity() {
      * вернуть инстанс контроллера этого графа в виде NavController.
      */
     private val navController by lazy { findNavController(R.id.nav_avatar) }
-    private lateinit var viewModel: AvatarViewModel
 
+    private lateinit var viewModel: AvatarViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_funny_avatar)
 
-        viewModel = ViewModelProvider(
-            navController.getViewModelStoreOwner(R.id.nav_avatar_graph)
-        ).get(AvatarViewModel::class.java)
+        viewModel =
+            ViewModelProvider(this).get(
+                AvatarViewModel::class.java
+            )
     }
 }
