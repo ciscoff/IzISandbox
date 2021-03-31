@@ -363,6 +363,10 @@ class AvatarFrontView @JvmOverloads constructor(
         preDragging()
         preDrawing()
         invalidate()
+
+        // После первого позиционирования сразу анонсим rectClip, чтобы по кнопке Ready
+        // иметь возможность получить битмапу начального состояния видоискателя.
+        viewModel.onRectClip(rectClip)
     }
 
     /**
