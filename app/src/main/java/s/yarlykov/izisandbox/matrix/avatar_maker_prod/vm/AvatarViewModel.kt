@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.gesture.OverHead
 import s.yarlykov.izisandbox.utils.LiveDataT
 
 /**
@@ -84,4 +85,16 @@ class AvatarViewModel : ViewModel() {
     private val _bitmapFlow = MutableSharedFlow<Bitmap>(replay = 1)
 
     val bitmapFlow = _bitmapFlow.asSharedFlow()
+
+    /**
+     * При перетаскивании рамки фиксируем overHead
+     */
+    fun onOverHead(overHead: OverHead) {
+        viewModelScope.launch {
+            _overHeadState.emit(overHead)
+        }
+    }
+
+    private val _overHeadState = MutableSharedFlow<OverHead>()
+    val overHeadState = _overHeadState.asSharedFlow()
 }

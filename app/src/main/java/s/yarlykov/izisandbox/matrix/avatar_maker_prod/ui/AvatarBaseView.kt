@@ -7,16 +7,13 @@ import android.graphics.LightingColorFilter
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
-import androidx.navigation.navGraphViewModels
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaDataConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleConsumer
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.ScaleController
-import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModel
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViewModelAccessor
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.vm.AvatarViwModelInjector
-import s.yarlykov.izisandbox.utils.logIt
 
 abstract class AvatarBaseView @JvmOverloads constructor(
     context: Context,
@@ -55,7 +52,7 @@ abstract class AvatarBaseView @JvmOverloads constructor(
      * Исходная Bitmap и её размеры
      *
      * sourceImageBitmap - битмапа
-     * rectSourceImage - прямоугольник видимой части битмапы в координатах БИТМАПЫ
+     * rectBitmapVisible - прямоугольник видимой части битмапы в координатах БИТМАПЫ
      */
     protected var sourceImageBitmap: Bitmap? = null
     protected var rectBitmapVisible = Rect()
