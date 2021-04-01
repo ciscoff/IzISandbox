@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.matrix.avatar_maker_prod.gesture.OverHead
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.media.MediaData
 import s.yarlykov.izisandbox.matrix.avatar_maker_prod.scale.BitmapPreScaleParams
 import kotlin.math.abs
@@ -73,6 +74,33 @@ class AvatarBackView @JvmOverloads constructor(
         }
     }
 
+    private fun moveRectBitmapVisible(offset: OverHead) {
+
+        val rect = Rect(rectBitmapVisible)
+        val bitmap = sourceImageBitmap!!
+
+        val offsetX = when {
+            (rect.left == 0 && offset.x < 0) -> 0
+            (rect.left + offset.x < 0) -> 0 - rect.left
+            (rect.right == bitmap.width && offset.x > 0) -> 0
+            (rect.right + offset.x > bitmap.width) -> bitmap.width - rect.right
+            else -> offset.x.toInt()
+        }
+
+        val offsetY = when {
+            (rect.top == 0 && offset.y < 0) -> 0
+            (rect.top + offset.y < 0) -> 0 - rect.top
+            (rect.bottom == bitmap.height && offset.y > 0) -> 0
+            (rect.bottom + offset.y > bitmap.height) -> bitmap.height - rect.bottom
+            else -> offset.y.toInt()
+        }
+
+        if (offsetX != 0 || offsetY != 0) {
+            rectBitmapVisible.offset(offsetX, offsetY)
+            invalidate()
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         scaleController.onBackSizeChanged(w to h)
@@ -83,8 +111,17 @@ class AvatarBackView @JvmOverloads constructor(
         super.onAttachedToWindow()
 
         job = viewModel.viewModelScope.launch {
-            viewModel.readyState.collect { rectClip ->
-                extractBitmap(rectClip)?.let { viewModel.onBitmap(it) }
+
+            launch {
+                viewModel.readyState.collect { rectClip ->
+                    extractBitmap(rectClip)?.let { viewModel.onBitmap(it) }
+                }
+            }
+
+            launch {
+                viewModel.overHeadState.collect { overHead ->
+                    moveRectBitmapVisible(overHead)
+                }
             }
         }
     }

@@ -5,8 +5,6 @@ import android.graphics.*
 import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
-import kotlinx.coroutines.suspendCancellableCoroutine
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.extensions.center
 import s.yarlykov.izisandbox.extensions.scale
@@ -35,12 +33,12 @@ class AvatarFrontView @JvmOverloads constructor(
     private var rectClip: RectF by rectClipDelegate()
 
     /**
-     * @rectPivot - квадрат в координатах канвы, который играет роль хранилилища предыдущего
+     * @rectAnchor - квадрат в координатах канвы, который играет роль хранилилища предыдущего
      * положения rectClip в операции Dragging: он помнит где был rectClip в момент предыдущего
-     * ACTION_DOWN и при очередном ACTION_MOVE rectClip сначала позиционируется на rectPivot,
+     * ACTION_DOWN и при очередном ACTION_MOVE rectClip сначала позиционируется на rectAnchor,
      * а потом смещается в новое положение.
      */
-    private val rectPivot = RectF()
+    private val rectAnchor = RectF()
 
     /**
      * @rectClipShifted служит для временного копирования rectClip в операциях скалирования
@@ -117,129 +115,6 @@ class AvatarFrontView @JvmOverloads constructor(
     private var lastX = 0f
     private var lastY = 0f
 
-    /**
-     * Лямда у suspendCancellableCoroutine не suspendable, то есть внутри него нельзя делать
-     * какие-то suspending вызовы.
-     */
-    private suspend fun View.awaitOnTouchEvent() = suspendCancellableCoroutine<Unit> { cont ->
-
-        val listener = object : View.OnTouchListener {
-
-            override fun onTouch(v: View?, event: MotionEvent): Boolean {
-                return when (event.action) {
-
-                    MotionEvent.ACTION_DOWN -> {
-
-                        // Определить режим жеста и создать Gesture (для скалинга)
-                        detectMode(event.x, event.y)
-
-                        lastX = event.x
-                        lastY = event.y
-
-                        // Если собираемся перетаскивать, то нужно установить rectPivot
-                        // на текущую позицию rectClip и сбросить offsetH/offsetV.
-                        // NOTE: Если собираемся скалировать, то offsetV/offsetH не изменяем,
-                        // так как по ним выставлен rectClip.
-                        if (mode == Mode.Dragging) {
-                            rectPivotMove()
-                            offsetV = 0f
-                            offsetH = 0f
-                        }
-
-                        // Вернуть true, если палец внутри рамки.
-                        mode != Mode.Waiting
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        val dX = event.x - lastX
-                        val dY = event.y - lastY
-
-                        lastX = event.x
-                        lastY = event.y
-
-                        when (mode) {
-                            is Mode.Dragging -> {
-                                offsetV += dY
-                                offsetH += dX
-                                // Спозиционировать rectClip/pathClip. rectClip автоматически
-                                // выравнивается, чтобы не выходить за границы.
-                                preDragging()
-                            }
-                            is Mode.Scaling -> {
-
-                                mode = gestureDetector.detectScalingSubMode(dX)
-                                val offset = gestureDetector.onMove(dX, dY)
-
-                                if (offset.invalid || offset.zero) {
-                                    return true
-                                }
-
-                                // TODO Нужно разобраться с checkBounds(). Возможно придется делать
-                                // TODO две как в версии 3
-                                offsetH = offset.x
-                                offsetV = offset.y
-                                preScalingBounds()
-                            }
-                            else -> {
-                                logIt("unknown mode")
-                            }
-                        }
-
-                        preDrawing() // Настроить pathBorder/paintStroke для рисования рамки
-                        invalidate()
-
-                        true
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        /**
-                         * NOTE: При первом запуске рамка целиком занимает одну из сторон rectVisible
-                         * (в зависимости от ориентации экрана). Далее мы можем её уменьшить, а затем
-                         * увеличить. Но до тех пор пока не уменьшили меньше rectMin хотя бы один раз -
-                         * никакой зум не работает. После первого прохождения этой границы включается зум
-                         * в обе стороны (и видимо снова должен отключаться, если полностью растянем рамку
-                         * по одной из сторон rectVisible)
-                         */
-
-                        when (mode) {
-                            is Mode.Scaling.Squeeze -> {
-
-                                // NOTE: Для анимации нужно чтобы 'rectClip.width <= rectMin.width'
-                                scaleController.onScaleUpAvailable(rectClip.width() <= rectMin.width())
-
-                                val bitmapScaleFactor = gestureDetector.scaleRatio
-
-                                if (animationScaleUpAvailable) {
-                                    scaleController.onScaleRequired(
-                                        bitmapScaleFactor,
-                                        calculatePivot()
-                                    )
-                                }
-                            }
-                            is Mode.Scaling.Shrink -> {
-                                val bitmapScaleFactor = gestureDetector.scaleRatio
-
-                                if (animationScaleDownAvailable) {
-                                    scaleController.onScaleRequired(
-                                        bitmapScaleFactor,
-                                        calculatePivot()
-                                    )
-                                }
-                            }
-                            else -> {
-                            }
-                        }
-
-                        true
-                    }
-                    else -> false
-                }
-
-            }
-        }
-
-//        setOnTouchListener(listener)
-        cont.invokeOnCancellation { setOnTouchListener(null) }
-    }
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
         return when (event.action) {
@@ -252,12 +127,12 @@ class AvatarFrontView @JvmOverloads constructor(
                 lastX = event.x
                 lastY = event.y
 
-                // Если собираемся перетаскивать, то нужно установить rectPivot
+                // Если собираемся перетаскивать, то нужно установить rectAnchor
                 // на текущую позицию rectClip и сбросить offsetH/offsetV.
                 // NOTE: Если собираемся скалировать, то offsetV/offsetH не изменяем,
                 // так как по ним выставлен rectClip.
                 if (mode == Mode.Dragging) {
-                    rectPivotMove()
+                    rectAnchorMove()
                     offsetV = 0f
                     offsetH = 0f
                 }
@@ -316,6 +191,7 @@ class AvatarFrontView @JvmOverloads constructor(
                  */
 
                 when (mode) {
+                    // Сжимаем
                     is Mode.Scaling.Squeeze -> {
 
                         // NOTE: Для анимации нужно чтобы 'rectClip.width <= rectMin.width'
@@ -327,6 +203,7 @@ class AvatarFrontView @JvmOverloads constructor(
                             scaleController.onScaleRequired(bitmapScaleFactor, calculatePivot())
                         }
                     }
+                    // Растягиваем
                     is Mode.Scaling.Shrink -> {
                         val bitmapScaleFactor = gestureDetector.scaleRatio
 
@@ -359,7 +236,7 @@ class AvatarFrontView @JvmOverloads constructor(
         super.onBitmapReady(mediaData)
 
         resetState()
-        rectPivotInit()
+        rectAnchorInit()
         preDragging()
         preDrawing()
         invalidate()
@@ -541,9 +418,9 @@ class AvatarFrontView @JvmOverloads constructor(
             addRoundRect(rectClip, cornerRadius, cornerRadius, Path.Direction.CW)
         }.close()
 
-        // Также нужно обновить положение и размер rectPivot. В режиме Scaling он перемещается
+        // Также нужно обновить положение и размер rectAnchor. В режиме Scaling он перемещается
         // за rectClip, чтобы потом в режиме dragging сразу иметь правильную опорную точку.
-        rectPivotMove()
+        rectAnchorMove()
     }
 
     /**
@@ -561,23 +438,23 @@ class AvatarFrontView @JvmOverloads constructor(
     }
 
     /**
-     * Установить размер и положение rectPivot по параметрам rectClip.
+     * Установить размер и положение rectAnchor по параметрам rectClip.
      * Главное, чтобы в момент выполнения set(rectClip) в переменных offsetH/offsetV были
      * актуальные значение, потому что rectClip вычисляется делегатом и использует эти поля.
      */
-    private fun rectPivotMove() {
-        rectPivot.set(rectClip)
+    private fun rectAnchorMove() {
+        rectAnchor.set(rectClip)
     }
 
     /**
      * Опорный квадрат от которого будем смещать rectClip/rectBorder
      */
-    private fun rectPivotInit() {
+    private fun rectAnchorInit() {
 
         val isVertical = rectViewPort.height() >= rectViewPort.width()
         val frameDimen = min(rectViewPort.height(), rectViewPort.width())
 
-        rectPivot.apply {
+        rectAnchor.apply {
             top = if (isVertical) {
                 rectViewPort.top + (rectViewPort.height() - frameDimen) / 2f
             } else {
@@ -692,10 +569,10 @@ class AvatarFrontView @JvmOverloads constructor(
      */
 
     /**
-     * Делегат зависит от rectPivot.
+     * Делегат зависит от rectAnchor.
      *
      * После каждого события MotionEvent.ACTION_MOVE нужно спозиционировать rectClip. Для этого
-     * сначала возвращаем его в исходное состояние (не позицию rectPivot), а потом с этой позиции
+     * сначала возвращаем его в исходное состояние (не позицию rectAnchor), а потом с этой позиции
      * делаем offset на offsetV/offsetH предварительно проверяя крайние условия и внося
      * корректировки в offsetV/offsetH, чтобы не вылезать за края.
      */
@@ -711,13 +588,13 @@ class AvatarFrontView @JvmOverloads constructor(
                 return when (mode) {
                     is Mode.Dragging, is Mode.Waiting -> {
                         rect.apply {
-                            // 1. Сначала позиционируем на rectPivot
-                            set(rectPivot)
+                            // 1. Сначала позиционируем на rectAnchor
+                            set(rectAnchor)
 
                             // 2. Проверить крайние условия.
-                            checkBounds()
+                            checkBounds()?.let(viewModel::onOverHead)
 
-                            // 3. Затем смещаем от pivot на вычисленные offsetH, offsetV
+                            // 3. Затем смещаем от anchor на вычисленные offsetH, offsetV
                             offset(offsetH, offsetV)
                         }
                     }
@@ -732,9 +609,26 @@ class AvatarFrontView @JvmOverloads constructor(
                 rect.set(value)
             }
 
-            private fun checkBounds() {
-                if (prevOffsetH == offsetH && prevOffsetV == offsetV) return
+            private fun checkBounds(): OverHead? {
 
+                var overHeadX = 0f
+                var overHeadY = 0f
+
+                if (prevOffsetH == offsetH && prevOffsetV == offsetV) return null
+
+                // Определить overHead'ы
+                if ((rect.left.toInt() == rectViewPort.left && offsetH < 0) ||
+                    (rect.right.toInt() == rectViewPort.right && offsetH > 0)
+                ) {
+                    overHeadX = offsetH
+                }
+                if ((rect.top.toInt() == rectViewPort.top && offsetV < 0) ||
+                    (rect.bottom.toInt() == rectViewPort.bottom && offsetV > 0)
+                ) {
+                    overHeadY = offsetV
+                }
+
+                // Контроль границ рамки
                 if (rect.left + offsetH < rectViewPort.left) {
                     offsetH = rectViewPort.left - rect.left
                 } else if (rect.right + offsetH > rectViewPort.right) {
@@ -748,11 +642,15 @@ class AvatarFrontView @JvmOverloads constructor(
 
                 prevOffsetH = offsetH
                 prevOffsetV = offsetV
+
+                // Сообщить про overHead
+                return if (overHeadX != 0f || overHeadY != 0f)
+                    OverHead(overHeadX, overHeadY) else null
             }
         }
 
     /**
-     * Делегат зависит от rectClip. Области для масштабирования рамки
+     * Делегат зависит от rectClip. Области тача для масштабирования рамки.
      */
     private fun rectTapDelegate(): ReadWriteProperty<Any?, Map<TapArea, RectF>> =
         object : ReadWriteProperty<Any?, Map<TapArea, RectF>> {

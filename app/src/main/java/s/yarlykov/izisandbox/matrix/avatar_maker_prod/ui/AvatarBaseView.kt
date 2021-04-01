@@ -55,7 +55,7 @@ abstract class AvatarBaseView @JvmOverloads constructor(
      * Исходная Bitmap и её размеры
      *
      * sourceImageBitmap - битмапа
-     * rectSourceImage - прямоугольник видимой части битмапы в координатах БИТМАПЫ
+     * rectBitmapVisible - прямоугольник видимой части битмапы в координатах БИТМАПЫ
      */
     protected var sourceImageBitmap: Bitmap? = null
     protected var rectBitmapVisible = Rect()
