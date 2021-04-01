@@ -57,7 +57,8 @@
     <string name="menu_matrix_reflect_image" translatable="false">Reflect Image</string>
     <string name="menu_matrix_transform_image" translatable="false">Transform with matrix</string>
     <string name="menu_places_auto_complete" translatable="false">Places AutoComplete</string>
-    <string name="menu_funny_avatar" translatable="false">Create Avatar</string>
+    <string name="menu_funny_avatar" translatable="false">Funny Avatar</string>
+    <string name="menu_create_avatar" translatable="false">Create Avatar</string>
     <string name="menu_surface_edu_activity" translatable="false">Drawing On Surface</string>
     <string name="menu_scale_big_bitmap" translatable="false">Scale big bitmap</string>
     <string name="menu_grid_list" translatable="false">Grid List</string>
@@ -69,6 +70,9 @@
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
     <string name="menu_nav_auth" translatable="false">Auth</string>
+
+    <string name="menu_avatar_viewer" translatable="false">Avatar Viewer</string>
+    <string name="menu_avatar_maker" translatable="false">Avatar Maker</string>
 
     <string name="text_graph_2" translatable="false">Graph 2</string>
 
@@ -242,4 +246,11 @@
     <string name="zoom_x1" translatable="false">x1</string>
     <string name="zoom_x2" translatable="false">x2</string>
     <string name="zoom_x3" translatable="false">x3</string>
+
+    <!-- Avatar -->
+    <string name="fragment_avatar_select_image" translatable="false">Select image</string>
+
+    <string name="avatar_ready">ready</string>
+    <string name="avatar_cancel">cancel</string>
+
 </resources>

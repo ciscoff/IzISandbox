@@ -83,12 +83,12 @@ fun View.findRecyclerViewParent(): RecyclerView? {
 /**
  * Пройти по всем "братьям" в родительском RecyclerView и на каждом выполнить операцию op
  */
-inline fun <reified T : View >T.forceSiblingsToDo(op: T.() -> Unit) {
+inline fun <reified T : View> T.forceSiblingsToDo(op: T.() -> Unit) {
     findRecyclerViewParent()?.let { rv ->
         rv.layoutManager?.apply {
             for (i in 0 until childCount) {
                 getChildAt(i)?.let { child ->
-                    if (child is T && child != this@forceSiblingsToDo) {
+                    if (child is T && this@forceSiblingsToDo != child) {
                         child.op()
                     }
                 }

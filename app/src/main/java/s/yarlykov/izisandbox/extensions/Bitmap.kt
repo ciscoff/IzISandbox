@@ -1,6 +1,7 @@
 package s.yarlykov.izisandbox.extensions
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 
@@ -26,17 +27,35 @@ import android.media.ExifInterface
  */
 fun Bitmap.rotate(orientation: Int): Bitmap {
 
-    val angle = when (orientation) {
-        ExifInterface.ORIENTATION_ROTATE_90 -> 90
-        ExifInterface.ORIENTATION_ROTATE_180 -> 180
-        ExifInterface.ORIENTATION_ROTATE_270 -> 270
-        else -> 0
-    }
+    val angle = orientationToAngle(orientation)
 
     return if (angle != 0) {
         val matrix = Matrix().apply { postRotate(angle.toFloat()) }
         Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     } else {
         this
+    }
+}
+
+/**
+ * Получить "конечные" размеры битмапы для состояния когда она уже правильно
+ * повернута на экране с учетом
+ */
+fun BitmapFactory.Options.oriented(orientation: Int): Pair<Int, Int> {
+    return if (orientationToAngle(orientation) % 180 == 0)
+        outWidth to outHeight
+    else
+        outHeight to outWidth
+}
+
+/**
+ * Конвертер
+ */
+fun orientationToAngle(orientation: Int): Int {
+    return when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> 90
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180
+        ExifInterface.ORIENTATION_ROTATE_270 -> 270
+        else -> 0
     }
 }

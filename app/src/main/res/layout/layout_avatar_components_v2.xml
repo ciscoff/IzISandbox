@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v2.AvatarBackViewV2
+    <s.yarlykov.izisandbox.matrix.avatar_maker_dev.v2.AvatarBackViewV2
         android:id="@+id/avatarBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <s.yarlykov.izisandbox.matrix.avatar_maker.v2.AvatarFrontViewV2
+    <s.yarlykov.izisandbox.matrix.avatar_maker_dev.v2.AvatarFrontViewV2
         android:id="@+id/avatarFront"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

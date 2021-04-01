@@ -30,5 +30,8 @@ class ModelTime(units: List<Int>, type: Type, from: LocalDateTime) : ModelBase(f
             val center = VIEW_PORT_CAPACITY / 2
             Collections.rotate(units, center - i)
         }
+
+        // TODO (Нужно убрать) 'if (unit > 0)' и просто оставить код. В Мастере из-за этого
+        // TODO возникала ошибка, если требовалось показать время 0 минут (например 11:00)
     }
 }

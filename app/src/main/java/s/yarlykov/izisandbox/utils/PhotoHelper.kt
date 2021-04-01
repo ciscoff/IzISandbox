@@ -3,8 +3,10 @@ package s.yarlykov.izisandbox.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Environment
+import androidx.core.net.toFile
 import s.yarlykov.izisandbox.extensions.cameraOrientation
 import s.yarlykov.izisandbox.extensions.rotate
 import java.io.ByteArrayOutputStream
@@ -17,7 +19,7 @@ import java.util.*
 object PhotoHelper {
 
     /**
-     * Создать JPG-файл с уникальным именем и префиксом "izi_<time_stamp>"
+     * Создать JPG-файл с уникальным именем и префиксом "avatar_<time_stamp>"
      */
     @Throws(IOException::class)
     fun createImageFile(context: Context): File {
@@ -26,7 +28,7 @@ object PhotoHelper {
         val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
         return File.createTempFile(
-            "izi_${timeStamp}", /* prefix */
+            "avatar_${timeStamp}", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
         )
@@ -37,33 +39,65 @@ object PhotoHelper {
      * @src - Uri исходного файла
      * @dest - Path целевого файла
      *
-     * При работе с фотограффией с камеры @src/@dest ссылаются на один и тотжже файл.
+     * При работе с фотографией с камеры @src/@dest ссылаются на один и тот же файл.
      * При работе с картинкой из галлереи - это разные файлы.
-     * @dest всегда располагается внутри каталоги приложения.
+     * @dest всегда располагается внутри каталога приложения.
      *
-     * NOTE: Есть косяк: аватарки передаются на сервер повернутые на -90 (против часовой), если
-     * фотка тыльной камерой и +90 (по часовой), если фронтальной. Это при вертикальном положении
-     * телефона. Перед отправкой на сервер аватарку нужно развернуть правильно.
+     * NOTE: Есть нюанс: аватарки приходят повернутые на -90 (против часовой), если
+     * фотка тыльной камерой и на +90 (по часовой), если фронтальной. Это при вертикальном положении
+     * телефона. Перед показом аватарку нужно развернуть правильно.
      * https://stackoverflow.com/questions/3647993/android-bitmaps-loaded-from-gallery-are-rotated-in-imageview
      * http://sylvana.net/jpegcrop/exif_orientation.html
      * https://guides.codepath.com/android/Accessing-the-Camera-and-Stored-Media#rotating-the-picture
      */
-    fun reduceImageFile(context: Context, photoUri: Uri, dest: String): Boolean {
+    fun reduceImageFile(context: Context, sourceUri: Uri, destPath: String): Boolean {
 
         var originalBitmap: Bitmap? = null
 
         return try {
 
             originalBitmap =
-                context.contentResolver.openInputStream(photoUri)?.use {
+                context.contentResolver.openInputStream(sourceUri)?.use {
                     BitmapFactory.decodeStream(it)
                 }
 
             originalBitmap
                 ?.reduce()
                 ?.cropCenter()
-                ?.rotate(context.cameraOrientation(photoUri))
-                ?.writeToStorage(dest) ?: false
+                ?.rotate(context.cameraOrientation(sourceUri))
+                ?.writeToStorage(destPath) ?: false
+        } catch (e: IOException) {
+            false
+        } finally {
+            originalBitmap?.recycle()
+        }
+    }
+
+    /**
+     * Функция используется для копирования файла из файлового Uri галереи в локальную папку
+     * приложения. Требуется для того, что AvatarCompoundView рабоает с битмапами из file path
+     * а не из file uri
+     *
+     * TODO Нужно добавить в AvatarCompoundView функционал работы с uri, чтобы не создавать
+     * TODO копии файлов.
+     * TODO Сделал функцию loadSampledBitmapFromUri, но не тестировал.
+     */
+    fun copyTo(context: Context, sourceUri: Uri, destPath: String): Boolean {
+        var originalBitmap: Bitmap? = null
+
+        return try {
+
+            logIt("sourceUri=${sourceUri.toString()}")
+
+            originalBitmap =
+                context.contentResolver.openInputStream(sourceUri)?.use {
+                    BitmapFactory.decodeStream(it)
+                }
+
+            originalBitmap
+                ?.rotate(context.cameraOrientation(sourceUri))
+                ?.writeToStorage(destPath) ?: false
+
         } catch (e: IOException) {
             false
         } finally {
@@ -74,7 +108,7 @@ object PhotoHelper {
     /**
      * Bitmap уменьшенная в ratio раз.
      */
-    fun Bitmap.reduce(ratio: Int = 2): Bitmap =
+    private fun Bitmap.reduce(ratio: Int = 2): Bitmap =
         if (height > width) {
             scaleToFitHeight(height / ratio)
         } else {

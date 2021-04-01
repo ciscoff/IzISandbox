@@ -9,6 +9,8 @@
     <integer name="anim_duration_long">500</integer>
     <integer name="anim_duration_medium">300</integer>
 
+    <integer name="anim_duration_avatar">350</integer>
+
     <integer-array name="leftColorsArray">
         <item>@android:color/holo_blue_dark</item>
         <item>@android:color/holo_green_dark</item>
@@ -23,5 +25,8 @@
     <!--    TimeLine 2D -->
     <integer name="touch_area_ratio">5</integer>
     <integer name="min_interval">5</integer>
+
+    <!-- Avatar Maker -->
+    <integer name="measurement_error">8</integer>
 
 </resources>

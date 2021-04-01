@@ -36,6 +36,10 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
     private val columnViewController =
         ColumnViewController(R.layout.layout_time_line_column) { it.also(::animateZoom) }
 
+    private val isTablet: Boolean by lazy {
+        resources.getBoolean(R.bool.isTablet)
+    }
+
     private val decorator by lazy {
         Decorator.Builder()
             .overlay(RvOverlayDecor(this))
@@ -77,7 +81,8 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         }
 
         SmartList.create().apply {
-            addItems(Tickets.model.map { TicketItem(it, columnViewController) })
+            val model = if(isTablet) Tickets.tabletModel else Tickets.model
+            addItems(model.map { TicketItem(it, columnViewController) })
         }.also(smartAdapter::updateModel)
 
         bottomBar.apply {
@@ -100,6 +105,7 @@ class TimeLineAdvancedActivity : AppCompatActivity() {
         }
     }
 
+    // TODO ???
     private fun setScaleThresholds() {
 
         recyclerView.viewTreeObserver.addOnGlobalLayoutListener(
