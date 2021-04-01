@@ -89,7 +89,7 @@ class AvatarViewModel : ViewModel() {
     /**
      * При перетаскивании рамки фиксируем overHead
      */
-    fun onOverHead(overHead : OverHead) {
+    fun onOverHead(overHead: OverHead) {
         viewModelScope.launch {
             _overHeadState.emit(overHead)
         }

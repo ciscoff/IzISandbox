@@ -154,6 +154,9 @@ class AvatarFrontView @JvmOverloads constructor(
                         // Спозиционировать rectClip/pathClip. rectClip автоматически
                         // выравнивается, чтобы не выходить за границы.
                         preDragging()
+                        // Теперь нужно проверить overhead. Если есть, то сдвинуть
+                        // битмапу.
+                        checkOverhead(dX, dY)?.let(viewModel::onOverHead)
                     }
                     is Mode.Scaling -> {
 
@@ -561,6 +564,50 @@ class AvatarFrontView @JvmOverloads constructor(
             DashPathEffect(floatArrayOf(rectBorder.width() / 2f, rectBorder.width() / 2), 0f)
     }
 
+    /**
+     * Функция проверяет overhead - когда пытаемся двигать рамку за пределы экрана. В этом случае
+     * нужно перемещать основную битмапу, чтобы мы могли перемещаться по её поверхности.
+     *
+     * Аргументы dX / dY должны быть ИНКРЕМЕНТАЛЬНЫМИ смещениями. Здесь нельзя использовать
+     * offsetH / offsetV потому что они кумулятивные.
+     */
+    private fun checkOverhead(dX: Float, dY: Float): OverHead? {
+        val rect = RectF(rectClip)
+
+        val overHeadX = when {
+            (dX < 0) -> {
+                if ((rect.left.toInt() == rectViewPort.left) ||
+                    (rect.left.toInt() + dX < rectViewPort.left)
+                ) dX else 0f
+            }
+            (dX > 0) -> {
+                if ((rect.right.toInt() == rectViewPort.right) ||
+                    (rect.right.toInt() + dX > rectViewPort.right)
+                ) dX else 0f
+            }
+            else -> 0f
+        }
+
+        val overHeadY = when {
+            (dY < 0) -> {
+                if ((rect.top.toInt() == rectViewPort.top) ||
+                    (rect.top.toInt() + dY < rectViewPort.top)
+                ) dY else 0f
+
+            }
+            (dY > 0) -> {
+                if ((rect.bottom.toInt() == rectViewPort.bottom) ||
+                    (rect.bottom.toInt() + dY > rectViewPort.bottom)
+                ) dY else 0f
+            }
+            else -> 0f
+        }
+
+        // Сообщить про overHead
+        return if (overHeadX != 0f || overHeadY != 0f) {
+            OverHead(overHeadX, overHeadY)
+        } else null
+    }
 
     /**
      * --------------------------------------------------------------------------------------
@@ -592,7 +639,7 @@ class AvatarFrontView @JvmOverloads constructor(
                             set(rectAnchor)
 
                             // 2. Проверить крайние условия.
-                            checkBounds()?.let(viewModel::onOverHead)
+                            checkBounds()/*?.let(viewModel::onOverHead)*/
 
                             // 3. Затем смещаем от anchor на вычисленные offsetH, offsetV
                             offset(offsetH, offsetV)
@@ -609,24 +656,55 @@ class AvatarFrontView @JvmOverloads constructor(
                 rect.set(value)
             }
 
-            private fun checkBounds(): OverHead? {
+            private fun checkBounds()/*: OverHead?*/ {
 
-                var overHeadX = 0f
-                var overHeadY = 0f
+                if (prevOffsetH == offsetH && prevOffsetV == offsetV) return/* null*/
 
-                if (prevOffsetH == offsetH && prevOffsetV == offsetV) return null
+                // Определить overHead'ы (толкаем рамку за пределы экрана)
+//                val overHeadX = when {
+//                    (offsetH < 0) -> {
+//                        if ((rect.left.toInt() == rectViewPort.left) ||
+//                            (rect.left.toInt() + offsetH < rectViewPort.left)
+//                        ) offsetH else 0f
+//                    }
+//                    (offsetH > 0) -> {
+//                        if ((rect.right.toInt() == rectViewPort.right) ||
+//                            (rect.right.toInt() + offsetH > rectViewPort.right)
+//                        ) offsetH else 0f
+//                    }
+//                    else -> 0f
+//                }
+//
+//                val overHeadY = when {
+//                    (offsetV < 0) -> {
+//                        if ((rect.top.toInt() == rectViewPort.top) ||
+//                            (rect.top.toInt() + offsetV < rectViewPort.top)
+//                        ) offsetV else 0f
+//
+//                    }
+//                    (offsetV > 0) -> {
+//                        if ((rect.bottom.toInt() == rectViewPort.bottom) ||
+//                            (rect.bottom.toInt() + offsetV > rectViewPort.bottom)
+//                        ) offsetV else 0f
+//                    }
+//                    else -> 0f
+//                }
 
                 // Определить overHead'ы
-                if ((rect.left.toInt() == rectViewPort.left && offsetH < 0) ||
-                    (rect.right.toInt() == rectViewPort.right && offsetH > 0)
-                ) {
-                    overHeadX = offsetH
-                }
-                if ((rect.top.toInt() == rectViewPort.top && offsetV < 0) ||
-                    (rect.bottom.toInt() == rectViewPort.bottom && offsetV > 0)
-                ) {
-                    overHeadY = offsetV
-                }
+//                if ((rect.left.toInt() == rectViewPort.left && offsetH < 0) ||
+//                    (rect.left.toInt() + offsetH < rectViewPort.left) ||
+//                    (rect.right.toInt() == rectViewPort.right && offsetH > 0) ||
+//                    (rect.right.toInt() + offsetH > rectViewPort.right)
+//                ) {
+//                    overHeadX = offsetH
+//                }
+//                if ((rect.top.toInt() == rectViewPort.top && offsetV < 0) ||
+//                    (rect.bottom.toInt() == rectViewPort.bottom && offsetV > 0) ||
+//                    (rect.top.toInt() + offsetV < rectViewPort.top) ||
+//                    (rect.bottom.toInt() + offsetV > rectViewPort.bottom)
+//                ) {
+//                    overHeadY = offsetV
+//                }
 
                 // Контроль границ рамки
                 if (rect.left + offsetH < rectViewPort.left) {
@@ -644,8 +722,10 @@ class AvatarFrontView @JvmOverloads constructor(
                 prevOffsetV = offsetV
 
                 // Сообщить про overHead
-                return if (overHeadX != 0f || overHeadY != 0f)
-                    OverHead(overHeadX, overHeadY) else null
+//                return if (overHeadX != 0f || overHeadY != 0f) {
+//                    logIt("OverHead: x/y $overHeadX / $overHeadY, rect.left=${rect.left}, rectViewPort.left=${rectViewPort.left}")
+//                    OverHead(overHeadX, overHeadY)
+//                } else null
             }
         }
 

@@ -49,58 +49,6 @@ class AvatarBackView @JvmOverloads constructor(
      */
     private var preScaleParams: BitmapPreScaleParams? = null
 
-    private fun Bitmap.cropTo(crop: RectF): Bitmap {
-
-        val rect = Rect()
-        crop.round(rect)
-
-        return Bitmap.createBitmap(
-            this,
-            rect.left,
-            rect.top,
-            rect.width(),
-            rect.height()
-        )
-    }
-
-    /**
-     * Сделать скриншот view и вырезать из него фрагмент, определенный в clip
-     */
-    private fun extractBitmap(clip: RectF): Bitmap? {
-        return try {
-            drawToBitmap().cropTo(clip)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun moveRectBitmapVisible(offset: OverHead) {
-
-        val rect = Rect(rectBitmapVisible)
-        val bitmap = sourceImageBitmap!!
-
-        val offsetX = when {
-            (rect.left == 0 && offset.x < 0) -> 0
-            (rect.left + offset.x < 0) -> 0 - rect.left
-            (rect.right == bitmap.width && offset.x > 0) -> 0
-            (rect.right + offset.x > bitmap.width) -> bitmap.width - rect.right
-            else -> offset.x.toInt()
-        }
-
-        val offsetY = when {
-            (rect.top == 0 && offset.y < 0) -> 0
-            (rect.top + offset.y < 0) -> 0 - rect.top
-            (rect.bottom == bitmap.height && offset.y > 0) -> 0
-            (rect.bottom + offset.y > bitmap.height) -> bitmap.height - rect.bottom
-            else -> offset.y.toInt()
-        }
-
-        if (offsetX != 0 || offsetY != 0) {
-            rectBitmapVisible.offset(offsetX, offsetY)
-            invalidate()
-        }
-    }
-
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         scaleController.onBackSizeChanged(w to h)
@@ -245,6 +193,64 @@ class AvatarBackView @JvmOverloads constructor(
             onScaleDownAvailable(abs(heightDifference) > measurementError)
             onScaleUpAvailable(rectBitmapVisible.height() > ceil(bitmapVisibleHeightMin))
             bitmapScaleCurrent = rectBitmapVisible.height().toFloat() / bitmapHeight
+        }
+    }
+
+    /**
+     * Вырезать из битмапы нужный сегмент crop.
+     */
+    private fun Bitmap.cropTo(crop: RectF): Bitmap {
+
+        val rect = Rect()
+        crop.round(rect)    // RectF -> Rect
+
+        return Bitmap.createBitmap(
+            this,
+            rect.left,
+            rect.top,
+            rect.width(),
+            rect.height()
+        )
+    }
+
+    /**
+     * Сделать скриншот view и вырезать из него фрагмент, определенный в crop
+     */
+    private fun extractBitmap(crop: RectF): Bitmap? {
+        return try {
+            drawToBitmap().cropTo(crop)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Переместить прямоугольник rectBitmapVisible на указанный offset.
+     */
+    private fun moveRectBitmapVisible(offset: OverHead) {
+
+        val rect = Rect(rectBitmapVisible)
+        val bitmap = sourceImageBitmap!!
+
+        val offsetX = when {
+            (rect.left == 0 && offset.x < 0) -> 0
+            (rect.left + offset.x < 0) -> 0 - rect.left
+            (rect.right == bitmap.width && offset.x > 0) -> 0
+            (rect.right + offset.x > bitmap.width) -> bitmap.width - rect.right
+            else -> offset.x.toInt()
+        }
+
+        val offsetY = when {
+            (rect.top == 0 && offset.y < 0) -> 0
+            (rect.top + offset.y < 0) -> 0 - rect.top
+            (rect.bottom == bitmap.height && offset.y > 0) -> 0
+            (rect.bottom + offset.y > bitmap.height) -> bitmap.height - rect.bottom
+            else -> offset.y.toInt()
+        }
+
+        if (offsetX != 0 || offsetY != 0) {
+            rectBitmapVisible.offset(offsetX, offsetY)
+            invalidate()
         }
     }
 
