@@ -49,6 +49,7 @@ import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity1
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity2
 import s.yarlykov.izisandbox.transitions.using_scenes.ScenesInsideActivity3
 import s.yarlykov.izisandbox.transitions.using_window.ActivityFrom
+import s.yarlykov.izisandbox.ui.ButtonsListActivity
 import s.yarlykov.izisandbox.ui.CustomBottomAppBarActivity
 
 class MainActivity : AppCompatActivity() {
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
     private val stages = mapOf(
 //        RecyclerViewEventsActivity::class.java to R.string.menu_rv_events,
         TimeLineAdvancedActivity::class.java to R.string.menu_time_line_2d,
+        ButtonsListActivity::class.java to R.string.menu_time_line_2d,
         GridListActivity::class.java to R.string.menu_grid_list,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
