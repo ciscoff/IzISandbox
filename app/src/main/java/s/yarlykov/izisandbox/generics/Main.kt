@@ -23,6 +23,7 @@ interface Group<T> {
  */
 
 // TODO Пример 1.
+/*
 class GroupDogIn : Group<in Dog> {
     override fun insert(t: Dog) {}
 
@@ -30,8 +31,10 @@ class GroupDogIn : Group<in Dog> {
         return null
     }
 }
+*/
 
 // TODO Пример 2.
+/*
 class GroupDogOut : Group<out Dog> {
     override fun insert(t: Nothing) {
     }
@@ -39,7 +42,8 @@ class GroupDogOut : Group<out Dog> {
     override fun fetch(): Dog {
         return Dog("nora")
     }
-}
+}*/
+
 
 /**
  * И хотя Kotlin запрещает использовать type projection в качестве аргумента супертипа
@@ -54,6 +58,7 @@ val myDogs = object : Group<Dog> {
     override fun insert(t: Dog) {
 
     }
+
     override fun fetch(): Dog {
         return Dog("Hunter")
     }
@@ -66,11 +71,29 @@ fun insertDogs(dogs: Group<in Dog>) {
 }
 
 // TODO Здесь компилятор подставил тип из примера 2.
-fun fetchDog(group : Group<out Dog>) : Dog {
+fun fetchDog(group: Group<out Dog>): Dog {
     return group.fetch()
+}
+
+fun workWithDog(group: Group<in Dog>) {
+
 }
 
 fun main() {
     insertDogs(myDogs)
     fetchDog(myDogs)
+
+
+    val angryDog: Group<in AngryDog> = object : Group<AngryDog> {
+        override fun insert(t: AngryDog) {
+            // TODO
+        }
+
+        override fun fetch(): AngryDog {
+            return AngryDog("")
+        }
+    }
+
+    workWithDog(angryDog)
+
 }
