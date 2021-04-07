@@ -94,6 +94,4 @@ fun main() {
         }
     }
 
-    workWithDog(angryDog)
-
 }
