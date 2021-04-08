@@ -43,7 +43,7 @@ abstract class SubGizmo : Gizmo() {
     /*abstract override fun match(subj: Animal): Dog*/
 
     // TODO Реализация правила 1. Отдаем не больше предка, но могли и Dog поставить.
-    abstract override fun match(subj: Cat): KindDog
+    abstract override fun match(subj: Cat): Taxa
 
 }
 

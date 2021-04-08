@@ -44,11 +44,10 @@ class GroupDogOut : Group<out Dog> {
     }
 }*/
 
-
 /**
  * И хотя Kotlin запрещает использовать type projection в качестве аргумента супертипа
  * при декларации производных классов (пример выше), но не запрещает type projection для
- * аургументов функций:
+ * аргументов функций:
  *
  * NOTE: То есть две функции работают фактически с РАЗНЫМИ ТИПАМИ, хотя вроде бы у обеих
  * аргументом является Group<Dog>. Но
@@ -56,7 +55,6 @@ class GroupDogOut : Group<out Dog> {
 
 val myDogs = object : Group<Dog> {
     override fun insert(t: Dog) {
-
     }
 
     override fun fetch(): Dog {
@@ -66,32 +64,62 @@ val myDogs = object : Group<Dog> {
 
 
 // TODO Здесь компилятор подставил тип из примера 1.
-fun insertDogs(dogs: Group<in Dog>) {
+fun putDogs(dogs: Group<in Dog>) {
     dogs.insert(Dog("nora"))
 }
 
 // TODO Здесь компилятор подставил тип из примера 2.
-fun fetchDog(group: Group<out Dog>): Dog {
+fun getDogs(group: Group<out Dog>): Dog {
     return group.fetch()
 }
 
-fun workWithDog(group: Group<in Dog>) {
-
-}
 
 fun main() {
-    insertDogs(myDogs)
-    fetchDog(myDogs)
+    putDogs(myDogs)
+    getDogs(myDogs)
 
-
-    val angryDog: Group<in AngryDog> = object : Group<AngryDog> {
-        override fun insert(t: AngryDog) {
-            // TODO
+    val animal = object : Group<Animal> {
+        override fun insert(t: Animal) {
+            TODO("Not yet implemented")
         }
 
-        override fun fetch(): AngryDog {
-            return AngryDog("")
+        override fun fetch(): Animal {
+            TODO("Not yet implemented")
         }
     }
 
+    val dog = object : Group<Dog> {
+        override fun insert(t: Dog) {
+            TODO("Not yet implemented")
+        }
+
+        override fun fetch(): Dog {
+            TODO("Not yet implemented")
+        }
+    }
+
+    val beagle = object : Group<Beagle> {
+        override fun insert(t: Beagle) {
+        }
+
+        override fun fetch(): Beagle = Beagle()
+    }
+
+    val taxa = object : Group<Taxa> {
+        override fun insert(t: Taxa) {
+        }
+
+        override fun fetch(): Taxa = Taxa()
+    }
+
+    putDogs(dog)
+    getDogs(dog)
+
+    getDogs(dog)
+    getDogs(beagle)
+    //getDogs(animal)
+
+    putDogs(dog)
+    putDogs(animal)
+    //putDogs(beagle)
 }
