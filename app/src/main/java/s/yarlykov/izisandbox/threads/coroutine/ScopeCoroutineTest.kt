@@ -1,7 +1,10 @@
 package s.yarlykov.izisandbox.threads.coroutine
 
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 const val DELAY_LONG = 2000L
 const val DELAY_MIDDLE = 1000L
@@ -53,17 +56,32 @@ suspend fun testCoroutineScope(jobs: Array<Job?>) {
     }
 }
 
+suspend fun testSuspend(): Long {
+    println("testSuspend: job is ${coroutineContext[Job]}")
+
+    return suspendCoroutine { con ->
+        println("Hello")
+        con.resume(1L)
+    }
+}
+
 fun main() {
 
     val scope = CoroutineScope(Job() + Dispatchers.IO)
-
-    val jobs = Array<Job?>(3) { null }
-
-    scope.launch(Dispatchers.IO) {
-        println("context inside launch '${object {}.javaClass.enclosingMethod?.name}': $coroutineContext")
-        testCoroutineScope(jobs)
-        println("coroutineScope is finished")
+    println("Before testSuspend call job is = ${scope.coroutineContext[Job]}")
+    scope.launch {
+        println("Inside launch and before testSuspend call job is = ${this.coroutineContext[Job]}")
+        println("Inside launch and before testSuspend call job is = ${coroutineContext[Job]}")
+        testSuspend()
     }
+
+//    val jobs = Array<Job?>(3) { null }
+//
+//    scope.launch(Dispatchers.IO) {
+//        println("context inside launch '${object {}.javaClass.enclosingMethod?.name}': $coroutineContext")
+//        testCoroutineScope(jobs)
+//        println("coroutineScope is finished")
+//    }
 
     Thread.sleep(5000)
 }
