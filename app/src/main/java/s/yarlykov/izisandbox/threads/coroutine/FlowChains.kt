@@ -1,11 +1,8 @@
 package s.yarlykov.izisandbox.threads.coroutine
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.*
 
 /**
