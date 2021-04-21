@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.tab_login_phone.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -54,7 +53,7 @@ class FragmentAuth : Fragment() {
 
         (requireContext().applicationContext as App)
             .appComponent
-            .componentActivity
+            .componentLoginActivity
             .componentAuthBuilder
             .addModule(ModuleFragmentAuth("/auth"))
             .build()
@@ -68,7 +67,7 @@ class FragmentAuth : Fragment() {
     @InternalCoroutinesApi
     override fun onResume() {
         super.onResume()
-        logIt("${this::class.simpleName}::${object {}.javaClass.enclosingMethod} $authUri")
+        logIt("${this::class.simpleName}::${object {}.javaClass.enclosingMethod?.name} $authUri")
 
         viewLifecycleOwner.lifecycleScope.launch {
             names.collect {

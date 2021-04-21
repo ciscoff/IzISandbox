@@ -3,6 +3,7 @@ package s.yarlykov.izisandbox.application
 import android.app.Application
 import com.jakewharton.threetenabp.AndroidThreeTen
 import s.yarlykov.izisandbox.application.di.AppComponent
+import s.yarlykov.izisandbox.application.di.AppModule
 import s.yarlykov.izisandbox.application.di.DaggerAppComponent
 
 class App : Application() {
@@ -13,6 +14,9 @@ class App : Application() {
         super.onCreate()
         AndroidThreeTen.init(this)
 
-        appComponent = DaggerAppComponent.create()
+        appComponent = DaggerAppComponent
+            .builder()
+            .plus(AppModule(this))
+            .build()
     }
 }

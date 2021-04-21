@@ -24,7 +24,7 @@ class IziLoginActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
 
-        (application as App).appComponent.componentActivity.inject(this)
+        (application as App).appComponent.componentLoginActivity.inject(this)
     }
 
     override fun onStart() {
@@ -36,6 +36,6 @@ class IziLoginActivity : AppCompatActivity() {
             getString(R.string.dagger_injection_fuck_up)
         }
 
-        logIt("${this::class.simpleName}::${object {}.javaClass.enclosingMethod} $message")
+        logIt("${this::class.simpleName}::${object {}.javaClass.enclosingMethod?.name} '$message'")
     }
 }

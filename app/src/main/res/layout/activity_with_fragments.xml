@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".transitions.shared_with_fragments.ActivityWithFragments">
 
+    <!-- Лучше заменить на ConstraintLayout.Flow -->
     <com.google.android.flexbox.FlexboxLayout
         android:id="@+id/flex_box"
         android:layout_width="match_parent"

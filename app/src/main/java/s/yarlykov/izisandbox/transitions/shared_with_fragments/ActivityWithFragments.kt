@@ -1,27 +1,46 @@
 package s.yarlykov.izisandbox.transitions.shared_with_fragments
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.flexbox.FlexboxLayout
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.application.App
+import s.yarlykov.izisandbox.transitions.shared_with_fragments.di.ModuleTransitionActivity
+import s.yarlykov.izisandbox.utils.logIt
+import javax.inject.Inject
 
 class ActivityWithFragments : AppCompatActivity() {
 
-    lateinit var buttonExample1 : Button
-    lateinit var buttonExample2 : Button
-    lateinit var flexBox : FlexboxLayout
+    lateinit var buttonExample1: Button
+    lateinit var buttonExample2: Button
+    lateinit var flexBox: FlexboxLayout
 
+    @Inject
+    lateinit var titleWrapper: TitleWrapper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_with_fragments)
 
+        // Тест. Создать компонент у которого модуль с аргументом.
+        (application as App)
+            .appComponent
+            .builderComponentTransitionActivity
+            .plus(ModuleTransitionActivity(R.string.title_select_example))
+            .build()
+            .inject(this)
+
         findView()
         initViews()
         initFragment(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        logIt("${this::class.simpleName}::${object {}.javaClass.enclosingMethod?.name} '${titleWrapper.title}'")
     }
 
     private fun findView() {
@@ -44,16 +63,18 @@ class ActivityWithFragments : AppCompatActivity() {
     }
 
     private fun initFragment(savedInstanceState: Bundle?) {
-        if(savedInstanceState != null) return
+        if (savedInstanceState != null) return
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_placeholder,
-                FragmentLogo(), FragmentLogo::class.java.simpleName)
+            .replace(
+                R.id.fragment_placeholder,
+                FragmentLogo(), FragmentLogo::class.java.simpleName
+            )
             .commit()
     }
 
-    private fun navigateTo(clazz : Class<*>, layoutId : Int) {
+    private fun navigateTo(clazz: Class<*>, layoutId: Int) {
 
         val fragment = clazz.getConstructor().newInstance() as Fragment
 
@@ -63,8 +84,10 @@ class ActivityWithFragments : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_placeholder,
-                fragment, clazz.simpleName)
+            .replace(
+                R.id.fragment_placeholder,
+                fragment, clazz.simpleName
+            )
             .commit()
     }
 
@@ -76,7 +99,8 @@ class ActivityWithFragments : AppCompatActivity() {
     private fun setFlexboxChildLayoutParams(
         child: View,
         childVisibility: Int = View.VISIBLE,
-        widthPercent: Float = 0.4F) {
+        widthPercent: Float = 0.4F
+    ) {
 
         child.apply {
             visibility = childVisibility

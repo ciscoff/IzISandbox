@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
 import s.yarlykov.izisandbox.application.App
-import javax.inject.Inject
 
 class FragmentBootstrap : Fragment() {
 
@@ -40,7 +39,7 @@ class FragmentBootstrap : Fragment() {
 
         progress = (requireContext().applicationContext as App)
             .appComponent
-            .componentActivity
+            .componentLoginActivity
             .componentBoot.bootProgress
 
         findViews(root)
