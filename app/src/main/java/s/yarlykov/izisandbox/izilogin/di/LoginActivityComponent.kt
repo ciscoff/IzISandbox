@@ -4,11 +4,11 @@ import dagger.Subcomponent
 
 @ScopePerActivity
 @Subcomponent
-class LoginActivityComponent {
+interface LoginActivityComponent {
 
     @Subcomponent.Builder
     interface Builder {
-        fun plusModuleA(module: ModuleA): Builder
+        fun plusModuleA(module: ModuleActivity): Builder
         fun build(): LoginActivityComponent
     }
 }

@@ -8,8 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.Animators
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.animation.ItemDragHandlerV4
+import s.yarlykov.izisandbox.recycler_and_swipes.swipe_animation.Animators
+import s.yarlykov.izisandbox.utils.logIt
 
 /**
  * Показать SnackBar
@@ -118,6 +119,23 @@ fun RecyclerView.LayoutManager.animateBack(excludedItem: View, animatedViewId: I
                         upperLayer.setOnTouchListener(ItemDragHandlerV4())
                     })
                 }
+            }
+        }
+    }
+}
+
+
+/**
+ * Рекурсивный проход по иерархии View
+ */
+fun ViewGroup.showChildren() {
+    for (i in 0 until childCount) {
+        getChildAt(i)?.let { child ->
+            if (child !is ViewGroup) {
+                logIt("class=${child::class.java.simpleName}, id=${child.id}, parent=${child.parent::class.java.simpleName}")
+            } else {
+                logIt("I'm View Group ${child::class.java.simpleName}")
+                child.showChildren()
             }
         }
     }

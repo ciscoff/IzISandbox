@@ -1,8 +1,8 @@
 package s.yarlykov.izisandbox.izilogin
 
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,20 +12,38 @@ import android.widget.LinearLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.tab_login_phone.*
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.application.App
 import s.yarlykov.izisandbox.extensions.bindPhoneMask
+import s.yarlykov.izisandbox.extensions.showSnackBarNotification
+import s.yarlykov.izisandbox.izilogin.di.ModuleFragmentAuth
+import s.yarlykov.izisandbox.utils.logIt
+import javax.inject.Inject
+import javax.inject.Named
 
 class FragmentAuth : Fragment() {
 
-    private lateinit var snackbarWrapper: CoordinatorLayout
+    private lateinit var snackBarWrapper: CoordinatorLayout
     private lateinit var til: TextInputLayout
     private lateinit var passInput: EditText
     private lateinit var phoneInput: EditText
     private lateinit var btnAuth: Button
     private lateinit var phone: String
 
+    @Inject
+    lateinit var names : Flow<String>
+
+    @Inject
+    @Named("auth")
+    lateinit var authUri : Uri
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,13 +52,33 @@ class FragmentAuth : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_auth, container, false)
 
+        (requireContext().applicationContext as App)
+            .appComponent
+            .componentActivity
+            .componentAuthBuilder
+            .addModule(ModuleFragmentAuth("/auth"))
+            .build()
+            .inject(this)
+
         findViews(root)
         initViews()
         return root
     }
 
+    @InternalCoroutinesApi
+    override fun onResume() {
+        super.onResume()
+        logIt("${this::class.simpleName}::${object {}.javaClass.enclosingMethod} $authUri")
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            names.collect {
+                requireView().showSnackBarNotification(it)
+            }
+        }
+    }
+
     private fun findViews(root: View) {
-        snackbarWrapper = root.findViewById(R.id.snackbar_wrapper)
+        snackBarWrapper = root.findViewById(R.id.snackbar_wrapper)
         phoneInput = root.findViewById(R.id.phone_input)
         passInput = root.findViewById(R.id.pass_input)
         btnAuth = root.findViewById(R.id.btn_auth)
@@ -73,12 +111,12 @@ class FragmentAuth : Fragment() {
      * Вывести сообщение
      */
     private fun showNotification(message: String) {
-        val snackbar = Snackbar
-            .make(snackbarWrapper, message, Snackbar.LENGTH_SHORT)
+        val snackBar = Snackbar
+            .make(snackBarWrapper, message, Snackbar.LENGTH_SHORT)
             .setTextColor(Color.WHITE)
             .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.colorAuthSnackBar))
 
-        val snackBarLayout = snackbar.view as Snackbar.SnackbarLayout
+        val snackBarLayout = snackBar.view as Snackbar.SnackbarLayout
 
         for (i in 0 until snackBarLayout.childCount) {
             val parent = snackBarLayout.getChildAt(i)
@@ -87,28 +125,6 @@ class FragmentAuth : Fragment() {
                 break
             }
         }
-        snackbar.show()
-    }
-}
-
-/**
- * Рекурсивный проход по иерархии View
- */
-private fun showChild(parent: ViewGroup) {
-    for (i in 0 until parent.childCount) {
-        parent.getChildAt(i)?.let { child ->
-
-            if (child !is ViewGroup) {
-                Log.d(
-                    "TAG_TAG",
-                    "class=${child::class.java.simpleName}, id=${child.id}, parent=${child.parent::class.java.simpleName}"
-                )
-            } else {
-                Log.d("TAG_TAG", "I'm View Group ${child::class.java.simpleName}")
-                showChild(child as ViewGroup)
-            }
-
-            child.setBackgroundColor(Color.TRANSPARENT)
-        }
+        snackBar.show()
     }
 }

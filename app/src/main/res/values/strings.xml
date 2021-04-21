@@ -254,4 +254,7 @@
     <string name="avatar_ready">ready</string>
     <string name="avatar_cancel">cancel</string>
 
+    <!-- Dagger test -->
+    <string name="dagger_injection_fuck_up" translatable="false">Injection fuck up</string>
+
 </resources>
