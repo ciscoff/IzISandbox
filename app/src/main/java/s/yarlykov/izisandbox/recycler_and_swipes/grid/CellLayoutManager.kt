@@ -63,7 +63,6 @@ class CellLayoutManager(
     }
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
-        super.onLayoutChildren(recycler, state)
 
         // Адаптер пустой или стал пустым после обновления модели
         if (itemCount <= 0) {
