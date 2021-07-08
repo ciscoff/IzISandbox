@@ -2,11 +2,9 @@ package s.yarlykov.izisandbox.shimmer
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
+import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 
@@ -23,6 +21,8 @@ class ShimmerLayout @JvmOverloads constructor(
 
     private var isAnimationStarted = false
     private var autoStart = false
+
+    private var maskOffsetX = 0f
 
     private var maskBitmap: Bitmap? = null
         get() {
@@ -80,12 +80,6 @@ class ShimmerLayout @JvmOverloads constructor(
             resetIfStarted()
         }
 
-    init {
-        // Разрешить рисование для ViewGroup
-        setWillNotDraw(false)
-
-    }
-
     private var startAnimationPreDrawListener: ViewTreeObserver.OnPreDrawListener? = null
 
     private val preDrawListener = object : ViewTreeObserver.OnPreDrawListener {
@@ -96,17 +90,40 @@ class ShimmerLayout @JvmOverloads constructor(
         }
     }
 
+    init {
+        // Разрешить рисование для ViewGroup
+        setWillNotDraw(false)
+
+        maskWidth = 0.5f
+        gradientCenterColorWidth = 0.1f
+        shimmerAngle = 0
+
+        if (autoStart && visibility == View.VISIBLE) {
+            startShimmerAnimation()
+        }
+    }
+
     override fun onDetachedFromWindow() {
         resetShimmering()
         super.onDetachedFromWindow()
     }
 
-    private fun createBitmap(width: Int, height: Int): Bitmap? {
-        return try {
-            Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
-        } catch (e: OutOfMemoryError) {
-            System.gc()
-            null
+    override fun dispatchDraw(canvas: Canvas?) {
+        if (isAnimationStarted.not() || width <= 0 || height <= 0) {
+            super.dispatchDraw(canvas)
+        } else {
+            dispatchDrawShimmer(canvas)
+        }
+    }
+
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+        if (visibility == VISIBLE) {
+            if (autoStart) {
+                startShimmerAnimation()
+            }
+        } else {
+            stopShimmerAnimation()
         }
     }
 
@@ -122,6 +139,60 @@ class ShimmerLayout @JvmOverloads constructor(
     private fun stopShimmerAnimation() {
         startAnimationPreDrawListener?.let(viewTreeObserver::removeOnPreDrawListener)
         resetShimmering()
+    }
+
+    private fun dispatchDrawShimmer(canvas: Canvas) {
+        super.dispatchDraw(canvas)
+
+        localMaskBitmap = maskBitmap ?: return
+
+        canvasForShimmerMask = (canvasForShimmerMask ?: Canvas(localMaskBitmap as Bitmap)).apply {
+            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+            save()
+            translate(-maskOffsetX, 0)
+        }
+
+        super.dispatchDraw(canvasForShimmerMask)
+        canvasForShimmerMask?.restore()
+
+        drawShimmer(canvas)
+        localMaskBitmap = null
+    }
+
+    private fun drawShimmer(canvas: Canvas) {
+
+    }
+
+    private fun createShimmerPaint() {
+
+        if(gradientTexturePaint != null) return
+
+
+
+    }
+
+    /**
+     * Reset alpha-компонент цвета (сброс в 0 - полностью прозрачный)
+     */
+    private fun reduceColorAlphaValueToZero(actualColor : Int): Int {
+        return Color.argb(0, Color.red(actualColor), Color.green(actualColor), Color.blue(actualColor))
+    }
+
+    private fun calculateBitmapMaskRect() : Rect {
+
+    }
+
+    private fun calculateMaskWidth() : Int {
+
+    }
+
+    private fun createBitmap(width: Int, height: Int): Bitmap? {
+        return try {
+            Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+        } catch (e: OutOfMemoryError) {
+            System.gc()
+            null
+        }
     }
 
     private fun resetIfStarted() {
