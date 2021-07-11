@@ -67,6 +67,7 @@
     <string name="menu_time_line_2d" translatable="false">Time Line 2D</string>
     <string name="menu_buttons_containers" translatable="false">Buttons Containers</string>
     <string name="menu_rv_events" translatable="false">RecyclerView Events</string>
+    <string name="menu_shimmer_effect" translatable="false">Shimmer Effect</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>

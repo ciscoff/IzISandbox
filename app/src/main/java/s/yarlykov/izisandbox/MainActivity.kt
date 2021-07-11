@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import s.yarlykov.izisandbox.dialogs.DialogsActivity
-import s.yarlykov.izisandbox.dsl.DslActivity
 import s.yarlykov.izisandbox.extensions.ZDate
 import s.yarlykov.izisandbox.extensions.toReadable
 import s.yarlykov.izisandbox.izilogin.IziLoginActivity
@@ -38,6 +37,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.swipe_4.SwipeAnyWhereActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_5.AccordionSwipeActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.swipe_with_undo.SwipeWithUndoActivity
 import s.yarlykov.izisandbox.recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity
+import s.yarlykov.izisandbox.shimmer.ShimmerActivity
 import s.yarlykov.izisandbox.telegram.v1.TelegramActivityV1
 import s.yarlykov.izisandbox.telegram.v2.TelegramActivityV2
 import s.yarlykov.izisandbox.theme.ThemeActivity
@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
     private val stages = mapOf(
 //        RecyclerViewEventsActivity::class.java to R.string.menu_rv_events,
+        ShimmerActivity::class.java to R.string.menu_shimmer_effect,
         TimeLineAdvancedActivity::class.java to R.string.menu_time_line_2d,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
