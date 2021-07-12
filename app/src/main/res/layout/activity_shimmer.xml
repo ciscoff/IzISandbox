@@ -6,7 +6,7 @@
     android:padding="@dimen/shimmer_padding"
     tools:context=".shimmer.ShimmerActivity">
 
-    <s.yarlykov.izisandbox.shimmer.ShimmerLayout
+    <s.yarlykov.izisandbox.shimmer.ShimmerLayoutV2
         android:id="@+id/shimmer"
         android:layout_width="match_parent"
         android:layout_height="120dp"

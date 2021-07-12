@@ -10,11 +10,15 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
+import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.utils.logIt
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.tan
 
-class ShimmerLayout @JvmOverloads constructor(
+class ShimmerLayoutV1 @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
@@ -24,7 +28,7 @@ class ShimmerLayout @JvmOverloads constructor(
     private var localMaskBitmap: Bitmap? = null
 
     private var isAnimationStarted = false
-    private var autoStart = false
+    private var autoStart = true
 
     private var maskOffsetX = 0f
 
@@ -51,13 +55,10 @@ class ShimmerLayout @JvmOverloads constructor(
     private val maskWidth: Float
         get() = (width / 2) * maskWidthRatio
 
-    private var shimmerColor: Int = Color.GRAY
-        set(value) {
-            field = value
-            resetIfStarted()
-        }
+    private val shimmerColor: Int
+        get() = ContextCompat.getColor(context, R.color.default_shimmer_color)
 
-    private var shimmerAnimationDuration: Long = 500L
+    private var shimmerAnimationDuration: Long = DEFAULT_ANIMATION_DURATION
         set(value) {
             field = value
             resetIfStarted()
@@ -69,7 +70,7 @@ class ShimmerLayout @JvmOverloads constructor(
             resetIfStarted()
         }
 
-    private var shimmerAngle: Int = 0
+    private var shimmerAngle: Int = DEFAULT_ANGLE
         set(value) {
             if (value < MIN_ANGLE_VALUE || MAX_ANGLE_VALUE < value) {
                 throw IllegalArgumentException("shimmerAngle value must be between $MIN_ANGLE_VALUE and $MAX_ANGLE_VALUE")
@@ -94,6 +95,7 @@ class ShimmerLayout @JvmOverloads constructor(
 
     private val preDrawListener = object : ViewTreeObserver.OnPreDrawListener {
         override fun onPreDraw(): Boolean {
+            logIt("${object {}.javaClass.enclosingMethod?.name}")
             viewTreeObserver.removeOnPreDrawListener(this)
             startShimmerAnimation()
             return true
@@ -118,11 +120,60 @@ class ShimmerLayout @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
+    /**
+     * Вызывается из view.draw, чтобы отрисовать дочерние элементы ПОСЛЕ того как сама
+     * эта ViewGroup была отрисована.
+     */
     override fun dispatchDraw(canvas: Canvas) {
+        logIt("${object {}.javaClass.enclosingMethod?.name}")
         if (isAnimationStarted.not() || width <= 0 || height <= 0) {
             super.dispatchDraw(canvas)
         } else {
             dispatchDrawShimmer(canvas)
+        }
+    }
+
+    private fun dispatchDrawShimmer(canvas: Canvas) {
+        logIt("${object {}.javaClass.enclosingMethod?.name}")
+        super.dispatchDraw(canvas)
+
+        localMaskBitmap = maskBitmap ?: return
+
+        canvasForShimmerMask = (canvasForShimmerMask ?: Canvas(localMaskBitmap as Bitmap)).apply {
+            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+            save()
+            translate(-maskOffsetX, 0f)
+        }
+
+        // TODO ??? Передаем детям другую Canvas
+        super.dispatchDraw(canvasForShimmerMask)
+        canvasForShimmerMask?.restore()
+
+        // TODO Shimmer рисуем на оригинальной Canvas
+        drawShimmer(canvas)
+        localMaskBitmap = null
+    }
+
+    private fun drawShimmer(destinationCanvas: Canvas) {
+        logIt("${object {}.javaClass.enclosingMethod?.name}")
+
+        createShimmerPaint()
+
+        gradientTexturePaint?.let { paint ->
+
+            destinationCanvas.save()
+            destinationCanvas.apply {
+
+                translate(maskOffsetX, 0f)
+                drawRect(
+                    maskRect.left.toFloat(),
+                    0f,
+                    maskRect.width().toFloat(),
+                    maskRect.height().toFloat(),
+                    paint
+                )
+                restore()
+            }
         }
     }
 
@@ -138,12 +189,17 @@ class ShimmerLayout @JvmOverloads constructor(
     }
 
     private fun startShimmerAnimation() {
+        logIt("${object {}.javaClass.enclosingMethod?.name}")
         if (isAnimationStarted) return
 
         if (width == 0) {
             startAnimationPreDrawListener = preDrawListener
             viewTreeObserver.addOnPreDrawListener(startAnimationPreDrawListener)
+            return
         }
+
+        getShimmerAnimation()?.start()
+        isAnimationStarted = true
     }
 
     private fun stopShimmerAnimation() {
@@ -192,53 +248,17 @@ class ShimmerLayout @JvmOverloads constructor(
         return maskAnimator
     }
 
-
-    private fun dispatchDrawShimmer(canvas: Canvas) {
-        super.dispatchDraw(canvas)
-
-        localMaskBitmap = maskBitmap ?: return
-
-        canvasForShimmerMask = (canvasForShimmerMask ?: Canvas(localMaskBitmap as Bitmap)).apply {
-            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-            save()
-            translate(-maskOffsetX, 0f)
-        }
-
-        super.dispatchDraw(canvasForShimmerMask)
-        canvasForShimmerMask?.restore()
-
-        drawShimmer(canvas)
-        localMaskBitmap = null
-    }
-
-    private fun drawShimmer(destinationCanvas: Canvas) {
-        createShimmerPaint()
-
-        gradientTexturePaint?.let { paint ->
-
-            destinationCanvas.save()
-            destinationCanvas.apply {
-
-                translate(maskOffsetX, 0f)
-                drawRect(
-                    maskRect.left.toFloat(),
-                    0f,
-                    maskRect.width().toFloat(),
-                    maskRect.height().toFloat(),
-                    paint
-                )
-            }.restore()
-
-        }
-
-
-    }
-
     private fun createShimmerPaint() {
+
         if (gradientTexturePaint != null) return
 
         val edgeColor = reduceColorAlphaValueToZero(shimmerColor)
-        val yPosition = if (0 <= shimmerAngle) height else 0
+        val yPosition = 0/*if (0 <= shimmerAngle) height else 0*/
+
+//        val x0 = 0
+//        val y0 = yPosition
+
+        logIt("${object {}.javaClass.enclosingMethod?.name}")
 
         val gradient = LinearGradient(
             0f,
@@ -260,8 +280,6 @@ class ShimmerLayout @JvmOverloads constructor(
             isFilterBitmap = true
             shader = composeShader
         }
-
-
     }
 
     private fun getGradientColorDistribution(): FloatArray {
@@ -294,10 +312,10 @@ class ShimmerLayout @JvmOverloads constructor(
      * системы координат этой view.
      */
     private fun calculateMaskWidth(): Int {
-        // maskWidth работает как гипотенуза и мы проецируем её на горизонталь
-        val shimmerWidthPlane = maskWidth * cos(Math.toRadians(abs(shimmerAngle).toDouble()))
+        // maskWidth работает как КАТЕТ и мы "проецируем" её на горизонталь
+        val shimmerWidthPlane = maskWidth / cos(Math.toRadians(abs(shimmerAngle).toDouble()))
         // "повернутая" view.height работает как гипотенуза и мы её тоже проецируем на горизонталь
-        val shimmerHeightPlane = height * sin(Math.toRadians(abs(shimmerAngle).toDouble()))
+        val shimmerHeightPlane = height * tan(Math.toRadians(abs(shimmerAngle).toDouble()))
 
         return (shimmerWidthPlane + shimmerHeightPlane).toInt()
     }
@@ -337,13 +355,14 @@ class ShimmerLayout @JvmOverloads constructor(
         maskBitmap = null
     }
 
+    // TODO В оригинале использвается при чтении кастомныз атрибутов
     private fun getColor(@ColorRes id: Int): Int {
         return context.getColor(id)
     }
 
     companion object {
-        const val DEFAULT_ANIMATION_DURATION = 1500
-        const val DEFAULT_ANGLE = 20
+        const val DEFAULT_ANIMATION_DURATION = 2500L
+        const val DEFAULT_ANGLE = 30
         const val MIN_ANGLE_VALUE = -45
         const val MAX_ANGLE_VALUE = 45
         const val MIN_MASK_WIDTH_VALUE = 0

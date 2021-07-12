@@ -6,8 +6,7 @@ import s.yarlykov.izisandbox.R
 
 class ShimmerActivity : AppCompatActivity() {
 
-    private lateinit var shimmer : ShimmerLayout
-
+    private lateinit var shimmer : ShimmerLayoutV2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
