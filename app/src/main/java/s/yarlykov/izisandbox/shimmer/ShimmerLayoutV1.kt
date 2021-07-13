@@ -314,7 +314,7 @@ class ShimmerLayoutV1 @JvmOverloads constructor(
     private fun calculateMaskWidth(): Int {
         // maskWidth работает как КАТЕТ и мы "проецируем" её на горизонталь
         val shimmerWidthPlane = maskWidth / cos(Math.toRadians(abs(shimmerAngle).toDouble()))
-        // "повернутая" view.height работает как гипотенуза и мы её тоже проецируем на горизонталь
+        // "повернутая" view.height работает как КАТЕТ и мы её тоже проецируем на горизонталь
         val shimmerHeightPlane = height * tan(Math.toRadians(abs(shimmerAngle).toDouble()))
 
         return (shimmerWidthPlane + shimmerHeightPlane).toInt()

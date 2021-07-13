@@ -110,6 +110,7 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
         gradientCenterColorWidth = 0.1f
         shimmerAngle = 0
 
+        // TODO 1. Точка старта всего процесса
         if (autoStart && visibility == View.VISIBLE) {
             startShimmerAnimation()
         }
@@ -135,17 +136,24 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
 
     private fun dispatchDrawShimmer(canvas: Canvas) {
         logIt("${object {}.javaClass.enclosingMethod?.name}")
+
+        // TODO Рисуем детей
         super.dispatchDraw(canvas)
 
         localMaskBitmap = maskBitmap ?: return
 
         canvasForShimmerMask = (canvasForShimmerMask ?: Canvas(localMaskBitmap as Bitmap)).apply {
             drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-            save()
-            translate(-maskOffsetX, 0f)
+//            save()
+//            translate(-maskOffsetX, 0f)
         }
+        logIt("maskOffsetX=$maskOffsetX")
+        canvasForShimmerMask!!.save()
+        /*TODO canvasForShimmerMask!!.translate(-maskLeftX, 0f)*/
+//        canvasForShimmerMask!!.translate(-maskOffsetX, 0f)
 
-        // TODO ??? Передаем детям другую Canvas
+
+        // TODO ??? Передаем детям другую Canvas. Это ключевой момент, но пока не разобрался.
         super.dispatchDraw(canvasForShimmerMask)
         canvasForShimmerMask?.restore()
 
@@ -154,19 +162,23 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
         localMaskBitmap = null
     }
 
-    private fun drawShimmer(destinationCanvas: Canvas) {
+    /**
+     * Рисование по "системной" Canvas. Это отрисовка ПОВЕРХ УЖЕ отрисованных детей.
+     */
+    private fun drawShimmer(canvas: Canvas) {
         logIt("${object {}.javaClass.enclosingMethod?.name}")
 
         createShimmerPaint()
 
         gradientTexturePaint?.let { paint ->
 
-            destinationCanvas.save()
-            destinationCanvas.apply {
+            canvas.save()
+            canvas.apply {
 
+                /*TODO translate(maskLeftX, 0f)*/
                 translate(maskOffsetX, 0f)
                 drawRect(
-                    maskRect.left.toFloat(),
+                    0f/*maskRect.left.toFloat()*/,
                     0f,
                     maskRect.width().toFloat(),
                     maskRect.height().toFloat(),
@@ -188,10 +200,15 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
         }
     }
 
+    // TODO 2. Запуск анимации
     private fun startShimmerAnimation() {
         logIt("${object {}.javaClass.enclosingMethod?.name}")
         if (isAnimationStarted) return
 
+        /**
+         * TODO 2.1 если ещё не прошли measure/layout, то подписываемся на них, и опосля
+         * TODO сразу повторим старт анимации в [preDrawListener].
+         */
         if (width == 0) {
             startAnimationPreDrawListener = preDrawListener
             viewTreeObserver.addOnPreDrawListener(startAnimationPreDrawListener)
@@ -210,12 +227,14 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
     private fun getShimmerAnimation(): Animator? {
         if (maskAnimator != null) return maskAnimator
 
+        // TODO А вот maskRect вычисляется с учетом угла поворота
         val shimmerBitmapWidth = maskRect.width()
 
         val animationToX = width
 
+        // TODO Ставим начальную позицию mask за левую границу view
         val animationFromX = if (width > maskRect.width()) {
-            -animationToX
+            -animationToX // TODO Не понятно почему не '-maskRect.width()'
         } else {
             -maskRect.width()
         }
@@ -228,8 +247,11 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
             } catch (e: Exception) {
                 0f
             }
+            // TODO Вообще это лучше назвать maskLeftX, потому что это не offset вовсе
             maskOffsetX = animationFromX + animatedValue
 
+            // TODO Я так понимаю, что invalidate вызывается только когда mask правым
+            // TODO краем уже заехала на "территорию" view. Это к вопросу по строке 226.
             if (maskOffsetX + shimmerBitmapWidth >= 0) {
                 invalidate()
             }
@@ -255,11 +277,6 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
         val edgeColor = reduceColorAlphaValueToZero(shimmerColor)
         val yPosition = 0/*if (0 <= shimmerAngle) height else 0*/
 
-//        val x0 = 0
-//        val y0 = yPosition
-
-        logIt("${object {}.javaClass.enclosingMethod?.name}")
-
         val gradient = LinearGradient(
             0f,
             yPosition.toFloat(),
@@ -272,6 +289,15 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
 
         val maskBitmapShader =
             BitmapShader(localMaskBitmap!!, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+
+        /**
+         * TODO Здесь gradient - это DST, maskBitmapShader - это SRC. То есть в режиме
+         * TODO PorterDuff.Mode.DST_IN у нас на выходе останутся те пиксели из gradient,
+         * TODO которые "покрывают" пиксели из maskBitmapShader. Обращаю внимание, что
+         * TODO пикселей из maskBitmapShader мы вообще не увидим. Они служат как ограничивающая
+         * TODO "область" для обрезки области градиента. То есть нам нужен градиент не выходящий за
+         * TODO границы maskBitmapShader, то есть за границы maskBitmap.
+         */
         val composeShader = ComposeShader(gradient, maskBitmapShader, PorterDuff.Mode.DST_IN)
 
         gradientTexturePaint = Paint().apply {
@@ -304,6 +330,7 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
     }
 
     private fun calculateBitmapMaskRect(): Rect {
+        logIt("calculateMaskWidth()=${calculateMaskWidth()}")
         return Rect(0, 0, calculateMaskWidth(), height)
     }
 
@@ -314,7 +341,7 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
     private fun calculateMaskWidth(): Int {
         // maskWidth работает как КАТЕТ и мы "проецируем" её на горизонталь
         val shimmerWidthPlane = maskWidth / cos(Math.toRadians(abs(shimmerAngle).toDouble()))
-        // "повернутая" view.height работает как гипотенуза и мы её тоже проецируем на горизонталь
+        // "повернутая" view.height работает как КАТЕТ и мы её тоже "проецируем" на горизонталь
         val shimmerHeightPlane = height * tan(Math.toRadians(abs(shimmerAngle).toDouble()))
 
         return (shimmerWidthPlane + shimmerHeightPlane).toInt()
@@ -355,14 +382,14 @@ class ShimmerLayoutV2 @JvmOverloads constructor(
         maskBitmap = null
     }
 
-    // TODO В оригинале использвается при чтении кастомныз атрибутов
+    // TODO В оригинале использвается при чтении кастомных атрибутов
     private fun getColor(@ColorRes id: Int): Int {
         return context.getColor(id)
     }
 
     companion object {
         const val DEFAULT_ANIMATION_DURATION = 2500L
-        const val DEFAULT_ANGLE = 30
+        const val DEFAULT_ANGLE = 0
         const val MIN_ANGLE_VALUE = -45
         const val MAX_ANGLE_VALUE = 45
         const val MIN_MASK_WIDTH_VALUE = 0
