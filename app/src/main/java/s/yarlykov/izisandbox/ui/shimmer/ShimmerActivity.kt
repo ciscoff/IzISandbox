@@ -1,12 +1,13 @@
-package s.yarlykov.izisandbox.shimmer
+package s.yarlykov.izisandbox.ui.shimmer
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import s.yarlykov.izisandbox.R
+import s.yarlykov.izisandbox.ui.shimmer.arch.ShimmerLayoutV2
 
 class ShimmerActivity : AppCompatActivity() {
 
-    private lateinit var shimmer : ShimmerLayoutV2
+    private lateinit var shimmer : ShimmerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

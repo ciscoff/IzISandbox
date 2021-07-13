@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".shimmer.ShimmerActivity"></activity>
+        <activity android:name="s.yarlykov.izisandbox.ui.shimmer.ShimmerActivity"></activity>
         <activity android:name=".ui.ButtonsListActivity" />
         <activity android:name=".recycler_and_swipes.debug_events.RecyclerViewEventsActivity" />
         <activity android:name=".recycler_and_swipes.time_line_2d.TimeLineAdvancedActivity" />
