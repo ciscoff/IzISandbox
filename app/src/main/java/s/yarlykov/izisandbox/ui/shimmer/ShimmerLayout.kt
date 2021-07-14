@@ -36,6 +36,12 @@ class ShimmerLayout @JvmOverloads constructor(
     private var maskCanvas: Canvas? = null
     private var maskPaint: Paint? = null
 
+    private val paintBorder = Paint().apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+        color = Color.BLACK
+    }
+
     private var isAnimationStarted = false
     private var autoStart = true
 
@@ -238,6 +244,14 @@ class ShimmerLayout @JvmOverloads constructor(
                     maskRect.height().toFloat(),
                     paint
                 )
+                drawRect(
+                    0f/*maskRect.left.toFloat()*/,
+                    0f,
+                    maskRect.width().toFloat(),
+                    maskRect.height().toFloat(),
+                    paintBorder
+                )
+
                 restore()
             }
         }
@@ -318,32 +332,57 @@ class ShimmerLayout @JvmOverloads constructor(
      * [s.yarlykov.izisandbox.ui.shimmer.arch.ShimmerLayoutV2.createShimmerPaint]
      *
      * TODO нужно разобраться почему градиент не работает правильно если в коде ниже
-     * TODO явно указать ' val yPosition = 0f'. По факту получаем ту же линию градиента,
+     * TODO явно указать 'val yPosition = 0f'. По факту получаем ту же линию градиента,
      * TODO но ниже на высоту View.
      *
      * Log: shimmerAngle=30, shimmerAngle.rad=0.5235987755982988,
      * Log: linear gradient ok RectF(0.0, 210.0, 146.7913, 294.75), wrong RectF(0.0, 0.0, 146.7913, 84.75)
+     *
+     * TODO Мля !! Я разобрался. Во первых - у нас градиент в режиме CLAMP. Это значит что он
+     * рисуется только один раз. Его точкой "приложения", то есть точкой откуда он начинает
+     * "расти" как горизонтально так и вертикально является (x0, y0), и его "ширина" (толщина
+     * цветной линии) равна длине линии заданной координатами (x0, y0) - (x1, y1), а все остальное
+     * пространство закрашивается edge-цветом. Так вот, если ставим 'val yPosition = 0f', то
+     * линия градиента "вырастет" из левого верхнего угла (0, 0), его цветная полоса как и положено
+     * пойдет под углом, НО обрежется верхней и левой границами области рисования (рис слева).
+     *
+     * Но если мы поставим 'val yPosition = height', то линия градиента "вырастет" от точки
+     * (0, height) и у нас получится ДИАГОНАЛЬ по области рисования !!!
+     *
+     * Собственно можно было бы пойти другом путем. Например использовать 'val yPosition = 0f',
+     * но добавить к градиенту матрицу перемещения по Х на половину ширины оласти рисования.
+     *
+     * Ниже я сделал два градиента [gradientStartsInBottomLeft] и [gradientStartsInTopLeft],
+     * которые делают одно и тоже, но разными способами.
+     *
      */
+    //    val xPosition = 0f   val xPosition = 0f
+    //    val yPosition = 0f   val yPosition = *if (0 <= shimmerAngle) height else 0
+    //
+    //      (0, 0)
+    //      --------------       --------------
+    //      |///         |       |      ///   |
+    //      |//          |       |     ///    |
+    //      |/           |       |    ///     |
+    //      |            |       |   ///      |
+    //      |            |       |  ///       |
+    //      |            |       | ///        |
+    //      --------------       --------------
+    //                           (0, height)
+    //
+
     private fun createShimmerPaint() {
 
         if (maskPaint != null) return
 
-        val edgeColor = reduceColorAlphaValueToZero(shimmerColor)
-
-        val yPosition = if (0 <= shimmerAngle) height else 0
-
-        val gradient = LinearGradient(
-            0f,
-            yPosition.toFloat(),
-            cos(Math.toRadians(shimmerAngle.toDouble())).toFloat() * maskWidth,
-            yPosition + sin(Math.toRadians(shimmerAngle.toDouble())).toFloat() * maskWidth,
-            intArrayOf(edgeColor, shimmerColor, shimmerColor, edgeColor),
-            getGradientColorDistribution(),
-            Shader.TileMode.CLAMP
-        )
+        val gradient = gradientStartsInTopLeft
 
         val maskBitmapShader =
-            BitmapShader(maskBitmap!!/*localMaskBitmap!!*/, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+            BitmapShader(
+                maskBitmap!!,
+                Shader.TileMode.CLAMP,
+                Shader.TileMode.CLAMP
+            )
 
         val composeShader = ComposeShader(gradient, maskBitmapShader, PorterDuff.Mode.DST_IN)
 
@@ -354,6 +393,43 @@ class ShimmerLayout @JvmOverloads constructor(
             shader = composeShader
         }
     }
+
+    private val gradientStartsInBottomLeft: LinearGradient
+        get() {
+            val edgeColor = reduceColorAlphaValueToZero(shimmerColor)
+            val yPosition = if (0 <= shimmerAngle) height else 0
+
+            return LinearGradient(
+                0f,
+                yPosition.toFloat(),
+                cos(Math.toRadians(shimmerAngle.toDouble())).toFloat() * maskWidth,
+                yPosition + sin(Math.toRadians(shimmerAngle.toDouble())).toFloat() * maskWidth,
+                intArrayOf(edgeColor, shimmerColor, shimmerColor, edgeColor),
+                getGradientColorDistribution(),
+                Shader.TileMode.CLAMP
+            )
+        }
+
+    private val gradientStartsInTopLeft: LinearGradient
+        get() {
+            val edgeColor = reduceColorAlphaValueToZero(shimmerColor)
+
+            val matrix = Matrix().apply {
+                setTranslate(maskRect.width().toFloat() - maskWidth / 2, 0f)
+            }
+
+            return LinearGradient(
+                0f,
+                0f,
+                cos(Math.toRadians(shimmerAngle.toDouble())).toFloat() * maskWidth,
+                sin(Math.toRadians(shimmerAngle.toDouble())).toFloat() * maskWidth,
+                intArrayOf(edgeColor, shimmerColor, shimmerColor, edgeColor),
+                getGradientColorDistribution(),
+                Shader.TileMode.CLAMP
+            ).apply {
+                setLocalMatrix(matrix)
+            }
+        }
 
     private fun getGradientColorDistribution(): FloatArray {
         return floatArrayOf(
