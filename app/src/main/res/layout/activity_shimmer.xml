@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recyclerViewShimmer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/shimmer_padding"
-    tools:context=".ui.shimmer.ShimmerActivity">
+    android:layout_height="match_parent" />
 
-    <s.yarlykov.izisandbox.ui.shimmer.ShimmerLayout
-        android:id="@+id/shimmer"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_margin="20dp"
-        app:shimmer_color="@color/shimmer_color_blue" />
-
-    <s.yarlykov.izisandbox.ui.shimmer.GradientView
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_gravity="center_horizontal|bottom" />
-
-</FrameLayout>

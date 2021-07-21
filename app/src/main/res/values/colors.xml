@@ -92,7 +92,7 @@
     <color name="sticky_background">#220091EA</color>
 
     <!-- Shimmer -->
-    <color name="shimmer_color_default">#88cfcfcf</color>
+    <color name="shimmer_color_default">#88ededed</color>
     <color name="shimmer_color_blue">#aa77eeff</color>
 
 </resources>

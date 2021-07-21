@@ -1,20 +1,52 @@
 package s.yarlykov.izisandbox.ui.shimmer
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.R
-import s.yarlykov.izisandbox.ui.shimmer.arch.ShimmerLayoutV2
+import s.yarlykov.izisandbox.databinding.ActivityShimmerBinding
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
+import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
 
 class ShimmerActivity : AppCompatActivity() {
 
-    private lateinit var shimmer : ShimmerLayout
+    private val smartAdapter = SmartAdapterV2()
+    private val stubViewController = StubController(R.layout.layout_item_stub)
+
+    lateinit var binding: ActivityShimmerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_shimmer)
+        binding = ActivityShimmerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        shimmer = findViewById(R.id.shimmer)
+        viewBinding {
+            recyclerViewShimmer.setup()
+        }
+    }
 
-        layoutInflater.inflate(R.layout.item_stub_card, shimmer, true)
+    private fun viewBinding(op: ActivityShimmerBinding.() -> Unit) {
+        binding.op()
+    }
+
+    /**
+     * Пока нет реальных данных, то показываем анимированную заглушку.
+     */
+    private fun RecyclerView.setup() {
+
+        // При показе анимированных заглушек отключаем скроллинг.
+        layoutManager = object : LinearLayoutManager(context) {
+            override fun canScrollVertically(): Boolean {
+                return false
+            }
+        }
+        adapter = smartAdapter
+
+        SmartList.create().apply {
+            repeat(15) {
+                addItem(stubViewController)
+            }
+        }.also(smartAdapter::updateModel)
     }
 }

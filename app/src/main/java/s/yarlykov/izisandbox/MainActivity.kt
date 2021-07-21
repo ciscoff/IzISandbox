@@ -59,9 +59,9 @@ class MainActivity : AppCompatActivity() {
 
     private val stages = mapOf(
 //        RecyclerViewEventsActivity::class.java to R.string.menu_rv_events,
-        ShimmerActivity::class.java to R.string.menu_shimmer_effect,
         TimeLineAdvancedActivity::class.java to R.string.menu_time_line_2d,
         DecoratedListActivity::class.java to R.string.menu_sticky_decor,
+        ShimmerActivity::class.java to R.string.menu_shimmer_effect,
         FunnyAvatarActivity::class.java to R.string.menu_funny_avatar,
         EditorAvatarActivity::class.java to R.string.menu_create_avatar,
         ScaleAnimatedActivity::class.java to R.string.menu_scale_big_bitmap,
