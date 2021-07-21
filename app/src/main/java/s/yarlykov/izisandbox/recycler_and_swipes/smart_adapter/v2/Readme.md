@@ -24,6 +24,12 @@
 ## Алгоритм работы адаптера:
 ### ------------------------------
 
+Можно провести аналогию с MVC.
+
+Model - это BaseItem. Имеет ссылку на данные Т и на контроллер
+View - это ViewHolder
+Controller - это Controller
+
 #### `Список контроллеров для текущей модели данных`
 
 ```kotlin
@@ -45,9 +51,7 @@ BaseItem:
 
 ```kotlin
 override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-    return supportedControllers[viewType].createViewHolder(parent).apply {
-        eventsObservable.subscribe(events)
-    }
+    return supportedControllers[viewType].createViewHolder(parent)
 }
 ```
 
@@ -55,11 +59,12 @@ override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolde
 
 ```kotlin
 override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-	val baseItem = model[index]
-	holder = baseItem.controller.createViewHolder
-	baseItem.bind(holder, baseItem)
+
+	val baseItem = model[position]
+	val controller = baseItem.controller
+	controller.bind(holder, baseItem)
 	
-	// и потом внутри baseItem::bind произойдет биндинг вот таким образом
+	// и потом внутри controller::bind произойдет биндинг вот таким образом
 	// holder.bind(baseItem.data)
 }
 ```
@@ -74,8 +79,8 @@ BaseItem
 BindableItem
   --> T
   --> BindableItemController 
-
-
   
   
-  
+ViewHolder -> View
+Controller ->
+BaseItem -> Repository, потому что   
