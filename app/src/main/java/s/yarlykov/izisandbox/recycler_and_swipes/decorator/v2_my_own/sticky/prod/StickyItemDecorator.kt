@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.pro
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.prod
 
 import android.graphics.Canvas
 import android.graphics.Color

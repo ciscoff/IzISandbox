@@ -16,7 +16,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.TimeSt
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.offset.OffsetDecorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round.RoundDecorator
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.pro.StickyItemDecorator
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.prod.StickyItemDecorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
 import java.util.*

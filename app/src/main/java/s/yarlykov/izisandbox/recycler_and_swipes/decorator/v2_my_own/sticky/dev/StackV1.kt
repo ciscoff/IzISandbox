@@ -1,4 +1,4 @@
-package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky
+package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.dev
 
 interface StackV1 <T : Any > {
     val size : Int
