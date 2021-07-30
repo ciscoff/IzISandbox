@@ -11,7 +11,10 @@ import s.yarlykov.izisandbox.transitions.shared_with_fragments.TitleWrapper
  * может воспользоваться билдером этого сабкомпонентом, создать инстанс и явно (!)
  * запросить у него данные.
  */
-@Module(subcomponents = [ComponentFragmentLogo::class])
+
+// TODO Разобраться. В даггере v2.27 это работало. Сменил на v2.35.1 и ошибки пошли. Закоментил.
+
+@Module/*(subcomponents = [ComponentFragmentLogo::class])*/
 class ModuleTransitionActivity(private val titleId: Int) {
 
     @Provides

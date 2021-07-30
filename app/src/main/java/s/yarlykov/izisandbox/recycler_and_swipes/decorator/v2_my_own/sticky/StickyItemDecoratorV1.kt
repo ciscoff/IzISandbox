@@ -28,7 +28,7 @@ import java.lang.Exception
  * за экран. И когда его view.y станет меньше 0, то произойдет смена битмапы, а сам sticky
  * получит alpha 0f.
  */
-class StickyItemDecorator : Decorator.RecyclerViewDecorator {
+class StickyItemDecoratorV1 : Decorator.RecyclerViewDecorator {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var currentStickyBitmap: Bitmap? = null

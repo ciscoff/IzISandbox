@@ -27,6 +27,9 @@ class TimeStampController(@LayoutRes val layoutRes: Int) :
     class Holder(parent: ViewGroup, layoutRes: Int) :
         BindableViewHolder<String>(parent, layoutRes), StickyHolder {
 
+        override val id: Int
+            get() = adapterPosition
+
         override fun bind(data: String) {
             itemView.time_tv.text = data
         }

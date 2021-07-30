@@ -9,5 +9,5 @@ package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round
  */
 sealed class RoundPolitic {
     class Every(val roundMode: RoundMode): RoundPolitic()
-    class Group(): RoundPolitic()
+    object Group: RoundPolitic()
 }

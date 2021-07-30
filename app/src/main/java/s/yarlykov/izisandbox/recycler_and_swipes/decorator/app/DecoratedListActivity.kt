@@ -1,14 +1,12 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.decorator.app
 
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_decorated_list.*
-import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.format.DateTimeFormatter
 import s.yarlykov.izisandbox.R
@@ -18,8 +16,7 @@ import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.TimeSt
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.offset.OffsetDecorator
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.round.RoundDecorator
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.StickyItemDecorator
-import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.StickyItemDecoratorSmart
+import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.pro.StickyItemDecorator
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.adapter.SmartAdapterV2
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.SmartList
 import java.util.*
@@ -34,7 +31,7 @@ class DecoratedListActivity : AppCompatActivity() {
 
     private val timeStampController = TimeStampController(R.layout.item_time_stamp)
     private val stubViewController = StubViewController(R.layout.item_controller_short_card)
-    private val stickyDecorator = StickyItemDecoratorSmart()
+    private val stickyDecorator = StickyItemDecorator()
 
     // Декоратор отступов
     private val offsetsDecor by lazy {
@@ -99,7 +96,10 @@ class DecoratedListActivity : AppCompatActivity() {
 
                 // Добавить sticky элемент (генерим строку с датой и временем)
                 if (i.rem(2) == 0) {
-                    addItem(now.plusDays(i.toLong()).minusMinutes((0..179).random().toLong()).format(formatter), timeStampController)
+                    addItem(
+                        now.plusDays(i.toLong()).minusMinutes((0..179).random().toLong())
+                            .format(formatter), timeStampController
+                    )
                 }
 
                 // Добавить обычный элемент

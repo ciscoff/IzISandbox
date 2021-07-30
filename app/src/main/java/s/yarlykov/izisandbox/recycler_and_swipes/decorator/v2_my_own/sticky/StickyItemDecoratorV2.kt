@@ -26,7 +26,7 @@ import kotlin.math.abs
  * за экран. И когда его view.y станет меньше 0, то произойдет смена битмапы, а сам sticky
  * получит alpha 0f.
  *
- * В данной версии декоратора (Smart) реализован контроль за правильным показом битмапы при
+ * В данной версии декоратора (V2) реализован контроль за правильным показом битмапы при
  * движении пальца вниз. В результате битмапа всегда показывает дату того блока записей, которые в
  * данный момент находятся в верхней части экрана.
  * Реализовано с использованием стэка битмап, хотя можно пойти другим путем и хранить в стеке
@@ -37,9 +37,9 @@ import kotlin.math.abs
  * битмапы на лету в зависимости от текущего видимого контента. Но в целом, в демонстрационных
  * целях, вполне себе прилично работает.
  */
-class StickyItemDecoratorSmart : Decorator.RecyclerViewDecorator {
+class StickyItemDecoratorV2 : Decorator.RecyclerViewDecorator {
 
-    private val bitmapStack: Stack<Bitmap> = StickyStack()
+    private val bitmapStack: StackV1<Bitmap> = StickyStackV1()
 
     private val paintSimple = Paint(Paint.ANTI_ALIAS_FLAG)
 
