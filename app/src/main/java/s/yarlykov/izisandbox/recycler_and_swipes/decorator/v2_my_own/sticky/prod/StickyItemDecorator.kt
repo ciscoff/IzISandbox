@@ -6,14 +6,26 @@ import androidx.core.view.drawToBitmap
 import androidx.recyclerview.widget.RecyclerView
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.app.controller.StickyHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.Decorator
-import s.yarlykov.izisandbox.utils.logIt
-import kotlin.math.abs
 
 /**
- * Список состоит из следующих типов элементов;
+ * Список отображает три типа элементов;
  * - HeaderView: View из которых формируются Sticky.
  * - DataView: View которые отображают данные модели.
  * - Sticky: Bitmap - битмапа элемента Header.
+ *
+ * NOTE: При прокрутке списка, даже при очень сильном свайпе, ВСЕ его элементы проходят
+ * процесс merge/layout/draw хотя бы один раз. То есть каждый ItemView списка хотя бы раз
+ * появляется на экране. Этого вполне достаточно, чтобы заполнить все кэши нужной информацией.
+ *
+ * Используются два "кэша":
+ * 1. Neighbors: Map<Int, Int>
+ * 2. Stickies: Map<Int, Bitmap>
+ *
+ * Кэш Stickies позволяет по id сохранять битмапы элементов HeaderView. Кэш Neighbors позволяет
+ * по id элемента HeaderView найти его "предшественника", который располагается выше в layout.
+ * Имея эти две структуры можно в любой момент найти битмапу верхнего соседа любого элемента
+ * HeaderView. Зачем это нужно:
+ *
  *
  * Алгоритм такой:
  * При первом показе списка самым верхним его элементом является HeaderView и его HeaderView.Y = 0.
@@ -31,27 +43,17 @@ import kotlin.math.abs
  * Sticky вверх за экран. И когда HeaderView.Y станет меньше 0, то произойдет смена Sticky, а сам
  * HeaderView получит alpha 0f.
  *
- * В данной версии декоратора реализован контроль за правильным показом битмапы при
- * движении пальца вниз. В результате битмапа всегда показывает дату того блока записей, которые в
- * данный момент находятся в верхней части экрана.
- * Реализовано с использованием стэка битмап, хотя можно пойти другим путем и хранить в стеке
- * только данные Date и "рисовать" их на канве внутри закругленного фона. Или как-то ещё.
- *
- * NOTE: Алгоритм с "фотографированием" битмап и их хранением в стеке работает ненадежно.
- * При резком скроле/флинге часть битмап теряется (не успевает создаваться). Наверное нужно генерить
- * битмапы на лету в зависимости от текущего видимого контента. Но в целом, в демонстрационных
- * целях, вполне себе прилично работает.
- *
  * NOTE: Вся движуха происходит только в момент когда HeaderView.Y находится в диапазоне
  * от 0 до bitmap.height. Именно в этот момент HeaderView таскает за собой битмапу вверх и вниз.
  * При любых других положениях HeaderView.Y битмапа спокойно висит в верху списка.
+ *
+ * NOTE: Все версии декоратора, использующие Stack оказались не работоспособными !!!
  */
 class StickyItemDecorator : Decorator.RecyclerViewDecorator {
     private val neighbors = mutableMapOf<Int, Int?>()
     private val stickies = mutableMapOf<Int, Bitmap>()
 
     private val paintSimple = Paint(Paint.ANTI_ALIAS_FLAG)
-
     private val paintDebug = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         colorFilter = LightingColorFilter(Color.GREEN, 0)
     }
@@ -62,14 +64,12 @@ class StickyItemDecorator : Decorator.RecyclerViewDecorator {
     }
 
     private var currentStickyId: Int = Int.MIN_VALUE
-
-    private var prevBitmapTopOffset: Float = 0f
-    private var prevTopHeaderViewY = 0
+    private var prevTopHeaderViewY: Int = 0
 
     @ExperimentalStdlibApi
     override fun draw(canvas: Canvas, recyclerView: RecyclerView, state: RecyclerView.State) {
 
-        // Найти все header ViewHolders на экране...
+        // Найти все ViewHolder 'ы всех HeaderView на экране...
         val stickyViewHolders = recyclerView.children
             .map { recyclerView.findContainingViewHolder(it) }
             .filter { it is StickyHolder }
@@ -88,18 +88,12 @@ class StickyItemDecorator : Decorator.RecyclerViewDecorator {
         // ... сохранить соседство
         saveNeighbors(stickyViewHolders)
 
-        logIt("neighbors: ${neighbors.entries.toList()}")
-        logIt("stickies: ${stickies.entries.map{it.key to it.value.byteCount}}")
-
-//        neighbors.entries.forEach { logIt("node:${it.key} neighbor:${it.value}") }
-//        logIt("WOW: topHeaderViewId=$topHeaderViewId, topHeaderViewY=$topHeaderViewY")
-
         /**
-         * Первым делом нужно определиться с currentSticky, т.е. с битмапой, которую будем
+         * Первым делом нужно определиться с Current Sticky, т.е. с битмапой, которую будем
          * отрисовывать в данном draw().
          * - Её может ещё не быть (начальное состояние).
          * - Её требуется заменить (если очередной HeaderView выталкивает с экрана чужую битмапу).
-         * Её не требуется менять в данном draw()
+         * - Её не требуется менять в данном draw()
          *
          * Путь битмапы в стек:
          *   HeaderView.toBitmap() -> currentSticky.bitmap -> Stack
@@ -121,30 +115,19 @@ class StickyItemDecorator : Decorator.RecyclerViewDecorator {
              * TODO То есть HeaderView.Y стал меньше 0, но был больше в предыдущем draw()
              * В этом случае два варианта:
              * 1. Первый HeaderView адаптера поднимается вверх. В этом случае других sticky ещё
-             *    не было, currentSticky.id == topStickyId и поэтому ничего делать не надо.
+             *    не было, currentStickyId == topStickyId и поэтому ничего делать не надо.
              * 2. Очередной StickyView поднялся вверх. Его id отличается от id текущей битмапы и в
-             *    этом случае он должен заменить currentSticky, который предварительно сохранится
-             *    в стеке.
-             *
-             * NOTE: topSticky не заменит currentSticky, если они совпадают, а currentSticky не
-             * попадет в стек дважды (pushOnce проверяет).
+             *    этом случае он должен заменить currentStickyId.
              */
-            (topHeaderViewY < 0 /*&& prevTopHeaderViewY >= 0*/) -> {
-                logIt("topHeaderViewY < 0 ($topHeaderViewY), currentStickyId=$currentStickyId, topHeaderViewId=$topHeaderViewId")
+            (topHeaderViewY < 0) -> {
                 if (currentStickyId < topHeaderViewId) {
-                    logIt("swap sticky from $currentStickyId to $topHeaderViewId")
-//                    neighbors[topHeaderViewId] = currentStickyId
                     currentStickyId = topHeaderViewId
                 }
             }
-//            (currentStickyId < topHeaderViewId) -> {
-//                logIt("set neighbor $currentStickyId for Header $topHeaderViewId")
-//                neighbors[topHeaderViewId] = currentStickyId
-//            }
         }
 
         /**
-         * На текущий момент ужё есть ясность относительно currentSticky поэтому можно посчитать
+         * На текущий момент ужё есть ясность относительно currentStickyId поэтому можно посчитать
          * метрики.
          */
         val bitmapHeight = stickies[currentStickyId]?.height ?: 0
@@ -167,34 +150,13 @@ class StickyItemDecorator : Decorator.RecyclerViewDecorator {
 
         /**
          * TODO Далее проверяем, что HeaderView спустилась сверху и стала полностью видна.
-         * В этой ситуации нужно скопировать (peek) элемент с верхушки стека потому что он имеет
-         * "предыдущее" значение id чем у topHeaderView. И тогда на экране sticky элементы
-         * будут появляться в хронологической последовательности без дублирования дат.
+         * В этой ситуации нужно найти в кэще битмапу верхнего соседа и назначить её на роль sticky.
          */
-        if (/*prevTopHeaderViewY < 0 &&*/
-            topHeaderViewY >= 0 &&
+        if (topHeaderViewY >= 0 &&
             topHeaderViewY < bitmapHeight / 2
         ) {
             currentStickyId = neighbors[topHeaderViewId] ?: Int.MIN_VALUE
         }
-
-        /**
-         * TODO Проверяем, что Sticky спустилась сверху и стала полностью видна.
-         * После того как известно текущее bitmapTopOffset нужно сравнить его с предыдущим
-         * значением. Нужно поймать момент, когда оно из отрицательного (верхняя граница
-         * битмапы выше верхней границы RecyclerView) переходит в 0. И в этом случае снимаем со
-         * стека верхний элемент (pop) и помещаем его в currentSticky.
-         *
-         * NOTE: Забираем из стека только если двигали пальцем сверху вниз. Поэтому выполняется
-         * проверка 'abs(prevBitmapTopOffset.toInt()) < bitmapHeight/2'
-         */
-        if (bitmapTopOffset.toInt() >= 0 &&
-            prevBitmapTopOffset.toInt() < 0 &&
-            abs(prevBitmapTopOffset.toInt()) < bitmapHeight / 2
-        ) {
-            // TODO вроде ничего не надо делать
-        }
-        prevBitmapTopOffset = bitmapTopOffset
 
         topHeaderHolder.itemView.alpha = if (topHeaderViewY < 0f) 0f else 1f
 
@@ -213,32 +175,38 @@ class StickyItemDecorator : Decorator.RecyclerViewDecorator {
         prevTopHeaderViewY = topHeaderViewY.toInt()
     }
 
+    /**
+     * Добавляем в кэш stickies битмапы видимых в данный момент HeaderView
+     */
     private fun saveStickies(holders: Sequence<RecyclerView.ViewHolder?>) {
         holders.forEach { holder ->
             if (holder is StickyHolder) {
                 if (!stickies.containsKey(holder.id)) {
-                    logIt("save sticky ${holder.id}")
                     stickies[holder.id] = holder.itemView.drawToBitmap()
                 }
             }
         }
     }
 
+    /**
+     * Добавляем в кэш neighbor данные о соседстве видимых в данный момент HeaderView
+     */
     private fun saveNeighbors(holders: Sequence<RecyclerView.ViewHolder?>) {
         holders.filterIsInstance<StickyHolder>().map { it.id }.zipWithNext().forEach {
-            val (neighbor, bottom) = it
-            neighbors[bottom] = neighbor
+            val (topViewId, bottomViewId) = it
+            neighbors[bottomViewId] = topViewId
         }
     }
 
+    /**
+     * Делаем очистку кэша stickies, чтобы не хранить не нужные в данный момент битмапы.
+     */
     private fun clearStickies(holders: Sequence<RecyclerView.ViewHolder?>) {
         val remain = holders.filterIsInstance<StickyHolder>().map { it.id }
         val iterator = stickies.entries.iterator()
 
         while (iterator.hasNext()) {
-            val entry = iterator.next()
-            if (entry.key !in remain) {
-                logIt("removed sticky with id ${entry.key}")
+            if (iterator.next().key !in remain) {
                 iterator.remove()
             }
         }

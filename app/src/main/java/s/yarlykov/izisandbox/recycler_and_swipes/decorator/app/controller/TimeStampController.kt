@@ -33,9 +33,8 @@ class TimeStampController(@LayoutRes val layoutRes: Int) :
             get() = adapterPosition
 
         override fun bind(data: String) {
-            "[$adapterPosition] ${data.toUpperCase(Locale.ROOT)}".let(itemView.time_tv::setText)
-            logIt("Holder $adapterPosition was bind")
-            /*itemView.time_tv.text = data*/
+//            "[$adapterPosition] ${data.toUpperCase(Locale.ROOT)}".let(itemView.time_tv::setText)
+            "${data.toUpperCase(Locale.ROOT)}".let(itemView.time_tv::setText)
         }
     }
 

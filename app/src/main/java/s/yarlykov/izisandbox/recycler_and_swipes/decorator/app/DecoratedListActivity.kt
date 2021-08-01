@@ -92,14 +92,12 @@ class DecoratedListActivity : AppCompatActivity() {
         val now = LocalDateTime.now()
 
         SmartList.create().apply {
-            repeat(20) { i ->
+            repeat(50) { i ->
 
                 // Добавить sticky элемент (генерим строку с датой и временем)
                 if (i.rem(2) == 0) {
                     addItem(
                         now.minusDays(i.toLong()).format(formatter), timeStampController
-//                        now.minusDays(i.toLong()).minusMinutes((0..179).random().toLong())
-//                            .format(formatter), timeStampController
                     )
                 }
 
