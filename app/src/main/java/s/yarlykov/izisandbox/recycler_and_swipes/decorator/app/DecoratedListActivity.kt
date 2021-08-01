@@ -24,7 +24,7 @@ import java.util.*
 class DecoratedListActivity : AppCompatActivity() {
 
     companion object {
-        const val patternDateTime = "dd MMMM yyyy HH:mm"
+        const val patternDateTime = "dd MMMM"
     }
 
     private val smartAdapter = SmartAdapterV2()
@@ -97,8 +97,9 @@ class DecoratedListActivity : AppCompatActivity() {
                 // Добавить sticky элемент (генерим строку с датой и временем)
                 if (i.rem(2) == 0) {
                     addItem(
-                        now.plusDays(i.toLong()).minusMinutes((0..179).random().toLong())
-                            .format(formatter), timeStampController
+                        now.minusDays(i.toLong()).format(formatter), timeStampController
+//                        now.minusDays(i.toLong()).minusMinutes((0..179).random().toLong())
+//                            .format(formatter), timeStampController
                     )
                 }
 

@@ -1,6 +1,7 @@
 package s.yarlykov.izisandbox.recycler_and_swipes.decorator.v2_my_own.sticky.prod
 
 import android.graphics.Bitmap
+import s.yarlykov.izisandbox.utils.logIt
 
 class StickyStack : Stack<StickyStack.Element> {
 
@@ -34,6 +35,16 @@ class StickyStack : Stack<StickyStack.Element> {
         }
     }
 
+    override fun peek(id: Int): Element? {
+        val i = items.map { it.id }.indexOf(id)
+
+        return if (i >= 0) {
+            items[i]
+        } else {
+            null
+        }
+    }
+
     @ExperimentalStdlibApi
     override fun pop(): Element? {
         return try {
@@ -56,6 +67,7 @@ class StickyStack : Stack<StickyStack.Element> {
 
     override fun pushOnce(other: Element) {
         if (notContains(other)) {
+            logIt("${log()} and PUSH ${other.id}")
             push(other)
         }
     }
@@ -65,7 +77,7 @@ class StickyStack : Stack<StickyStack.Element> {
     }
 
     override fun log(): String {
-        return items.map { it.id }.reversed().toString()
+        return items.map { it.id }/*.reversed()*/.toString()
     }
 
     override fun isEmpty(): Boolean = items.isEmpty()

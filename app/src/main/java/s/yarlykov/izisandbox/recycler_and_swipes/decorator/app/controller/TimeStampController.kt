@@ -6,6 +6,8 @@ import kotlinx.android.synthetic.main.item_time_stamp.view.*
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.controller.BindableItemController
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.holder.BindableViewHolder
 import s.yarlykov.izisandbox.recycler_and_swipes.smart_adapter.v2.model.item.BindableItem
+import s.yarlykov.izisandbox.utils.logIt
+import java.util.*
 
 class TimeStampController(@LayoutRes val layoutRes: Int) :
     BindableItemController<String, TimeStampController.Holder>() {
@@ -31,7 +33,9 @@ class TimeStampController(@LayoutRes val layoutRes: Int) :
             get() = adapterPosition
 
         override fun bind(data: String) {
-            itemView.time_tv.text = data
+            "[$adapterPosition] ${data.toUpperCase(Locale.ROOT)}".let(itemView.time_tv::setText)
+            logIt("Holder $adapterPosition was bind")
+            /*itemView.time_tv.text = data*/
         }
     }
 

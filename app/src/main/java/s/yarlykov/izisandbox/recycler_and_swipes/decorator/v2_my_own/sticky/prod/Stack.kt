@@ -13,6 +13,7 @@ interface Stack<T : Stack.Element> {
     fun pushOnce(other: T)
     fun push(other: T)
     fun peek(): T?
+    fun peek(id: Int): T?
     fun pop(): T?
     fun popUpTo(id: Int): T?
     fun isEmpty(): Boolean
