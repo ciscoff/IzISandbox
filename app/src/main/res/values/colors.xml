@@ -95,4 +95,8 @@
     <color name="shimmer_color_default">#88ededed</color>
     <color name="shimmer_color_blue">#aa77eeff</color>
 
+    <!-- Morph -->
+    <color name="morph_blue">#ff0099cc</color>
+    <color name="morph_blue_dark">#ff00719b</color>
+
 </resources>

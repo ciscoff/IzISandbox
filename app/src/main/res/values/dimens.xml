@@ -96,4 +96,8 @@
     <dimen name="item_stub_height">56dp</dimen>
 
     <dimen name="shimmer_padding">12dp</dimen>
+
+    <!-- Morph View -->
+    <dimen name="morph_corner_radius_2dp">2dp</dimen>
+
 </resources>
