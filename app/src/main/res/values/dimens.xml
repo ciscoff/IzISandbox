@@ -99,5 +99,7 @@
 
     <!-- Morph View -->
     <dimen name="morph_corner_radius_2dp">2dp</dimen>
+    <dimen name="morph_corner_radius_56dp">56dp</dimen>
+    <dimen name="morph_dim_56dp">56dp</dimen>
 
 </resources>

@@ -3,8 +3,11 @@ package s.yarlykov.izisandbox.ui.morph
 import android.graphics.drawable.GradientDrawable
 
 /**
- * Обертка над GradientDrawable, но не понятно зачем [color] потому что для градиента нужен
+ * Обертка над GradientDrawable, но не понятно зачем [color] ? Ведь для градиента нужен
  * не один цвет, а несколько.
+ *
+ * NOTE: Если используем 'setColor (argb: Int)', то GradientDrawable станет одноцветным,
+ * а не градиентным.
  */
 class StrokeGradientDrawable(val gradientDrawable: GradientDrawable) {
 

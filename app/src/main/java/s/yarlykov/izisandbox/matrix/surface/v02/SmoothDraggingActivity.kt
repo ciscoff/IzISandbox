@@ -1,10 +1,9 @@
 package s.yarlykov.izisandbox.matrix.surface.v02
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Window
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_smooth_dragging.*
-
 import s.yarlykov.izisandbox.R
 
 class SmoothDraggingActivity : AppCompatActivity() {

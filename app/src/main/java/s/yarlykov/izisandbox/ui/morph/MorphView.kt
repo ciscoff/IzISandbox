@@ -15,14 +15,14 @@ class MorphView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private lateinit var viewPadding: ViewPadding
-    private var viewWidth: Int = 0
-    private var viewHeight: Int = 0
-    private var viewColor: Int = 0
-    private var cornerRadius: Int = 0
+    private var cornerRadius: Float = 0f
     private var strokeWidth: Int = 0
     private var strokeColor: Int = 0
+    private var viewHeight: Int = 0
+    private var viewWidth: Int = 0
+    private var viewColor: Int = 0
 
-    private var isAnimating = false
+    private var isAnimationInProgress = false
 
     private lateinit var normalStateDrawable: StrokeGradientDrawable
     private lateinit var pressedStateDrawable: StrokeGradientDrawable
@@ -43,14 +43,15 @@ class MorphView @JvmOverloads constructor(
     /**
      * Метод изменяет нормальный вид элемента согласно значениям в параметре params
      */
-    fun morph(params: MorphParams) {
-        if (isAnimating) {
+    fun morph(params: Params) {
+        if (isAnimationInProgress) {
             return
         }
 
+        // Модифицируем GradientDrawable, который работает фоном в состоянии pressed
         pressedStateDrawable.apply {
             color = params.colorPressed
-            cornerRadius = params.cornerRadius.toFloat()
+            cornerRadius = params.cornerRadius
             strokeColor = params.strokeColor
             strokeWidth = params.strokeWidth
         }
@@ -63,10 +64,12 @@ class MorphView @JvmOverloads constructor(
         morphWithoutAnimation(params)
     }
 
-    private fun morphWithoutAnimation(params: MorphParams) {
+    private fun morphWithoutAnimation(params: Params) {
+
+        // Модифицируем GradientDrawable, который работает фоном в состоянии normal
         normalStateDrawable.apply {
             color = params.colorPressed
-            cornerRadius = params.cornerRadius.toFloat()
+            cornerRadius = params.cornerRadius
             strokeColor = params.strokeColor
             strokeWidth = params.strokeWidth
         }
@@ -80,10 +83,21 @@ class MorphView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * View инициализирует свой внешний вид, а именно:
+     * - читает из ресурсов два цвета для состояний normal/pressed
+     * - читает из ресурсов радиус углов
+     * - создает два Drawable для своего фона в состояниях normal/pressed и назначает им цветаа
+     *   и радиус углов (см выше)
+     * - создает StateListDrawable и делает его своим background'ом
+     *
+     * После этого при клике на View мы получим смену цветов: синий-темносиний-синий.
+     * Система сама отслеживает смену состояний normal/pressed и рисует нужный Drawable.
+     */
     private fun initView() {
         viewPadding = ViewPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
 
-        val radius = resources.getDimension(R.dimen.morph_corner_radius_2dp).toInt()
+        val radius = resources.getDimension(R.dimen.morph_corner_radius_2dp)
         val colorBlue = ContextCompat.getColor(context, R.color.morph_blue)
         val colorBlueDark = ContextCompat.getColor(context, R.color.morph_blue_dark)
 
@@ -107,82 +121,80 @@ class MorphView @JvmOverloads constructor(
 
     private fun createDrawable(
         _color: Int,
-        _cornerRadius: Int,
+        _cornerRadius: Float,
         _strokeWidth: Int = 0
-    ): StrokeGradientDrawable {
-        return StrokeGradientDrawable(GradientDrawable()).apply {
-            gradientDrawable.shape = GradientDrawable.RECTANGLE
-            color = _color
-            cornerRadius = _cornerRadius.toFloat()
-            strokeColor = _color
-            strokeWidth = _strokeWidth
-        }
+    ): StrokeGradientDrawable = StrokeGradientDrawable(GradientDrawable()).apply {
+        gradientDrawable.shape = GradientDrawable.RECTANGLE
+        color = _color
+        cornerRadius = _cornerRadius
+        strokeColor = _color
+        strokeWidth = _strokeWidth
     }
 
-    class MorphParams {
-        internal var cornerRadius: Int = 0
+    class Params {
+        internal var cornerRadius: Float = 0f
         internal var colorPressed: Int = 0
-        internal var color: Int = 0
+        internal var colorNormal: Int = 0
         internal var duration: Int = 0
-        internal var icon: Int = 0
+        internal var iconId: Int = 0
         internal var width: Int = 0
         internal var height: Int = 0
         internal var strokeWidth: Int = 0
         internal var strokeColor: Int = 0
         internal var text: String? = null
 
-        fun text(text: String): MorphParams {
+        fun text(text: String): Params {
             this.text = text
             return this
         }
 
-        fun icon(@DrawableRes icon: Int): MorphParams {
-            this.icon = icon
+        fun icon(@DrawableRes iconId: Int): Params {
+            this.iconId = iconId
             return this
         }
 
-        fun cornerRadius(cornerRadius: Int): MorphParams {
+        fun cornerRadius(cornerRadius: Float): Params {
             this.cornerRadius = cornerRadius
             return this
         }
 
-        fun width(width: Int): MorphParams {
+        fun width(width: Int): Params {
             this.width = width
             return this
         }
 
-        fun height(height: Int): MorphParams {
+        fun height(height: Int): Params {
             this.height = height
             return this
         }
 
-        fun color(color: Int): MorphParams {
-            this.color = color
+        fun colorNormal(color: Int): Params {
+            this.colorNormal = color
             return this
         }
 
-        fun colorPressed(colorPressed: Int): MorphParams {
+        fun colorPressed(colorPressed: Int): Params {
             this.colorPressed = colorPressed
             return this
         }
 
-        fun duration(duration: Int): MorphParams {
+        fun duration(duration: Int): Params {
             this.duration = duration
             return this
         }
 
-        fun strokeWidth(strokeWidth: Int): MorphParams {
+        fun strokeWidth(strokeWidth: Int): Params {
             this.strokeWidth = strokeWidth
             return this
         }
 
-        fun strokeColor(strokeColor: Int): MorphParams {
+        fun strokeColor(strokeColor: Int): Params {
             this.strokeColor = strokeColor
             return this
         }
 
         companion object {
-            fun create() = MorphParams()
+            fun create() = Params()
         }
     }
 

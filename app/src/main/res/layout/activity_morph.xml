@@ -4,6 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="12dp"
     tools:context=".ui.morph.MorphActivity">
+
+    <s.yarlykov.izisandbox.ui.morph.MorphView
+        android:id="@+id/view_morph_simple"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <s.yarlykov.izisandbox.ui.morph.MorphView
+        android:id="@+id/view_morph_advanced"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:id="@+id/flow_passport"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="view_morph_simple,view_morph_advanced"
+        app:flow_horizontalGap="12dp"
+        app:flow_horizontalStyle="spread_inside"
+        app:flow_wrapMode="chain"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

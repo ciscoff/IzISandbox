@@ -68,6 +68,7 @@
     <string name="menu_buttons_containers" translatable="false">Buttons Containers</string>
     <string name="menu_rv_events" translatable="false">RecyclerView Events</string>
     <string name="menu_shimmer_effect" translatable="false">Shimmer Effect</string>
+    <string name="menu_morph_view" translatable="false">Morph views</string>
 
     <!-- Navigation menu -->
     <string name="menu_nav_bootstrap" translatable="false">Bootstrap</string>
